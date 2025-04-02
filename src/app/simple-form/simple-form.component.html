@@ -1,0 +1,21 @@
+<p>simple-form works!</p>
+
+
+<form>
+    <label for="letters">Ingresa solo letras (máximo 10 caracteres):</label>
+    <input id="letters" [formControl]="lettersControl"
+           maxlength="10"
+           (keypress)="onKeyPress($event)"
+           placeholder="Solo letras" />
+    
+    <!-- Mensajes de error -->
+    <div *ngIf="lettersControl.touched && lettersControl.invalid">
+      <div *ngIf="lettersControl.errors?.['pattern']">
+        Error: Solo se permiten letras y espacios.
+      </div>
+      <div *ngIf="lettersControl.errors?.['maxlength']">
+        Error: Máximo 10 caracteres.
+      </div>
+    </div>
+  </form>
+  
