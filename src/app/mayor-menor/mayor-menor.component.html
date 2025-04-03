@@ -1,0 +1,14 @@
+<p>mayor-menor works!</p>
+
+
+<div class="game-container">
+    <h1>Juego: Mayor o Menor</h1>
+    <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
+      <input type="number" formControlName="guess" placeholder="Ingresa tu número (1-100)">
+      <button type="submit" [disabled]="gameForm.invalid || attempts === 0">Enviar</button>
+    </form>
+    <p>{{ message }}</p>
+    <p>Intentos restantes: {{ attempts }}</p>
+    <button (click)="resetGame()">Reiniciar Juego</button>
+  </div>
+  
