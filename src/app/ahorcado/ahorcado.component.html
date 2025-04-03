@@ -1,7 +1,47 @@
 <p>ahorcado works!</p>
 
 <div *ngIf="selectedWord">
-    <h2>La palabra seleccionada es:</h2>
-    <p>{{ selectedWord }}</p>
-    <!-- Aquí continuarías con el resto de la lógica del juego -->
-  </div>
+  <h2>La palabra seleccionada es:</h2>
+  <p>{{ selectedWord }}</p>
+  <!-- Aquí continuarías con el resto de la lógica del juego -->
+</div>
+
+<div>
+  <h3>Partes del muñeco que quedan:</h3>
+  <ul>
+    <li *ngFor="let part of hangmanParts">{{ part }}</li>
+  </ul>
+
+  <button (click)="removeRandomPart()">Simular error: quitar parte aleatoria</button>
+
+  <h3>Partes retiradas (opcional):</h3>
+  <ul>
+    <li *ngFor="let part of removedParts">{{ part }}</li>
+  </ul>
+</div>
+
+
+<div>
+  <h2>Ahorcado</h2>
+ 
+  <!-- Input para la letra -->
+  <input 
+    type="text" 
+    [(ngModel)]="letterInput" 
+    maxlength="1" 
+    placeholder="Ingresa una letra" 
+    (keypress)="validateLetter($event)">
+  
+  <button (click)="confirmGuess()">Confirmar</button>
+  
+  <!-- Mostrar estado del muñeco -->
+  <h3>Partes del muñeco restantes:</h3>
+  <ul>
+    <li *ngFor="let part of hangmanParts"> {{ part }}</li>
+  </ul>
+  
+  <!-- Mostrar letras ya ingresadas -->
+  <h3>Letras adivinadas:</h3>
+  <p> {{  getDisplayWord( ) }} </p>
+
+</div>
