@@ -2,7 +2,7 @@
   <h2>Ahorcado</h2>
 
   <!-- Muestra la palabra oculta con letras adivinadas o guiones bajos -->
-  <p>{{ selectedWord | displayWord: guessedLetters }}</p>
+  <!-- p>{{ selectedWord | displayWord: guessedLetters }}</p -->
 
   <!-- Si el juego no terminó, muestra el input y el botón de confirmar -->
   <div *ngIf="!gameOver">
@@ -31,8 +31,8 @@
   <p> {{  getDisplayWord( ) }} </p>
 
   <!-- Letras adivinadas -->
-  <h3>Letras adivinadas:</h3>
-  <p>{{ guessedLetters.join(', ') }}</p>
+  <!-- <h3>Letras adivinadas:</h3>
+  <p>{{ guessedLetters.join(', ') }}</p> -->
 </div>
 
 

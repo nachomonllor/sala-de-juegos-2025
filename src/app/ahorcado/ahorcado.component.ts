@@ -8,7 +8,9 @@ import { DisplayWordPipe } from "../display-word.pipe";
   selector: 'app-ahorcado',
   imports: [CommonModule, FormsModule, ReactiveFormsModule, DisplayWordPipe],
   templateUrl: './ahorcado.component.html',
-  styleUrl: './ahorcado.component.css'
+  //styleUrl: './ahorcado.component.css'
+  styleUrls: ['./ahorcado.component.css']
+
 })
 
 export class HangmanComponent implements OnInit {
@@ -128,14 +130,14 @@ export class HangmanComponent implements OnInit {
   }
 
     getDisplayWord(): string {
-    if (!this.selectedWord) {
-      return '';
+      if (!this.selectedWord) {
+        return '';
+      }
+      return this.selectedWord
+        .split('')
+        .map(letter => this.guessedLetters.includes(letter.toLowerCase()) ? letter : '_')
+        .join(' ');
     }
-    return this.selectedWord
-      .split('')
-      .map(letter => this.guessedLetters.includes(letter.toLowerCase()) ? letter : '_')
-      .join(' ');
-  }
 
 }
 
