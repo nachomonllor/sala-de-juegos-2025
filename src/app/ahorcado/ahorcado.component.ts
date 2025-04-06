@@ -6,7 +6,7 @@ import { DisplayWordPipe } from "../display-word.pipe";
 
 @Component({
   selector: 'app-ahorcado',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DisplayWordPipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule /* , DisplayWordPipe */ ],
   templateUrl: './ahorcado.component.html',
   //styleUrl: './ahorcado.component.css'
   styleUrls: ['./ahorcado.component.css']
@@ -146,122 +146,5 @@ export class HangmanComponent implements OnInit {
 
 
 
-
-
-
-
-
-
-// export class HangmanComponent implements OnInit {
-
-//   selectedWord: string='';              // La palabra a adivinar
-//   guessedLetters: string[] = [];       // Letras que ya han sido ingresadas
-//   letterInput: string = '';            // Valor del input
-//   errorCount: number = 0;              // Contador de errores
-//   maxErrors: number = 6;               // Máximo de errores permitidos
-//   removedParts: string[] = [];
-//   aciertos : number = 0;
-  
-//   // Partes del muñeco (en orden, aunque en este caso se removerán aleatoriamente)
-//   hangmanParts: string[] = [
-//     'cabeza',
-//     'brazo izquierdo',
-//     'brazo derecho',
-//     'torso',
-//     'pierna izquierda',
-//     'pierna derecha'
-//   ];
-  
-//   constructor(private wordService: WordService) { }
-  
-//   ngOnInit(): void {
-//     // Se obtiene una palabra aleatoria al iniciar el juego
-//     this.wordService.getRandomWord().subscribe(word => {
-//       this.selectedWord = word;
-//       console.log("Palabra seleccionada:", word);
-//     });
-//   }
-  
-//   // Método para validar que solo se ingrese una letra (solo permite caracteres alfabéticos)
-//   validateLetter(event: KeyboardEvent): void {
-//     const pattern = /^[a-zA-Z]$/;
-//     const inputChar = event.key;
-//     if (!pattern.test(inputChar)) {
-//       event.preventDefault();
-//     }
-//   }
-  
-//   // Método para confirmar la letra ingresada
-//   confirmGuess(): void {
-//     if (!this.letterInput || this.letterInput.length !== 1) {
-//       console.log("Por favor, ingresa una sola letra.");
-//       return;
-//     }
-    
-//     const letter = this.letterInput.toLowerCase();
-//     // Limpiamos el input para el siguiente intento
-//     this.letterInput = '';
-    
-//     // Si la letra ya fue ingresada, no hacemos nada
-//     if (this.guessedLetters.includes(letter)) {
-//       console.log("Ya ingresaste esa letra.");
-//       return;
-//     }
-    
-//     this.guessedLetters.push(letter);
-    
-//     // Verificamos si la letra está en la palabra (comparando en minúsculas)
-//     if (!this.selectedWord.toLowerCase().includes(letter)) {
-//       console.log(`La letra "${letter}" no está en la palabra.`);
-//       this.removeRandomPart();
-//     } else {
-//       console.log(`¡Bien! La letra "${letter}" está en la palabra.`);
-//       this.aciertos++;
-
-//       if(this.aciertos >= this.selectedWord.length) {
-//         console.log('Ganaste!');
-//       }
-
-//     }
-    
-//     // Aquí podrías agregar lógica para verificar si se ha ganado o perdido el juego.
-//   }
-  
-//   // Función que remueve aleatoriamente una parte del muñeco cuando se comete un error.
-//   removeRandomPart(): void {
-//     if (this.hangmanParts.length > 0) {
-//       const randomIndex = Math.floor(Math.random() * this.hangmanParts.length);
-//       const removed = this.hangmanParts.splice(randomIndex, 1);
-
-//       this.removedParts.push(removed[0]);
-
-//       console.log("Se ha removido:", removed[0]);
-//       this.errorCount++;
-//     }
-
-//     console.log("Partes retiradas: ");
-
-//     for(let i = 0; i < this.removedParts.length; i++) {
-//       console.log(this.removedParts[i] + " ");
-//     }
-    
-//     if (this.errorCount >= this.maxErrors) {
-//       console.log("¡Juego terminado! Se han removido todas las partes del muñeco.");
-//       // Aquí podrías reiniciar el juego o mostrar un mensaje de derrota.
-//     }
-//   }
-
-
-//   getDisplayWord(): string {
-//     if (!this.selectedWord) {
-//       return '';
-//     }
-//     return this.selectedWord
-//       .split('')
-//       .map(letter => this.guessedLetters.includes(letter.toLowerCase()) ? letter : '_')
-//       .join(' ');
-//   }
-
-// }
 
 

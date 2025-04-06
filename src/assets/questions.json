@@ -1,0 +1,102 @@
+{
+    "historia": [
+      {
+        "question": "El periodo en el que aparecieron la agricultura y los asentamientos sedentarios se llama",
+        "answer": "Neolítico"
+      },
+      {
+        "question": "¿Cuándo se inventó la escritura?",
+        "answer": "En el IV milenio A.C."
+      },
+      {
+        "question": "¿Cómo se llamaban los gobernantes del antiguo Egipto?",
+        "answer": "Faraones"
+      },
+      {
+        "question": "Según las leyendas de la antigüedad, ¿quiénes fundaron a Roma?",
+        "answer": "Rómulo y Remo"
+      },
+      {
+        "question": "Contra quiénes se enfrentaron los griegos en las Guerras Médicas del siglo V A.C?",
+        "answer": "Los persas"
+      },
+      {
+        "question": "¿Cuál de estos emperadores fue alumno del filósofo griego Aristóteles?",
+        "answer": "Alejandro Magno"
+      },
+      {
+        "question": "El primer emperador romano que se hizo cristiano fue",
+        "answer": "Constantino I, el grande"
+      },
+      {
+        "question": "¿En qué siglo nació el Islam y quién fue su principal profeta?",
+        "answer": "En el siglo VII y su profeta fue Mahoma"
+      },
+      {
+        "question": "¿Dónde y cuándo se inventó la pólvora?",
+        "answer": "En China en el siglo IX."
+      }
+    ],
+    "geografia": [
+      {
+        "question": "¿Cuál es el río más largo de la Península Ibérica?",
+        "answer": "Río Tajo"
+      },
+      {
+        "question": "¿Cuál es el país más pequeño del mundo?",
+        "answer": "Ciudad o Estado Vaticano"
+      },
+      {
+        "question": "¿Cuántos océanos hay en la Tierra?",
+        "answer": "5"
+      },
+      {
+        "question": "¿Qué país tiene más habitantes?",
+        "answer": "China"
+      },
+      {
+        "question": "¿Qué país es el más grande del mundo?",
+        "answer": "Rusia"
+      },
+      {
+        "question": "¿Cuál es la montaña más alta del mundo?",
+        "answer": "Monte Everest"
+      },
+      {
+        "question": "¿Cuál es el río más largo del mundo?",
+        "answer": "El Nilo"
+      },
+      {
+        "question": "¿Cuál es el desierto más grande del mundo?",
+        "answer": "El Sahara"
+      }
+    ],
+    "arte": [
+      {
+        "question": "¿Cuál de las siguientes NO es una técnica de pintura tradicional?",
+        "answer": "Fotolitografía digital"
+      },
+      {
+        "question": "El círculo cromático primario está compuesto por:",
+        "answer": "Rojo, amarillo y azul"
+      },
+      {
+        "question": "¿Qué artista es conocido por su famosa obra 'La noche estrellada'?",
+        "answer": "Vincent van Gogh"
+      },
+      {
+        "question": "La técnica del sfumato fue desarrollada y popularizada por:",
+        "answer": "Leonardo da Vinci"
+      },
+      {
+        "question": "¿Qué es el surrealismo?",
+        "answer": "Es un movimiento artístico que busca explorar el lado subconsciente de la mente humana, a través de imágenes oníricas"
+      },
+      {
+        "question": "¿Qué es el constructivismo?",
+        "answer": "Movimiento artístico que busca la creación de formas y figuras a partir de la aplicación de leyes matemáticas y geometría"
+      }
+    ]
+    
+  }
+  

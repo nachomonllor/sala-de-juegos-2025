@@ -1,0 +1,27 @@
+
+
+<div>
+    <h2>Modo Duelo - Preguntados</h2>
+    <!-- Se muestra el tema seleccionado -->
+    <p><strong>Tema seleccionado:</strong> {{ selectedTheme }}</p>
+    
+    <p><strong>Pregunta:</strong> {{ currentQuestion }}</p>
+  
+    <div>
+      <p><strong>Opciones:</strong></p>
+      <div *ngFor="let opt of options">
+        <button (click)="selectAnswer(opt)" [disabled]="answeredCorrectly">{{ opt }}</button>
+      </div>
+    </div>
+  
+    <div *ngIf="message">
+      <p>{{ message }}</p>
+    </div>
+  
+    <div *ngIf="answeredCorrectly">
+      <button (click)="nextQuestion()">Siguiente Pregunta</button>
+    </div>
+  </div>
+  
+
+
