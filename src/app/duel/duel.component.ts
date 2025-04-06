@@ -37,8 +37,10 @@ export class DuelComponent implements OnInit {
   };
 
   // Variable para almacenar el tema seleccionado
-  selectedTheme: keyof typeof this.questions = "historia";
-  
+  //selectedTheme: keyof typeof this.questions = "historia";
+
+  selectedTheme: string = "historia";
+
   // Variables para la pregunta actual y opciones
   currentQuestion: string = '';
   currentCorrectAnswer: string = '';
@@ -57,7 +59,7 @@ export class DuelComponent implements OnInit {
   selectRandomTheme(): void {
     const themes = Object.keys(this.questions);
     const randomIndex = Math.floor(Math.random() * themes.length);
-    this.selectedTheme = themes[randomIndex] as keyof typeof this.questions;
+    this.selectedTheme = themes[randomIndex]; // as keyof typeof this.questions;
   }
 
   // Selecciona una nueva pregunta aleatoriamente y genera las opciones de respuesta.

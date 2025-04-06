@@ -2,8 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-
-
 @Component({
   selector: 'app-mayor-menor',
   imports: [CommonModule, FormsModule, ReactiveFormsModule],

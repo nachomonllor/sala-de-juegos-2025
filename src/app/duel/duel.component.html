@@ -1,8 +1,46 @@
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 class="text-center">Modo Duelo - Preguntados</h2>
+        </div>
+        <div class="card-body">
+            <p class="lead text-center">
+
+            <p><strong>Tema seleccionado:</strong> {{ selectedTheme.toString() | titlecase }}</p>
 
 
+            <p class="lead"><strong>Pregunta:</strong> {{ currentQuestion }}</p>
+
+            <div class="mb-3">
+                <p><strong>Opciones:</strong></p>
+                <div class="row">
+                    <div class="col-6 col-md-3" *ngFor="let opt of options">
+                        <button class="btn btn-outline-primary w-100 mb-2" (click)="selectAnswer(opt)"
+                            [disabled]="answeredCorrectly">
+                            {{ opt }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="message" class="alert alert-info">
+                <p class="mb-0">{{ message }}</p>
+            </div>
+
+            <div *ngIf="answeredCorrectly" class="text-center">
+                <button class="btn btn-success" (click)="nextQuestion()">Siguiente Pregunta</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- 
 <div>
     <h2>Modo Duelo - Preguntados</h2>
-    <!-- Se muestra el tema seleccionado -->
     <p><strong>Tema seleccionado:</strong> {{ selectedTheme }}</p>
     
     <p><strong>Pregunta:</strong> {{ currentQuestion }}</p>
@@ -24,4 +62,4 @@
   </div>
   
 
-
+ -->

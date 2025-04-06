@@ -7,7 +7,7 @@ import { DuelComponent } from './duel/duel.component';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, HangmanComponent, MayorMenorComponent, DuelComponent],
+  imports: [CommonModule, FormsModule, DuelComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
