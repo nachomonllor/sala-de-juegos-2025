@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PantallaJuegosComponent } from './pantalla-juegos.component';
+import { RegisterComponent } from './register.component';
 
-describe('PantallaJuegosComponent', () => {
-  let component: PantallaJuegosComponent;
-  let fixture: ComponentFixture<PantallaJuegosComponent>;
+describe('RegisterComponent', () => {
+  let component: RegisterComponent;
+  let fixture: ComponentFixture<RegisterComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PantallaJuegosComponent]
+      imports: [RegisterComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PantallaJuegosComponent);
+    fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
