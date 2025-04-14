@@ -37,7 +37,7 @@ export class HomeComponent {
       'Ahorcado': 'ahorcado',
       'Mayor o Menor': 'mayor-menor',
       'Preguntados': 'preguntados',
-      'FlowFree': 'flow-free'
+      'FlowFree': 'flowfree'
     };
   
     logout(): void {
