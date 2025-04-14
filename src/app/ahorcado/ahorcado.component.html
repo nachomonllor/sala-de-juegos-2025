@@ -28,32 +28,9 @@
   </ul>
 
   <h3>Letras adivinadas:</h3>
-  <p> {{  getDisplayWord( ) }} </p>
-
+  <p> {{  getDisplayWord(    ) }} </p>
   <!-- Letras adivinadas -->
   <!-- <h3>Letras adivinadas:</h3>
   <p>{{ guessedLetters.join(', ') }}</p> -->
 </div>
 
-
-
-<!-- 
- <div>
-  <h2>Ahorcado</h2>
-  <input 
-    type="text" 
-    [(ngModel)]="letterInput" 
-    maxlength="1" 
-    placeholder="Ingresa una letra" 
-    (keypress)="validateLetter($event)">
-  
-  <button (click)="confirmGuess()">Confirmar</button>
-  
-  <h3>Partes del muñeco restantes:</h3>
-  <ul>
-    <li *ngFor="let part of hangmanParts"> {{ part }}</li>
-  </ul>
-  
-  <h3>Letras adivinadas:</h3>
-  <p> {{  getDisplayWord( ) }} </p>
-</div>  -->

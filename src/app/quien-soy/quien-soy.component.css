@@ -1,0 +1,4 @@
+.card { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+    h2, h3 { text-align: center; }
+    ul { list-style: none; padding-left: 0; }
+    ul li::before { content: "• "; color: #007bff; }

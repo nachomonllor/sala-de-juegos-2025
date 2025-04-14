@@ -1,22 +1,19 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HangmanComponent } from "./ahorcado/ahorcado.component";
-import { MayorMenorComponent } from "./mayor-menor/mayor-menor.component";
-import { DuelComponent } from './duel/duel.component';
+import { RouterOutlet } from '@angular/router';
+import { PantallaJuegosComponent } from "./pantalla-juegos/pantalla-juegos.component";
+import { HomeComponent } from "./home/home.component";
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, DuelComponent],
+  imports: [CommonModule, FormsModule, RouterOutlet, PantallaJuegosComponent, HomeComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-
+ 
 export class AppComponent {
   title = 'input-pipe-prueba';
-
-
-  // userInput: string = '';
 
   userCase: string = '';
 

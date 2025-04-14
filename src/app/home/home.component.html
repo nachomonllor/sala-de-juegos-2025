@@ -1,0 +1,67 @@
+
+<div class="container mt-5">
+  <h1 class="text-center">Bienvenido a Mi Portal de Juegos</h1>
+  
+  <!-- Se muestra la información del usuario si está logueado -->
+  <div *ngIf="isLoggedIn; else notLoggedIn" class="mb-4 text-center">
+    <p class="lead">Hola, {{ username }}</p>
+    <button class="btn btn-warning" (click)="logout()">Log Out</button>
+  </div>
+  
+  <!-- Template para usuarios no logueados -->
+  <ng-template #notLoggedIn>
+    <div class="mb-4 text-center">
+      <button class="btn btn-primary me-2" routerLink="/login">Login</button>
+      <button class="btn btn-success" routerLink="/register">Register</button>
+    </div>
+  </ng-template>
+  
+  <!-- Accesos a los juegos -->
+  <h3 class="mb-3">Selecciona un Juego</h3>
+  <ul class="list-group">
+    <li class="list-group-item" *ngFor="let game of games | keyvalue">
+      <a [routerLink]="[game.value]" class="text-decoration-none">
+        {{ game.key }}
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+<!-- <div class="home-container"
+   [ngStyle]="{'background-image': 'url(assets/home.JPG)', 
+               'background-repeat': 'no-repeat',
+               'background-size': 'cover', 
+               'background-position': 'center center', 
+               'height': '100vh'}">
+  <h1>{{ welcomeMessage }}</h1>
+  <p>Elige un juego para comenzar:</p>
+  
+    <ul>
+      <ul>
+        <li *ngFor="let game of games | keyvalue">
+          <a [routerLink]="[game.value]">{{ game.key }}</a>
+        </li>
+      </ul>
+    </ul>
+
+  <button routerLink="/login" class="btn">Ir a Login</button>
+  <button routerLink="/register" class="btn">Registrarse</button>
+</div> -->
+
+
+
+
+
+
+<!-- <div class="home-container">
+  <h1>{{ welcomeMessage }}</h1>
+  
+  <p>Elige un juego para comenzar:</p>
+  <ul>
+    <li *ngFor="let game of games">{{ game }}</li>
+  </ul>
+  
+  <button routerLink="/login" class="btn">Ir a Login</button>
+  <button routerLink="/register" class="btn">Registrarse</button>
+</div> -->

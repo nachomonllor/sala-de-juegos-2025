@@ -1,17 +1,3 @@
-// import { Pipe, PipeTransform } from '@angular/core';
-
-// @Pipe({
-//   name: 'displayWord'
-// })
-// export class DisplayWordPipe implements PipeTransform {
-
-//   transform(value: unknown, ...args: unknown[]): unknown {
-//     return null;
-//   }
-
-// }
-
-
 // display-word.pipe.ts
 import { Pipe, PipeTransform } from '@angular/core';
 
@@ -24,8 +10,9 @@ export class DisplayWordPipe implements PipeTransform {
       return '';
     }
     return word
-      .split('')
-      .map(letter => guessedLetters.includes(letter.toLowerCase()) ? letter : '_')
-      .join(' ');
+    .split('')
+    .map(letter => guessedLetters.includes(letter.toLowerCase()) ? letter : '_')
+    .join(' ');
   }
+
 }

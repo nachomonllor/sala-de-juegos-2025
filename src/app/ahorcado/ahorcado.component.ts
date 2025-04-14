@@ -1,27 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import { WordService } from '../word.service';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DisplayWordPipe } from "../display-word.pipe";
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { WordService } from '../word.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-ahorcado',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule /* , DisplayWordPipe */ ],
+  standalone: true,
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './ahorcado.component.html',
-  //styleUrl: './ahorcado.component.css'
   styleUrls: ['./ahorcado.component.css']
-
 })
 
 export class HangmanComponent implements OnInit {
-  selectedWord: string='';              // La palabra a adivinar
-  guessedLetters: string[] = [];       // Letras ingresadas
-  letterInput: string = '';            // Valor del input
-  errorCount: number = 0;              // Número de errores cometidos
-  aciertos: number = 0;                // Contador de aciertos (puedes ajustar la lógica según palabras repetidas)
-  maxErrors: number = 6;               // Máximo de errores permitidos
-  gameOver: boolean = false;           // Estado del juego: false = en juego, true = terminado
-  winningMessage: string = '';         // Mensaje de victoria
+  selectedWord: string = '';               // La palabra a adivinar
+  guessedLetters: string[] = [];           // Letras ingresadas
+  letterInput: string = '';                // Valor del input
+  errorCount: number = 0;                  // Número de errores cometidos
+  aciertos: number = 0;                    // Contador de aciertos (puedes ajustar la lógica según palabras repetidas)
+  maxErrors: number = 6;                   // Máximo de errores permitidos
+  gameOver: boolean = false;               // Estado del juego: false = en juego, true = terminado
+  winningMessage: string = '';             // Mensaje de victoria
 
   hangmanParts: string[] = [
     'cabeza',
@@ -36,7 +35,6 @@ export class HangmanComponent implements OnInit {
 
   ngOnInit(): void {
     this.resetGame();
-   
   }
 
   // Reinicia el juego (puedes ampliar la lógica según lo necesites)
@@ -100,8 +98,6 @@ export class HangmanComponent implements OnInit {
       this.removeRandomPart();
     } else {
       console.log(`¡Bien! La letra "${letter}" está en la palabra.`);
-      // Incrementamos aciertos; ten en cuenta que si una letra aparece varias veces, quizá necesites contar todas sus ocurrencias.
-      // Aquí se suma 1 por letra ingresada, asumiendo que cada letra es única.
       this.aciertos++;
 
       // Si aciertos es mayor o igual a la longitud de la palabra, el usuario gana.
@@ -129,16 +125,15 @@ export class HangmanComponent implements OnInit {
     }
   }
 
-    getDisplayWord(): string {
-      if (!this.selectedWord) {
-        return '';
-      }
-      return this.selectedWord
-        .split('')
-        .map(letter => this.guessedLetters.includes(letter.toLowerCase()) ? letter : '_')
-        .join(' ');
+  getDisplayWord(): string {
+    if (!this.selectedWord) {
+      return '';
     }
-
+    return this.selectedWord
+      .split('')
+      .map(letter => this.guessedLetters.includes(letter.toLowerCase()) ? letter : '_')
+      .join(' ');
+  }
 }
 
 

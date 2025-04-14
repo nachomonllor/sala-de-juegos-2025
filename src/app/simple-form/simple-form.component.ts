@@ -7,6 +7,8 @@ import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angu
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './simple-form.component.html',
   styleUrl: './simple-form.component.css'
+
+  
 })
 export class SimpleFormComponent {
 
