@@ -1,17 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { FlowFreeSolver, Pair, Point } from './flowfree-solver';
 
-interface Point {
-  x: number;
-  y: number;
-}
-
-interface Pair {
-  start: Point;
-  end: Point;
-  colorID: number;
-}
 
 @Component({
   selector: 'app-flow-free',
@@ -229,11 +220,27 @@ export class FlowfreeComponent implements AfterViewInit {
     return true;
   }
 
-  // Implementación dummy del solver. DEBES completar o integrar tu algoritmo de solución.
+  // // Implementación dummy del solver. DEBES completar o integrar tu algoritmo de solución.
+  // onResolverClick() {
+  //   alert("Implementa el solver o integra un servicio que lo haga");
+  //   // Como placeholder, no se muestra solución.
+  //   this.showSolution = false;
+  //   this.draw();
+  // }
+
   onResolverClick() {
-    alert("Implementa el solver o integra un servicio que lo haga");
-    // Como placeholder, no se muestra solución.
-    this.showSolution = false;
+    const solver = new FlowFreeSolver(this.gridRows, this.gridCols);
+    solver.requireFullFill = false; // o true si quieres forzar rellenar todo
+    for (const p of this.pairList) {
+      solver.addPair(p);
+    }
+    const solved = solver.solve();
+    if (solved) {
+      this.solverGrid = solver.grid;
+      this.showSolution = true;
+    } else {
+      alert('No se encontró solución');
+    }
     this.draw();
   }
 
@@ -319,4 +326,8 @@ export class FlowfreeComponent implements AfterViewInit {
     }
     this.ctx.stroke();
   }
+
+
+  
+
 }
