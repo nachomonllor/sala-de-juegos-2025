@@ -7,6 +7,7 @@ import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { FlowfreeComponent } from './flow-free/flow-free.component';
+import { UserListComponent } from './user-list/user-list.component';
 
 export const routes: Routes = [
     { path: 'ahorcado', component: HangmanComponent },
@@ -15,8 +16,9 @@ export const routes: Routes = [
     { path: 'flowfree', component: FlowfreeComponent},
     { path: 'quien-soy', component: QuienSoyComponent},
     { path: '', component: HomeComponent },
-    {path: 'login', component:LoginComponent},
-    {path: 'register', component: RegisterComponent},
+    { path: 'login', component:LoginComponent},
+    { path: 'register', component: RegisterComponent},
+    { path: 'user-list', component: UserListComponent},
     { path: '**', redirectTo: '' }
 ];
 

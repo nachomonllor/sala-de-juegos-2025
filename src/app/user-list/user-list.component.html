@@ -1,0 +1,53 @@
+<p>user-list works!</p>
+
+
+<mat-card>
+    <mat-card-header class="p-2 bg-primary text-white">
+      <mat-card-title>Lista de Jugadores</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="mat-elevation-z8">
+        <mat-table [dataSource]="dataSource" matSort>
+  
+          <!-- Nombre -->
+          <ng-container matColumnDef="firstName">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</mat-header-cell>
+            <mat-cell        *matCellDef="let u">{{ u.firstName }}</mat-cell>
+          </ng-container>
+  
+          <!-- Apellido -->
+          <ng-container matColumnDef="lastName">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Apellido</mat-header-cell>
+            <mat-cell        *matCellDef="let u">{{ u.lastName }}</mat-cell>
+          </ng-container>
+  
+          <!-- Email -->
+          <ng-container matColumnDef="email">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Email</mat-header-cell>
+            <mat-cell        *matCellDef="let u">{{ u.email }}</mat-cell>
+          </ng-container>
+  
+          <!-- GamePlays (JSON o formateado) -->
+          <ng-container matColumnDef="gamePlays">
+            <mat-header-cell *matHeaderCellDef>Jugadas</mat-header-cell>
+            <mat-cell *matCellDef="let u">
+              <!-- Usamos el método para obtener un array tipado -->
+              <div *ngFor="let game of getGamePlays(u)">
+                <strong>{{ game.key }}:</strong>
+                <!-- Ahora game.value tiene tipo GameSessions, así que keyvalue funciona -->
+                <span *ngFor="let sess of game.value | keyvalue">
+                  (Partida {{ sess.key }} → {{ sess.value }} pts)
+                </span>
+              </div>
+            </mat-cell>
+          </ng-container>
+  
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row        *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+  
+        <mat-paginator [pageSize]="10" showFirstLastButtons></mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  
