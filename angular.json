@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "input-pipe-prueba": {
+    "sala-de-juegos-2025": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/input-pipe-prueba",
+            "outputPath": "dist/sala-de-juegos-2025",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -54,14 +54,15 @@
           },
           "defaultConfiguration": "production"
         },
+        
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "input-pipe-prueba:build:production"
+              "buildTarget": "sala-de-juegos-2025:build:production"
             },
             "development": {
-              "buildTarget": "input-pipe-prueba:build:development"
+              "buildTarget": "sala-de-juegos-2025:build:development"
             }
           },
           "defaultConfiguration": "development"
