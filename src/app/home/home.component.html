@@ -1,14 +1,60 @@
+<!-- home.component.html -->
+<header class="app-header">
+  <h1>Sala de Juegos</h1>
+  <nav>
+    <!-- botones Registro/Login sólo si NO está logueado -->
+    <button *ngIf="!isLoggedIn" routerLink="/register">Registro</button>
+    <button *ngIf="!isLoggedIn" routerLink="/login">Login</button>
 
+    <!-- saludo y Log Out sólo si SÍ está logueado -->
+    <span *ngIf="isLoggedIn">Bienvenido, {{ userEmail }}</span>
+    <button *ngIf="isLoggedIn" (click)="logout()">Log Out</button>
+  </nav>
+</header>
+
+<main class="app-content">
+  <!-- mensaje si no inició sesión -->
+  <p *ngIf="!isLoggedIn">Por favor inicia sesión para acceder a los juegos y al listado de logs.</p>
+
+  <!-- listado de juegos y enlace a logs sólo para usuarios logueados -->
+  <div *ngIf="isLoggedIn" class="games-grid">
+    <!-- ejemplo de tarjeta de juego -->
+
+    <h3 class="mb-3">Selecciona un Juego</h3>
+    <ul class="list-group">
+      <li class="list-group-item" *ngFor="let game of games | keyvalue">
+        <a [routerLink]="[game.value]" class="text-decoration-none">
+          {{ game.key }}
+        </a>
+      </li>
+    </ul>
+
+    <!-- enlace al listado de logs -->
+    <div class="logs-link">
+      <a routerLink="/logs">Ver Listado de Ingresos</a>
+    </div>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <small>© 2025 Sala de Juegos</small>
+</footer>
+
+ <app-user-list></app-user-list>
+
+ 
+
+
+
+<!--  
 <div class="container mt-5">
   <h1 class="text-center">Bienvenido a Mi Portal de Juegos</h1>
   
-  <!-- Se muestra la información del usuario si está logueado -->
   <div *ngIf="isLoggedIn; else notLoggedIn" class="mb-4 text-center">
     <p class="lead">Hola, {{ username }}</p>
     <button class="btn btn-warning" (click)="logout()">Log Out</button>
   </div>
   
-  <!-- Template para usuarios no logueados -->
   <ng-template #notLoggedIn>
     <div class="mb-4 text-center">
       <button class="btn btn-primary me-2" routerLink="/login">Login</button>
@@ -16,7 +62,6 @@
     </div>
   </ng-template>
   
-  <!-- Accesos a los juegos -->
   <h3 class="mb-3">Selecciona un Juego</h3>
   <ul class="list-group">
     <li class="list-group-item" *ngFor="let game of games | keyvalue">
@@ -25,6 +70,4 @@
       </a>
     </li>
   </ul>
-</div>
-
-
+</div>  -->

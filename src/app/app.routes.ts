@@ -10,15 +10,17 @@ import { FlowfreeComponent } from './flow-free/flow-free.component';
 import { UserListComponent } from './user-list/user-list.component';
 
 export const routes: Routes = [
+
+    { path: 'home', component: HomeComponent}, 
     { path: 'ahorcado', component: HangmanComponent },
     { path: 'preguntados', component: DuelComponent },
     { path: 'mayor-menor', component: MayorMenorComponent },
     { path: 'flowfree', component: FlowfreeComponent},
     { path: 'quien-soy', component: QuienSoyComponent},
-    { path: '', component: HomeComponent },
     { path: 'login', component:LoginComponent},
     { path: 'register', component: RegisterComponent},
     { path: 'user-list', component: UserListComponent},
+    { path: '', component: HomeComponent },
     { path: '**', redirectTo: '' }
 ];
 

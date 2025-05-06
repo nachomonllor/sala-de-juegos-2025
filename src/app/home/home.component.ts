@@ -1,30 +1,65 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { UserListComponent } from "../user-list/user-list.component";
+import { AuthService } from '../services/auth.service'; // ajusta la ruta según tu estructura
+import {  User } from '../services/auth.service';
+
+
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, UserListComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
+
+export class HomeComponent  implements OnInit { 
+  isLoggedIn = false;
+  userEmail: string | null = null;
+
+  constructor(private authService: AuthService) {}
+
+  // Diccionario: clave = nombre del juego, valor = ruta o link
+  games: { [key: string]: string } = {
+    'Ahorcado': 'ahorcado',
+    'Mayor o Menor': 'mayor-menor',
+    'Preguntados': 'preguntados',
+    'FlowFree': 'flowfree'
+  };
+
+  ngOnInit(): void {
+    this.authService.user$.subscribe((user: User | null) => {
+      this.isLoggedIn = !!user;
+      this.userEmail = user?.email || null;
+    });
+  }
+
+  logout(): void {
+    this.authService.logout();
+  }  
+
+}
+
+/*
 export class HomeComponent {
 
-    // Simulación: en un proyecto real estos datos vendrían, por ejemplo, de un AuthService.
-    isLoggedIn: boolean = false;
-    username: string = 'Juan Pérez';
-  
-    // Diccionario: clave = nombre del juego, valor = ruta o link
-    games: { [key: string]: string } = {
-      'Ahorcado': 'ahorcado',
-      'Mayor o Menor': 'mayor-menor',
-      'Preguntados': 'preguntados',
-      'FlowFree': 'flowfree'
-    };
-  
-    logout(): void {
-      // Aquí iría la lógica real para cerrar la sesión.
-      this.isLoggedIn = false;
-      console.log('Usuario deslogueado');
-    }
+  // Simulación: en un proyecto real estos datos vendrían, por ejemplo, de un AuthService.
+  isLoggedIn: boolean = false;
+  username: string = 'Juan Pérez';
+
+  // Diccionario: clave = nombre del juego, valor = ruta o link
+  games: { [key: string]: string } = {
+    'Ahorcado': 'ahorcado',
+    'Mayor o Menor': 'mayor-menor',
+    'Preguntados': 'preguntados',
+    'FlowFree': 'flowfree'
+  };
+
+  logout(): void {
+    // Aquí iría la lógica real para cerrar la sesión.
+    this.isLoggedIn = false;
+    console.log('Usuario deslogueado');
+  }
 }
+  */

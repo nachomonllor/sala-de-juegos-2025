@@ -9,6 +9,48 @@ import { MatTableDataSource } from '@angular/material/table';
 import { GameSessions, User } from '../models/user.models';
 import { UsersService } from '../users.service';
 
+const USUARIOS: User[] = [
+  {
+    firstName: 'Juan',
+    lastName: 'Pérez',
+    email: 'juan.perez@example.com',
+    gamePlays: {
+      Ahorcado: { '1': 100, '2': 150 },
+      Memoria:  { '1': 200 }
+    }
+  },
+  {
+    firstName: 'María',
+    lastName: 'Gómez',
+    email: 'maria.gomez@example.com',
+    gamePlays: {
+      Ahorcado: { '1': 120, '2': 180 },
+      Puzzle:   { '1':  80 }
+    }
+  },
+  {
+    firstName: 'Dave',
+    lastName: 'Mustaine',
+    email: 'dave.mustaine@mega.com',
+    gamePlays: {
+      Ahorcado: { '1': 400, '2': 180 },
+      Puzzle:   { '1':  100 }
+    }
+  }, 
+  {
+    firstName: 'James',
+    lastName: 'Hetfield',
+    email: 'juan.het@hotmail.com',
+    gamePlays: {
+      Ahorcado: { '1': 400, '2': 180 },
+      Puzzle:   { '1':  100 }
+    }
+  }
+
+
+];
+
+
 @Component({
   selector: 'app-user-list',
   standalone: true,
@@ -24,7 +66,7 @@ import { UsersService } from '../users.service';
   styleUrls: ['./user-list.component.css']
 })
 export class UserListComponent implements OnInit {
-  dataSource = new MatTableDataSource<User>([]);
+  dataSource = new MatTableDataSource<User>(USUARIOS); // ([]);
   displayedColumns = ['firstName','lastName','email','gamePlays'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -41,9 +83,9 @@ export class UserListComponent implements OnInit {
   }
 
     /**
-   * Convierte el objeto gamePlays en un array de pares { key, value }
-   * con el tipo correctamente inferido.
-   */
+     * Convierte el objeto gamePlays en un array de pares { key, value }
+     * con el tipo correctamente inferido.
+     */
     getGamePlays(user: User): Array<{ key: string; value: GameSessions }> {
       return Object.entries(user.gamePlays).map(([key, value]) => ({
         key,
@@ -54,15 +96,71 @@ export class UserListComponent implements OnInit {
 
 }
 
+// // --------------------------
 
-// import { Component } from '@angular/core';
+// import { Component, OnInit, ViewChild } from '@angular/core';
+// import { CommonModule }    from '@angular/common';
+// import { MatTableModule }  from '@angular/material/table';
+// import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+// import { MatSort, MatSortModule }           from '@angular/material/sort';
+// import { MatCardModule }    from '@angular/material/card';
+// import { MatRippleModule }  from '@angular/material/core';
+// import { MatTableDataSource } from '@angular/material/table';
+// import { GameSessions, User } from '../models/user.models';
+
+// const DUMMY_USERS: User[] = [
+//   {
+//     firstName: 'Juan',
+//     lastName: 'Pérez',
+//     email: 'juan.perez@example.com',
+//     gamePlays: {
+//       Ahorcado: { '1': 100, '2': 150 },
+//       Memoria:  { '1': 200 }
+//     }
+//   },
+//   {
+//     firstName: 'María',
+//     lastName: 'Gómez',
+//     email: 'maria.gomez@example.com',
+//     gamePlays: {
+//       Ahorcado: { '1': 120, '2': 180 },
+//       Puzzle:   { '1':  80 }
+//     }
+//   }
+// ];
 
 // @Component({
 //   selector: 'app-user-list',
-//   imports: [],
+//   standalone: true,
+//   imports: [
+//     CommonModule,
+//     MatTableModule,
+//     MatPaginatorModule,
+//     MatSortModule,
+//     MatCardModule,
+//     MatRippleModule
+//   ],
 //   templateUrl: './user-list.component.html',
-//   styleUrl: './user-list.component.css'
+//   styleUrls: ['./user-list.component.css']
 // })
-// export class UserListComponent {
+// export class UserListComponent implements OnInit {
+//   // Inicializamos directamente con los datos ficticios
+//   dataSource = new MatTableDataSource<User>(DUMMY_USERS);
+//   displayedColumns = ['firstName','lastName','email','gamePlays'];
 
+//   @ViewChild(MatPaginator) paginator!: MatPaginator;
+//   @ViewChild(MatSort)      sort!: MatSort;
+
+//   ngOnInit(): void {
+//     // Asignamos paginador y ordenamiento
+//     this.dataSource.paginator = this.paginator;
+//     this.dataSource.sort      = this.sort;
+//   }
+
+//   /** Convierte el objeto gamePlays en un array de pares { key, value } */
+//   getGamePlays(user: User): Array<{ key: string; value: GameSessions }> {
+//     return Object.entries(user.gamePlays).map(([key, value]) => ({ key, value }));
+//   }
 // }
+
+

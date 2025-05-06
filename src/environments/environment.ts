@@ -7,5 +7,6 @@ export const environment = {
     storageBucket: "sala-de-juegos-2025.firebasestorage.app",
     messagingSenderId: "38851858564",
     appId: "1:38851858564:web:d4d3ea800ca911d861f2d1"
+
    }
 }

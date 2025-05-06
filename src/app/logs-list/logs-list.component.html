@@ -1,0 +1,20 @@
+<h2>Historial de Ingresos</h2>
+
+<table class="logs-table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Fecha</th>
+            <th>ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let log of logs">
+            <td>{{ log.email }}</td>
+            <td>{{ log.fecha?.toDate() | date:'short' }}</td>
+            <td>{{ log.id }}</td>
+        </tr>
+    </tbody>
+</table>
+
+
