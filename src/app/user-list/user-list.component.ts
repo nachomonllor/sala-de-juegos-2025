@@ -45,7 +45,17 @@ const USUARIOS: User[] = [
       Ahorcado: { '1': 400, '2': 180 },
       Puzzle:   { '1':  100 }
     }
+  },
+  {
+    firstName: 'Ignacio',
+    lastName: 'monllor',
+    email: 'nachomonllor@hotmail.com',
+    gamePlays: {
+      Ahorcado: { '2': 400, '4': 180 },
+      Puzzle:   { '1':  100 }
+    }
   }
+
 
 
 ];

@@ -13,7 +13,6 @@ import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 
 
-
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -27,14 +26,12 @@ export class LoginComponent {
   password = '';
   error: string | null = null;
 
-
   constructor(
     private auth: Auth,
     private db: Firestore,
     private router: Router       // <— aquí
   ) {}
   
-
   async onSubmit() {
     this.error = null;
     try {
@@ -58,25 +55,3 @@ export class LoginComponent {
 }
 
 
-// @Component({
-//   selector: 'app-root',
-//   standalone: true,
-//   imports: [ CommonModule, LoginComponent, LogsListComponent ],
-//   templateUrl: './app.component.html',      // ← usa templateUrl
-//   styleUrls:   ['./app.component.css']      // ← opcional: crea estilos aquí
-// })
-
-
-// import { Component }         from '@angular/core';
-// import { CommonModule }      from '@angular/common';
-// import { LoginComponent }    from '../login/login.component';
-// import { LogsListComponent } from '../logs-list/logs-list.component';
-
-// @Component({
-//   selector: 'app-root',
-//   standalone: true,
-//   imports: [ CommonModule, LoginComponent, LogsListComponent ],
-//   templateUrl: './app.component.html',      // ← usa templateUrl
-//   styleUrls:   ['./app.component.css']      // ← opcional: crea estilos aquí
-// })
-// export class AppComponent {}

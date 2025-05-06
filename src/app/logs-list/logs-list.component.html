@@ -10,10 +10,11 @@
     </thead>
     <tbody>
         <tr *ngFor="let log of logs">
-            <td>{{ log.email }}</td>
-            <td>{{ log.fecha?.toDate() | date:'short' }}</td>
-            <td>{{ log.id }}</td>
-        </tr>
+            <td>{{ log['email'] }}</td>
+            <td>{{ log['fecha'].toDate() }}</td>
+            <td>{{ log['uid'] }}</td>
+          </tr>
+          
     </tbody>
 </table>
 

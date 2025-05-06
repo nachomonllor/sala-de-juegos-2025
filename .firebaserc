@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "sala-de-juegos-2025"
-  }
+    "default": "sala-de-juegos-2025",
+    "sala-de-juegos-2025": "sala-de-juegos-2025"
+  },
+  "targets": {},
+  "etags": {}
 }
