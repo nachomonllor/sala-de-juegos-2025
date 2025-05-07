@@ -12,6 +12,7 @@ import { HttpClientModule } from '@angular/common/http';
   styleUrls: ['./ahorcado.component.css']
 })
 
+/*
 export class HangmanComponent implements OnInit {
   selectedWord: string = '';               // La palabra a adivinar
   guessedLetters: string[] = [];           // Letras ingresadas
@@ -135,7 +136,65 @@ export class HangmanComponent implements OnInit {
       .join(' ');
   }
 }
+*/
 
+
+
+
+//---------------------------
+
+
+export class HangmanComponent implements OnInit  {
+  // Palabra secreta y estado
+  secretWord = 'ANGULAR';
+  guessedLetters: string[] = [];
+  wrongGuesses = 0;
+  maxWrong = 6;
+  alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  winningMessage = '';
+  gameOver = false;
+
+  ngOnInit(): void {
+    this.resetGame();
+  }
+
+  get hangmanParts(): string[] {
+    // Ejemplo: devuelve array de partes restantes según wrongGuesses
+    const parts = ['Cabeza','Cuerpo','Brazo Izq','Brazo Der','Pierna Izq','Pierna Der'];
+    return parts.slice(this.wrongGuesses);
+  }
+
+  getDisplayWord(): string {
+    return this.secretWord
+      .split('')
+      .map(l => (this.guessedLetters.includes(l) ? l : '_'))
+      .join(' ');
+  }
+
+  /** Se llama al hacer click en la letra */
+  guessLetter(letter: string) {
+    if (this.gameOver || this.guessedLetters.includes(letter)) return;
+    this.guessedLetters.push(letter);
+
+    if (!this.secretWord.includes(letter)) {
+      this.wrongGuesses++;
+      if (this.wrongGuesses >= this.maxWrong) {
+        this.gameOver = true;
+        this.winningMessage = `¡Perdiste! La palabra era ${this.secretWord}.`;
+      }
+    } else if (this.secretWord.split('').every(l => this.guessedLetters.includes(l))) {
+      this.gameOver = true;
+      this.winningMessage = '¡Ganaste!';
+    }
+  }
+
+  resetGame() {
+    this.guessedLetters = [];
+    this.wrongGuesses = 0;
+    this.gameOver = false;
+    this.winningMessage = '';
+  }
+}
 
 
 

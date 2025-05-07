@@ -1,43 +1,43 @@
+/* ahorcado.component.css */
 
-/* Estilo general del contenedor */
-div {
-    text-align: center;
-    font-family: Arial, sans-serif;
-  }
-  
-  /* Estilo para la palabra oculta */
-  p {
-    font-size: 2em;
-    letter-spacing: 0.3em;
-    margin-bottom: 20px;
-  }
-  
-  /* Estilo para el input y botón */
-  input[type="text"] {
-    font-size: 1.2em;
-    width: 50px;
-    text-align: center;
-    margin-right: 10px;
-  }
-  
-  button {
-    font-size: 1.2em;
-    padding: 5px 10px;
-  }
-  
-  /* Estilo para el mensaje de victoria */
-  h1 {
-    font-size: 3em;
-    color: green;
-  }
-  
-  /* Lista de partes del muñeco */
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  li {
-    font-size: 1.1em;
-    margin: 5px 0;
-  } 
+/* Grid para 26 teclas: 7 columnas, 4 filas (7+7+7+5) */
+.keyboard {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+/* Botón circular con efecto 3D */
+.keyboard button {
+  position: relative;
+  padding: 1rem 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #e0e0e0, #a0a0a0);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.6),
+    inset 0 -2px 0 rgba(0,0,0,0.4),
+    0 4px 6px rgba(0,0,0,0.4);
+  color: #333;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+/* “Pulsación” */
+.keyboard button:active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 1px 0 rgba(0,0,0,0.4),
+    0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Deshabilitado */
+.keyboard button:disabled {
+  background: #555;
+  color: #222;
+  cursor: not-allowed;
+  box-shadow: none;
+}

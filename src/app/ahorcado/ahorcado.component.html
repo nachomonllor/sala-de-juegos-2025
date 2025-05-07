@@ -1,7 +1,28 @@
-<div>
+
+
+<!-- ahorcado.component.html -->
+<div class="hangman-container">
   <h2>Ahorcado</h2>
 
-  <!-- Si el juego no terminó, muestra el input y el botón de confirmar -->
+  <!-- Teclado estilo rompemuñecas -->
+  <div class="keyboard">
+    <button 
+      *ngFor="let letter of alphabet" 
+      (click)="guessLetter(letter)" 
+      [disabled]="guessedLetters.includes(letter) || gameOver"
+    >
+      {{ letter }}
+    </button>
+  </div>
+
+  <!-- Resto del juego... -->
+</div>
+
+
+
+<!-- 
+<div>
+  <h2>Ahorcado</h2>
   <div *ngIf="!gameOver">
     <input 
       type="text" 
@@ -12,13 +33,11 @@
     <button (click)="confirmGuess()">Confirmar</button>
   </div>
 
-  <!-- Si el juego terminó, muestra el mensaje y el botón para reiniciar -->
   <div *ngIf="gameOver">
     <h1 style="font-size: 3em; color: green;">{{ winningMessage }}</h1>
     <button (click)="resetGame()">Reiniciar Juego</button>
   </div>
 
-  <!-- Estado del muñeco -->
   <h3>Partes del muñeco restantes:</h3>
   <ul>
     <li *ngFor="let part of hangmanParts">{{ part }}</li>
@@ -26,8 +45,6 @@
 
   <h3>Letras adivinadas:</h3>
   <p> {{  getDisplayWord(    ) }} </p>
-  <!-- Letras adivinadas -->
-  <!-- <h3>Letras adivinadas:</h3>
-  <p>{{ guessedLetters.join(', ') }}</p> -->
-</div>
+
+</div> -->
 
