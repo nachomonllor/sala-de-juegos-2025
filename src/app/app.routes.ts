@@ -11,13 +11,17 @@ import { MayorMenorComponent } from './mayor-menor/mayor-menor.component';
 import { DuelComponent } from './duel/duel.component';
 import { FlowfreeComponent } from './flow-free/flow-free.component';
 import { AuthGuard } from './guards/auth.guard';
+import { ChatComponent } from './chat/chat.component';
+import { QuienSoyComponent } from './quien-soy/quien-soy.component';
 
 export const routes: Routes = [
-    
+
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
   { path: 'register', component: RegisterComponent },
+  { path: 'quien-soy', component: QuienSoyComponent},
   { path: 'logs', component: LogsListComponent, canActivate:  [AuthGuard] },
   {
     path: 'games',

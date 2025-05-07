@@ -1,0 +1,24 @@
+
+
+
+<div class="chat-container">
+  <h2>🗨️ Sala de Chat</h2>
+
+  <div class="messages">
+    <div class="message" *ngFor="let msg of messages$ | async">
+      <span class="author">{{ msg.email }}</span>
+      <span class="time">{{ msg.timestamp?.toDate() | date:'short' }}</span>
+      <p class="text">{{ msg.text }}</p>
+    </div>
+  </div>
+
+  <form class="chat-form" (ngSubmit)="sendMessage()">
+    <input
+      type="text" [(ngModel)]="newMessage"
+      name="message"
+      placeholder="Escribe tu mensaje..."
+      required
+    />
+    <button type="submit" [disabled]="!newMessage.trim()">Enviar</button>
+  </form>
+</div>
