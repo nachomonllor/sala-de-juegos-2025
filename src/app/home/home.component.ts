@@ -14,7 +14,7 @@ import { AuthService, User }       from '../services/auth.service';
   styleUrls: ['./home.component.css']  // ← corregido: debe ser styleUrls
 })
 export class HomeComponent implements OnInit {
-  isLoggedIn   = true;
+  isLoggedIn   = false;
   userEmail: string | null = null;
 
   // Diccionario: nombre del juego → ruta

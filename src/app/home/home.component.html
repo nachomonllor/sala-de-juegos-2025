@@ -20,14 +20,24 @@
   <div *ngIf="isLoggedIn" class="games-grid">
     <!-- ejemplo de tarjeta de juego -->
 
-    <h3 class="mb-3">Selecciona un Juego</h3>
-    <ul class="list-group">
+ <h3 class="mb-3">Selecciona un Juego</h3>
+    <!-- <ul class="list-group">
       <li class="list-group-item" *ngFor="let game of games | keyvalue">
         <a [routerLink]="[game.value]" class="text-decoration-none">
           {{ game.key }}
         </a>
       </li>
+    </ul>  -->
+
+
+    <ul class="list-group">
+      <li class="list-group-item" *ngFor="let game of games | keyvalue">
+        <a [routerLink]="['/games', game.value]" class="text-decoration-none">
+          {{ game.key }}
+        </a>
+      </li>
     </ul>
+    
 
     <!-- enlace al listado de logs -->
     <div class="logs-link">
