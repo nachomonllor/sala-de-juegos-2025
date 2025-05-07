@@ -1,15 +1,54 @@
 
 
-.container {
-  max-width: 800px;
+/* home.component.css */
+.games-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
 }
-h1 {
-  margin-bottom: 30px;
+
+.game-card {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.2s ease;
 }
-.list-group-item a {
-  font-size: 1.2em;
-  color: #0d6efd;
+
+.game-card:hover {
+  transform: scale(1.05);
 }
-.list-group-item a:hover {
+
+.game-image {
+  width: 100%;
+  height: auto;
+  max-height: 100px;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
+}
+
+.game-card h4 {
+  margin: 0.5rem 0;
+  color: #ffeb3b;
+}
+
+.game-card button {
+  background-color: #2196f3;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.game-card button:hover {
+  background-color: #1976d2;
+}
+
+/* Asegura que los enlaces y textos sean legibles */
+.logs-link a {
+  color: #ffeb3b;
+  font-weight: bold;
   text-decoration: underline;
 }
