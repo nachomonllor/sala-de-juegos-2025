@@ -1,36 +1,62 @@
 
 
-<!-- ahorcado.component.html -->
-<div class="hangman-container">
+<div>
   <h2>Ahorcado</h2>
 
-  <!-- Teclado estilo rompemuñecas -->
-  <div class="keyboard">
-    <button 
-      *ngFor="let letter of alphabet" 
-      (click)="guessLetter(letter)" 
-      [disabled]="guessedLetters.includes(letter) || gameOver"
+  <!-- Mensaje de victoria/derrota -->
+  <div *ngIf="gameOver" class="result-message">
+    <h1>{{ winningMessage }}</h1>
+    <button (click)="resetGame()">Reiniciar Juego</button>
+  </div>
+
+  <!-- Teclado de letras sólo si NO terminó -->
+  <div *ngIf="!gameOver" class="keyboard">
+    <button
+      *ngFor="let letter of alphabet"
+      (click)="letterInput = letter; confirmGuess()"
+      [disabled]="guessedLetters.includes(letter.toLowerCase())"
     >
       {{ letter }}
     </button>
   </div>
 
-  <!-- Resto del juego... -->
+  <!-- Partes y palabra -->
+  <h3>Partes del muñeco restantes:</h3>
+  <ul>
+    <li *ngFor="let part of hangmanParts">{{ part }}</li>
+  </ul>
+
+  <!-- Partes restantes como imágenes -->
+  <h3>Partes restantes:</h3>
+  <div class="hangman-parts">
+    <img
+      *ngFor="let part of hangmanParts"
+      [src]="'/assets/parts/' + part.img"
+      [alt]="part.name"
+      class="hangman-part-img"
+    />
+  </div>
+
+
+  <h3>Letras adivinadas:</h3>
+  <p>{{ getDisplayWord() }}</p>
 </div>
+
 
 
 
 <!-- 
 <div>
   <h2>Ahorcado</h2>
-  <div *ngIf="!gameOver">
-    <input 
-      type="text" 
-      [(ngModel)]="letterInput" 
-      maxlength="1" 
-      placeholder="Ingresa una letra" 
-      (keypress)="validateLetter($event)">
-    <button (click)="confirmGuess()">Confirmar</button>
+
+  <div *ngIf="!gameOver" class="keyboard">
+    <button
+      *ngFor="let letter of alphabet"
+      (click)="letterInput = letter; confirmGuess()"
+      [disabled]="guessedLetters.includes(letter.toLowerCase())"
+    >
+      {{ letter }}
+    </button>
   </div>
 
   <div *ngIf="gameOver">
@@ -44,7 +70,6 @@
   </ul>
 
   <h3>Letras adivinadas:</h3>
-  <p> {{  getDisplayWord(    ) }} </p>
-
-</div> -->
-
+  <p>{{ getDisplayWord() }}</p>
+</div>
+ -->
