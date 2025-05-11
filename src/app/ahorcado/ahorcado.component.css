@@ -42,7 +42,6 @@
   box-shadow: none;
 }
 
-
 .result-message {
   text-align: center;
   margin: 1rem 0;
@@ -63,3 +62,72 @@
   border-radius: 4px;
   cursor: pointer;
 }
+
+.hangman-part {
+  background: url('/assets/parts/ahorcado-full.jpg') no-repeat;
+  display: inline-block;
+}
+
+/* Ejemplo: la cabeza ocupa un cuadrado de 80×80px en (x=200, y=30) */
+.part–head {
+  width: 80px;
+  height: 80px;
+  background-position: -200px -30px;
+}
+
+/* Torso en (x=200, y=110), w=60, h=120 */
+.part–torso {
+  width: 60px;
+  height: 120px;
+  background-position: -200px -110px;
+}
+
+/* ahorcado.component.css */
+.hangman-canvas {
+  position: relative;
+  display: inline-block; /* se ajusta al tamaño de la imagen */
+}
+
+.hangman-canvas img {
+  display: block;
+  /* ancho deseado, p.ej. width: 400px; */
+
+  width: 900px;
+}
+
+
+/* tapar cada parte */
+
+.cover {
+  position: absolute;
+  background-color: #2e7d32; /* verde oscuro semejante a pizarrón */
+  /* si necesitas algo semitransparente: rgba(46,125,50,0.9) */
+  pointer-events: none; /* deja clics al fondo */
+  z-index: 10;          /* por encima de la imagen */
+}
+
+/* tapar la cabeza */
+.cover-cabeza {
+  top:    20px;   /* distancia desde el borde superior del contenedor */
+  left:   100px;  /* desde el borde izquierdo */
+  width:  80px;   /* ancho de la máscara */
+  height: 80px;   /* alto de la máscara */
+}
+
+/* tapar el brazo izquierdo */
+.cover-brazo-izquierdo {
+  top:    120px;
+  left:   60px;
+  width:  50px;
+  height: 100px;
+}
+
+/* tapar el torso */
+.cover-torso {
+  top:    100px;
+  left:   100px;
+  width:  60px;
+  height: 120px;
+}
+
+/* y así sucesivamente… */

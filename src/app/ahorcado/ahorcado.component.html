@@ -1,5 +1,3 @@
-
-
 <div>
   <h2>Ahorcado</h2>
 
@@ -9,40 +7,44 @@
     <button (click)="resetGame()">Reiniciar Juego</button>
   </div>
 
-  <!-- Teclado de letras sólo si NO terminó -->
-  <div *ngIf="!gameOver" class="keyboard">
-    <button
-      *ngFor="let letter of alphabet"
-      (click)="letterInput = letter; confirmGuess()"
-      [disabled]="guessedLetters.includes(letter.toLowerCase())"
-    >
-      {{ letter }}
-    </button>
-  </div>
-
-  <!-- Partes y palabra -->
-  <h3>Partes del muñeco restantes:</h3>
-  <ul>
-    <li *ngFor="let part of hangmanParts">{{ part }}</li>
-  </ul>
-
-  <!-- Partes restantes como imágenes -->
-  <h3>Partes restantes:</h3>
-  <div class="hangman-parts">
-    <img
-      *ngFor="let part of hangmanParts"
-      [src]="'/assets/parts/' + part.img"
-      [alt]="part.name"
-      class="hangman-part-img"
-    />
-  </div>
-
-
   <h3>Letras adivinadas:</h3>
   <p>{{ getDisplayWord() }}</p>
 </div>
 
+<div class="hangman-parts">
+  <span *ngFor="let part of hangmanParts; let i = index" class="hangman-part part–{{ part.img }}"></span>
+</div>
 
+<!-- Identacion: Shift + Alt + F (Windows/Linux)  -->
+
+<!-- ahorcado.component.html -->
+<div class="hangman-canvas">
+  <img src="/assets/parts/ahorcado-full.jpg" alt="Ahorcado completo">
+
+  <!-- Por cada parte quitada (en tu lógica, push al array removedParts) -->
+  <div *ngFor="let part of removedParts" class="cover cover-{{ part }}"></div>
+</div>
+
+<!-- Teclado de letras sólo si NO terminó -->
+<div *ngIf="!gameOver" class="keyboard">
+  <button *ngFor="let letter of alphabet" (click)="letterInput = letter; confirmGuess()"
+    [disabled]="guessedLetters.includes(letter.toLowerCase())">
+    {{ letter }}
+  </button>
+</div>
+
+
+<!-- <h3>Partes del muñeco restantes:</h3>
+  <ul>
+    <li *ngFor="let part of hangmanParts">{{ part }}</li>
+  </ul> -->
+
+<!-- Partes restantes como imágenes -->
+<!-- <h3>Partes restantes:</h3>
+  <div class="hangman-parts">
+    <img *ngFor="let part of hangmanParts" [src]="'/assets/parts/' + part.img" [alt]="part.name"
+      class="hangman-part-img" />
+  </div> -->
 
 
 <!-- 
