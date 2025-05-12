@@ -30,25 +30,17 @@ export class HangmanComponent implements OnInit {
   winningMessage: string = '';             // Mensaje de victoria
 
   // AGREGA ESTA LÍNEA justo debajo de donde defines tus propiedades:
-  alphabet: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-
-  // hangmanParts: string[] = [
-  //   'cabeza',
-  //   'brazo izquierdo',
-  //   'brazo derecho',
-  //   'torso',
-  //   'pierna izquierda',
-  //   'pierna derecha'
-  // ];
+  alphabet: string[] = 'QWERTYUIOPASDFGHJKLÑZXCVBNM'.split('');
+  removedParts: string[] = [];
 
   // Nuevo: lista de objetos con ruta de imagen
   hangmanParts: HangmanPart[] = [
     { name: 'cabeza', img: 'cabeza.JPG' },
     { name: 'torso', img: 'torso.JPG' },
-    { name: 'brazo izquierdo', img: 'brazo_izquierdo.JPG' },
-    { name: 'brazo derecho', img: 'brazo_derecho.JPG' },
-    { name: 'pierna izquierda', img: 'pierna_izquierda.JPG' },
-    { name: 'pierna derecha', img: 'pierna_derecha.JPG' }
+    { name: 'brazo-izquierdo', img: 'brazo-izquierdo.JPG' },
+    { name: 'brazo-derecho', img: 'brazo-derecho.JPG' },
+    { name: 'pierna-izquierda', img: 'pierna-izquierda.JPG' },
+    { name: 'pierna-derecha', img: 'pierna-derecha.JPG' }
   ];
 
   constructor(private wordService: WordService) { }
@@ -59,6 +51,9 @@ export class HangmanComponent implements OnInit {
 
   // En resetGame, vuelve a reiniciar este array completo:
   resetGame(): void {
+    // 1) Limpias los cuadrados tapados
+    this.removedParts = [];
+
     this.wordService.getRandomWord().subscribe(word => {
       this.selectedWord = word;
       this.guessedLetters = [];
@@ -70,10 +65,10 @@ export class HangmanComponent implements OnInit {
       this.hangmanParts = [
         { name: 'cabeza', img: 'cabeza.JPG' },
         { name: 'torso', img: 'torso.JPG' },
-        { name: 'brazo izquierdo', img: 'brazo_izquierdo.JPG' },
-        { name: 'brazo derecho', img: 'brazo_derecho.JPG' },
-        { name: 'pierna izquierda', img: 'pierna_izquierda.JPG' },
-        { name: 'pierna derecha', img: 'pierna_derecha.JPG' }
+        { name: 'brazo-izquierdo', img: 'brazo-izquierdo.JPG' },
+        { name: 'brazo-derecho', img: 'brazo-derecho.JPG' },
+        { name: 'pierna-izquierda', img: 'pierna-izquierda.JPG' },
+        { name: 'pierna-derecha', img: 'pierna-derecha.JPG' }
       ];
 
       console.log('Palabra seleccionada: ' + this.selectedWord);
@@ -130,31 +125,6 @@ export class HangmanComponent implements OnInit {
     }
   }
 
-  // // Función para remover aleatoriamente una parte del muñeco
-  // removeRandomPart(): void {
-  //   // if (this.hangmanParts.length > 0) {
-  //   //   const randomIndex = Math.floor(Math.random() * this.hangmanParts.length);
-  //   //   const removed = this.hangmanParts.splice(randomIndex, 1);
-  //   //   console.log("Se ha removido:", removed[0]);
-  //   //   this.errorCount++;
-  //   // }
-
-  //   if (this.hangmanParts.length > 0) {
-  //     const idx = Math.floor(Math.random() * this.hangmanParts.length);
-  //     const removed = this.hangmanParts.splice(idx, 1)[0];
-  //     console.log("Se ha removido:", removed.name);
-  //     this.errorCount++;
-  //   }
-
-  //   if (this.errorCount >= this.maxErrors) {
-  //     this.gameOver = true;
-  //     console.log("¡Juego terminado! Perdiste.");
-  //     // Aquí podrías definir un mensaje de derrota o reiniciar el juego automáticamente.
-  //   }
-  // }
-
-  removedParts: string[] = [];
-
   removeRandomPart(): void {
     if (this.hangmanParts.length > 0) {
       const idx = Math.floor(Math.random() * this.hangmanParts.length);
@@ -174,7 +144,6 @@ export class HangmanComponent implements OnInit {
       console.log("¡Juego terminado! Perdiste.");
       // Aquí podrías definir un mensaje de derrota o reiniciar el juego automáticamente.
     }
-
   }
 
   getDisplayWord(): string {
@@ -189,4 +158,37 @@ export class HangmanComponent implements OnInit {
 }
 
 
+
+// // Función para remover aleatoriamente una parte del muñeco
+// removeRandomPart(): void {
+//   // if (this.hangmanParts.length > 0) {
+//   //   const randomIndex = Math.floor(Math.random() * this.hangmanParts.length);
+//   //   const removed = this.hangmanParts.splice(randomIndex, 1);
+//   //   console.log("Se ha removido:", removed[0]);
+//   //   this.errorCount++;
+//   // }
+
+//   if (this.hangmanParts.length > 0) {
+//     const idx = Math.floor(Math.random() * this.hangmanParts.length);
+//     const removed = this.hangmanParts.splice(idx, 1)[0];
+//     console.log("Se ha removido:", removed.name);
+//     this.errorCount++;
+//   }
+
+//   if (this.errorCount >= this.maxErrors) {
+//     this.gameOver = true;
+//     console.log("¡Juego terminado! Perdiste.");
+//     // Aquí podrías definir un mensaje de derrota o reiniciar el juego automáticamente.
+//   }
+// }
+
+
+// hangmanParts: string[] = [
+//   'cabeza',
+//   'brazo izquierdo',
+//   'brazo derecho',
+//   'torso',
+//   'pierna izquierda',
+//   'pierna derecha'
+// ];
 

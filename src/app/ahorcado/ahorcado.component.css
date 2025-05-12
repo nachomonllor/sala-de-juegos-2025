@@ -3,30 +3,54 @@
 /* Grid para 26 teclas: 7 columnas, 4 filas (7+7+7+5) */
 .keyboard {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.5rem;
+  /* en vez de 7 columnas de 1fr, usa auto para que el contenido marque el tamaño */
+  grid-template-columns: repeat(7, auto);
+  gap: 0.75rem;
   margin: 1rem 0;
+  /* max-width: 200px;  <-- comenta o quita esto */
 }
 
-/* Botón circular con efecto 3D */
+
+/* Teclas más grandes y color de pizarrón */
 .keyboard button {
-  position: relative;
-  padding: 1rem 0;
-  font-size: 1.2rem;
+  /* Tamaño mínimo: ancho y alto iguales */
+  min-width: 60px;
+  min-height: 60px;
+  aspect-ratio: 1 / 1;
+
+  /* Texto centrado y legible */
+  font-size: 1.4rem;
   font-weight: bold;
+  color: #fff;
+
+  /* Fondo del pizarrón */
+  background-color:  rgb(45, 83, 60);
+
+  /* Esquinas ligeramente redondeadas */
   border: none;
+  border-radius: 6px;
+
+  /* Sombra para efecto “presionado” */
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.2),
+    0 4px 4px rgba(0,0,0,0.4);
+
+   /* Ejemplo de estilo circular: */
+  /*
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, #e0e0e0, #a0a0a0);
   box-shadow:
     inset 0 2px 0 rgba(255,255,255,0.6),
     inset 0 -2px 0 rgba(0,0,0,0.4),
     0 4px 6px rgba(0,0,0,0.4);
-  color: #333;
+    */
+
   cursor: pointer;
   transition: transform 0.1s, box-shadow 0.1s;
 }
 
-/* “Pulsación” */
+
+/* Pulsación */
 .keyboard button:active {
   transform: translateY(2px);
   box-shadow:
@@ -34,13 +58,21 @@
     0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* Deshabilitado */
-.keyboard button:disabled {
+/* .keyboard button:disabled {
   background: #555;
   color: #222;
   cursor: not-allowed;
   box-shadow: none;
+} */
+
+/* Teclas usadas/deshabilitadas */
+.keyboard button:disabled {
+  background-color: #2e7d32; /* un verde aún más oscuro */
+  color: #bbb;
+  cursor: not-allowed;
+  box-shadow: none;
 }
+
 
 .result-message {
   text-align: center;
@@ -95,39 +127,115 @@
   width: 900px;
 }
 
+/* Máscaras en % para cada parte del muñeco */
 
-/* tapar cada parte */
+/* ------------------------------------------------------------------- */ 
+/* ahorcado.component.css */
 
 .cover {
   position: absolute;
-  background-color: #2e7d32; /* verde oscuro semejante a pizarrón */
-  /* si necesitas algo semitransparente: rgba(46,125,50,0.9) */
-  pointer-events: none; /* deja clics al fondo */
-  z-index: 10;          /* por encima de la imagen */
+  background-color: rgb(45, 83, 60);
+  pointer-events: none;
+  z-index: 10;
 }
 
-/* tapar la cabeza */
+/* Máscaras ajustadas con tus nuevas coordenadas en % */
+
+/* Cabeza */
 .cover-cabeza {
-  top:    20px;   /* distancia desde el borde superior del contenedor */
-  left:   100px;  /* desde el borde izquierdo */
-  width:  80px;   /* ancho de la máscara */
-  height: 80px;   /* alto de la máscara */
+  position: absolute;
+  top:    20%;
+  left:   46%;
+  width:  26%;   /* 72% − 46% */
+  height: 12%;   /* 32% − 20% */
+  background-color: rgb(45, 83, 60);
+  pointer-events: none;
+  z-index: 10;
 }
 
-/* tapar el brazo izquierdo */
-.cover-brazo-izquierdo {
-  top:    120px;
-  left:   60px;
-  width:  50px;
-  height: 100px;
-}
-
-/* tapar el torso */
+/* Torso */
 .cover-torso {
-  top:    100px;
-  left:   100px;
-  width:  60px;
-  height: 120px;
+  position: absolute;
+  top:    32%;
+  left:   58%;
+  width:  2%;    /* 60% − 58% */
+  height: 18%;   /* 46% − 32% */
+  background-color: rgb(45, 83, 60);
+  pointer-events: none;
+  z-index: 10;
 }
 
-/* y así sucesivamente… */
+/* Brazo izquierdo */
+.cover-brazo-izquierdo {
+  position: absolute;
+  top:    32%;
+  left:   46%;
+  width:  12%;   /* 58% − 46% */
+  height: 14%;   /* 46% − 32% */
+  background-color: rgb(45, 83, 60);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Brazo derecho */
+.cover-brazo-derecho {
+  position: absolute;
+  top:    32%;
+  left:   60%;
+  width:  12%;   /* 72% − 60% */
+  height: 14%;   /* 46% − 32% */
+  background-color: rgb(45, 83, 60);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Pierna izquierda */
+.cover-pierna-izquierda {
+  position: absolute;
+  top:    46%;
+  left:   46%;
+  width:  12%;   /* 58% − 46% */
+  height: 14%;   /* 60% − 46% */
+  background-color: rgb(45, 83, 60);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Pierna derecha */
+.cover-pierna-derecha {
+  position: absolute;
+  top:    46%;
+  left:   60%;
+  width:  12%;   /* 72% − 60% */
+  height: 14%;   /* 60% − 46% */
+  background-color: rgb(45, 83, 60);
+  pointer-events: none;
+  z-index: 10;
+}
+
+
+/* --------------------------------------------------------------------------------- */
+
+/* Contenedor flex que pone el teclado a la derecha de la imagen */
+.game-area {
+  display: flex;
+  align-items: flex-start; /* alinea el top de ambos */
+  gap: 1rem;               /* espacio entre imagen y teclado */
+}
+
+/* Ajusta el canvas para que no se encoja */
+.hangman-canvas {
+  flex-shrink: 0;
+}
+
+/* Mantén tu estilo de teclado */
+.keyboard {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+/* Opcional: limita ancho del teclado */
+.keyboard {
+  max-width: 500px;
+}

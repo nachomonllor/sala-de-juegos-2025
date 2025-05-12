@@ -1,7 +1,44 @@
-<div>
+
+<!-- ahorcado.component.html -->
+
+<div class="hangman-container">
   <h2>Ahorcado</h2>
 
   <!-- Mensaje de victoria/derrota -->
+  <div *ngIf="gameOver" class="result-message">
+    <h1>{{ winningMessage }}</h1>
+    <button (click)="resetGame()">Reiniciar Juego</button>
+  </div>
+
+  <h3>Letras adivinadas:</h3>
+  <h1>{{ getDisplayWord() }}</h1>
+
+  <!-- Área de juego: imagen + teclado -->
+  <div class="game-area">
+    <!-- Lienzo del muñeco -->
+    <div class="hangman-canvas">
+      <img src="/assets/parts/ahorcado-full.jpg" alt="Ahorcado completo">
+      <div *ngFor="let part of removedParts" class="cover cover-{{ part }}"></div>
+    </div>
+
+    <!-- Teclado de letras -->
+    <div *ngIf="!gameOver" class="keyboard">
+      <button
+        *ngFor="let letter of alphabet"
+        (click)="letterInput = letter; confirmGuess()"
+        [disabled]="guessedLetters.includes(letter.toLowerCase())"
+      >
+        {{ letter }}
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- <div>
+  <h2>Ahorcado</h2>
+
   <div *ngIf="gameOver" class="result-message">
     <h1>{{ winningMessage }}</h1>
     <button (click)="resetGame()">Reiniciar Juego</button>
@@ -15,23 +52,19 @@
   <span *ngFor="let part of hangmanParts; let i = index" class="hangman-part part–{{ part.img }}"></span>
 </div>
 
-<!-- Identacion: Shift + Alt + F (Windows/Linux)  -->
 
-<!-- ahorcado.component.html -->
 <div class="hangman-canvas">
   <img src="/assets/parts/ahorcado-full.jpg" alt="Ahorcado completo">
 
-  <!-- Por cada parte quitada (en tu lógica, push al array removedParts) -->
   <div *ngFor="let part of removedParts" class="cover cover-{{ part }}"></div>
 </div>
 
-<!-- Teclado de letras sólo si NO terminó -->
 <div *ngIf="!gameOver" class="keyboard">
   <button *ngFor="let letter of alphabet" (click)="letterInput = letter; confirmGuess()"
     [disabled]="guessedLetters.includes(letter.toLowerCase())">
     {{ letter }}
   </button>
-</div>
+</div> -->
 
 
 <!-- <h3>Partes del muñeco restantes:</h3>

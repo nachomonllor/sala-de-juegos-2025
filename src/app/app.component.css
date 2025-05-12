@@ -1,8 +1,9 @@
 /* src/styles.css */
 
 /* home.component.css */
-/* @import url('/assets/home.JPG') no-op; /* fuerza external */
+ /* @import url('/assets/home.JPG') no-op; /* fuerza external */
 .app-content {
     background: url('/assets/home.JPG') center center / cover no-repeat;
   }
   
+
