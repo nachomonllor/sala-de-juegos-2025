@@ -1,92 +1,21 @@
+
 /* ahorcado.component.css */
 
-/* Grid para 26 teclas: 7 columnas, 4 filas (7+7+7+5) */
-.keyboard {
-  display: grid;
-  /* en vez de 7 columnas de 1fr, usa auto para que el contenido marque el tamaño */
-  grid-template-columns: repeat(7, auto);
-  gap: 0.75rem;
-  margin: 1rem 0;
-  /* max-width: 200px;  <-- comenta o quita esto */
+/* Contenedor principal */
+.hangman-container {
+  padding: 1rem;
 }
 
-
-/* Teclas más grandes y color de pizarrón */
-.keyboard button {
-  /* Tamaño mínimo: ancho y alto iguales */
-  min-width: 60px;
-  min-height: 60px;
-  aspect-ratio: 1 / 1;
-
-  /* Texto centrado y legible */
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #fff;
-
-  /* Fondo del pizarrón */
-  background-color: rgb(45, 83, 60);
-
-  /* Esquinas ligeramente redondeadas */
-  border: none;
-  border-radius: 6px;
-
-  /* Sombra para efecto “presionado” */
-  box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.2),
-    0 4px 4px rgba(0, 0, 0, 0.4);
-
-  /* Ejemplo de estilo circular: */
-  /*
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #e0e0e0, #a0a0a0);
-  box-shadow:
-    inset 0 2px 0 rgba(255,255,255,0.6),
-    inset 0 -2px 0 rgba(0,0,0,0.4),
-    0 4px 6px rgba(0,0,0,0.4);
-    */
-
-  cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s;
-}
-
-
-/* Pulsación */
-.keyboard button:active {
-  transform: translateY(2px);
-  box-shadow:
-    inset 0 1px 0 rgba(0, 0, 0, 0.4),
-    0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* .keyboard button:disabled {
-  background: #555;
-  color: #222;
-  cursor: not-allowed;
-  box-shadow: none;
-} */
-
-/* Teclas usadas/deshabilitadas */
-.keyboard button:disabled {
-  background-color: #2e7d32;
-  /* un verde aún más oscuro */
-  color: #bbb;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-
+/* Mensaje de victoria/derrota */
 .result-message {
   text-align: center;
   margin: 1rem 0;
 }
-
 .result-message h1 {
   color: #4caf50;
-  /* verde para victoria */
   font-size: 2.5rem;
   margin-bottom: 1rem;
 }
-
 .result-message button {
   padding: 0.5rem 1rem;
   font-size: 1rem;
@@ -97,207 +26,97 @@
   cursor: pointer;
 }
 
-.hangman-part {
-  background: url('/assets/parts/ahorcado-full.jpg') no-repeat;
-  display: inline-block;
-
-  opacity: 0.85;
-
+/* Palabra oculta */
+.display-word {
+  font-size: 2rem;
+  letter-spacing: 0.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
-/* Ejemplo: la cabeza ocupa un cuadrado de 80×80px en (x=200, y=30) */
-.part–head {
-  width: 80px;
-  height: 80px;
-  background-position: -200px -30px;
-}
+/* Layout: imagen + teclado */
+/* .game-area {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 1rem;
+} */
 
-/* Torso en (x=200, y=110), w=60, h=120 */
-.part–torso {
-  width: 60px;
-  height: 120px;
-  background-position: -200px -110px;
-}
-
-/* ahorcado.component.css */
-.hangman-canvas {
-  position: relative;
-  display: inline-block;
-  /* se ajusta al tamaño de la imagen */
-
-  opacity: 0.85;
-}
-
-.hangman-canvas img {
-  display: block;
-  /* ancho deseado, p.ej. width: 400px; */
-
-  width: 900px;
-
-  opacity: 0.85;
-}
-
-/* Máscaras en % para cada parte del muñeco */
-
-/* ------------------------------------------------------------------- */
-/* ahorcado.component.css */
-
-/*
-.cover {
-  position: absolute;
-  background-color: rgb(45, 83, 60);
-  pointer-events: none;
-  z-index: 10;
-}
-*/
-
-/* ahorcado.component.css */
-
-.cover {
-  position: absolute;
-  pointer-events: none;
-  z-index: 10;
-
-  /* TEXTURA en lugar de color plano */
-  background-image: url('/assets/erase-texture.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  /* escala para rellenar cada máscara */
-  background-position: center;
-
-  opacity: 0.98;
-
-}
-
-/* Máscaras ajustadas con tus nuevas coordenadas en % */
-/* Cabeza */
-.cover-cabeza {
-  position: absolute;
-  top: 20%;
-  left: 46%;
-  width: 26%;
-  /* 72% − 46% */
-  height: 12%;
-
-  /* 32% − 20% */
-  background-image: url('/assets/erase-texture.jpg');
-  background-color: rgb(45, 83, 60);
-
-  pointer-events: none;
-  z-index: 10;
-}
-
-/* Torso */
-.cover-torso {
-  position: absolute;
-  top: 32%;
-  left: 58%;
-  width: 2%;
-  /* 60% − 58% */
-  height: 18%;
-  /* 46% − 32% */
-
-  background-image: url('/assets/erase-texture.jpg');
-  background-color: rgb(45, 83, 60);
-
-  pointer-events: none;
-  z-index: 10;
-}
-
-/* Brazo izquierdo */
-.cover-brazo-izquierdo {
-  position: absolute;
-  top: 32%;
-  left: 46%;
-  width: 12%;
-  /* 58% − 46% */
-  height: 14%;
-  /* 46% − 32% */
-
-
-
-  background-image: url('/assets/erase-texture.jpg');
-  background-color: rgb(45, 83, 60);
-
-  pointer-events: none;
-  z-index: 10;
-}
-
-/* Brazo derecho */
-.cover-brazo-derecho {
-  position: absolute;
-  top: 32%;
-  left: 60%;
-  width: 12%;
-  /* 72% − 60% */
-  height: 14%;
-  /* 46% − 32% */
-
-  background-image: url('/assets/erase-texture.jpg');
-  background-color: rgb(45, 83, 60);
-  pointer-events: none;
-  z-index: 10;
-}
-
-/* Pierna izquierda */
-.cover-pierna-izquierda {
-  position: absolute;
-  top: 46%;
-  left: 46%;
-  width: 12%;
-  /* 58% − 46% */
-  height: 14%;
-  /* 60% − 46% */
-
-  background-image: url('/assets/erase-texture.jpg');
-  background-color: rgb(45, 83, 60);
-  pointer-events: none;
-  z-index: 10;
-}
-
-/* Pierna derecha */
-.cover-pierna-derecha {
-  position: absolute;
-  top: 46%;
-  left: 60%;
-  width: 12%;
-  /* 72% − 60% */
-  height: 14%;
-  /* 60% − 46% */
-
-  background-image: url('/assets/erase-texture.jpg');
-  background-color: rgb(45, 83, 60);
-  pointer-events: none;
-  z-index: 10;
-}
-
-
-/* --------------------------------------------------------------------------------- */
-
-/* Contenedor flex que pone el teclado a la derecha de la imagen */
 .game-area {
   display: flex;
   align-items: flex-start;
-  /* alinea el top de ambos */
   gap: 1rem;
-  /* espacio entre imagen y teclado */
-
-
 }
 
-/* Ajusta el canvas para que no se encoja */
+
+/* quita o comenta cualquier width fijo en .hangman-canvas */
 .hangman-canvas {
-  flex-shrink: 0;
+  /* width: 400px;  ← coméntalo */
+  flex: 0 0 30%;      /* ocupa siempre el 30% del contenedor padre */
+  max-width: 30%;
+  aspect-ratio: 1 / 1;
 }
 
-/* Mantén tu estilo de teclado */
+/* el teclado ocupa el resto */
 .keyboard {
+  flex: 1;            /* toma el 70% restante */
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(7, auto);
+  gap: 0.75rem;
 }
 
-/* Opcional: limita ancho del teclado */
-.keyboard {
-  max-width: 500px;
+
+
+
+/* Fondo de pizarra */
+.chalkboard-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Cada parte del hombre-ahorcado */
+.hangman-part-img {
+  position: absolute;
+  z-index: 10;
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+
+/* Estilo de las teclas */
+.keyboard button {
+  min-width: 60px;
+  min-height: 60px;
+  aspect-ratio: 1 / 1;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: rgb(38, 76, 53);
+  border: none;
+  border-radius: 6px;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.2),
+    0 4px 4px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+/* Pulsación */
+.keyboard button:active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 1px 0 rgba(0,0,0,0.4),
+    0 2px 2px rgba(0,0,0,0.3);
+}
+
+/* Teclas deshabilitadas */
+.keyboard button:disabled {
+  background-color: #2e7d32;
+  color: #bbb;
+  cursor: not-allowed;
+  box-shadow: none;
 }
