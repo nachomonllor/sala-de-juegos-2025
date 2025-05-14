@@ -78,7 +78,11 @@ export class HangmanComponent implements OnInit {
 
       // Reinicia las partes con sus imágenes
       this.hangmanParts = [
-        { name: 'cabeza', img: 'cabeza.JPG', top: 20, left: 46, width: 26, height: 12 },
+        /* { name: 'cabeza', img: 'cabeza.JPG', top: 20, left: 46, width: 26, height: 12 }, */
+
+        { name: 'cabeza', img: 'cabeza.JPG', top:5, left:50, width:20, height:20 },
+
+
         { name: 'torso', img: 'torso.JPG', top: 32, left: 58, width: 2, height: 14 },
         { name: 'brazo-derecho', img: 'brazo-derecho.JPG', top: 32, left: 46, width: 12, height: 14 },
         { name: 'brazo-izquierdo', img: 'brazo-izquierdo.JPG', top: 32, left: 60, width: 12, height: 14 },

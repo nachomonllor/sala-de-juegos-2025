@@ -1,4 +1,3 @@
-
 /* ahorcado.component.css */
 
 /* Contenedor principal */
@@ -11,11 +10,14 @@
   text-align: center;
   margin: 1rem 0;
 }
+
 .result-message h1 {
   color: #4caf50;
   font-size: 2.5rem;
   margin-bottom: 1rem;
 }
+
+
 .result-message button {
   padding: 0.5rem 1rem;
   font-size: 1rem;
@@ -34,47 +36,51 @@
   margin-bottom: 1rem;
 }
 
-/* Layout: imagen + teclado */
-/* .game-area {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-top: 1rem;
-} */
-
 .game-area {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
 }
 
-
-/* quita o comenta cualquier width fijo en .hangman-canvas */
-.hangman-canvas {
-  /* width: 400px;  ← coméntalo */
-  flex: 0 0 30%;      /* ocupa siempre el 30% del contenedor padre */
-  max-width: 30%;
-  aspect-ratio: 1 / 1;
+.game-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
-
-/* el teclado ocupa el resto */
-.keyboard {
-  flex: 1;            /* toma el 70% restante */
-  display: grid;
-  grid-template-columns: repeat(7, auto);
-  gap: 0.75rem;
-}
-
-
-
 
 /* Fondo de pizarra */
 .chalkboard-bg {
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   z-index: 0;
+}
+
+
+.hangman-canvas {
+  position: relative;
+  /* 🔒 Contiene los hijos absolute */
+  /* width fijo: comentado */
+  /* width: 400px; */
+  flex: 0 0 30%;
+  /* ocupa el 30% del ancho */
+  max-width: 30%;
+  aspect-ratio: 1 / 1;
+}
+
+.hangman-beam {
+  position: absolute;
+  z-index: 5;        /* ya lo tenías */
+  opacity: 0.5;      /* ajusta este valor al  nivel que quieras */
+  transition: opacity 0.2s;
+}
+
+/* Si quieres variar la opacidad al pasar el ratón: */
+.hangman-beam:hover {
+  opacity: 0.7;
 }
 
 /* Cada parte del hombre-ahorcado */
@@ -86,11 +92,31 @@
   opacity: 0.7;
 }
 
+.keyboard {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.75rem;
+  width: 20%;
+  /* asegura que ocupe todo el área disponible */
+  box-sizing: border-box;
+  z-index: 10;
+  /* mayor que el 5 del soporte */
+
+}
+
 
 /* Estilo de las teclas */
 .keyboard button {
-  min-width: 60px;
-  min-height: 60px;
+  /* min-width: 60px;
+  min-height: 60px; */
+
+  width: 95%;
+  /* llena su celda */
+  aspect-ratio: 1;
+  /* mantiene cuadrado */
+  font-size: 1.4rem;
+
+
   aspect-ratio: 1 / 1;
   font-size: 1.4rem;
   font-weight: bold;
@@ -99,18 +125,21 @@
   border: none;
   border-radius: 6px;
   box-shadow:
-    inset 0 2px 0 rgba(255,255,255,0.2),
-    0 4px 4px rgba(0,0,0,0.4);
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    0 4px 4px rgba(0, 0, 0, 0.4);
   cursor: pointer;
   transition: transform 0.1s, box-shadow 0.1s;
+  z-index: 10;
+  /* mayor que el 5 del soporte */
+
 }
 
 /* Pulsación */
 .keyboard button:active {
   transform: translateY(2px);
   box-shadow:
-    inset 0 1px 0 rgba(0,0,0,0.4),
-    0 2px 2px rgba(0,0,0,0.3);
+    inset 0 1px 0 rgba(0, 0, 0, 0.4),
+    0 2px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Teclas deshabilitadas */
