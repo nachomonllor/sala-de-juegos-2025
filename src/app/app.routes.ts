@@ -13,6 +13,8 @@ import { FlowfreeComponent } from './flow-free/flow-free.component';
 import { AuthGuard } from './guards/auth.guard';
 import { ChatComponent } from './chat/chat.component';
 import { QuienSoyComponent } from './quien-soy/quien-soy.component';
+import { ResultsListComponent } from './results-list/results-list.component';
+import { EncuestaComponent } from './components/encuesta/encuesta.component';
 
 export const routes: Routes = [
 
@@ -21,6 +23,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
   { path: 'register', component: RegisterComponent },
+  { path: 'encuesta', component: EncuestaComponent},
   { path: 'quien-soy', component: QuienSoyComponent},
   { path: 'logs', component: LogsListComponent, canActivate:  [AuthGuard] },
   {
@@ -31,7 +34,9 @@ export const routes: Routes = [
       { path: 'ahorcado', component: HangmanComponent },
       { path: 'mayor-menor', component: MayorMenorComponent },
       { path: 'preguntados', component: DuelComponent },
-      { path: 'flowfree', component: FlowfreeComponent }
+      { path: 'flowfree', component: FlowfreeComponent },
+      { path: 'resultados', component: ResultsListComponent }
+
     ]
   },
   { path: '**', redirectTo: 'home' }

@@ -1,0 +1,100 @@
+<p>encuesta works!</p>
+
+<section class="encuesta-container">
+  <h2>Encuesta de Opinión</h2>
+  <form [formGroup]="encuestaForm" (ngSubmit)="onSubmit()">
+
+    <!-- NOMBRE -->
+    <div class="form-group">
+      <label for="nombre">Nombre y Apellido:</label>
+      <input id="nombre" formControlName="nombre" type="text" placeholder="Juan" />
+      <div class="error" *ngIf="encuestaForm.get('nombre')?.touched && encuestaForm.get('nombre')?.invalid">
+        <small *ngIf="encuestaForm.get('nombre')?.errors?.['required']">El nombre es obligatorio.</small>
+        <small *ngIf="encuestaForm.get('nombre')?.errors?.['pattern']">Solo letras y espacios.</small>
+      </div>
+    </div>
+
+    <!-- APELLIDO -->
+    <div class="form-group">
+      <label for="apellido">Apellido:</label>
+      <input id="apellido" formControlName="apellido" type="text" placeholder="Pérez" />
+      <div class="error" *ngIf="encuestaForm.get('apellido')?.touched && encuestaForm.get('apellido')?.invalid">
+        <small *ngIf="encuestaForm.get('apellido')?.errors?.['required']">El apellido es obligatorio.</small>
+        <small *ngIf="encuestaForm.get('apellido')?.errors?.['pattern']">Solo letras y espacios.</small>
+      </div>
+    </div>
+
+    <!-- EDAD -->
+    <div class="form-group">
+      <label for="edad">Edad:</label>
+      <input id="edad" formControlName="edad" type="number" placeholder="Ej: 25" min="19" max="98" />
+      <div class="error" *ngIf="encuestaForm.get('edad')?.touched && encuestaForm.get('edad')?.invalid">
+        <small *ngIf="encuestaForm.get('edad')?.errors?.['required']">La edad es obligatoria.</small>
+        <small *ngIf="encuestaForm.get('edad')?.errors?.['min'] || encuestaForm.get('edad')?.errors?.['max']">
+          Debe ser entre 19 y 98 años.
+        </small>
+      </div>
+    </div>
+
+    <!-- TELÉFONO -->
+    <div class="form-group">
+      <label for="telefono">Teléfono:</label>
+      <input id="telefono" formControlName="telefono" type="text" placeholder="Ej: 1122334455" maxlength="10" />
+      <div class="error" *ngIf="encuestaForm.get('telefono')?.touched && encuestaForm.get('telefono')?.invalid">
+        <small *ngIf="encuestaForm.get('telefono')?.errors?.['required']">El teléfono es obligatorio.</small>
+        <small *ngIf="encuestaForm.get('telefono')?.errors?.['pattern']">Solo números (hasta 10 dígitos).</small>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- PREGUNTA 1: TEXTO -->
+    <div class="form-group">
+      <label for="preguntaTexto">1. ¿Cuál es tu comida favorita?</label>
+      <input id="preguntaTexto" formControlName="preguntaTexto" type="text" placeholder="Escribe tu respuesta" />
+      <div class="error" *ngIf="encuestaForm.get('preguntaTexto')?.touched && encuestaForm.get('preguntaTexto')?.invalid">
+        <small *ngIf="encuestaForm.get('preguntaTexto')?.errors?.['required']">Respuesta obligatoria.</small>
+      </div>
+    </div>
+
+    <!-- PREGUNTA 2: RADIO BUTTON -->
+    <div class="form-group">
+      <label>2. ¿Qué color prefieres?</label>
+      <div *ngFor="let opcion of opcionesRadio">
+        <input
+          type="radio"
+          [value]="opcion"
+          formControlName="preguntaRadio"
+          [id]="opcion"
+        />
+        <label [for]="opcion">{{ opcion }}</label>
+      </div>
+      <div class="error" *ngIf="encuestaForm.get('preguntaRadio')?.touched && encuestaForm.get('preguntaRadio')?.invalid">
+        <small *ngIf="encuestaForm.get('preguntaRadio')?.errors?.['required']">Debes seleccionar un color.</small>
+      </div>
+    </div>
+
+    <!-- PREGUNTA 3: CHECKBOX -->
+    <div class="form-group">
+      <label>3. ¿Qué redes sociales usas? (marca al menos una)</label>
+      <div formArrayName="preguntaCheckbox">
+        <div *ngFor="let opcion of opcionesCheck; let i = index">
+          <input
+            type="checkbox"
+            [formControlName]="i"
+            [id]="'chk' + i"
+          />
+          <label [for]="'chk' + i">{{ opcion }}</label>
+        </div>
+      </div>
+      <div class="error" *ngIf="preguntaCheckboxArray.touched && preguntaCheckboxArray.invalid">
+        <small *ngIf="preguntaCheckboxArray.errors?.['minCheckbox']">Marca al menos una opción.</small>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- BOTÓN DE ENVÍO -->
+    <button type="submit">Enviar Encuesta</button>
+  </form>
+</section>

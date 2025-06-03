@@ -46,7 +46,7 @@ export class HangmanComponent implements OnInit {
 
   // todas las partes con sus coords en %
   private initialParts: HangmanPart[] = [
-    { name: 'cabeza', img: 'cabeza.JPG', top: 20, left: 46, width: 26, height: 12 },
+    { name: 'cabeza', img: 'cabeza.JPG', top: 40, left: 46, width: 26, height: 12 },
     { name: 'torso', img: 'torso.JPG', top: 32, left: 58, width: 10, height: 14 },
     { name: 'brazo-derecho', img: 'brazo-derecho.JPG', top: 32, left: 46, width: 12, height: 14 },
     { name: 'brazo-izquierdo', img: 'brazo-izquierdo.JPG', top: 32, left: 60, width: 12, height: 14 },

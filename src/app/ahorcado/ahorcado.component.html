@@ -1,15 +1,7 @@
 <!-- src/app/ahorcado/ahorcado.component.html -->
 
 <div class="hangman-container">
-  <h2>Ahorcado</h2>
-
-  <!-- Mensaje de victoria/derrota -->
-  <div *ngIf="gameOver" class="result-message">
-    <h1>{{ winningMessage }}</h1>
-    <button (click)="resetGame()">Reiniciar Juego</button>
-  </div>
-
-
+  <h2 class="result-message">Ahorcado</h2>
 
   <!-- Área de juego: fondo + partes + teclado -->
   <div class="game-area">
@@ -19,8 +11,13 @@
       <!-- img src="/assets/pizarron.jpg" alt="Pizarrón" class="chalkboard-bg" / -->
 
       <!-- SOPORTE -->
-      <img src="/assets/parts/soporte.jpg" alt="Soporte" class="hangman-beam"
-        style="top: -10%; left: 10%; width: 100%; height: 100%;" />
+
+       <img src="/assets/parts/soporte.jpg" alt="Soporte" class="hangman-beam">
+
+      <!-- img src="/assets/parts/soporte.jpg" alt="Soporte" class="hangman-beam" style="top: 0%; 
+        left: 0%; 
+        width: 100%; 
+        height: 100%;" / -->
 
 
       <!-- Cada parte del ahorcado como imagen absoluta -->
@@ -42,6 +39,14 @@
     </div>
 
   </div>
+
+
+  <!-- Mensaje de victoria/derrota -->
+  <div *ngIf="gameOver" class="result-message">
+    <h1>{{ winningMessage }}</h1>
+    <button (click)="resetGame()">Reiniciar Juego</button>
+  </div>
+
 
   <!-- Palabra oculta -->
   <!-- h3>Letras adivinadas:</h3 -->
