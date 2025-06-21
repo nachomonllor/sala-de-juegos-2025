@@ -1,21 +1,11 @@
-
 <div class="hangman-container">
   <h2>Ahorcado</h2>
   <div class="game-area">
     <div class="hangman-canvas">
-      <!-- Mostramos el soporte fijo -->
-      <img src="/assets/parts/soporte.jpg" alt="Soporte" class="hangman-beam">
-      <!-- Partes dinámicas según errores -->
-      <img *ngFor="let part of hangmanParts"
-           [src]="'/assets/parts/' + part.img"
-           [alt]="part.name"
-           class="hangman-part-img"
-           [ngStyle]="{
-             top:    part.top    + '%',
-             left:   part.left   + '%',
-             width:  part.width  + '%',
-             height: part.height + '%'
-           }" />
+      <!-- Imagen compuesta según errores -->
+      <img [src]="getHangmanImage()"
+           alt="Ahorcado - etapa {{ errorCount }}"
+           class="hangman-image" />
     </div>
 
     <div *ngIf="!gameOver" class="keyboard">
@@ -34,11 +24,5 @@
     <p class="display-word">{{ getDisplayWord() }}</p>
   </div>
 </div>
-
-
-
-
-
-
 
 
