@@ -1,58 +1,272 @@
+// mayor-menor.component.ts
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+
+export interface Card {
+  suit: 'oro' | 'espada' | 'copa' | 'basto';
+  value: number;          // 1–7, 10–12
+  label: string;          // '1'..'7', '10', '11', '12'
+}
 
 @Component({
   selector: 'app-mayor-menor',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule],
-  standalone :true,
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './mayor-menor.component.html',
-  styleUrl: './mayor-menor.component.css'
+  styleUrls: ['./mayor-menor.component.css']
 })
 export class MayorMenorComponent implements OnInit {
-  gameForm!: FormGroup;
-  secretNumber: number = 0;
-  attempts: number  = 0;
-  maxAttempts: number = 10;
-  message: string = '';
 
-  constructor(private fb: FormBuilder) { }
+  /** Ranking de palos: oro > espada > copa > basto */
+  private suitRank: Record<Card['suit'], number> = {
+    basto: 1,
+    copa:  2,
+    espada:3,
+    oro:   4
+  };
 
-  ngOnInit(): void {
-    this.resetGame();
-    this.gameForm = this.fb.group({
-      guess: ['', [Validators.required, Validators.min(1), Validators.max(100)]]
-    });
+  deck: Card[] = [];
+  currentCard!: Card;
+  nextCard!: Card;
+
+  score = 0;
+  lives = 3;
+  bestScore = 0;
+  gameOver = false;
+
+  ngOnInit() {
+    this.bestScore = Number(localStorage.getItem('bestScore') || '0');
+    this.startGame();
   }
 
-  resetGame() {
-    // Genera un número aleatorio entre 1 y 100
-    this.secretNumber = Math.floor(Math.random() * 100) + 1;
-    this.attempts = this.maxAttempts;
-    this.message = '';
+  startGame() {
+    this.gameOver = false;
+    this.score = 0;
+    this.lives = 3;
+    this.buildDeck();
+    this.shuffleDeck();
+    // Cargar carta actual y próxima
+    this.currentCard = this.drawCard();
+    this.nextCard    = this.drawCard();
+    console.log(`Carta actual: ${this.currentCard.label} de ${this.currentCard.suit}`);
+    console.log(`Próxima carta: ${this.nextCard.label} de ${this.nextCard.suit}`);
   }
 
-  onSubmit() {
-    if (this.gameForm.invalid || this.attempts <= 0) {
+  buildDeck() {
+    this.deck = [];
+    const suits: Card['suit'][] = ['oro', 'espada', 'copa', 'basto'];
+    const cardDefs = [
+      { value: 1, label: '1' },
+      { value: 2, label: '2' },
+      { value: 3, label: '3' },
+      { value: 4, label: '4' },
+      { value: 5, label: '5' },
+      { value: 6, label: '6' },
+      { value: 7, label: '7' },
+      { value: 10, label: '10' },
+      { value: 11, label: '11' },
+      { value: 12, label: '12' },
+    ];
+    for (let suit of suits) {
+      for (let card of cardDefs) {
+        this.deck.push({ suit, value: card.value, label: card.label });
+      }
+    }
+  }
+
+  shuffleDeck() {
+    for (let i = this.deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+    }
+  }
+
+  drawCard(): Card {
+    const card = this.deck.pop();
+    if (!card) throw new Error('No quedan más cartas');
+    return card;
+  }
+
+  makeGuess(guess: 'higher' | 'lower' | 'equal') {
+    if (this.gameOver) {
+      this.finishGame();
       return;
     }
 
-    const guess = parseInt(this.gameForm.value.guess, 10);
-    this.attempts--;
+    // Mostrar en consola carta actual y próxima antes de evaluar
+    console.log(`Carta actual: ${this.currentCard.label} de ${this.currentCard.suit}`);
+    console.log(`Próxima carta: ${this.nextCard.label} de ${this.nextCard.suit}`);
 
-    if (guess === this.secretNumber) {
-      this.message = '¡Acertaste!';
-    } else if (guess < this.secretNumber) {
-      this.message = 'El número es mayor.';
+    const cVal = this.currentCard.value;
+    const nVal = this.nextCard.value;
+    let correct = false;
+
+    if (guess === 'higher') {
+      if (nVal > cVal) correct = true;
+      else if (nVal === cVal && this.suitRank[this.nextCard.suit] > this.suitRank[this.currentCard.suit])
+        correct = true;
+    } else if (guess === 'lower') {
+      if (nVal < cVal) correct = true;
+      else if (nVal === cVal && this.suitRank[this.nextCard.suit] < this.suitRank[this.currentCard.suit])
+        correct = true;
+    } else { // equal
+      if (nVal === cVal && this.nextCard.suit === this.currentCard.suit)
+        correct = true;
+    }
+
+    // Avanzar: la próxima se convierte en actual
+    this.currentCard = this.nextCard;
+    // Extraer nueva próxima, si quedan cartas
+    if (this.deck.length > 0) {
+      this.nextCard = this.drawCard();
+    }
+
+    // Ajustar puntuación o penalización
+    if (correct) {
+      this.score++;
     } else {
-      this.message = 'El número es menor.';
+      this.lives--;
+      if (this.lives <= 0) this.finishGame();
     }
 
-    if (this.attempts === 0 && guess !== this.secretNumber) {
-      this.message = `Has agotado los intentos. El número era ${this.secretNumber}.`;
+    // Mostrar la nueva próxima carta en consola (opcional)
+    if (!this.gameOver && this.deck.length > 0) {
+      console.log(`Nueva próxima carta: ${this.nextCard.label} de ${this.nextCard.suit}`);
     }
+  }
 
-    this.gameForm.reset();
+  finishGame() {
+    this.gameOver = true;
+    if (this.score > this.bestScore) {
+      this.bestScore = this.score;
+      localStorage.setItem('bestScore', this.bestScore.toString());
+    }
+  }
+
+  getCardImage(card: Card): string {
+    return `assets/cards/${card.label}_${card.suit}.JPG`;
   }
 }
+
+
+// ------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------
+/*
+// mayor-menor.component.ts
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+export interface Card {
+  suit: 'oro' | 'copa' | 'espada' | 'basto';
+  value: number;          // 1–7, 10–12
+  label: string;          // '1'..'7', 'Sota', 'Caballo', 'Rey'
+}
+
+@Component({
+  selector: 'app-mayor-menor',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './mayor-menor.component.html',
+  styleUrl: './mayor-menor.component.css'
+})
+
+export class MayorMenorComponent implements OnInit {
+
+  deck: Card[] = [];
+  currentCard!: Card;
+  nextCard!: Card;
+
+  score = 0;
+  lives = 3;
+  bestScore = 0;
+  gameOver = false;
+
+  ngOnInit() {
+    this.bestScore = Number(localStorage.getItem('bestScore') || '0');
+    this.startGame();
+  }
+
+  startGame() {
+    this.gameOver = false;
+    this.score = 0;
+    this.lives = 3;
+    this.buildDeck();
+    this.shuffleDeck();
+    this.currentCard = this.drawCard();
+  }
+
+  buildDeck() {
+    this.deck = [];
+    const suits: Card['suit'][] = ['oro', 'copa', 'espada', 'basto'];
+    const cardDefs = [
+      { value: 1, label: '1' },
+      { value: 2, label: '2' },
+      { value: 3, label: '3' },
+      { value: 4, label: '4' },
+      { value: 5, label: '5' },
+      { value: 6, label: '6' },
+      { value: 7, label: '7' },
+      { value: 10, label: '10' },
+      { value: 11, label: '11' },
+      { value: 12, label: '12' },
+    ];
+    for (let suit of suits) {
+      for (let card of cardDefs) {
+        this.deck.push({ suit, value: card.value, label: card.label });
+      }
+    }
+  }
+
+  shuffleDeck() {
+    for (let i = this.deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+    }
+  }
+
+  drawCard(): Card {
+    return this.deck.pop()!;
+  }
+
+  makeGuess(guess: 'higher' | 'lower' | 'equal') {
+    if (this.gameOver || this.deck.length === 0) {
+      this.finishGame();
+      return;
+    }
+
+    this.nextCard = this.drawCard();
+    const c = this.currentCard.value;
+    const n = this.nextCard.value;
+    let correct = false;
+
+    if (guess === 'higher' && n > c) correct = true;
+    if (guess === 'lower'  && n < c) correct = true;
+    if (guess === 'equal'  && n === c) correct = true;
+
+    if (correct) {
+      this.score++;
+      this.currentCard = this.nextCard;
+    } else {
+      this.lives--;
+      if (this.lives <= 0) this.finishGame();
+    }
+  }
+
+  finishGame() {
+    this.gameOver = true;
+    if (this.score > this.bestScore) {
+      this.bestScore = this.score;
+      localStorage.setItem('bestScore', this.bestScore.toString());
+    }
+  }
+
+  getCardImage(card: Card): string {
+    return `assets/cards/${card.label}_${card.suit}.JPG`;
+  }
+
+}
+*/
+

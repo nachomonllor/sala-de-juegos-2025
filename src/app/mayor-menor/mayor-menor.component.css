@@ -1,50 +1,87 @@
+
+/* mayor-menor.component.css */
+:host {
+  display: block;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+  color: #333;
+}
+
 .game-container {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    background-color: #f4f4f4;
-    text-align: center;
-  }
-  
-  .game-container h1 {
-    margin-bottom: 20px;
-    color: #333;
-    font-size: 24px;
-  }
-  
-  .game-container form {
-    margin-bottom: 20px;
-  }
-  
-  .game-container input[type="number"] {
-    width: 70%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 10px;
-  }
-  
-  .game-container button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    margin: 5px;
-  }
-  
-  .game-container button:hover {
-    background-color: #0056b3;
-  }
-  
-  .game-container p {
-    font-size: 18px;
-    margin: 10px 0;
-    color: #555;
-  }
-  
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.card-area {
+  margin: 1rem 0;
+}
+
+.card {
+  width: 150px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.controls button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background-color: #2196f3;
+  color: #fff;
+  transition: background-color 0.2s;
+}
+
+.controls button:hover {
+  background-color: #1976d2;
+}
+
+.game-over {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.game-over h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #e53935;
+}
+
+.game-over button {
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #4caf50;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.game-over button:hover {
+  background-color: #388e3c;
+}

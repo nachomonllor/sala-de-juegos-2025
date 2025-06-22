@@ -1,11 +1,56 @@
-<div class="game-container">
-    <h1>Juego: Mayor o Menor</h1>
-    <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
-      <input type="number" formControlName="guess" placeholder="Ingresa tu número (1-100)">
-      <button type="submit" [disabled]="gameForm.invalid || attempts === 0">Enviar</button>
-    </form>
-    <p>{{ message }}</p>
-    <p>Intentos restantes: {{ attempts }}</p>
-    <button (click)="resetGame()">Reiniciar Juego</button>
+<div class="game-container" *ngIf="!gameOver">
+  <div class="scoreboard">
+    <span>💖 Vidas: {{ lives }}</span>
+    <span>⭐ Puntuación: {{ score }}</span>
+    <span>🏆 Récord: {{ bestScore }}</span>
   </div>
-  
+
+  <div class="card-area">
+    <!-- Siempre muestra la carta actual (que se actualiza tras cada elección) -->
+    <img [src]="getCardImage(currentCard)" alt="Carta actual" class="card">
+  </div>
+
+  <div class="controls">
+    <button (click)="makeGuess('higher')">Mayor ↑</button>
+    <button (click)="makeGuess('equal')">Igual =</button>
+    <button (click)="makeGuess('lower')">Menor ↓</button>
+  </div>
+</div>
+
+<div class="game-over" *ngIf="gameOver">
+  <h2>¡Game Over!</h2>
+  <p>Tu puntuación: {{ score }}</p>
+  <p>Récord: {{ bestScore }}</p>
+  <button (click)="startGame()">Jugar de nuevo</button>
+</div>
+
+
+
+<!-- <div class="game-container" *ngIf="!gameOver">
+  <div class="scoreboard">
+    <span>💖 Vidas: {{ lives }}</span>
+    <span>⭐ Puntuación: {{ score }}</span>
+    <span>🏆 Récord: {{ bestScore }}</span>
+  </div>
+
+  <div class="card-area">
+    <img [src]="getCardImage(currentCard)" alt="Carta actual" class="card">
+  </div>
+
+  <div class="controls">
+    <button (click)="makeGuess('higher')">Mayor ↑</button>
+    <button (click)="makeGuess('equal')">Igual =</button>
+    <button (click)="makeGuess('lower')">Menor ↓</button>
+  </div>
+</div>
+
+<div class="game-over" *ngIf="gameOver">
+  <h2>¡Game Over!</h2>
+  <p>Tu puntuación: {{ score }}</p>
+  <p>Récord: {{ bestScore }}</p>
+  <button (click)="startGame()">Jugar de nuevo</button>
+</div>
+
+ -->
+
+
