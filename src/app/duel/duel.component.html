@@ -1,65 +1,68 @@
-<div class="container mt-4">
+<div class="game-container">
+  <!-- Selector de tema -->
+  <div class="form-group">
+    <label for="themeSelect">Seleccione Tema:</label>
+    <select
+      id="themeSelect"
+      [(ngModel)]="selectedTheme"
+      (change)="loadQuestion()"
+    >
+      <option *ngFor="let t of ['historia', 'geografia', 'arte', 'biologia']" [value]="t">
+        {{ t | titlecase }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Juego activo -->
+  <div *ngIf="!gameOver; else overTpl">
     <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h2 class="text-center">Modo Duelo - Preguntados</h2>
+      <div class="card-header">
+        Preguntados – Tema: {{ selectedTheme | titlecase }}
+      </div>
+      <div class="card-body">
+        <img
+          *ngIf="currentImage"
+          [src]="currentImage"
+          alt="Pregunta visual"
+          class="img-fluid"
+        />
+        <p class="lead">{{ currentQuestion }}</p>
+
+        <div class="scoreboard">
+          Vidas: {{ lives }}
         </div>
-        <div class="card-body">
-            <p class="lead text-center">
 
-            <p><strong>Tema seleccionado:</strong> {{ selectedTheme.toString() | titlecase }}</p>
-
-
-            <p class="lead"><strong>Pregunta:</strong> {{ currentQuestion }}</p>
-
-            <div class="mb-3">
-                <p><strong>Opciones:</strong></p>
-                <div class="row">
-                    <div class="col-6 col-md-3" *ngFor="let opt of options">
-                        <button class="btn btn-outline-primary w-100 mb-2" (click)="selectAnswer(opt)"
-                            [disabled]="answeredCorrectly">
-                            {{ opt }}
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div *ngIf="message" class="alert alert-info">
-                <p class="mb-0">{{ message }}</p>
-            </div>
-
-            <div *ngIf="answeredCorrectly" class="text-center">
-                <button class="btn btn-success" (click)="nextQuestion()">Siguiente Pregunta</button>
-            </div>
+        <div class="controls">
+          <button
+            *ngFor="let opt of options"
+            (click)="selectAnswer(opt)"
+            [disabled]="answered"
+          >
+            {{ opt }}
+          </button>
         </div>
-    </div>
-</div>
 
+        <div *ngIf="message" class="alert alert-info">
+          {{ message }}
+        </div>
 
-
-
-
-<!-- 
-<div>
-    <h2>Modo Duelo - Preguntados</h2>
-    <p><strong>Tema seleccionado:</strong> {{ selectedTheme }}</p>
-    
-    <p><strong>Pregunta:</strong> {{ currentQuestion }}</p>
-  
-    <div>
-      <p><strong>Opciones:</strong></p>
-      <div *ngFor="let opt of options">
-        <button (click)="selectAnswer(opt)" [disabled]="answeredCorrectly">{{ opt }}</button>
+        <button
+          *ngIf="answered && !gameOver"
+          class="btn btn-success"
+          (click)="nextQuestion()"
+        >
+          Siguiente
+        </button>
       </div>
     </div>
-  
-    <div *ngIf="message">
-      <p>{{ message }}</p>
-    </div>
-  
-    <div *ngIf="answeredCorrectly">
-      <button (click)="nextQuestion()">Siguiente Pregunta</button>
-    </div>
   </div>
-  
 
- -->
+  <!-- Game Over -->
+  <ng-template #overTpl>
+    <div class="game-over text-center">
+      <h1>Game Over</h1>
+      <p>Te quedaste sin vidas.</p>
+      <button (click)="reset()">Reiniciar</button>
+    </div>
+  </ng-template>
+</div>

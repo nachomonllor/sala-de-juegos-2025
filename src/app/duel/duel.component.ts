@@ -1,113 +1,178 @@
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';      // ← IMPORTA ESTO
 import { Component, OnInit } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { QuestionService } from '../services/question.service';
 
 @Component({
+  standalone: true,                                         // ← AGREGA ESTO
   selector: 'app-duel',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    HttpClientModule                                      // ← Y ESTO
+  ],
   templateUrl: './duel.component.html',
-  styleUrl: './duel.component.css'
+  styleUrls: ['./duel.component.css']                     // ← CORRIGE A styleUrls
 })
 
 export class DuelComponent implements OnInit {
-  // Diccionario anidado: cada temática (key) contiene un diccionario de preguntas y respuestas.
-  questions: { [theme: string]: { [question: string]: string } } = {
-    "historia": {
-      "¿Cuál es la capital de Francia?": "París",
-      "¿En qué año llegó el hombre a la luna?": "1969",
-      "¿Cuál es el océano más grande del mundo?": "Pacífico",
-      "¿Quién pintó la Mona Lisa?": "Leonardo da Vinci",
-      "¿Cuál es el animal terrestre más rápido?": "Guepardo"
-    },
-    "geografia": {
-      "¿Cuál es el río más largo de la Península Ibérica?": "Río Tajo",
-      "¿Cuál es el país más pequeño del mundo?": "Ciudad o Estado Vaticano",
-      "¿Cuántos océanos hay en la Tierra?": "5",
-      "¿Qué país tiene más habitantes?": "China",
-      "¿Cuál es la montaña más alta del mundo?": "Monte Everest"
-    },
-    "arte": {
-      "¿Cuál de las siguientes NO es una técnica de pintura tradicional?": "Fotolitografía digital",
-      "El círculo cromático primario está compuesto por:": "Rojo, amarillo y azul",
-      "¿Qué artista es conocido por su famosa obra 'La noche estrellada'?": "Vincent van Gogh",
-      "La técnica del sfumato fue desarrollada y popularizada por:": "Leonardo da Vinci",
-      "¿Qué es el surrealismo?": "Es un movimiento artístico que busca explorar el lado subconsciente de la mente humana, a través de imágenes oníricas"
-    }
-  };
-
-  // Variable para almacenar el tema seleccionado
-  //selectedTheme: keyof typeof this.questions = "historia";
-
-  selectedTheme: string = "historia";
-
-  // Variables para la pregunta actual y opciones
-  currentQuestion: string = '';
-  currentCorrectAnswer: string = '';
+  selectedTheme = 'historia';
+  currentQuestion = '';
+  currentImage = '';
   options: string[] = [];
-  message: string = '';
-  answeredCorrectly: boolean = false;
+  message = '';
+  answered = false;
+  lives = 3;
+  gameOver = false;
 
-  constructor() { }
+  // ← NUEVO: almacena aquí la respuesta correcta
+  correctAnswer = '';
+
+  constructor(private qs: QuestionService) { }
 
   ngOnInit(): void {
-    this.selectRandomTheme();
-    this.nextQuestion();
+    this.loadQuestion();
   }
 
-  // Selecciona aleatoriamente una temática y la guarda en selectedTheme
-  selectRandomTheme(): void {
-    const themes = Object.keys(this.questions);
-    const randomIndex = Math.floor(Math.random() * themes.length);
-    this.selectedTheme = themes[randomIndex]; // as keyof typeof this.questions;
-  }
-
-  // Selecciona una nueva pregunta aleatoriamente y genera las opciones de respuesta.
-  nextQuestion(): void {
+  loadQuestion(): void {
     this.message = '';
-    this.answeredCorrectly = false;
+    this.answered = false;
+    if (this.gameOver) { return; }
 
-    // Obtiene el diccionario de preguntas para el tema seleccionado.
-    const themeQuestions = this.questions[this.selectedTheme];
-    const questionKeys = Object.keys(themeQuestions);
-    const randomIndex = Math.floor(Math.random() * questionKeys.length);
-    this.currentQuestion = questionKeys[randomIndex];
-    this.currentCorrectAnswer = themeQuestions[this.currentQuestion];
+    this.qs.getQuestion(this.selectedTheme).subscribe(q => {
+      this.currentQuestion = q.questionText;
+      this.currentImage    = q.imageUrl;
+      this.correctAnswer   = q.correctAnswer;           // ← GUARDA la respuesta correcta
+      this.options         = this.shuffle([
+        this.correctAnswer, 
+        ...q.incorrectAnswers
+      ]);
+    });
+  }
 
-    // Genera opciones: la respuesta correcta + 3 respuestas incorrectas.
-    const allAnswers = Object.values(themeQuestions).filter(ans => ans !== this.currentCorrectAnswer);
-    let incorrectAnswers: string[] = [];
+  selectAnswer(opt: string): void {
+    if (this.answered) { return; }
+    this.answered = true;
 
-    while (incorrectAnswers.length < 3 && allAnswers.length > 0) {
-      const index = Math.floor(Math.random() * allAnswers.length);
-      const selected = allAnswers[index];
-      if (!incorrectAnswers.includes(selected)) {
-        incorrectAnswers.push(selected);
+    if (opt === this.correctAnswer) {
+      this.message = '¡Correcto!';
+    } else {
+      this.message = `Incorrecto. La respuesta era: ${this.correctAnswer}`;
+      this.lives--;
+      if (this.lives === 0) {
+        this.gameOver = true;
+        this.message += ' — Game Over.';
       }
     }
-
-    // Combina y baraja las opciones.
-    this.options = [this.currentCorrectAnswer, ...incorrectAnswers];
-    this.shuffleArray(this.options);
   }
 
-  // Algoritmo de Fisher-Yates para barajar un array.
-  shuffleArray(array: any[]): void {
-    for (let i = array.length - 1; i > 0; i--) {
+  nextQuestion(): void {
+    if (!this.gameOver) {
+      this.loadQuestion();
+    }
+  }
+
+  reset(): void {
+    this.lives = 3;
+    this.gameOver = false;
+    this.loadQuestion();
+  }
+
+  private shuffle(arr: any[]): any[] {
+    for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-  }
-
-  // Método que se invoca cuando el usuario selecciona una respuesta.
-  selectAnswer(answer: string): void {
-    if (answer === this.currentCorrectAnswer) {
-      this.message = "¡Correcto!";
-      this.answeredCorrectly = true;
-    } else {
-      this.message = "Incorrecto. La respuesta correcta es: " + this.currentCorrectAnswer;
-      this.answeredCorrectly = false;
-    }
+    return arr;
   }
 }
 
+
+// import { CommonModule } from '@angular/common';
+// import { FormsModule } from '@angular/forms';
+// import { Component, OnInit } from '@angular/core';
+// import { QuestionService } from '../question.service';
+// import { Question } from '../models/question.model';
+
+// @Component({
+//   selector: 'app-duel',
+//   imports: [CommonModule, FormsModule],
+//   templateUrl: './duel.component.html',
+//   styleUrl: './duel.component.css'
+// })
+
+// export class DuelComponent implements OnInit {
+//   selectedTheme = 'historia';            // O el tema que elijas
+//   currentQuestion = '';
+//   currentImage = '';
+//   options: string[] = [];
+//   message = '';
+//   answered = false;
+//   lives = 3;
+//   gameOver = false;
+
+//   constructor(private qs: QuestionService) { }
+
+//   ngOnInit(): void {
+//     this.loadQuestion();
+//   }
+
+//   loadQuestion(): void {
+//     this.message = '';
+//     this.answered = false;
+//     if (this.gameOver) { return; }
+
+//     this.qs.getQuestion(this.selectedTheme).subscribe((q: Question) => {
+//       this.currentQuestion = q.questionText;
+//       this.currentImage    = q.imageUrl;
+//       const answers = [q.correctAnswer, ...q.incorrectAnswers];
+//       this.options = this.shuffle(answers);
+//     });
+//   }
+
+//   selectAnswer(opt: string): void {
+//     if (this.answered) { return; }
+//     this.answered = true;
+//     if (opt === this.getCorrect()) {
+//       this.message = '¡Correcto!';
+//     } else {
+//       this.message = `Incorrecto. La respuesta era: ${this.getCorrect()}`;
+//       this.lives--;
+//       if (this.lives === 0) {
+//         this.gameOver = true;
+//         this.message += ' — Game Over.';
+//       }
+//     }
+//   }
+
+//   nextQuestion(): void {
+//     if (!this.gameOver) {
+//       this.loadQuestion();
+//     }
+//   }
+
+//   private getCorrect(): string {
+//     // La opción correcta queda guardada en `message` o en la comparación previa
+//     // Pero puedes extraerla de `options` y `message` si quieres.
+//     return this.message.startsWith('¡Correcto!') 
+//       ? this.options.find(o => this.message.includes(o))! 
+//       : this.options.find(o => !this.options.includes(o) || true)!; 
+//     // Mejor: guarda `correctAnswer` en una propiedad separada al cargar.
+//   }
+
+//   private shuffle(arr: any[]): any[] {
+//     for (let i = arr.length - 1; i > 0; i--) {
+//       const j = Math.floor(Math.random() * (i + 1));
+//       [arr[i], arr[j]] = [arr[j], arr[i]];
+//     }
+//     return arr;
+//   }
+
+//   reset(): void {
+//     this.lives = 3;
+//     this.gameOver = false;
+//     this.loadQuestion();
+//   }
+
+// }

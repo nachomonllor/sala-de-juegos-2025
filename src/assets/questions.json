@@ -1,102 +1,341 @@
-{
-    "historia": [
-      {
-        "question": "El periodo en el que aparecieron la agricultura y los asentamientos sedentarios se llama",
-        "answer": "Neolítico"
-      },
-      {
-        "question": "¿Cuándo se inventó la escritura?",
-        "answer": "En el IV milenio A.C."
-      },
-      {
-        "question": "¿Cómo se llamaban los gobernantes del antiguo Egipto?",
-        "answer": "Faraones"
-      },
-      {
-        "question": "Según las leyendas de la antigüedad, ¿quiénes fundaron a Roma?",
-        "answer": "Rómulo y Remo"
-      },
-      {
-        "question": "Contra quiénes se enfrentaron los griegos en las Guerras Médicas del siglo V A.C?",
-        "answer": "Los persas"
-      },
-      {
-        "question": "¿Cuál de estos emperadores fue alumno del filósofo griego Aristóteles?",
-        "answer": "Alejandro Magno"
-      },
-      {
-        "question": "El primer emperador romano que se hizo cristiano fue",
-        "answer": "Constantino I, el grande"
-      },
-      {
-        "question": "¿En qué siglo nació el Islam y quién fue su principal profeta?",
-        "answer": "En el siglo VII y su profeta fue Mahoma"
-      },
-      {
-        "question": "¿Dónde y cuándo se inventó la pólvora?",
-        "answer": "En China en el siglo IX."
-      }
-    ],
-    "geografia": [
-      {
-        "question": "¿Cuál es el río más largo de la Península Ibérica?",
-        "answer": "Río Tajo"
-      },
-      {
-        "question": "¿Cuál es el país más pequeño del mundo?",
-        "answer": "Ciudad o Estado Vaticano"
-      },
-      {
-        "question": "¿Cuántos océanos hay en la Tierra?",
-        "answer": "5"
-      },
-      {
-        "question": "¿Qué país tiene más habitantes?",
-        "answer": "China"
-      },
-      {
-        "question": "¿Qué país es el más grande del mundo?",
-        "answer": "Rusia"
-      },
-      {
-        "question": "¿Cuál es la montaña más alta del mundo?",
-        "answer": "Monte Everest"
-      },
-      {
-        "question": "¿Cuál es el río más largo del mundo?",
-        "answer": "El Nilo"
-      },
-      {
-        "question": "¿Cuál es el desierto más grande del mundo?",
-        "answer": "El Sahara"
-      }
-    ],
-    "arte": [
-      {
-        "question": "¿Cuál de las siguientes NO es una técnica de pintura tradicional?",
-        "answer": "Fotolitografía digital"
-      },
-      {
-        "question": "El círculo cromático primario está compuesto por:",
-        "answer": "Rojo, amarillo y azul"
-      },
-      {
-        "question": "¿Qué artista es conocido por su famosa obra 'La noche estrellada'?",
-        "answer": "Vincent van Gogh"
-      },
-      {
-        "question": "La técnica del sfumato fue desarrollada y popularizada por:",
-        "answer": "Leonardo da Vinci"
-      },
-      {
-        "question": "¿Qué es el surrealismo?",
-        "answer": "Es un movimiento artístico que busca explorar el lado subconsciente de la mente humana, a través de imágenes oníricas"
-      },
-      {
-        "question": "¿Qué es el constructivismo?",
-        "answer": "Movimiento artístico que busca la creación de formas y figuras a partir de la aplicación de leyes matemáticas y geometría"
-      }
+[
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/neolitico.JPG",
+    "questionText": "El periodo en el que aparecieron la agricultura y los asentamientos sedentarios se llama",
+    "correctAnswer": "Neolítico",
+    "incorrectAnswers": ["Paleolítico", "Mesolítico", "Calcolítico"]
+  },
+  {
+    "theme": "arte",
+    "imageUrl": "assets/img/noche_estrellada.JPG",
+    "questionText": "¿Qué artista es conocido por su famosa obra 'La noche estrellada'?",
+    "correctAnswer": "Vincent van Gogh",
+    "incorrectAnswers": ["Pablo Picasso", "Claude Monet", "Edvard Munch"]
+  },
+
+   {
+    "theme": "historia",
+    "imageUrl": "assets/img/escritura.JPG",
+    "questionText": "¿Cuándo se inventó la escritura?",
+    "correctAnswer": "En el IV milenio A.C.",
+    "incorrectAnswers": [
+      "En el III milenio A.C.",
+      "En el V milenio A.C.",
+      "En el II milenio A.C."
     ]
-    
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/faraones.JPG",
+    "questionText": "¿Cómo se llamaban los gobernantes del antiguo Egipto?",
+    "correctAnswer": "Faraones",
+    "incorrectAnswers": [
+      "Sultanes",
+      "Césares",
+      "Emires"
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/roma_fundacion.JPG",
+    "questionText": "Según las leyendas de la antigüedad, ¿quiénes fundaron a Roma?",
+    "correctAnswer": "Rómulo y Remo",
+    "incorrectAnswers": [
+      "Eneas y Lavinia",
+      "Hércules y Aquiles",
+      "Rómulo y Remo"
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/guerras_medicas.JPG",
+    "questionText": "¿Contra quiénes se enfrentaron los griegos en las Guerras Médicas del siglo V A.C.?",
+    "correctAnswer": "Los persas",
+    "incorrectAnswers": [
+      "Los romanos",
+      "Los cartagineses",
+      "Los fenicios"
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/alexandro_magno.JPG",
+    "questionText": "¿Cuál de estos emperadores fue alumno del filósofo griego Aristóteles?",
+    "correctAnswer": "Alejandro Magno",
+    "incorrectAnswers": [
+      "Julio César",
+      "Marco Aurelio",
+      "Nerón"
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/constantino.JPG",
+    "questionText": "El primer emperador romano que se hizo cristiano fue",
+    "correctAnswer": "Constantino I, el grande",
+    "incorrectAnswers": [
+      "Juliano el Apóstata",
+      "Teodosio I",
+      "Marco Aurelio"
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/islam.JPG",
+    "questionText": "¿En qué siglo nació el Islam y quién fue su principal profeta?",
+    "correctAnswer": "En el siglo VII y su profeta fue Mahoma",
+    "incorrectAnswers": [
+      "En el siglo VI y su profeta fue Mahoma",
+      "En el siglo VII y su profeta fue Isaías",
+      "En el siglo VIII y su profeta fue Mahoma"
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/polvora.JPG",
+    "questionText": "¿Dónde y cuándo se inventó la pólvora?",
+    "correctAnswer": "En China en el siglo IX.",
+    "incorrectAnswers": [
+      "En Europa en el siglo XIII",
+      "En la India en el siglo VIII",
+      "En Arabia en el siglo X"
+    ]
+  },
+   {
+    "theme": "arte",
+    "imageUrl": "assets/img/fotolitografia_digital.JPG",
+    "questionText": "¿Cuál de las siguientes NO es una técnica de pintura tradicional?",
+    "correctAnswer": "Fotolitografía digital",
+    "incorrectAnswers": [
+      "Óleo sobre lienzo",
+      "Acuarela",
+      "Tempera al huevo"
+    ]
+  },
+  {
+    "theme": "arte",
+    "imageUrl": "assets/img/circulo_cromatico.JPG",
+    "questionText": "El círculo cromático primario está compuesto por:",
+    "correctAnswer": "Rojo, amarillo y azul",
+    "incorrectAnswers": [
+      "Rojo, verde y azul",
+      "Amarillo, verde y violeta",
+      "Azul, rojo y verde"
+    ]
+  },
+  {
+    "theme": "arte",
+    "imageUrl": "assets/img/sfumato.JPG",
+    "questionText": "La técnica del sfumato fue desarrollada y popularizada por:",
+    "correctAnswer": "Leonardo da Vinci",
+    "incorrectAnswers": [
+      "Miguel Ángel",
+      "Rafael Sanzio",
+      "Caravaggio"
+    ]
+  },
+  {
+    "theme": "arte",
+    "imageUrl": "assets/img/surrealismo.JPG",
+    "questionText": "¿Qué es el surrealismo?",
+    "correctAnswer": "Es un movimiento artístico que busca explorar el lado subconsciente de la mente humana, a través de imágenes oníricas",
+    "incorrectAnswers": [
+      "Un estilo que representa fielmente la realidad objetiva",
+      "Una corriente que enfatiza formas abstractas puramente geométricas",
+      "Un movimiento centrado en el expresionismo dramático"
+    ]
+  },
+  {
+    "theme": "arte",
+    "imageUrl": "assets/img/constructivismo.JPG",
+    "questionText": "¿Qué es el constructivismo?",
+    "correctAnswer": "Movimiento artístico que busca la creación de formas y figuras a partir de la aplicación de leyes matemáticas y geometría",
+    "incorrectAnswers": [
+      "Un estilo pictórico basado en el simbolismo religioso",
+      "Una corriente que enfatiza el uso de colores puros sin estructura geométrica",
+      "Un movimiento enfocado en la representación naturalista del paisaje"
+    ]
+  },
+
+
+   {
+    "theme": "geografia",
+    "imageUrl": "assets/img/rio_tajo.JPG",
+    "questionText": "¿Cuál es el río más largo de la Península Ibérica?",
+    "correctAnswer": "Río Tajo",
+    "incorrectAnswers": [
+      "Río Duero",
+      "Río Ebro",
+      "Río Guadalquivir"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/estado_vaticano.JPG",
+    "questionText": "¿Cuál es el país más pequeño del mundo?",
+    "correctAnswer": "Ciudad o Estado Vaticano",
+    "incorrectAnswers": [
+      "Mónaco",
+      "San Marino",
+      "Liechtenstein"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/oceanos_tierra.JPG",
+    "questionText": "¿Cuántos océanos hay en la Tierra?",
+    "correctAnswer": "5",
+    "incorrectAnswers": [
+      "4",
+      "6",
+      "7"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/poblacion_china.JPG",
+    "questionText": "¿Qué país tiene más habitantes?",
+    "correctAnswer": "China",
+    "incorrectAnswers": [
+      "India",
+      "Estados Unidos",
+      "Rusia"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/rusia.JPG",
+    "questionText": "¿Qué país es el más grande del mundo?",
+    "correctAnswer": "Rusia",
+    "incorrectAnswers": [
+      "Canadá",
+      "China",
+      "Estados Unidos"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/monte_everest.JPG",
+    "questionText": "¿Cuál es la montaña más alta del mundo?",
+    "correctAnswer": "Monte Everest",
+    "incorrectAnswers": [
+      "K2",
+      "Kangchenjunga",
+      "Lhotse"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/rio_nilo.JPG",
+    "questionText": "¿Cuál es el río más largo del mundo?",
+    "correctAnswer": "El Nilo",
+    "incorrectAnswers": [
+      "Río Amazonas",
+      "Río Yangtsé",
+      "Río Mississippi"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/desierto_sahara.JPG",
+    "questionText": "¿Cuál es el desierto más grande del mundo?",
+    "correctAnswer": "El Sahara",
+    "incorrectAnswers": [
+      "Desierto de Gobi",
+      "Desierto de Arabia",
+      "Desierto de Kalahari"
+    ]
+  },
+
+    {
+    "theme": "biologia",
+    "imageUrl": "assets/img/adn.JPG",
+    "questionText": "¿Cuál es la molécula portadora de la información genética en la mayoría de los organismos?",
+    "correctAnswer": "ADN (ácido desoxirribonucleico)",
+    "incorrectAnswers": [
+      "ARN (ácido ribonucleico)",
+      "Proteína",
+      "Lípido"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/nucleo_celular.JPG",
+    "questionText": "¿Dónde se localiza principalmente el ADN dentro de la célula eucariota?",
+    "correctAnswer": "En el núcleo",
+    "incorrectAnswers": [
+      "En la mitocondria",
+      "En el retículo endoplásmico",
+      "En el citoplasma"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/mendel.JPG",
+    "questionText": "¿Quién es considerado el padre de la genética moderna por sus experimentos con guisantes?",
+    "correctAnswer": "Gregor Mendel",
+    "incorrectAnswers": [
+      "Charles Darwin",
+      "Louis Pasteur",
+      "James Watson"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/codigo_genetico.JPG",
+    "questionText": "¿Cómo se llama el conjunto de reglas que traduce la secuencia de nucleótidos en aminoácidos?",
+    "correctAnswer": "Código genético",
+    "incorrectAnswers": [
+      "Código epigenético",
+      "Código cromosómico",
+      "Código proteico"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/mutacion.JPG",
+    "questionText": "¿Qué término describe un cambio permanente en la secuencia de ADN?",
+    "correctAnswer": "Mutación",
+    "incorrectAnswers": [
+      "Recombinación",
+      "Replicación",
+      "Traducción"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/replicacion_adn.JPG",
+    "questionText": "Durante la replicación del ADN, ¿qué enzima sintetiza la nueva hebra complementaria?",
+    "correctAnswer": "ADN polimerasa",
+    "incorrectAnswers": [
+      "ARN polimerasa",
+      "Ligasa",
+      "Helicasa"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/cromosomas.JPG",
+    "questionText": "¿Cómo se llaman las estructuras compuestas de ADN y proteínas que portan la información genética?",
+    "correctAnswer": "Cromosomas",
+    "incorrectAnswers": [
+      "Ribosomas",
+      "Lisosomas",
+      "Centriolos"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/clonacion.JPG",
+    "questionText": "¿Qué término describe la creación de un organismo genéticamente idéntico a otro?",
+    "correctAnswer": "Clonación",
+    "incorrectAnswers": [
+      "Transgénesis",
+      "Meiosis",
+      "Fertilización"
+    ]
   }
-  
+
+]
+

@@ -1,0 +1,53 @@
+{
+  "questions": [
+    {
+      "theme": "historia",
+      "imageUrl": "https://example.com/img/neolitico.jpg",
+      "questionText": "El periodo en el que aparecieron la agricultura y los asentamientos sedentarios se llama",
+      "correctAnswer": "Neolítico",
+      "incorrectAnswers": [
+        "Paleolítico",
+        "Mesolítico",
+        "Calcolítico"
+      ]
+
+    },
+
+    {
+      "theme": "historia",
+      "imageUrl": "https://example.com/img/escritura.jpg",
+      "questionText": "¿Cuándo se inventó la escritura?",
+      "correctAnswer": "En el IV milenio A.C.",
+      "incorrectAnswers": [
+        "En el III milenio A.C.",
+        "En el II milenio A.C.",
+        "En el I milenio A.C."
+      ]
+    },
+    {
+      "theme": "geografia",
+      "imageUrl": "https://example.com/img/rio_tajo.jpg",
+      "questionText": "¿Cuál es el río más largo de la Península Ibérica?",
+      "correctAnswer": "Río Tajo",
+      "incorrectAnswers": [
+        "Río Guadalquivir",
+        "Río Ebro",
+        "Río Duero"
+      ]
+    },
+    {
+      "theme": "arte",
+      "imageUrl": "https://example.com/img/noche_estrellada.jpg",
+      "questionText": "¿Qué artista es conocido por su famosa obra 'La noche estrellada'?",
+      "correctAnswer": "Vincent van Gogh",
+      "incorrectAnswers": [
+        "Pablo Picasso",
+        "Claude Monet",
+        "Edvard Munch"
+      ]
+      
+    }
+    
+    
+  ]
+}
