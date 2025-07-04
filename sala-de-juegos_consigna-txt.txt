@@ -1,0 +1,122 @@
+Materia: Laboratorio de Computación IV
+Nivel: 4º Cuatrimestre
+Tipo de Examen: Trabajo practico - Sala de juegos
+Sala de Juegos
+Importante:
+● TP obligatorio para poder acceder al TP final.
+● TP obligatorio para poder acceder a la promoción de la materia
+Enunciado:
+Se debe realizar la aplicación “Sala de juegos”, para poder almacenar la información de desempeño de los
+jugadores.
+La forma de corrección será por sprint de una semana.
+La “Sala de Juegos” tiene que contar con los siguientes puntos:
+1. Servidor:
+a. Presentarlo en un servidor Heroku o Firebase.
+2. Almacenamiento de datos
+a. Uso de la base de datos de Firebase.
+3. Login y Registro de usuarios.
+4. Lógica de los juegos.
+a. Ahorcado
+b. Mayor o Menor
+c. Preguntados
+5. Juego agregado por el alumno.
+a. Juegos que no se pueden utilizar
+i. TATETI
+ii. MEMOTEST
+iii. PIEDRA PAPEL O TIJERA
+6. Experiencia de usuario.
+a. Diseño de pantallas
+b. Navegación
+c. Información clara y completa al mostrar mensajes o hacer acciones.
+d. Experiencia de usuario en los juegos.
+7. Diseño y Estilos
+a. Utilización de primeNG o angular Material o Boostrap
+b. Utilización de animaciones(css o con ts)
+c. Favicon
+1
+8. Listados con los resultados.
+9. Presentación : “Quién Soy” se debe tener:
+a. Datos personales del alumno.
+b. Imagen del alumno
+c. Explicación del juego propio
+La aplicación de juegos debe permitir a nuestros usuarios (jugadores) medir sus capacidades cognitivas y
+motrices, debe ser simple de utilizar y permitir tener estadísticas de cada jugador y de cada juego.
+Los juegos deben guardar toda la información que sea importante para cada juego en particular.
+Solo se puede ingresar si es un usuario registrado o se registra.
+No utilizar Alert.
+Fechas de pre-entrega:
+Sprint 1 (Clase 03):
+● Armado del proyecto
+● Subido a heroku o firebase.
+● Componente de Login.
+● Componente Home.
+● Componente “Quién Soy”
+○ Datos personales del alumno.
+○ Imagen del alumno
+○ Explicación del juego propio
+● Favicon
+Sprint 2 (Clase 04):
+● Componente Home
+○ Tiene que ser el componente principal, el cual tendrá los accesos a los diferentes juegos y
+listados.
+○ Si el usuario está logueado, mostrar información del mismo y botón de Log Out. (No se debe
+mostrar los botones de Registro y Login una vez que el usuario está logueado).
+● Componente Login
+○ Tiene que tener la validación de usuario contra firebase
+○ Registrar el log de ese usuario en firebase.
+■ En caso de que sea exitoso registrar:
+● Usuario
+● Fecha de ingreso
+○ En caso de inicio de sesión exitoso debe rutear a la home.
+○ Debe tener botones de acceso rápido.
+■ Estos botones tienen que completar los campos de email y contraseña con un usuario
+válido que al presionar el botón ingresar acceda a la home.
+● Componente Registro
+2
+○ Tiene que generar un nuevo usuario y redirigir al home al crearlo exitosamente, es decir, loguear
+al usuario automáticamente.
+○ Emitir mensaje si el usuario ya se encuentra registrado. (NO USAR ALERT)
+Sprint 3 (Clase 05)
+● Incorporar el chat.
+○ Solamente usuarios logueados podrán acceder a la sala de chat.
+○ Debemos marcar el usuario y hora que envió el mensaje.
+● Incorporar módulos y loadchildren.
+● Incorporar los juegos:
+○ Ahorcado:
+■ No se debe ingresar datos desde el teclado. Utilizar botones para el ingreso de las letras.
+○ Mayor o Menor:
+■ Desde un mazo de carta se va a preguntar si la siguiente es mayor o menor.
+■ El jugador sumará un punto ante cada carta que adivine.
+Sprint 4 (Clase 06)
+● Agregar el juego Preguntados
+○ Tiene que obtener las imágenes de una api.
+○ Realizar el llamado a la api desde un Service.
+○ Dar al jugador opciones de elección. No se puede ingresar datos por teclado.
+● Juego propio
+○ Realizar juego propio.
+○ Juegos que no se pueden utilizar
+■ TATETI
+■ MEMOTEST
+■ PIEDRA PAPEL O TIJERA
+○ Agregar descripción de su juego en la sección “Quién soy”. Debe contar con información de qué
+juego es y cómo se juega.
+Sprint 5 (Clase 07)
+● Incorporar listado de resultados
+○ Al finalizar cada juego se debe guardar registro del resultado.
+○ Guardar datos del usuario, fecha, puntaje, etc..
+● Incorporar una encuesta:
+○ Tiene que pedir los siguientes datos:
+■ Nombre y apellido.
+■ Edad, validar que sean mayores de 18 años y menores de 99 años.
+■ Número de teléfono, validar que sean solo números y no más de 10 caracteres.
+○ Mínimo 3 preguntas.
+■ Utilizar distintos controles, textbox, checkbox, radiobutton, etc.
+■ No se pueden repetir.
+○ Tiene que contar con validaciones.
+○ Todos los campos son requeridos.
+3
+○ Guardar las respuestas en Firebase identificando el usuario.
+Sprint 6 - Post Primer Parcial
+● Incorporar una nueva sección que muestre las respuestas de la encuesta.
+○ Solo lo podrá ver un usuario con perfil administrador
+○ Utilizar Can Activate y Guard
