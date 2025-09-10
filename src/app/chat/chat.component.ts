@@ -2,10 +2,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Firestore, collection, addDoc, collectionData, query, orderBy, serverTimestamp } from '@angular/fire/firestore';
-import { AuthService, User } from '../services/auth.service';
 import { filter, take, tap } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { User } from '@supabase/supabase-js';
+import { AuthService } from '../services/auth.service';
 
 export interface ChatMessage {
   id?: string;
@@ -55,7 +56,7 @@ export class ChatComponent implements OnInit {
     if (!text) return;
 
     await addDoc(collection(this.firestore, 'chatMessages'), {
-      uid: this.currentUser.uid,
+      uid: this.currentUser.id,
       email: this.currentUser.email,
       text,
       timestamp: serverTimestamp()

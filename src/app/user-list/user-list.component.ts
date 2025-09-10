@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule }    from '@angular/common';
-import { MatTableModule }  from '@angular/material/table';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule }           from '@angular/material/sort';
-import { MatCardModule }    from '@angular/material/card';
-import { MatRippleModule }  from '@angular/material/core';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatCardModule } from '@angular/material/card';
+import { MatRippleModule } from '@angular/material/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { GameSessions, User } from '../models/user.models';
 import { UsersService } from '../users.service';
@@ -16,7 +16,7 @@ const USUARIOS: User[] = [
     email: 'juan.perez@example.com',
     gamePlays: {
       Ahorcado: { '1': 100, '2': 150 },
-      Memoria:  { '1': 200 }
+      Memoria: { '1': 200 }
     }
   },
   {
@@ -25,7 +25,7 @@ const USUARIOS: User[] = [
     email: 'maria.gomez@example.com',
     gamePlays: {
       Ahorcado: { '1': 120, '2': 180 },
-      Puzzle:   { '1':  80 }
+      Puzzle: { '1': 80 }
     }
   },
   {
@@ -34,16 +34,16 @@ const USUARIOS: User[] = [
     email: 'dave.mustaine@mega.com',
     gamePlays: {
       Ahorcado: { '1': 400, '2': 180 },
-      Puzzle:   { '1':  100 }
+      Puzzle: { '1': 100 }
     }
-  }, 
+  },
   {
     firstName: 'James',
     lastName: 'Hetfield',
     email: 'juan.het@hotmail.com',
     gamePlays: {
       Ahorcado: { '1': 400, '2': 180 },
-      Puzzle:   { '1':  100 }
+      Puzzle: { '1': 100 }
     }
   },
   {
@@ -52,11 +52,9 @@ const USUARIOS: User[] = [
     email: 'nachomonllor@hotmail.com',
     gamePlays: {
       Ahorcado: { '2': 400, '4': 180 },
-      Puzzle:   { '1':  100 }
+      Puzzle: { '1': 100 }
     }
   }
-
-
 
 ];
 
@@ -77,10 +75,10 @@ const USUARIOS: User[] = [
 })
 export class UserListComponent implements OnInit {
   dataSource = new MatTableDataSource<User>(USUARIOS); // ([]);
-  displayedColumns = ['firstName','lastName','email','gamePlays'];
+  displayedColumns = ['firstName', 'lastName', 'email', 'gamePlays'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort)      sort!: MatSort;
+  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private usersService: UsersService) { }
 
@@ -92,21 +90,24 @@ export class UserListComponent implements OnInit {
     });
   }
 
-    /**
-     * Convierte el objeto gamePlays en un array de pares { key, value }
-     * con el tipo correctamente inferido.
-     */
-    getGamePlays(user: User): Array<{ key: string; value: GameSessions }> {
-      return Object.entries(user.gamePlays).map(([key, value]) => ({
-        key,
-        value
-      }));
-    }
+  /**
+   * Convierte el objeto gamePlays en un array de pares { key, value }
+   * con el tipo correctamente inferido.
+   */
+  getGamePlays(user: User): Array<{ key: string; value: GameSessions }> {
+    return Object.entries(user.gamePlays).map(([key, value]) => ({
+      key,
+      value
+    }));
+  }
 
 
 }
 
-// // --------------------------
+
+// --------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------
 
 // import { Component, OnInit, ViewChild } from '@angular/core';
 // import { CommonModule }    from '@angular/common';

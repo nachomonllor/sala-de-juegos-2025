@@ -2,21 +2,77 @@
 // src/app/services/users.service.ts
 import { Injectable } from '@angular/core';
 import { from, map, Observable } from 'rxjs';
-import { SupabaseService } from './services/supabase.service';
-import { User } from './models/user.models';
-import { GameSessions } from './models/user.models';
+import { SupabaseService } from './supabase.service';
+import { GameSessions, User } from '../models/user.models';
+
+// Define UIUser interface
+export interface UIUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  gamePlays: Record<string, GameSessions>;
+}
+
+// Helper function to split names
+function splitName(
+  firstName: string | null | undefined,
+  lastName: string | null | undefined,
+  displayName: string | null | undefined
+): { firstName: string; lastName: string } {
+  if (firstName || lastName) {
+    return {
+      firstName: firstName ?? '',
+      lastName: lastName ?? '',
+    };
+  }
+  if (displayName) {
+    const parts = displayName.split(' ');
+    return {
+      firstName: parts[0] ?? '',
+      lastName: parts.slice(1).join(' ') ?? '',
+    };
+  }
+  return { firstName: '', lastName: '' };
+}
+
+// export interface Profile {
+//   id: string;
+//   display_name: string | null;
+//   role: 'user' | 'admin';
+//   created_at: string;
+//   email?: string | null;
+// }
 
 export interface Profile {
   id: string;
   display_name: string | null;
-  role: 'user' | 'admin';
-  created_at: string;
+  first_name?: string | null;
+  last_name?: string | null;
   email?: string | null;
+  game_plays?: Record<string, GameSessions> | null;
+  role?: 'user' | 'admin';
+  created_at?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   constructor(private supa: SupabaseService) { }
+
+  getUsers(): Observable<User[]> {
+    return from(this.supa.listProfiles()).pipe(
+      map((profiles: any[]) =>
+        (profiles ?? []).map((p: any) => {
+          const { firstName, lastName } = splitName(p.first_name, p.last_name, p.display_name);
+          return {
+            firstName,
+            lastName,
+            email: p.email ?? '',
+            gamePlays: (p.game_plays ?? {}) as Record<string, GameSessions>,
+          } as User;
+        })
+      )
+    );
+  }
 
   getMyProfile$(uid: string): Observable<Profile | null> {
     return from(this.supa.getProfile(uid)).pipe(
@@ -33,35 +89,6 @@ export class UsersService {
     );
   }
 
-  getUsers(): Observable<User[]> {
-    return from(this.supa.listProfiles()).pipe(
-      map((profiles: any[]) =>
-        (profiles ?? []).map((p: any) => {
-          const { firstName, lastName } = this.splitName(p.first_name, p.last_name, p.display_name);
-          return {
-            firstName,
-            lastName,
-            email: p.email ?? '',
-            gamePlays: (p.game_plays ?? {}) as Record<string, GameSessions>,
-          } as User;
-        })
-      )
-    );
-  }
-
-  splitName(
-    first?: string | null,
-    last?: string | null,
-    display?: string | null
-  ) {
-    if (first || last) return { firstName: first ?? '', lastName: last ?? '' };
-    const name = (display ?? '').trim();
-    if (!name) return { firstName: '', lastName: '' };
-    const parts = name.split(/\s+/);
-    const firstName = parts.shift() ?? '';
-    const lastName = parts.join(' ');
-    return { firstName, lastName };
-  }
   upsertMyProfile(uid: string, displayName: string) {
     return from(this.supa.upsertProfile(uid, displayName)).pipe(map(() => void 0));
   }

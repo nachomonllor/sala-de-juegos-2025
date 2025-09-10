@@ -1,16 +1,3 @@
-// import { Component } from '@angular/core';
-
-// @Component({
-//   selector: 'app-encuesta',
-//   imports: [],
-//   templateUrl: './encuesta.component.html',
-//   styleUrl: './encuesta.component.css'
-// })
-// export class EncuestaComponent {
-
-// }
-
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray, AbstractControl } from '@angular/forms';
@@ -115,3 +102,17 @@ export class EncuestaComponent implements OnInit {
     control.markAsTouched();
   }
 }
+
+
+// import { Component } from '@angular/core';
+
+// @Component({
+//   selector: 'app-encuesta',
+//   imports: [],
+//   templateUrl: './encuesta.component.html',
+//   styleUrl: './encuesta.component.css'
+// })
+// export class EncuestaComponent {
+
+// }
+

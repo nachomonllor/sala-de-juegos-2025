@@ -6,8 +6,6 @@
       <img [src]="getHangmanImage()"
            alt="Ahorcado - etapa {{ errorCount }}"
            class="hangman-image" />
-    </div>
-
     <div *ngIf="!gameOver" class="keyboard">
       <button *ngFor="let letter of alphabet"
               (click)="letterInput = letter; confirmGuess()"

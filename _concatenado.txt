@@ -1,0 +1,4626 @@
+############################################################
+# CONCATENADO GENERADO: 2025-08-30 22:32:48
+# RAIZ: E:\sala-de-juegos-2025
+# EXTENSIONES: .css, .html, .ts
+# EXCLUIDOS: .angular, .git, bin, build, dist, node_modules, obj
+# TOTAL ARCHIVOS ENCONTRADOS: 87
+############################################################
+
+=== BEGIN FILE: src\app\ahorcado\ahorcado.component.css ===
+/* Importar fuente Montserrat desde Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+:host {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  background-color: #f5f5f5;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.hangman-container h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.game-area {
+  max-width: 400px;
+  margin: 0 auto 1.5rem;
+}
+
+.hangman-canvas {
+  width: 800px;
+  height: 500px;
+  border: 1px solid #333; /* opcional */
+}
+
+.hangman-canvas {
+  width: 600px;
+  height: 400px;
+  border: 1px solid #333; /* opcional */
+}
+
+/* .hangman-canvas {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+} */
+
+/* .hangman-image {
+  width: 100%;
+  height: auto;
+  border: 2px solid #ddd;
+  border-radius: 0.5rem;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+} */
+
+.hangman-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* para que no se deforme */
+}
+
+
+.keyboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.keyboard button {
+  background: #3498db;
+  border: none;
+  border-radius: 0.25rem;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.keyboard button:hover:not(:disabled) {
+  background: #2980b9;
+  transform: translateY(-2px);
+}
+
+.keyboard button:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
+.display-word {
+  font-size: 1.75rem;
+  letter-spacing: 0.75rem;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.result-message h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #e74c3c;
+}
+
+.result-message button {
+  background: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.result-message button:hover {
+  background: #27ae60;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+=== END FILE: src\app\ahorcado\ahorcado.component.css ===
+
+=== BEGIN FILE: src\app\ahorcado\ahorcado.component.html ===
+<div class="hangman-container">
+  <h2>Ahorcado</h2>
+  <div class="game-area">
+    <div class="hangman-canvas">
+      <!-- Imagen compuesta según errores -->
+      <img [src]="getHangmanImage()"
+           alt="Ahorcado - etapa {{ errorCount }}"
+           class="hangman-image" />
+    </div>
+
+    <div *ngIf="!gameOver" class="keyboard">
+      <button *ngFor="let letter of alphabet"
+              (click)="letterInput = letter; confirmGuess()"
+              [disabled]="guessedLetters.includes(letter.toLowerCase())">
+        {{ letter }}
+      </button>
+    </div>
+
+    <div *ngIf="gameOver" class="result-message">
+      <h1>{{ winningMessage }}</h1>
+      <button (click)="resetGame()">Reiniciar Juego</button>
+    </div>
+
+    <p class="display-word">{{ getDisplayWord() }}</p>
+  </div>
+</div>
+
+
+=== END FILE: src\app\ahorcado\ahorcado.component.html ===
+
+=== BEGIN FILE: src\app\ahorcado\ahorcado.component.ts ===
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { WordService } from '../word.service';
+
+export interface HangmanPart {
+  name: string;
+  img: string;
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+
+@Component({
+  selector: 'app-ahorcado',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './ahorcado.component.html',
+  styleUrls: ['./ahorcado.component.css']
+})
+
+export class HangmanComponent implements OnInit {
+  selectedWord = '';
+  guessedLetters: string[] = [];
+  letterInput = '';
+  errorCount = 0;
+  maxErrors = 6;
+  gameOver = false;
+  winningMessage = '';
+  alphabet = 'QWERTYUIOPASDFGHJKLÑZXCVBNM'.split('');
+
+  // Lista de imágenes compuestas por etapa (0 a maxErrors)
+  stages: string[] = [
+    'hangman_1k.png', // solo soga
+    'hangman_2k.png', // + cabeza
+    'hangman_3k.png', // + torso
+    'hangman_4k.png', // + brazo derecho
+    'hangman_5k.png', // + brazo izquierdo
+    'hangman_6k.png', // + pierna derecha
+    'hangman_7k.png', // + pierna izquierda (juego terminado)
+  ];
+
+  constructor(private wordService: WordService) { }
+
+  ngOnInit(): void {
+    this.resetGame();
+  }
+
+  resetGame(): void {
+    this.errorCount = 0;
+    this.guessedLetters = [];
+    this.gameOver = false;
+    this.winningMessage = '';
+    this.wordService.getRandomWord().subscribe(word => {
+      this.selectedWord = word;
+      console.log('Palabra seleccionada:', word);
+    });
+  }
+
+  confirmGuess(): void {
+    if (this.gameOver) return;
+    const letter = this.letterInput.trim().toLowerCase();
+    this.letterInput = '';
+    if (!letter || letter.length !== 1 || this.guessedLetters.includes(letter)) return;
+
+    this.guessedLetters.push(letter);
+
+    if (this.selectedWord.toLowerCase().includes(letter)) {
+      // ¿Ganar?
+      const allGuessed = this.selectedWord
+        .toLowerCase()
+        .split('')
+        .every(ch => this.guessedLetters.includes(ch));
+      if (allGuessed) {
+        this.gameOver = true;
+        this.winningMessage = '¡Ganaste!';
+      }
+    } else {
+      // Error: avanzamos a la siguiente etapa
+      this.errorCount++;
+      if (this.errorCount >= this.maxErrors) {
+        this.gameOver = true;
+        this.winningMessage = `¡Perdiste! La palabra era ${this.selectedWord}`;
+      }
+    }
+  }
+
+  getDisplayWord(): string {
+    return this.selectedWord
+      .split('')
+      .map(ch => this.guessedLetters.includes(ch.toLowerCase()) ? ch : '_')
+      .join(' ');
+  }
+
+  // Devuelve la ruta de la imagen según etapa actual
+  getHangmanImage(): string {
+    const idx = Math.min(this.errorCount, this.stages.length - 1);
+    return `/assets/parts/${this.stages[idx]}`;
+  }
+
+}
+=== END FILE: src\app\ahorcado\ahorcado.component.ts ===
+
+=== BEGIN FILE: src\app\app.component.css ===
+/* src/styles.css */
+
+/* home.component.css */
+ /* @import url('/assets/home.JPG') no-op; /* fuerza external */
+.app-content {
+    background: url('/assets/home.JPG') center center / cover no-repeat;
+  }
+  
+
+=== END FILE: src\app\app.component.css ===
+
+=== BEGIN FILE: src\app\app.component.html ===
+<!-- app-home></app-home -->
+
+
+ 
+
+<router-outlet></router-outlet>
+
+
+
+=== END FILE: src\app\app.component.html ===
+
+=== BEGIN FILE: src\app\app.component.spec.ts ===
+import { TestBed } from '@angular/core/testing';
+import { AppComponent } from './app.component';
+
+describe('AppComponent', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AppComponent],
+    }).compileComponents();
+  });
+
+  it('should create the app', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app).toBeTruthy();
+  });
+
+  it(`should have the 'input-pipe-prueba' title`, () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.title).toEqual('input-pipe-prueba');
+  });
+
+  it('should render title', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, input-pipe-prueba');
+  });
+});
+=== END FILE: src\app\app.component.spec.ts ===
+
+=== BEGIN FILE: src\app\app.component.ts ===
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule, RouterOutlet } from '@angular/router';
+
+@Component({
+  selector: 'app-root',
+  imports: [RouterModule, CommonModule, RouterOutlet],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css'
+})
+ 
+export class AppComponent {
+  title = 'input-pipe-prueba';
+
+  userCase: string = '';
+
+}
+=== END FILE: src\app\app.component.ts ===
+
+=== BEGIN FILE: src\app\app.config.ts ===
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter } from '@angular/router';
+
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]
+};
+=== END FILE: src\app\app.config.ts ===
+
+=== BEGIN FILE: src\app\app.routes.ts ===
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
+import { HomeComponent } from './home/home.component';
+import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
+import { LogsListComponent } from './logs-list/logs-list.component';
+
+import { HangmanComponent } from './ahorcado/ahorcado.component';
+import { MayorMenorComponent } from './mayor-menor/mayor-menor.component';
+import { DuelComponent } from './duel/duel.component';
+import { FlowfreeComponent } from './flow-free/flow-free.component';
+import { AuthGuard } from './guards/auth.guard';
+import { ChatComponent } from './chat/chat.component';
+import { QuienSoyComponent } from './quien-soy/quien-soy.component';
+import { ResultsListComponent } from './results-list/results-list.component';
+import { EncuestaComponent } from './components/encuesta/encuesta.component';
+
+export const routes: Routes = [
+
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: 'home', component: HomeComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
+  { path: 'register', component: RegisterComponent },
+  { path: 'encuesta', component: EncuestaComponent},
+  { path: 'quien-soy', component: QuienSoyComponent},
+  { path: 'logs', component: LogsListComponent, canActivate:  [AuthGuard] },
+  {
+    path: 'games',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', redirectTo: 'ahorcado', pathMatch: 'full' },
+      { path: 'ahorcado', component: HangmanComponent },
+      { path: 'mayor-menor', component: MayorMenorComponent },
+      { path: 'preguntados', component: DuelComponent },
+      { path: 'flowfree', component: FlowfreeComponent },
+      { path: 'resultados', component: ResultsListComponent }
+
+    ]
+  },
+  { path: '**', redirectTo: 'home' }
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule {}
+
+
+
+
+
+// import { Routes } from '@angular/router';
+// import { HangmanComponent } from './ahorcado/ahorcado.component';
+// import { MayorMenorComponent } from './mayor-menor/mayor-menor.component';
+// import { DuelComponent } from './duel/duel.component';
+// import { QuienSoyComponent } from './quien-soy/quien-soy.component';
+// import { HomeComponent } from './home/home.component';
+// import { LoginComponent } from './login/login.component';
+// import { RegisterComponent } from './register/register.component';
+// import { FlowfreeComponent } from './flow-free/flow-free.component';
+// import { UserListComponent } from './user-list/user-list.component';
+
+// export const routes: Routes = [
+
+
+//     { path: 'login', component:LoginComponent},
+//     { path: 'home', component: HomeComponent}, 
+//     { path: 'ahorcado', component: HangmanComponent },
+//     { path: 'preguntados', component: DuelComponent },
+//     { path: 'mayor-menor', component: MayorMenorComponent },
+//     { path: 'flowfree', component: FlowfreeComponent},
+//     { path: 'quien-soy', component: QuienSoyComponent},
+//     { path: 'register', component: RegisterComponent},
+//     { path: 'user-list', component: UserListComponent},
+//     { path: '', component: LoginComponent },
+//     { path: '**', redirectTo: '' }
+
+    
+// ];
+
+
+=== END FILE: src\app\app.routes.ts ===
+
+=== BEGIN FILE: src\app\chat\chat.component.css ===
+.chat-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages {
+  flex: 1;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.message {
+  margin-bottom: 0.75rem;
+}
+
+.message .author {
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.message .time {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.message .text {
+  margin: 0.25rem 0 0 0;
+}
+
+.chat-form {
+  display: flex;
+}
+
+.chat-form input {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+}
+
+.chat-form button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.chat-form button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+=== END FILE: src\app\chat\chat.component.css ===
+
+=== BEGIN FILE: src\app\chat\chat.component.html ===
+
+<div class="chat-container">
+  <h2>🗨️ Sala de Chat</h2>
+
+  <div class="messages">
+    <div class="message" *ngFor="let msg of messages$ | async">
+      <span class="author">{{ msg.email }}</span>
+      <span class="time">{{ msg.timestamp?.toDate() | date:'short' }}</span>
+      <p class="text">{{ msg.text }}</p>
+    </div>
+  </div>
+
+  <form class="chat-form" (ngSubmit)="sendMessage()">
+    <input
+      type="text" [(ngModel)]="newMessage"
+      name="message"
+      placeholder="Escribe tu mensaje..."
+      required
+    />
+    <button type="submit" [disabled]="!newMessage.trim()">Enviar</button>
+  </form>
+</div>
+=== END FILE: src\app\chat\chat.component.html ===
+
+=== BEGIN FILE: src\app\chat\chat.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { ChatComponent } from './chat.component';
+
+describe('ChatComponent', () => {
+  let component: ChatComponent;
+  let fixture: ComponentFixture<ChatComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ChatComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(ChatComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\chat\chat.component.spec.ts ===
+
+=== BEGIN FILE: src\app\chat\chat.component.ts ===
+// chat.component.ts
+import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Firestore, collection, addDoc, collectionData, query, orderBy, serverTimestamp } from '@angular/fire/firestore';
+import { AuthService, User } from '../services/auth.service';
+import { filter, take, tap } from 'rxjs/operators';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
+export interface ChatMessage {
+  id?: string;
+  uid: string;
+  email: string;
+  text: string;
+  timestamp: any;
+}
+
+@Component({
+  selector: 'app-chat',
+  standalone: true,
+  imports: [CommonModule, FormsModule],  // Agrega CommonModule, FormsModule, RouterModule si los necesitas
+  templateUrl: './chat.component.html',
+  styleUrls: ['./chat.component.css']
+})
+export class ChatComponent implements OnInit {
+  messages$: Observable<ChatMessage[]>;
+  newMessage = '';
+  currentUser!: User;
+
+  constructor(
+    private firestore: Firestore,
+    private authService: AuthService
+  ) {
+    // Prepara el stream de mensajes ordenados por fecha
+    const chatQuery = query(
+      collection(this.firestore, 'chatMessages'),
+      orderBy('timestamp', 'asc')
+    );
+    this.messages$ = collectionData(chatQuery, { idField: 'id' }) as Observable<ChatMessage[]>;
+  }
+
+  ngOnInit(): void {
+    // Espera a usuario autenticado para obtener datos
+    this.authService.user$
+      .pipe(
+        filter(user => !!user),
+        take(1),
+        tap(user => this.currentUser = user!)  
+      )
+      .subscribe();
+  }
+
+  async sendMessage(): Promise<void> {
+    const text = this.newMessage.trim();
+    if (!text) return;
+
+    await addDoc(collection(this.firestore, 'chatMessages'), {
+      uid: this.currentUser.uid,
+      email: this.currentUser.email,
+      text,
+      timestamp: serverTimestamp()
+    });
+
+    this.newMessage = '';
+  }
+}
+
+
+// import { Component } from '@angular/core';
+
+// @Component({
+//   selector: 'app-chat',
+//   imports: [],
+//   templateUrl: './chat.component.html',
+//   styleUrl: './chat.component.css'
+// })
+// export class ChatComponent {
+
+// }
+=== END FILE: src\app\chat\chat.component.ts ===
+
+=== BEGIN FILE: src\app\components\encuesta\encuesta.component.css ===
+.encuesta-container {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fafafa;
+}
+
+.encuesta-container h2 {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="radio"],
+.form-group input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.error small {
+  color: #c00;
+}
+=== END FILE: src\app\components\encuesta\encuesta.component.css ===
+
+=== BEGIN FILE: src\app\components\encuesta\encuesta.component.html ===
+<p>encuesta works!</p>
+
+<section class="encuesta-container">
+  <h2>Encuesta de Opinión</h2>
+  <form [formGroup]="encuestaForm" (ngSubmit)="onSubmit()">
+
+    <!-- NOMBRE -->
+    <div class="form-group">
+      <label for="nombre">Nombre y Apellido:</label>
+      <input id="nombre" formControlName="nombre" type="text" placeholder="Juan" />
+      <div class="error" *ngIf="encuestaForm.get('nombre')?.touched && encuestaForm.get('nombre')?.invalid">
+        <small *ngIf="encuestaForm.get('nombre')?.errors?.['required']">El nombre es obligatorio.</small>
+        <small *ngIf="encuestaForm.get('nombre')?.errors?.['pattern']">Solo letras y espacios.</small>
+      </div>
+    </div>
+
+    <!-- APELLIDO -->
+    <div class="form-group">
+      <label for="apellido">Apellido:</label>
+      <input id="apellido" formControlName="apellido" type="text" placeholder="Pérez" />
+      <div class="error" *ngIf="encuestaForm.get('apellido')?.touched && encuestaForm.get('apellido')?.invalid">
+        <small *ngIf="encuestaForm.get('apellido')?.errors?.['required']">El apellido es obligatorio.</small>
+        <small *ngIf="encuestaForm.get('apellido')?.errors?.['pattern']">Solo letras y espacios.</small>
+      </div>
+    </div>
+
+    <!-- EDAD -->
+    <div class="form-group">
+      <label for="edad">Edad:</label>
+      <input id="edad" formControlName="edad" type="number" placeholder="Ej: 25" min="19" max="98" />
+      <div class="error" *ngIf="encuestaForm.get('edad')?.touched && encuestaForm.get('edad')?.invalid">
+        <small *ngIf="encuestaForm.get('edad')?.errors?.['required']">La edad es obligatoria.</small>
+        <small *ngIf="encuestaForm.get('edad')?.errors?.['min'] || encuestaForm.get('edad')?.errors?.['max']">
+          Debe ser entre 19 y 98 años.
+        </small>
+      </div>
+    </div>
+
+    <!-- TELÉFONO -->
+    <div class="form-group">
+      <label for="telefono">Teléfono:</label>
+      <input id="telefono" formControlName="telefono" type="text" placeholder="Ej: 1122334455" maxlength="10" />
+      <div class="error" *ngIf="encuestaForm.get('telefono')?.touched && encuestaForm.get('telefono')?.invalid">
+        <small *ngIf="encuestaForm.get('telefono')?.errors?.['required']">El teléfono es obligatorio.</small>
+        <small *ngIf="encuestaForm.get('telefono')?.errors?.['pattern']">Solo números (hasta 10 dígitos).</small>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- PREGUNTA 1: TEXTO -->
+    <div class="form-group">
+      <label for="preguntaTexto">1. ¿Cuál es tu comida favorita?</label>
+      <input id="preguntaTexto" formControlName="preguntaTexto" type="text" placeholder="Escribe tu respuesta" />
+      <div class="error" *ngIf="encuestaForm.get('preguntaTexto')?.touched && encuestaForm.get('preguntaTexto')?.invalid">
+        <small *ngIf="encuestaForm.get('preguntaTexto')?.errors?.['required']">Respuesta obligatoria.</small>
+      </div>
+    </div>
+
+    <!-- PREGUNTA 2: RADIO BUTTON -->
+    <div class="form-group">
+      <label>2. ¿Qué color prefieres?</label>
+      <div *ngFor="let opcion of opcionesRadio">
+        <input
+          type="radio"
+          [value]="opcion"
+          formControlName="preguntaRadio"
+          [id]="opcion"
+        />
+        <label [for]="opcion">{{ opcion }}</label>
+      </div>
+      <div class="error" *ngIf="encuestaForm.get('preguntaRadio')?.touched && encuestaForm.get('preguntaRadio')?.invalid">
+        <small *ngIf="encuestaForm.get('preguntaRadio')?.errors?.['required']">Debes seleccionar un color.</small>
+      </div>
+    </div>
+
+    <!-- PREGUNTA 3: CHECKBOX -->
+    <div class="form-group">
+      <label>3. ¿Qué redes sociales usas? (marca al menos una)</label>
+      <div formArrayName="preguntaCheckbox">
+        <div *ngFor="let opcion of opcionesCheck; let i = index">
+          <input
+            type="checkbox"
+            [formControlName]="i"
+            [id]="'chk' + i"
+          />
+          <label [for]="'chk' + i">{{ opcion }}</label>
+        </div>
+      </div>
+      <div class="error" *ngIf="preguntaCheckboxArray.touched && preguntaCheckboxArray.invalid">
+        <small *ngIf="preguntaCheckboxArray.errors?.['minCheckbox']">Marca al menos una opción.</small>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- BOTÓN DE ENVÍO -->
+    <button type="submit">Enviar Encuesta</button>
+  </form>
+</section>
+=== END FILE: src\app\components\encuesta\encuesta.component.html ===
+
+=== BEGIN FILE: src\app\components\encuesta\encuesta.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { EncuestaComponent } from './encuesta.component';
+
+describe('EncuestaComponent', () => {
+  let component: EncuestaComponent;
+  let fixture: ComponentFixture<EncuestaComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [EncuestaComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(EncuestaComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\components\encuesta\encuesta.component.spec.ts ===
+
+=== BEGIN FILE: src\app\components\encuesta\encuesta.component.ts ===
+// import { Component } from '@angular/core';
+
+// @Component({
+//   selector: 'app-encuesta',
+//   imports: [],
+//   templateUrl: './encuesta.component.html',
+//   styleUrl: './encuesta.component.css'
+// })
+// export class EncuestaComponent {
+
+// }
+
+
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray, AbstractControl } from '@angular/forms';
+
+@Component({
+  selector: 'app-encuesta',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './encuesta.component.html',
+  styleUrls: ['./encuesta.component.css']
+})
+export class EncuestaComponent implements OnInit {
+  encuestaForm!: FormGroup;
+  // Opciones para pregunta por checkbox y radio
+  opcionesCheck: string[] = ['Opción A', 'Opción B', 'Opción C'];
+  opcionesRadio: string[] = ['Rojo', 'Verde', 'Azul'];
+
+  constructor(private fb: FormBuilder) { }
+
+  ngOnInit(): void {
+    // 1) Definimos el FormGroup con todos los controles y sus validadores
+    this.encuestaForm = this.fb.group({
+      nombre: ['', [Validators.required, Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/)]],
+      apellido: ['', [Validators.required, Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/)]],
+      edad: ['', [Validators.required, Validators.min(19), Validators.max(98)]],
+      telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{1,10}$/)]],
+      // Tres preguntas distintas:
+      preguntaTexto: ['', [Validators.required]],
+      preguntaRadio: ['', [Validators.required]],
+      preguntaCheckbox: this.buildCheckboxArray()
+    }, {
+      // Validador adicional: “No repetir opciones” en checkbox
+      validators: [this.noRepetirCheckboxValidator]
+    });
+  }
+
+  /** Crea un FormArray de checkbox inicializado en false para cada opción */
+  private buildCheckboxArray(): FormArray {
+    const arr = this.opcionesCheck.map(() => this.fb.control(false));
+    return this.fb.array(arr, this.minCheckboxSelected(1));
+  }
+
+  /** Validador para que al menos una casilla esté seleccionada */
+  private minCheckboxSelected(min: number) {
+    return (formArray: AbstractControl) => {
+      const totalSeleccionados = (formArray as FormArray).controls
+        .map(control => control.value)
+        .reduce((prev, next) => next ? prev + 1 : prev, 0);
+      return totalSeleccionados >= min ? null : { minCheckbox: true };
+    };
+  }
+
+  /** Validador personalizado para evitar respuestas repetidas (no aplica aquí, lo dejamos de ejemplo) */
+  private noRepetirCheckboxValidator(formGroup: AbstractControl): { [key: string]: any } | null {
+    // En caso de tener que validar que varias preguntas no compartan la misma respuesta,
+    // se haría aquí. Actualmente devolvemos null para no bloquear.
+    return null;
+  }
+
+  /** Conveniencia para acceder al FormArray de checkboxes en la plantilla */
+  get preguntaCheckboxArray(): FormArray {
+    return this.encuestaForm.get('preguntaCheckbox') as FormArray;
+  }
+
+  /** Método que se ejecuta al enviar el formulario */
+  onSubmit(): void {
+    if (this.encuestaForm.invalid) {
+      // Marcamos todos los controles como “touched” para mostrar mensajes de error
+      this.markAllAsTouched(this.encuestaForm);
+      return;
+    }
+
+    // Extraemos datos del formulario
+    const datos = {
+      nombre: this.encuestaForm.value.nombre.trim(),
+      apellido: this.encuestaForm.value.apellido.trim(),
+      edad: this.encuestaForm.value.edad,
+      telefono: this.encuestaForm.value.telefono,
+      respuestaTexto: this.encuestaForm.value.preguntaTexto.trim(),
+      respuestaRadio: this.encuestaForm.value.preguntaRadio,
+      respuestaCheckbox: this.opcionesCheck
+        .filter((_, i) => this.preguntaCheckboxArray.at(i).value)
+    };
+
+    console.log('Encuesta enviada:', datos);
+    // Aquí podrías enviar los datos a un servicio o a Firebase
+
+    // Reiniciar formulario tras envío
+    this.encuestaForm.reset();
+    // Reconstruir el array de checkboxes en false
+    this.encuestaForm.setControl('preguntaCheckbox', this.buildCheckboxArray());
+  }
+
+  /** Marca todos los controles como touched para forzar visualización de errores */
+  private markAllAsTouched(control: AbstractControl): void {
+    if (control.hasOwnProperty('controls')) {
+      // es FormGroup o FormArray
+      for (const inner in (control as any).controls) {
+        this.markAllAsTouched((control as any).controls[inner]);
+      }
+    }
+    control.markAsTouched();
+  }
+}
+=== END FILE: src\app\components\encuesta\encuesta.component.ts ===
+
+=== BEGIN FILE: src\app\display-word.pipe.spec.ts ===
+import { DisplayWordPipe } from './display-word.pipe';
+
+describe('DisplayWordPipe', () => {
+  it('create an instance', () => {
+    const pipe = new DisplayWordPipe();
+    expect(pipe).toBeTruthy();
+  });
+});
+=== END FILE: src\app\display-word.pipe.spec.ts ===
+
+=== BEGIN FILE: src\app\display-word.pipe.ts ===
+// display-word.pipe.ts
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+  name: 'displayWord'
+})
+export class DisplayWordPipe implements PipeTransform {
+  transform(word: string, guessedLetters: string[]): string {
+    if (!word) {
+      return '';
+    }
+    return word
+    .split('')
+    .map(letter => guessedLetters.includes(letter.toLowerCase()) ? letter : '_')
+    .join(' ');
+  }
+
+}
+=== END FILE: src\app\display-word.pipe.ts ===
+
+=== BEGIN FILE: src\app\duel\duel.component.css ===
+/* Aplica el estilo base como en Mayor-Menor */
+:host {
+  display: block;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+  color: #333;
+}
+
+/* Contenedor general */
+.game-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Selector de tema */
+.form-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.form-group label {
+  font-weight: bold;
+}
+.form-group select {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Puntuación / Vidas */
+.scoreboard {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+/* Tarjeta de pregunta */
+.card {
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+.card-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Imagen de la pregunta */
+img.img-fluid {
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border: 1px solid #e0e0e0;
+}
+
+/* Texto de la pregunta */
+.lead {
+  font-size: 1.25rem;
+  margin: 1rem 0;
+}
+
+
+/* Botones de opciones en columna, sin estirarse en altura */
+.controls {
+  display: flex;
+  flex-direction: column;   /* columna */
+  gap: 0.75rem;             /* espacio entre botones */
+  margin-top: 1rem;
+}
+
+.controls button {
+  /* Elimina el flex-grow/flex-basis para que no estiren la altura */
+  flex: none;
+  width: 100%;              /* ancho completo */
+  padding: 0.5rem 1rem;     /* reduce el padding vertical */
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background-color: #2196f3;
+  color: #fff;
+  transition: background-color 0.2s;
+  height: auto;             /* altura automática según contenido */
+}
+
+.controls button:hover:not([disabled]) {
+  background-color: #1976d2;
+}
+
+.controls button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+
+
+
+
+/* Mensaje de resultado */
+.alert {
+  margin-top: 1rem;
+  font-size: 1rem;
+}
+
+/* Game Over */
+.game-over {
+  margin-top: 2rem;
+}
+.game-over h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #e53935;
+}
+.game-over button {
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #4caf50;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.game-over button:hover {
+  background-color: #388e3c;
+}
+=== END FILE: src\app\duel\duel.component.css ===
+
+=== BEGIN FILE: src\app\duel\duel.component.html ===
+<div class="game-container">
+  <!-- Selector de tema -->
+  <div class="form-group">
+    <label for="themeSelect">Seleccione Tema:</label>
+    <select
+      id="themeSelect"
+      [(ngModel)]="selectedTheme"
+      (change)="loadQuestion()"
+    >
+      <option *ngFor="let t of ['historia', 'geografia', 'arte', 'biologia']" [value]="t">
+        {{ t | titlecase }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Juego activo -->
+  <div *ngIf="!gameOver; else overTpl">
+    <div class="card">
+      <div class="card-header">
+        Preguntados – Tema: {{ selectedTheme | titlecase }}
+      </div>
+      <div class="card-body">
+        <img
+          *ngIf="currentImage"
+          [src]="currentImage"
+          alt="Pregunta visual"
+          class="img-fluid"
+        />
+        <p class="lead">{{ currentQuestion }}</p>
+
+        <div class="scoreboard">
+          Vidas: {{ lives }}
+        </div>
+
+        <div class="controls">
+          <button
+            *ngFor="let opt of options"
+            (click)="selectAnswer(opt)"
+            [disabled]="answered"
+          >
+            {{ opt }}
+          </button>
+        </div>
+
+        <div *ngIf="message" class="alert alert-info">
+          {{ message }}
+        </div>
+
+        <button
+          *ngIf="answered && !gameOver"
+          class="btn btn-success"
+          (click)="nextQuestion()"
+        >
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over -->
+  <ng-template #overTpl>
+    <div class="game-over text-center">
+      <h1>Game Over</h1>
+      <p>Te quedaste sin vidas.</p>
+      <button (click)="reset()">Reiniciar</button>
+    </div>
+  </ng-template>
+</div>
+=== END FILE: src\app\duel\duel.component.html ===
+
+=== BEGIN FILE: src\app\duel\duel.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { DuelComponent } from './duel.component';
+
+describe('DuelComponent', () => {
+  let component: DuelComponent;
+  let fixture: ComponentFixture<DuelComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [DuelComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(DuelComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\duel\duel.component.spec.ts ===
+
+=== BEGIN FILE: src\app\duel\duel.component.ts ===
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';      // ← IMPORTA ESTO
+import { Component, OnInit } from '@angular/core';
+import { QuestionService } from '../services/question.service';
+
+@Component({
+  standalone: true,                                         // ← AGREGA ESTO
+  selector: 'app-duel',
+  imports: [
+    CommonModule,
+    FormsModule,
+    HttpClientModule                                      // ← Y ESTO
+  ],
+  templateUrl: './duel.component.html',
+  styleUrls: ['./duel.component.css']                     // ← CORRIGE A styleUrls
+})
+
+export class DuelComponent implements OnInit {
+  selectedTheme = 'historia';
+  currentQuestion = '';
+  currentImage = '';
+  options: string[] = [];
+  message = '';
+  answered = false;
+  lives = 3;
+  gameOver = false;
+
+  // ← NUEVO: almacena aquí la respuesta correcta
+  correctAnswer = '';
+
+  constructor(private qs: QuestionService) { }
+
+  ngOnInit(): void {
+    this.loadQuestion();
+  }
+
+  loadQuestion(): void {
+    this.message = '';
+    this.answered = false;
+    if (this.gameOver) { return; }
+
+    this.qs.getQuestion(this.selectedTheme).subscribe(q => {
+      this.currentQuestion = q.questionText;
+      this.currentImage    = q.imageUrl;
+      this.correctAnswer   = q.correctAnswer;           // ← GUARDA la respuesta correcta
+      this.options         = this.shuffle([
+        this.correctAnswer, 
+        ...q.incorrectAnswers
+      ]);
+    });
+  }
+
+  selectAnswer(opt: string): void {
+    if (this.answered) { return; }
+    this.answered = true;
+
+    if (opt === this.correctAnswer) {
+      this.message = '¡Correcto!';
+    } else {
+      this.message = `Incorrecto. La respuesta era: ${this.correctAnswer}`;
+      this.lives--;
+      if (this.lives === 0) {
+        this.gameOver = true;
+        this.message += ' — Game Over.';
+      }
+    }
+  }
+
+  nextQuestion(): void {
+    if (!this.gameOver) {
+      this.loadQuestion();
+    }
+  }
+
+  reset(): void {
+    this.lives = 3;
+    this.gameOver = false;
+    this.loadQuestion();
+  }
+
+  private shuffle(arr: any[]): any[] {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+}
+
+
+// import { CommonModule } from '@angular/common';
+// import { FormsModule } from '@angular/forms';
+// import { Component, OnInit } from '@angular/core';
+// import { QuestionService } from '../question.service';
+// import { Question } from '../models/question.model';
+
+// @Component({
+//   selector: 'app-duel',
+//   imports: [CommonModule, FormsModule],
+//   templateUrl: './duel.component.html',
+//   styleUrl: './duel.component.css'
+// })
+
+// export class DuelComponent implements OnInit {
+//   selectedTheme = 'historia';            // O el tema que elijas
+//   currentQuestion = '';
+//   currentImage = '';
+//   options: string[] = [];
+//   message = '';
+//   answered = false;
+//   lives = 3;
+//   gameOver = false;
+
+//   constructor(private qs: QuestionService) { }
+
+//   ngOnInit(): void {
+//     this.loadQuestion();
+//   }
+
+//   loadQuestion(): void {
+//     this.message = '';
+//     this.answered = false;
+//     if (this.gameOver) { return; }
+
+//     this.qs.getQuestion(this.selectedTheme).subscribe((q: Question) => {
+//       this.currentQuestion = q.questionText;
+//       this.currentImage    = q.imageUrl;
+//       const answers = [q.correctAnswer, ...q.incorrectAnswers];
+//       this.options = this.shuffle(answers);
+//     });
+//   }
+
+//   selectAnswer(opt: string): void {
+//     if (this.answered) { return; }
+//     this.answered = true;
+//     if (opt === this.getCorrect()) {
+//       this.message = '¡Correcto!';
+//     } else {
+//       this.message = `Incorrecto. La respuesta era: ${this.getCorrect()}`;
+//       this.lives--;
+//       if (this.lives === 0) {
+//         this.gameOver = true;
+//         this.message += ' — Game Over.';
+//       }
+//     }
+//   }
+
+//   nextQuestion(): void {
+//     if (!this.gameOver) {
+//       this.loadQuestion();
+//     }
+//   }
+
+//   private getCorrect(): string {
+//     // La opción correcta queda guardada en `message` o en la comparación previa
+//     // Pero puedes extraerla de `options` y `message` si quieres.
+//     return this.message.startsWith('¡Correcto!') 
+//       ? this.options.find(o => this.message.includes(o))! 
+//       : this.options.find(o => !this.options.includes(o) || true)!; 
+//     // Mejor: guarda `correctAnswer` en una propiedad separada al cargar.
+//   }
+
+//   private shuffle(arr: any[]): any[] {
+//     for (let i = arr.length - 1; i > 0; i--) {
+//       const j = Math.floor(Math.random() * (i + 1));
+//       [arr[i], arr[j]] = [arr[j], arr[i]];
+//     }
+//     return arr;
+//   }
+
+//   reset(): void {
+//     this.lives = 3;
+//     this.gameOver = false;
+//     this.loadQuestion();
+//   }
+
+// }
+=== END FILE: src\app\duel\duel.component.ts ===
+
+=== BEGIN FILE: src\app\enumerate-words.pipe.ts ===
+
+import { Pipe, PipeTransform } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+@Pipe({
+  name: 'enumerateWords'
+})
+export class EnumerateWordsPipe implements PipeTransform {
+
+  constructor(private sanitizer: DomSanitizer) {}
+
+  transform(value: string): SafeHtml {
+    if (!value) return '';
+    // Separa las palabras (considera múltiples espacios)
+    const words = value.trim().split(/\s+/);
+    // Mapea cada palabra con su número y dos saltos de línea (para dejar un espacio extra)
+    const enumerated = words.map((word, index) => `${index + 1}. ${word}`).join('<br>');
+    // Sanitiza el HTML para que Angular lo renderice correctamente
+    return this.sanitizer.bypassSecurityTrustHtml(enumerated);
+  }
+}
+=== END FILE: src\app\enumerate-words.pipe.ts ===
+
+=== BEGIN FILE: src\app\flow-free\flow-free.component.css ===
+.flowfree-container {
+    position: relative;
+  }
+  
+  canvas {
+    border: 1px solid #000;
+  }
+  
+  .controls {
+    margin-top: 10px;
+  }
+  
+=== END FILE: src\app\flow-free\flow-free.component.css ===
+
+=== BEGIN FILE: src\app\flow-free\flow-free.component.html ===
+
+<h1>Componente Flow Free</h1>
+
+<div class="flowfree-container">
+    <canvas #canvas></canvas>
+    <div class="controls">
+      <button (click)="onRegenerateClick()">Generar Tablero</button>
+      <button (click)="onResetClick()">Reset</button>
+      <button (click)="onResolverClick()">Resolver</button>
+    </div>
+  </div>
+  
+=== END FILE: src\app\flow-free\flow-free.component.html ===
+
+=== BEGIN FILE: src\app\flow-free\flow-free.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { FlowFreeComponent } from './flow-free.component';
+
+describe('FlowFreeComponent', () => {
+  let component: FlowFreeComponent;
+  let fixture: ComponentFixture<FlowFreeComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FlowFreeComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(FlowFreeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\flow-free\flow-free.component.spec.ts ===
+
+=== BEGIN FILE: src\app\flow-free\flow-free.component.ts ===
+import { CommonModule } from '@angular/common';
+import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FlowFreeSolver, Pair, Point } from './flowfree-solver';
+
+
+@Component({
+  selector: 'app-flow-free',
+  imports: [CommonModule, FormsModule],
+  templateUrl: './flow-free.component.html',
+  styleUrl: './flow-free.component.css'
+})
+
+export class FlowfreeComponent implements AfterViewInit {
+  @ViewChild('canvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
+  private ctx!: CanvasRenderingContext2D;
+
+  // Dimensiones y configuración de la grilla
+  cellSize: number = 30;
+  gridRows: number = 15;
+  gridCols: number = 15;
+
+  // Estado del juego
+  endpoints: Map<string, string> = new Map(); // Clave: "x,y" -> color (string)
+  originalEndpoints: Map<string, string> = new Map();
+  currentPath: Point[] = [];
+  completedPaths: { path: Point[]; color: string }[] = [];
+  drawing: boolean = false;
+  currentPathColor: string = '';
+
+  // Para el solver
+  pairList: Pair[] = [];
+  colorMapping: Map<number, string> = new Map();
+  solverGrid: number[][] | null = null;
+  showSolution: boolean = false;
+
+  // Nivel (número de pares)
+  currentPairsCount: number = 3;
+
+  // Lista de colores disponibles
+  availableColors: string[] = [
+    'red', 'blue', 'green', 'orange', 'purple', 'yellow', 'brown',
+    'cyan', 'magenta', 'lime', 'pink', 'teal', 'maroon', 'navy', 'olive'
+  ];
+
+  ngAfterViewInit(): void {
+    const canvas = this.canvasRef.nativeElement;
+    canvas.width = this.gridCols * this.cellSize;
+    canvas.height = this.gridRows * this.cellSize;
+    this.ctx = canvas.getContext('2d')!;
+    this.attachCanvasEvents();
+    this.generateRandomBoard();
+    this.draw();
+  }
+
+  // Asigna los eventos del canvas
+  attachCanvasEvents() {
+    const canvas = this.canvasRef.nativeElement;
+    canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
+    canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
+    canvas.addEventListener('mouseup', (e) => this.onMouseUp(e));
+  }
+
+  // Obtiene las coordenadas de la celda a partir del evento del ratón
+  getMousePos(e: MouseEvent): Point {
+    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
+    return {
+      x: Math.floor((e.clientX - rect.left) / this.cellSize),
+      y: Math.floor((e.clientY - rect.top) / this.cellSize)
+    };
+  }
+
+  onMouseDown(e: MouseEvent) {
+    const cell = this.getMousePos(e);
+    const cellKey = this.getCellKey(cell);
+    if (!this.drawing && this.currentPath.length > 0 && this.isSamePoint(cell, this.currentPath[this.currentPath.length - 1])) {
+      this.drawing = true;
+      return;
+    }
+    if (this.endpoints.has(cellKey)) {
+      this.drawing = true;
+      this.currentPath = [];
+      this.currentPath.push(cell);
+      this.currentPathColor = this.endpoints.get(cellKey)!;
+      this.showSolution = false;
+      this.draw();
+    }
+  }
+
+  onMouseMove(e: MouseEvent) {
+    if (!this.drawing) return;
+    const cell = this.getMousePos(e);
+    if (cell.x < 0 || cell.x >= this.gridCols || cell.y < 0 || cell.y >= this.gridRows) {
+      alert("Te saliste del tablero");
+      this.currentPath = [];
+      this.drawing = false;
+      this.draw();
+      return;
+    }
+    if (this.currentPath.length > 0) {
+      const last = this.currentPath[this.currentPath.length - 1];
+      if (this.isAdjacent(last, cell) && !this.containsPoint(this.currentPath, cell)) {
+        if (this.isCellFreeForCurrentDrawing(cell)) {
+          this.currentPath.push(cell);
+          this.draw();
+        } else {
+          alert("Camino incorrecto");
+          this.currentPath = [];
+          this.drawing = false;
+          this.draw();
+        }
+      }
+    }
+  }
+
+  onMouseUp(e: MouseEvent) {
+    if (!this.drawing) return;
+    const cell = this.getMousePos(e);
+    const cellKey = this.getCellKey(cell);
+    // Verifica si se terminó correctamente el trazo en el mismo endpoint (y no es el de inicio)
+    if (this.endpoints.has(cellKey) && this.endpoints.get(cellKey) === this.currentPathColor &&
+       !this.isSamePoint(cell, this.currentPath[0])) {
+         this.completedPaths.push({ path: [...this.currentPath], color: this.currentPathColor });
+         // Remueve los endpoints completados
+         const startKey = this.getCellKey(this.currentPath[0]);
+         this.endpoints.delete(startKey);
+         this.endpoints.delete(cellKey);
+         this.currentPath = [];
+         this.currentPathColor = '';
+    }
+    this.drawing = false;
+    this.draw();
+
+    // Si se completaron todos los endpoints, se sube de nivel
+    if (this.endpoints.size === 0) {
+      alert("Buen trabajo, conectaste todos los caminos");
+      this.currentPairsCount++;
+      alert(`Subiste al siguiente nivel: ${this.currentPairsCount} pares`);
+      this.completedPaths = [];
+      this.currentPath = [];
+      this.drawing = false;
+      this.currentPathColor = '';
+      this.generateRandomBoard();
+      this.draw();
+    }
+  }
+
+  // Genera los endpoints y pares de forma aleatoria
+  generateRandomBoard() {
+    this.endpoints.clear();
+    this.pairList = [];
+    this.colorMapping.clear();
+    const pairsCount = this.currentPairsCount;
+    const usedPoints: Point[] = [];
+
+    for (let i = 0; i < pairsCount; i++) {
+      let start: Point;
+      do {
+        start = {
+          x: Math.floor(Math.random() * this.gridCols),
+          y: Math.floor(Math.random() * this.gridRows)
+        };
+      } while (this.pointExistsIn(start, usedPoints));
+      usedPoints.push(start);
+
+      let end: Point;
+      do {
+        end = {
+          x: Math.floor(Math.random() * this.gridCols),
+          y: Math.floor(Math.random() * this.gridRows)
+        };
+      } while (this.pointExistsIn(end, usedPoints) || this.isSamePoint(start, end));
+      usedPoints.push(end);
+
+      const colorID = i + 1;
+      this.pairList.push({ start, end, colorID });
+      const color = this.availableColors[i];
+      this.endpoints.set(this.getCellKey(start), color);
+      this.endpoints.set(this.getCellKey(end), color);
+      this.colorMapping.set(colorID, color);
+    }
+    // Guarda una copia de los endpoints originales para el reset
+    this.originalEndpoints = new Map(this.endpoints);
+    this.showSolution = false;
+  }
+
+  // Helpers
+  getCellKey(point: Point): string {
+    return `${point.x},${point.y}`;
+  }
+
+  isSamePoint(a: Point, b: Point): boolean {
+    return a.x === b.x && a.y === b.y;
+  }
+
+  pointExistsIn(point: Point, list: Point[]): boolean {
+    return list.some(p => this.isSamePoint(p, point));
+  }
+
+  isAdjacent(a: Point, b: Point): boolean {
+    return (Math.abs(a.x - b.x) === 1 && a.y === b.y) ||
+           (Math.abs(a.y - b.y) === 1 && a.x === b.x);
+  }
+
+  containsPoint(list: Point[], point: Point): boolean {
+    return list.some(p => this.isSamePoint(p, point));
+  }
+
+  isCellFreeForCurrentDrawing(cell: Point): boolean {
+    // Si la celda está ocupada por un camino ya completado
+    for (const pathObj of this.completedPaths) {
+      if (this.containsPoint(pathObj.path, cell)) {
+        return false;
+      }
+    }
+    const key = this.getCellKey(cell);
+    if (this.endpoints.has(key) && this.endpoints.get(key) !== this.currentPathColor) {
+      return false;
+    }
+    return true;
+  }
+
+  // // Implementación dummy del solver. DEBES completar o integrar tu algoritmo de solución.
+  // onResolverClick() {
+  //   alert("Implementa el solver o integra un servicio que lo haga");
+  //   // Como placeholder, no se muestra solución.
+  //   this.showSolution = false;
+  //   this.draw();
+  // }
+
+  onResolverClick() {
+    const solver = new FlowFreeSolver(this.gridRows, this.gridCols);
+    solver.requireFullFill = false; // o true si quieres forzar rellenar todo
+    for (const p of this.pairList) {
+      solver.addPair(p);
+    }
+    const solved = solver.solve();
+    if (solved) {
+      this.solverGrid = solver.grid;
+      this.showSolution = true;
+    } else {
+      alert('No se encontró solución');
+    }
+    this.draw();
+  }
+
+  onRegenerateClick() {
+    this.currentPairsCount = 3; // Reinicia el nivel
+    this.generateRandomBoard();
+    this.completedPaths = [];
+    this.currentPath = [];
+    this.drawing = false;
+    this.currentPathColor = '';
+    this.showSolution = false;
+    this.draw();
+  }
+
+  onResetClick() {
+    this.endpoints = new Map(this.originalEndpoints);
+    this.completedPaths = [];
+    this.currentPath = [];
+    this.drawing = false;
+    this.currentPathColor = '';
+    this.showSolution = false;
+    this.draw();
+  }
+
+  // Funciones de dibujo
+  draw() {
+    const canvas = this.canvasRef.nativeElement;
+    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Dibuja la grilla
+    for (let i = 0; i < this.gridCols; i++) {
+      for (let j = 0; j < this.gridRows; j++) {
+        this.ctx.strokeStyle = '#808080';
+        this.ctx.strokeRect(i * this.cellSize, j * this.cellSize, this.cellSize, this.cellSize);
+      }
+    }
+    if (this.showSolution && this.solverGrid) {
+      // Aquí debes implementar el dibujo de la solución según los datos de solverGrid
+    } else {
+      // Dibuja endpoints
+      this.endpoints.forEach((color, key) => {
+        const parts = key.split(',').map(Number);
+        const point: Point = { x: parts[0], y: parts[1] };
+        this.drawCircleInCell(point, color);
+      });
+      // Dibuja caminos completados
+      for (const pathObj of this.completedPaths) {
+        this.drawPath(pathObj.path, pathObj.color);
+      }
+      // Dibuja el camino actual
+      if (this.currentPath.length > 0) {
+        this.drawPath(this.currentPath, this.currentPathColor);
+      }
+    }
+  }
+
+  drawCircleInCell(cell: Point, color: string) {
+    const padding = 10;
+    const x = cell.x * this.cellSize + padding;
+    const y = cell.y * this.cellSize + padding;
+    const size = this.cellSize - 2 * padding;
+    this.ctx.fillStyle = color;
+    this.ctx.beginPath();
+    this.ctx.ellipse(x + size / 2, y + size / 2, size / 2, size / 2, 0, 0, 2 * Math.PI);
+    this.ctx.fill();
+    this.ctx.strokeStyle = 'black';
+    this.ctx.stroke();
+  }
+
+  drawPath(path: Point[], color: string) {
+    if (path.length < 2) return;
+    this.ctx.strokeStyle = color;
+    this.ctx.lineWidth = 10;
+    this.ctx.beginPath();
+    for (let i = 0; i < path.length; i++) {
+      const x = path[i].x * this.cellSize + this.cellSize / 2;
+      const y = path[i].y * this.cellSize + this.cellSize / 2;
+      if (i === 0) {
+        this.ctx.moveTo(x, y);
+      } else {
+        this.ctx.lineTo(x, y);
+      }
+    }
+    this.ctx.stroke();
+  }
+
+
+  
+
+}
+=== END FILE: src\app\flow-free\flow-free.component.ts ===
+
+=== BEGIN FILE: src\app\flow-free\flowfree-solver.ts ===
+// src/app/flowfree/flowfree-solver.ts
+
+export interface Point {
+    x: number;
+    y: number;
+  }
+  
+  export interface Pair {
+    start: Point;
+    end: Point;
+    colorID: number;
+  }
+  
+  export class FlowFreeSolver {
+    rows: number;
+    cols: number;
+    grid: number[][];
+    pairs: Pair[];
+    requireFullFill: boolean;
+    recursionLimit: number;
+  
+    private recursionCounter: number;
+    private directions: Point[] = [
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 },
+    ];
+  
+    constructor(rows: number, cols: number) {
+      this.rows = rows;
+      this.cols = cols;
+      this.grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+      this.pairs = [];
+      this.requireFullFill = false;
+      this.recursionLimit = 1_000_000;
+      this.recursionCounter = 0;
+    }
+  
+    addPair(p: Pair): void {
+      this.pairs.push(p);
+      this.grid[p.start.y][p.start.x] = p.colorID;
+      this.grid[p.end.y][p.end.x] = p.colorID;
+    }
+  
+    solve(): boolean {
+      this.recursionCounter = 0;
+      return this.solvePairs(0);
+    }
+  
+    private solvePairs(pairIndex: number): boolean {
+      if (pairIndex >= this.pairs.length) {
+        if (this.requireFullFill && !this.gridIsComplete()) return false;
+        return true;
+      }
+  
+      const currentPair = this.pairs[pairIndex];
+      //return this.dfsForPair(currentPair, currentPair.start, [ currentPair.start ], pairIndex);
+
+      return this.dfsForPairIterative(currentPair, pairIndex);
+
+    }
+  
+    /*
+    private dfsForPair(p: Pair, cur: Point, path: Point[], pairIndex: number): boolean {
+      this.recursionCounter++;
+      if (this.recursionCounter > this.recursionLimit) return false;
+  
+      if (cur.x === p.end.x && cur.y === p.end.y) {
+        return this.solvePairs(pairIndex + 1);
+      }
+  
+      const moves: Point[] = [];
+      for (const d of this.directions) {
+        const next: Point = { x: cur.x + d.x, y: cur.y + d.y };
+        if (this.isValid(next, p)) moves.push(next);
+      }
+      moves.sort((a, b) => this.manhattanDistance(a, p.end) - this.manhattanDistance(b, p.end));
+  
+      for (const next of moves) {
+        const wasEmpty = this.grid[next.y][next.x] === 0;
+        if (wasEmpty) this.grid[next.y][next.x] = p.colorID;
+  
+        path.push(next);
+        if (this.dfsForPair(p, next, path, pairIndex)) return true;
+  
+        path.pop();
+        if (wasEmpty) this.grid[next.y][next.x] = 0;
+      }
+  
+      return false;
+    }
+    */
+
+    // Dentro de la clase FlowFreeSolver, reemplaza dfsForPair por esto:
+
+private dfsForPairIterative(p: Pair, pairIndex: number): boolean {
+    type Frame = {
+      pos: Point;
+      moves: Point[];
+      moveIndex: number;
+      path: Point[];
+    };
+  
+    this.recursionCounter = 0;
+  
+    // Asegúrate de que el start ya está marcado en grid desde addPair
+    const start: Point = p.start;
+    const end: Point   = p.end;
+  
+    // Genera vecinos ordenados por Manhattan
+    const sortedNeighbors = (pt: Point): Point[] => {
+      const arr: Point[] = [];
+      for (const d of this.directions) {
+        const nxt = { x: pt.x + d.x, y: pt.y + d.y };
+        if (this.isValid(nxt, p)) arr.push(nxt);
+      }
+      return arr.sort((a, b) =>
+        this.manhattanDistance(a, end) - this.manhattanDistance(b, end)
+      );
+    };
+  
+    const stack: Frame[] = [{
+      pos: start,
+      moves: sortedNeighbors(start),
+      moveIndex: 0,
+      path: [ start ]
+    }];
+  
+    while (stack.length > 0) {
+      // Control de límite de recursión (ahora en iterativo)
+      if (++this.recursionCounter > this.recursionLimit) return false;
+  
+      const frame = stack[stack.length - 1];
+  
+      // Si llegamos al endpoint
+      if (frame.pos.x === end.x && frame.pos.y === end.y) {
+        // Intentamos resolver el siguiente par
+        if (this.solvePairs(pairIndex + 1)) return true;
+        // Si no, forzamos backtrack del frame actual
+        // limpieza del último paso (si no es el inicio)
+        if (!(frame.pos.x === start.x && frame.pos.y === start.y)) {
+          this.grid[frame.pos.y][frame.pos.x] = 0;
+        }
+        stack.pop();
+        continue;
+      }
+  
+      // Si ya probamos todos los movimientos desde aquí, backtrack
+      if (frame.moveIndex >= frame.moves.length) {
+        // desmarca la celda actual (si no es el inicio)
+        if (!(frame.pos.x === start.x && frame.pos.y === start.y)) {
+          this.grid[frame.pos.y][frame.pos.x] = 0;
+        }
+        stack.pop();
+        continue;
+      }
+  
+      // Toma el siguiente movimiento
+      const next = frame.moves[frame.moveIndex++];
+      const wasEmpty = this.grid[next.y][next.x] === 0;
+      if (wasEmpty) {
+        this.grid[next.y][next.x] = p.colorID;
+      }
+  
+      // Empuja nuevo frame
+      stack.push({
+        pos: next,
+        moves: sortedNeighbors(next),
+        moveIndex: 0,
+        path: frame.path.concat([ next ])
+      });
+    }
+  
+    return false;
+  }
+  
+  
+    private isValid(pt: Point, p: Pair): boolean {
+      if (pt.x < 0 || pt.x >= this.cols || pt.y < 0 || pt.y >= this.rows) return false;
+      if (pt.x === p.end.x && pt.y === p.end.y) return true;
+      return this.grid[pt.y][pt.x] === 0;
+    }
+  
+    private manhattanDistance(a: Point, b: Point): number {
+      return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    }
+  
+    private gridIsComplete(): boolean {
+      for (let y = 0; y < this.rows; y++) {
+        for (let x = 0; x < this.cols; x++) {
+          if (this.grid[y][x] === 0) return false;
+        }
+      }
+      return true;
+    }
+  }
+  
+=== END FILE: src\app\flow-free\flowfree-solver.ts ===
+
+=== BEGIN FILE: src\app\guards\auth.guard.spec.ts ===
+import { TestBed } from '@angular/core/testing';
+import { CanActivateFn } from '@angular/router';
+
+import { authGuard } from './auth.guard';
+
+describe('authGuard', () => {
+  const executeGuard: CanActivateFn = (...guardParameters) => 
+      TestBed.runInInjectionContext(() => authGuard(...guardParameters));
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+  });
+
+  it('should be created', () => {
+    expect(executeGuard).toBeTruthy();
+  });
+});
+=== END FILE: src\app\guards\auth.guard.spec.ts ===
+
+=== BEGIN FILE: src\app\guards\auth.guard.ts ===
+import { Injectable } from '@angular/core';
+import {
+  CanActivate,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+  Router
+} from '@angular/router';
+
+import { Observable } from 'rxjs';
+import { map, take, tap } from 'rxjs/operators';
+import { AuthService } from '../services/auth.service';
+
+@Injectable({ providedIn: 'root' })
+export class AuthGuard implements CanActivate {
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> {
+    return this.authService.user$.pipe(
+      take(1),
+      map(user => !!user),        // convierte user a boolean
+      tap(loggedIn => {
+        if (!loggedIn) {
+          // no está autenticado → redirige al login
+          this.router.navigate(['/login']);
+        }
+      })
+    );
+  }
+}
+=== END FILE: src\app\guards\auth.guard.ts ===
+
+=== BEGIN FILE: src\app\home\home.component.css ===
+
+
+/* home.component.css */
+.games-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.game-card {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.game-card:hover {
+  transform: scale(1.05);
+}
+
+.game-image {
+  width: 100%;
+  height: auto;
+  max-height: 100px;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
+}
+
+.game-card h4 {
+  margin: 0.5rem 0;
+  color: #ffeb3b;
+}
+
+.game-card button {
+  background-color: #2196f3;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.game-card button:hover {
+  background-color: #1976d2;
+}
+
+/* Asegura que los enlaces y textos sean legibles */
+.logs-link a {
+  color: #ffeb3b;
+  font-weight: bold;
+  text-decoration: underline;
+}
+=== END FILE: src\app\home\home.component.css ===
+
+=== BEGIN FILE: src\app\home\home.component.html ===
+<!-- 
+<header class="app-header">
+  <h1>Sala de Juegos</h1>
+  <nav>
+    <button *ngIf="!isLoggedIn" routerLink="/register">Registro</button>
+    <button *ngIf="!isLoggedIn" routerLink="/login">Login</button>
+
+    <span *ngIf="isLoggedIn">Bienvenido, {{ userEmail }}</span>
+    <button *ngIf="isLoggedIn" (click)="logout()">Log Out</button>
+  </nav>
+</header>
+
+<main class="app-content">
+
+  <p *ngIf="!isLoggedIn">Por favor inicia sesión para acceder a los juegos y al listado de logs.</p>
+
+  <div *ngIf="isLoggedIn" class="games-grid">
+
+ <h3 class="mb-3">Selecciona un Juego</h3>
+    <ul class="list-group">
+      <li class="list-group-item" *ngFor="let game of games | keyvalue">
+        <a [routerLink]="['/games', game.value]" class="text-decoration-none">
+          {{ game.key }}
+        </a>
+      </li>
+    </ul>
+    
+    <div class="logs-link">
+      <a routerLink="/logs">Ver Listado de Ingresos</a>
+    </div>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <small>© 2025 Sala de Juegos</small>
+</footer> -->
+
+<!-- home.component.html -->
+<main class="app-content">
+  <div *ngIf="isLoggedIn" class="games-grid">
+    <h3>Selecciona un Juego</h3>
+    <div class="games-container">
+      <div class="game-card" *ngFor="let game of games | keyvalue">
+        <img 
+          [src]="'assets/games/' + game.value + '.jpg'" 
+          [alt]="game.key" 
+          class="game-image"
+        >
+        <h4>{{ game.key }}</h4>
+        <button [routerLink]="['/games', game.value]">Jugar</button>
+      </div>
+    </div>
+    <div class="logs-link">
+      <a routerLink="/logs">Ver Historial de Ingresos</a>
+    </div>
+  </div>
+</main>
+
+
+ <app-user-list></app-user-list>
+
+ 
+
+
+
+<!--  
+<div class="container mt-5">
+  <h1 class="text-center">Bienvenido a Mi Portal de Juegos</h1>
+  
+  <div *ngIf="isLoggedIn; else notLoggedIn" class="mb-4 text-center">
+    <p class="lead">Hola, {{ username }}</p>
+    <button class="btn btn-warning" (click)="logout()">Log Out</button>
+  </div>
+  
+  <ng-template #notLoggedIn>
+    <div class="mb-4 text-center">
+      <button class="btn btn-primary me-2" routerLink="/login">Login</button>
+      <button class="btn btn-success" routerLink="/register">Register</button>
+    </div>
+  </ng-template>
+  
+  <h3 class="mb-3">Selecciona un Juego</h3>
+  <ul class="list-group">
+    <li class="list-group-item" *ngFor="let game of games | keyvalue">
+      <a [routerLink]="[game.value]" class="text-decoration-none">
+        {{ game.key }}
+      </a>
+    </li>
+  </ul>
+</div>  -->
+=== END FILE: src\app\home\home.component.html ===
+
+=== BEGIN FILE: src\app\home\home.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { HomeComponent } from './home.component';
+
+describe('HomeComponent', () => {
+  let component: HomeComponent;
+  let fixture: ComponentFixture<HomeComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HomeComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\home\home.component.spec.ts ===
+
+=== BEGIN FILE: src\app\home\home.component.ts ===
+
+// src/app/home/home.component.ts
+import { Component, OnInit }      from '@angular/core';
+import { CommonModule }            from '@angular/common';
+import { RouterModule }            from '@angular/router';
+import { UserListComponent }       from '../user-list/user-list.component';
+import { AuthService, User }       from '../services/auth.service';
+
+@Component({
+  selector: 'app-home',
+  standalone: true,                     // ← imprescindible para imports
+  imports: [CommonModule, RouterModule, UserListComponent],
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']  // ← corregido: debe ser styleUrls
+})
+export class HomeComponent implements OnInit {
+  isLoggedIn   = false;
+  userEmail: string | null = null;
+
+  // Diccionario: nombre del juego → ruta
+  games: { [key: string]: string } = {
+    'Ahorcado':      'ahorcado',
+    'Mayor o Menor': 'mayor-menor',
+    'Preguntados':   'preguntados',
+    'FlowFree':      'flowfree'
+  };
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.authService.user$.subscribe((user: User | null) => {
+      this.isLoggedIn = !!user;
+      this.userEmail  = user?.email || null;
+    });
+  }
+
+  logout(): void {
+    this.authService.logout();
+  }
+}
+
+
+
+
+// import { CommonModule } from '@angular/common';
+// import { Component, OnInit } from '@angular/core';
+// import { RouterModule } from '@angular/router';
+// import { UserListComponent } from "../user-list/user-list.component";
+// import { AuthService } from '../services/auth.service'; // ajusta la ruta según tu estructura
+// import {  User } from '../services/auth.service';
+
+
+// @Component({
+//   selector: 'app-home',
+//   imports: [CommonModule, RouterModule, UserListComponent],
+//   templateUrl: './home.component.html',
+//   styleUrl: './home.component.css'
+// })
+
+// export class HomeComponent  implements OnInit { 
+//   isLoggedIn = false;
+//   userEmail: string | null = null;
+
+//   constructor(private authService: AuthService) {}
+
+//   // Diccionario: clave = nombre del juego, valor = ruta o link
+//   games: { [key: string]: string } = {
+//     'Ahorcado': 'ahorcado',
+//     'Mayor o Menor': 'mayor-menor',
+//     'Preguntados': 'preguntados',
+//     'FlowFree': 'flowfree'
+//   };
+
+//   ngOnInit(): void {
+//     this.authService.user$.subscribe((user: User | null) => {
+//       this.isLoggedIn = !!user;
+//       this.userEmail = user?.email || null;
+//     });
+//   }
+
+//   logout(): void {
+//     this.authService.logout();
+//   }  
+
+// }
+
+
+=== END FILE: src\app\home\home.component.ts ===
+
+=== BEGIN FILE: src\app\letter-only.pipe.ts ===
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+  name: 'letterOnly'
+})
+
+
+export class LetterOnlyPipe implements PipeTransform {
+  transform(value: string): string {
+    if (!value) {
+      return '';
+    }
+    // Elimina todos los caracteres que no sean letras (mayúsculas o minúsculas)
+    const filtered = value.replace(/[^a-zA-Z]/g, '');
+    // Retorna solo la primera letra válida (si existe)
+    return filtered ? filtered.charAt(0) : '';
+  }
+}
+=== END FILE: src\app\letter-only.pipe.ts ===
+
+=== BEGIN FILE: src\app\login\login.component.css ===
+
+.login-container {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.login-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.login-form button {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.login-form button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.quick-access {
+  margin: 1rem 0;
+}
+
+.quick-access button {
+  margin: 0.25rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+}
+
+.error {
+  color: #dc3545;
+  margin-top: 0.5rem;
+}
+=== END FILE: src\app\login\login.component.css ===
+
+=== BEGIN FILE: src\app\login\login.component.html ===
+<!-- <form (ngSubmit)="onSubmit()" #f="ngForm">
+    <input type="email"    name="email"    [(ngModel)]="email"    placeholder="Email"    required />
+    <input type="password" name="password" [(ngModel)]="password" placeholder="Contraseña" required />
+    <button type="submit" [disabled]="f.invalid">Entrar</button>
+    <p *ngIf="error" class="error">{{ error }}</p>
+  </form>
+  
+<app-logs-list></app-logs-list> -->
+
+
+<div class="login-container">
+  <h1>Sala de Juegos</h1>
+  <form (ngSubmit)="onSubmit()" class="login-form">
+    <div class="form-group">
+      <input
+        type="email"
+        placeholder="Correo electrónico"
+        [(ngModel)]="email"
+        name="email"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <input
+        type="password"
+        placeholder="Contraseña"
+        [(ngModel)]="password"
+        name="password"
+        required
+      />
+    </div>
+    <button type="submit" [disabled]="!email || !password">Ingresar</button>
+  </form>
+
+  <!-- <div class="quick-access">
+    <button (click)="quickAccess('user1@ejemplo.com','pass123')">
+      Acceso Rápido: User1
+    </button>
+    <button (click)="quickAccess('user2@ejemplo.com','pass456')">
+      Acceso Rápido: User2
+    </button>
+  </div> -->
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p>¿No tienes cuenta? <a routerLink="/register">Regístrate aquí</a></p>
+</div>
+=== END FILE: src\app\login\login.component.html ===
+
+=== BEGIN FILE: src\app\login\login.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { LoginComponent } from './login.component';
+
+describe('LoginComponent', () => {
+  let component: LoginComponent;
+  let fixture: ComponentFixture<LoginComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [LoginComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(LoginComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\login\login.component.spec.ts ===
+
+=== BEGIN FILE: src\app\login\login.component.ts ===
+import { Component }                       from '@angular/core';
+import { CommonModule }                    from '@angular/common';
+import { FormsModule }                     from '@angular/forms';
+
+import { signInWithEmailAndPassword }      from 'firebase/auth';
+import { collection, addDoc }              from 'firebase/firestore';
+
+import { Auth }                            from '@angular/fire/auth';
+import { Firestore }                       from '@angular/fire/firestore';
+
+import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
+
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
+})
+
+export class LoginComponent {
+  email    = '';
+  password = '';
+  error: string | null = null;
+
+  constructor(
+    private auth: Auth,
+    private db: Firestore,
+    private router: Router       // <— aquí
+  ) {}
+  
+  async onSubmit() {
+    this.error = null;
+    try {
+      // 1) Autentica
+      const cred = await signInWithEmailAndPassword(this.auth, this.email, this.password);
+      // 2) Registra log
+      await addDoc(collection(this.db, 'loginLogs'), {
+        uid:   cred.user.uid,
+        email: cred.user.email,
+        fecha: new Date()
+      });
+      // 3) Éxito
+      console.log('Ingreso registrado');
+      this.router.navigate(['/home']);   // <— navega al Home
+
+    } catch(err: any) {
+      console.error(err);
+      this.error = err.message;
+    }
+  }
+
+  quickAccess(user: string, pass: string) {
+    this.email = user;
+    this.password = pass;
+    this.onSubmit();
+  }
+
+}
+
+
+=== END FILE: src\app\login\login.component.ts ===
+
+=== BEGIN FILE: src\app\logs-list\logs-list.component.css ===
+.logs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  .logs-table th,
+  .logs-table td {
+    border: 1px solid #ccc;
+    padding: 0.5rem 1rem;
+    text-align: left;
+  }
+  
+  .logs-table thead {
+    background-color: #f0f0f0;
+  }
+  
+  .logs-table tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+  
+  .logs-table th {
+    font-weight: bold;
+  }
+  
+=== END FILE: src\app\logs-list\logs-list.component.css ===
+
+=== BEGIN FILE: src\app\logs-list\logs-list.component.html ===
+<h2>Historial de Ingresos</h2>
+
+<table class="logs-table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Fecha</th>
+            <th>ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let log of logs">
+            <td>{{ log['email'] }}</td>
+            <td>{{ log['fecha'].toDate() }}</td>
+            <td>{{ log['uid'] }}</td>
+          </tr>
+          
+    </tbody>
+</table>
+
+
+=== END FILE: src\app\logs-list\logs-list.component.html ===
+
+=== BEGIN FILE: src\app\logs-list\logs-list.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { LogsListComponent } from './logs-list.component';
+
+describe('LogsListComponent', () => {
+  let component: LogsListComponent;
+  let fixture: ComponentFixture<LogsListComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [LogsListComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(LogsListComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\logs-list\logs-list.component.spec.ts ===
+
+=== BEGIN FILE: src\app\logs-list\logs-list.component.ts ===
+
+import { Component, OnInit } from '@angular/core';
+import { Firestore, collection, getDocs } from '@angular/fire/firestore';
+import { AuthService } from '../services/auth.service';
+import { filter, take } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+interface LogEntry {
+  id: string;
+  uid: string;
+  email: string;
+  fecha: any;
+}
+
+@Component({
+  selector: 'app-logs-list',
+  standalone: true,
+  imports: [CommonModule, FormsModule], // si necesitas CommonModule u otros, agrégalos aquí
+  templateUrl: './logs-list.component.html',
+  styleUrls: ['./logs-list.component.css']
+})
+export class LogsListComponent implements OnInit {
+  logs: LogEntry[] = [];
+
+  constructor(
+    private db: Firestore,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    // 1) Esperamos a que el usuario esté autenticado
+    this.authService.user$
+      .pipe(
+        filter(user => !!user), // continúa sólo si user != null
+        take(1)                 // nos suscribimos una sola vez
+      )
+      .subscribe({
+        next: () => this.fetchLogs(),
+        error: err => console.error('Error en auth subscription:', err)
+      });
+  }
+
+  private async fetchLogs(): Promise<void> {
+    try {
+      // 2) Traemos los docs de la colección
+      const snapshot = await getDocs(collection(this.db, 'loginLogs'));
+
+      // 3) Mappeamos a nuestro tipo LogEntry
+      this.logs = snapshot.docs.map(doc => {
+        const data = doc.data() as any;
+        return {
+          id:    doc.id,
+          uid:   data.uid,
+          email: data.email,
+          fecha: data.fecha
+        };
+      });
+
+      console.log('📥 Logs recuperados:', this.logs);
+    } catch (err) {
+      console.error('❌ Error al recuperar logs:', err);
+    }
+  }
+}
+
+
+
+
+
+
+// import { Component, OnInit }         from '@angular/core';
+// import { CommonModule }              from '@angular/common';
+// import { Firestore, collection, getDocs } from '@angular/fire/firestore';
+
+// import { AuthService }           from '../services/auth.service';
+// import { filter, take }          from 'rxjs/operators';
+
+
+// @Component({
+//   selector: 'app-logs-list',
+//   standalone: true,
+//   imports: [ CommonModule ],
+//   templateUrl: './logs-list.component.html',
+//   styleUrls: ['./logs-list.component.css']
+// })
+
+// export class LogsListComponent implements OnInit {
+//   logs: Array<{ id: string; [key: string]: any }> = [];
+
+//   constructor(
+//     private db: Firestore,
+//     private authService: AuthService
+//   ) {}
+
+//   ngOnInit() {
+//     // Espera al primer valor no-null de user$, luego carga logs
+//     this.authService.user$
+//       .pipe(
+//         filter(user => !!user),  // ignora null
+//         take(1)                  // solo el primero
+//       )
+//       .subscribe({
+//         next: () => this.fetchLogs(),
+//         error: err => console.error('Error en auth subscription:', err)
+//       });
+//   }
+
+//   private async fetchLogs() {
+//     try {
+//       const snapshot = await getDocs(collection(this.db, 'loginLogs'));
+//       this.logs = snapshot.docs.map(doc => ({
+//         id: doc.id,
+//         ...(doc.data() as any)
+//       }));
+//       console.log('📥 Logs recuperados:', this.logs);
+//     } catch (err) {
+//       console.error('❌ Error al recuperar logs:', err);
+//     }
+//   }
+// }
+
+=== END FILE: src\app\logs-list\logs-list.component.ts ===
+
+=== BEGIN FILE: src\app\mayor-menor\mayor-menor.component.css ===
+/* mayor-menor.component.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:host {
+  display: block;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  color: #333;
+}
+
+.game-container {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.scoreboard span {
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+}
+
+.card-area {
+  margin: 1.5rem 0;
+}
+
+.card {
+  width: 160px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.controls button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background-color: #4a90e2;
+  color: #fff;
+  transition: background-color 0.2s;
+}
+
+.controls button:hover {
+  background-color: #357ab8;
+}
+
+.game-over {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #ffecec;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.game-over h2 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #d84315;
+  letter-spacing: 1px;
+}
+
+.game-over p {
+  font-size: 1.1rem;
+  margin: 0.25rem 0;
+}
+
+.game-over button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #43a047;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.game-over button:hover {
+  background-color: #388e3c;
+}
+
+
+
+/* mayor-menor.component.css */
+
+/*
+:host {
+  display: block;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+  color: #333;
+}
+
+.game-container {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.card-area {
+  margin: 1rem 0;
+}
+
+.card {
+  width: 150px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.controls button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background-color: #2196f3;
+  color: #fff;
+  transition: background-color 0.2s;
+}
+
+.controls button:hover {
+  background-color: #1976d2;
+}
+
+.game-over {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.game-over h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #e53935;
+}
+
+.game-over button {
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #4caf50;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.game-over button:hover {
+  background-color: #388e3c;
+}
+*/
+=== END FILE: src\app\mayor-menor\mayor-menor.component.css ===
+
+=== BEGIN FILE: src\app\mayor-menor\mayor-menor.component.html ===
+<div class="game-container" *ngIf="!gameOver">
+  <div class="scoreboard">
+    <span>💖 Vidas: {{ lives }}</span>
+    <span>⭐ Puntuación: {{ score }}</span>
+    <span>🏆 Récord: {{ bestScore }}</span>
+  </div>
+
+  <div class="card-area">
+    <!-- Siempre muestra la carta actual (que se actualiza tras cada elección) -->
+    <img [src]="getCardImage(currentCard)" alt="Carta actual" class="card">
+  </div>
+
+  <div class="controls">
+    <button (click)="makeGuess('higher')">Mayor ↑</button>
+    <button (click)="makeGuess('equal')">Igual =</button>
+    <button (click)="makeGuess('lower')">Menor ↓</button>
+  </div>
+</div>
+
+<div class="game-over" *ngIf="gameOver">
+  <h2>¡Game Over!</h2>
+  <p>Tu puntuación: {{ score }}</p>
+  <p>Récord: {{ bestScore }}</p>
+  <button (click)="startGame()">Jugar de nuevo</button>
+</div>
+
+
+
+<!-- <div class="game-container" *ngIf="!gameOver">
+  <div class="scoreboard">
+    <span>💖 Vidas: {{ lives }}</span>
+    <span>⭐ Puntuación: {{ score }}</span>
+    <span>🏆 Récord: {{ bestScore }}</span>
+  </div>
+
+  <div class="card-area">
+    <img [src]="getCardImage(currentCard)" alt="Carta actual" class="card">
+  </div>
+
+  <div class="controls">
+    <button (click)="makeGuess('higher')">Mayor ↑</button>
+    <button (click)="makeGuess('equal')">Igual =</button>
+    <button (click)="makeGuess('lower')">Menor ↓</button>
+  </div>
+</div>
+
+<div class="game-over" *ngIf="gameOver">
+  <h2>¡Game Over!</h2>
+  <p>Tu puntuación: {{ score }}</p>
+  <p>Récord: {{ bestScore }}</p>
+  <button (click)="startGame()">Jugar de nuevo</button>
+</div>
+
+ -->
+
+
+=== END FILE: src\app\mayor-menor\mayor-menor.component.html ===
+
+=== BEGIN FILE: src\app\mayor-menor\mayor-menor.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { MayorMenorComponent } from './mayor-menor.component';
+
+describe('MayorMenorComponent', () => {
+  let component: MayorMenorComponent;
+  let fixture: ComponentFixture<MayorMenorComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [MayorMenorComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(MayorMenorComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\mayor-menor\mayor-menor.component.spec.ts ===
+
+=== BEGIN FILE: src\app\mayor-menor\mayor-menor.component.ts ===
+// mayor-menor.component.ts
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+export interface Card {
+  suit: 'oro' | 'espada' | 'copa' | 'basto';
+  value: number;          // 1–7, 10–12
+  label: string;          // '1'..'7', '10', '11', '12'
+}
+
+@Component({
+  selector: 'app-mayor-menor',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './mayor-menor.component.html',
+  styleUrls: ['./mayor-menor.component.css']
+})
+export class MayorMenorComponent implements OnInit {
+
+  /** Ranking de palos: oro > espada > copa > basto */
+  private suitRank: Record<Card['suit'], number> = {
+    basto: 1,
+    copa:  2,
+    espada:3,
+    oro:   4
+  };
+
+  deck: Card[] = [];
+  currentCard!: Card;
+  nextCard!: Card;
+
+  score = 0;
+  lives = 3;
+  bestScore = 0;
+  gameOver = false;
+
+  ngOnInit() {
+    this.bestScore = Number(localStorage.getItem('bestScore') || '0');
+    this.startGame();
+  }
+
+  startGame() {
+    this.gameOver = false;
+    this.score = 0;
+    this.lives = 3;
+    this.buildDeck();
+    this.shuffleDeck();
+    // Cargar carta actual y próxima
+    this.currentCard = this.drawCard();
+    this.nextCard    = this.drawCard();
+    console.log(`Carta actual: ${this.currentCard.label} de ${this.currentCard.suit}`);
+    console.log(`Próxima carta: ${this.nextCard.label} de ${this.nextCard.suit}`);
+  }
+
+  buildDeck() {
+    this.deck = [];
+    const suits: Card['suit'][] = ['oro', 'espada', 'copa', 'basto'];
+    const cardDefs = [
+      { value: 1, label: '1' },
+      { value: 2, label: '2' },
+      { value: 3, label: '3' },
+      { value: 4, label: '4' },
+      { value: 5, label: '5' },
+      { value: 6, label: '6' },
+      { value: 7, label: '7' },
+      { value: 10, label: '10' },
+      { value: 11, label: '11' },
+      { value: 12, label: '12' },
+    ];
+    for (let suit of suits) {
+      for (let card of cardDefs) {
+        this.deck.push({ suit, value: card.value, label: card.label });
+      }
+    }
+  }
+
+  shuffleDeck() {
+    for (let i = this.deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+    }
+  }
+
+  drawCard(): Card {
+    const card = this.deck.pop();
+    if (!card) throw new Error('No quedan más cartas');
+    return card;
+  }
+
+  makeGuess(guess: 'higher' | 'lower' | 'equal') {
+    if (this.gameOver) {
+      this.finishGame();
+      return;
+    }
+
+    // Mostrar en consola carta actual y próxima antes de evaluar
+    console.log(`Carta actual: ${this.currentCard.label} de ${this.currentCard.suit}`);
+    console.log(`Próxima carta: ${this.nextCard.label} de ${this.nextCard.suit}`);
+
+    const cVal = this.currentCard.value;
+    const nVal = this.nextCard.value;
+    let correct = false;
+
+    if (guess === 'higher') {
+      if (nVal > cVal) correct = true;
+      else if (nVal === cVal && this.suitRank[this.nextCard.suit] > this.suitRank[this.currentCard.suit])
+        correct = true;
+    } else if (guess === 'lower') {
+      if (nVal < cVal) correct = true;
+      else if (nVal === cVal && this.suitRank[this.nextCard.suit] < this.suitRank[this.currentCard.suit])
+        correct = true;
+    } else { // equal
+      if (nVal === cVal && this.nextCard.suit === this.currentCard.suit)
+        correct = true;
+    }
+
+    // Avanzar: la próxima se convierte en actual
+    this.currentCard = this.nextCard;
+    // Extraer nueva próxima, si quedan cartas
+    if (this.deck.length > 0) {
+      this.nextCard = this.drawCard();
+    }
+
+    // Ajustar puntuación o penalización
+    if (correct) {
+      this.score++;
+    } else {
+      this.lives--;
+      if (this.lives <= 0) this.finishGame();
+    }
+
+    // Mostrar la nueva próxima carta en consola (opcional)
+    if (!this.gameOver && this.deck.length > 0) {
+      console.log(`Nueva próxima carta: ${this.nextCard.label} de ${this.nextCard.suit}`);
+    }
+  }
+
+  finishGame() {
+    this.gameOver = true;
+    if (this.score > this.bestScore) {
+      this.bestScore = this.score;
+      localStorage.setItem('bestScore', this.bestScore.toString());
+    }
+  }
+
+  getCardImage(card: Card): string {
+    return `assets/cards/${card.label}_${card.suit}.JPG`;
+  }
+}
+
+
+// ------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------
+/*
+// mayor-menor.component.ts
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+export interface Card {
+  suit: 'oro' | 'copa' | 'espada' | 'basto';
+  value: number;          // 1–7, 10–12
+  label: string;          // '1'..'7', 'Sota', 'Caballo', 'Rey'
+}
+
+@Component({
+  selector: 'app-mayor-menor',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './mayor-menor.component.html',
+  styleUrl: './mayor-menor.component.css'
+})
+
+export class MayorMenorComponent implements OnInit {
+
+  deck: Card[] = [];
+  currentCard!: Card;
+  nextCard!: Card;
+
+  score = 0;
+  lives = 3;
+  bestScore = 0;
+  gameOver = false;
+
+  ngOnInit() {
+    this.bestScore = Number(localStorage.getItem('bestScore') || '0');
+    this.startGame();
+  }
+
+  startGame() {
+    this.gameOver = false;
+    this.score = 0;
+    this.lives = 3;
+    this.buildDeck();
+    this.shuffleDeck();
+    this.currentCard = this.drawCard();
+  }
+
+  buildDeck() {
+    this.deck = [];
+    const suits: Card['suit'][] = ['oro', 'copa', 'espada', 'basto'];
+    const cardDefs = [
+      { value: 1, label: '1' },
+      { value: 2, label: '2' },
+      { value: 3, label: '3' },
+      { value: 4, label: '4' },
+      { value: 5, label: '5' },
+      { value: 6, label: '6' },
+      { value: 7, label: '7' },
+      { value: 10, label: '10' },
+      { value: 11, label: '11' },
+      { value: 12, label: '12' },
+    ];
+    for (let suit of suits) {
+      for (let card of cardDefs) {
+        this.deck.push({ suit, value: card.value, label: card.label });
+      }
+    }
+  }
+
+  shuffleDeck() {
+    for (let i = this.deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+    }
+  }
+
+  drawCard(): Card {
+    return this.deck.pop()!;
+  }
+
+  makeGuess(guess: 'higher' | 'lower' | 'equal') {
+    if (this.gameOver || this.deck.length === 0) {
+      this.finishGame();
+      return;
+    }
+
+    this.nextCard = this.drawCard();
+    const c = this.currentCard.value;
+    const n = this.nextCard.value;
+    let correct = false;
+
+    if (guess === 'higher' && n > c) correct = true;
+    if (guess === 'lower'  && n < c) correct = true;
+    if (guess === 'equal'  && n === c) correct = true;
+
+    if (correct) {
+      this.score++;
+      this.currentCard = this.nextCard;
+    } else {
+      this.lives--;
+      if (this.lives <= 0) this.finishGame();
+    }
+  }
+
+  finishGame() {
+    this.gameOver = true;
+    if (this.score > this.bestScore) {
+      this.bestScore = this.score;
+      localStorage.setItem('bestScore', this.bestScore.toString());
+    }
+  }
+
+  getCardImage(card: Card): string {
+    return `assets/cards/${card.label}_${card.suit}.JPG`;
+  }
+
+}
+*/
+
+=== END FILE: src\app\mayor-menor\mayor-menor.component.ts ===
+
+=== BEGIN FILE: src\app\models\question.model.ts ===
+export interface Question {
+  theme: string;
+  imageUrl: string;
+  questionText: string;
+  correctAnswer: string;
+  incorrectAnswers: string[];
+}
+=== END FILE: src\app\models\question.model.ts ===
+
+=== BEGIN FILE: src\app\models\result.models.ts ===
+export interface GameResult {
+  id?: string;             // (Opcional) ID generado por Firestore
+  userId: string;          // UID del usuario (obtenido de AuthService)
+  userEmail: string;       // Email del usuario (obtenido de AuthService)
+  game: string;            // Nombre identificador del juego (p.ej. 'ahorcado', 'mayor-menor')
+  score: number;           // Puntaje obtenido
+  date: Date;              // Fecha y hora en que finalizó el juego
+}
+
+=== END FILE: src\app\models\result.models.ts ===
+
+=== BEGIN FILE: src\app\models\user.models.ts ===
+export type GameSessions = Record<number, number>;
+export type GamePlays    = Record<string, GameSessions>;
+
+export interface User {
+  id?:        string;
+  firstName:  string;
+  lastName:   string;
+  email:      string;
+  password?:  string;
+  gamePlays:  GamePlays;
+}
+=== END FILE: src\app\models\user.models.ts ===
+
+=== BEGIN FILE: src\app\question.service.spec.ts ===
+import { TestBed } from '@angular/core/testing';
+
+import { QuestionService } from './question.service';
+
+describe('QuestionService', () => {
+  let service: QuestionService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(QuestionService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
+=== END FILE: src\app\question.service.spec.ts ===
+
+=== BEGIN FILE: src\app\question.service.ts ===
+
+// question.service.ts
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface Question {
+  question: string;
+  answer: string;
+}
+
+export interface QuestionsData {
+  [key: string]: Question[];
+  historia: Question[];
+  geografia: Question[];
+  arte: Question[];
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class QuestionService {
+  private questionsUrl = 'assets/questions.json';
+
+  constructor(private http: HttpClient) { }
+
+  getQuestionsData(): Observable<QuestionsData> {
+    return this.http.get<QuestionsData>(this.questionsUrl);
+  }
+
+}
+
+
+// import { Injectable } from '@angular/core';
+
+// @Injectable({
+//   providedIn: 'root'
+// })
+// export class QuestionService {
+
+//   constructor() { }
+// }
+
+=== END FILE: src\app\question.service.ts ===
+
+=== BEGIN FILE: src\app\quien-soy\quien-soy.component.css ===
+.card { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+    h2, h3 { text-align: center; }
+    ul { list-style: none; padding-left: 0; }
+    ul li::before { content: "• "; color: #007bff; }
+=== END FILE: src\app\quien-soy\quien-soy.component.css ===
+
+=== BEGIN FILE: src\app\quien-soy\quien-soy.component.html ===
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-info text-white text-center">
+            <h2>Quién Soy</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Imagen del alumno -->
+                <div class="col-md-4 text-center">
+                    <img src="assets/monllor.JPG" alt="Foto de Ignacio" class="img-fluid rounded-circle mb-3">
+                </div>
+                <!-- Datos personales y descripción del juego -->
+                <div class="col-md-8">
+                    <h3>Ignacio Monllor</h3>
+                    <p><strong>Datos Personales:</strong></p>
+                    <ul>
+                        <li>Tecnicatura Universitaria En Programación</li>
+                        <li>Turno noche</li>
+                        <li>UTN</li>
+                    </ul>
+                    <p><strong>Descripción del Juego:</strong></p>
+                    <p>
+                        Mi versión del juego FlowFree consiste en conectar puntos del mismo color sin que las líneas se
+                        crucen o toquen otros puntos.
+                        El objetivo es encontrar una ruta que cumpla estas condiciones y llenar toda la
+                        cuadrícula.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+=== END FILE: src\app\quien-soy\quien-soy.component.html ===
+
+=== BEGIN FILE: src\app\quien-soy\quien-soy.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { QuienSoyComponent } from './quien-soy.component';
+
+describe('QuienSoyComponent', () => {
+  let component: QuienSoyComponent;
+  let fixture: ComponentFixture<QuienSoyComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [QuienSoyComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(QuienSoyComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\quien-soy\quien-soy.component.spec.ts ===
+
+=== BEGIN FILE: src\app\quien-soy\quien-soy.component.ts ===
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-quien-soy',
+  standalone: true,
+  imports: [RouterModule],
+  templateUrl: './quien-soy.component.html',
+  styleUrl: './quien-soy.component.css'
+})
+export class QuienSoyComponent {
+
+}
+=== END FILE: src\app\quien-soy\quien-soy.component.ts ===
+
+=== BEGIN FILE: src\app\register\register.component.css ===
+.container {
+    max-width: 500px;
+  }
+  .card {
+    margin: auto;
+  }
+  
+=== END FILE: src\app\register\register.component.css ===
+
+=== BEGIN FILE: src\app\register\register.component.html ===
+<div class="container mt-5">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h2 class="text-center mb-0">Registro de Usuario</h2>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+          <!-- Campo Nombre -->
+          <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input type="text" id="nombre" formControlName="nombre" class="form-control" placeholder="Ingresa tu nombre">
+            <div *ngIf="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched" class="text-danger">
+              El nombre es requerido.
+            </div>
+          </div>
+          <!-- Campo Email -->
+          <div class="mb-3">
+            <label for="email" class="form-label">Correo electrónico</label>
+            <input type="email" id="email" formControlName="email" class="form-control" placeholder="Ingresa tu email">
+            <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="text-danger">
+              Ingresa un correo válido.
+            </div>
+          </div>
+          <!-- Campo Contraseña -->
+          <div class="mb-3">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password" id="password" formControlName="password" class="form-control" placeholder="Ingresa una contraseña">
+            <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="text-danger">
+              La contraseña es requerida (mínimo 6 caracteres).
+            </div>
+          </div>
+          <!-- Campo Confirmar Contraseña -->
+          <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+            <input type="password" id="confirmPassword" formControlName="confirmPassword" class="form-control" placeholder="Confirma tu contraseña">
+            <div *ngIf="registerForm.errors?.['notMatching'] && registerForm.get('confirmPassword')?.touched" class="text-danger">
+                Las contraseñas deben coincidir.
+            </div>
+          </div>
+          <!-- Botón de Registro -->
+          <button type="submit" class="btn btn-success w-100" [disabled]="registerForm.invalid">
+            Registrarse
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+=== END FILE: src\app\register\register.component.html ===
+
+=== BEGIN FILE: src\app\register\register.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { RegisterComponent } from './register.component';
+
+describe('RegisterComponent', () => {
+  let component: RegisterComponent;
+  let fixture: ComponentFixture<RegisterComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [RegisterComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(RegisterComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\register\register.component.spec.ts ===
+
+=== BEGIN FILE: src\app\register\register.component.ts ===
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {  Router } from '@angular/router';
+
+@Component({
+  selector: 'app-register',
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  standalone: true,
+  templateUrl: './register.component.html',
+  styleUrl: './register.component.css'
+})
+export class RegisterComponent {
+  registerForm: FormGroup;
+
+  constructor(private fb: FormBuilder, private router: Router) {
+    // Configuramos el formulario con validadores para cada campo.
+    this.registerForm = this.fb.group({
+      nombre: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', Validators.required]
+    }, { validators: this.passwordMatchValidator });
+  }
+
+  ngOnInit(): void { }
+
+  // Validator personalizado para que password y confirmPassword coincidan.
+  passwordMatchValidator(formGroup: FormGroup) {
+    const password = formGroup.get('password')?.value;
+    const confirmPassword = formGroup.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { notMatching: true };
+  }
+
+  // Método que se ejecuta al enviar el formulario
+  onSubmit(): void {
+    if (this.registerForm.valid) {
+      console.log('Usuario Registrado:', this.registerForm.value);
+      // Aquí podrías enviar los datos a tu backend y luego redirigir, por ejemplo, a la pantalla de inicio.
+      this.router.navigate(['/']);
+    } else {
+      // Marca todos los controles como tocados para mostrar los errores
+      this.registerForm.markAllAsTouched();
+    }
+  }
+}
+=== END FILE: src\app\register\register.component.ts ===
+
+=== BEGIN FILE: src\app\results-list\results-list.component.css ===
+.results-container {
+  padding: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead tr {
+  background-color: #f0f0f0;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+=== END FILE: src\app\results-list\results-list.component.css ===
+
+=== BEGIN FILE: src\app\results-list\results-list.component.html ===
+<section class="results-container">
+    <h2>🏆 Resultados de Juegos</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Juego</th>
+                <th>Puntaje</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let res of results$ | async">
+                <td>{{ res.userEmail }}</td>
+                <td>{{ res.game }}</td>
+                <td>{{ res.score }}</td>
+                <td>{{ res.date | date: 'short' }}</td>
+      </tr>
+    </tbody>
+</table>
+<p *ngIf="(results$ | async)?.length === 0">No hay resultados para mostrar.</p>
+</section>
+
+<!-- <p>results-list works!</p> -->
+=== END FILE: src\app\results-list\results-list.component.html ===
+
+=== BEGIN FILE: src\app\results-list\results-list.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { ResultsListComponent } from './results-list.component';
+
+describe('ResultsListComponent', () => {
+  let component: ResultsListComponent;
+  let fixture: ComponentFixture<ResultsListComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ResultsListComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(ResultsListComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\results-list\results-list.component.spec.ts ===
+
+=== BEGIN FILE: src\app\results-list\results-list.component.ts ===
+
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Observable } from 'rxjs';
+import { ResultsService } from '../services/results.service';
+import { GameResult } from '../models/result.models';
+
+@Component({
+  selector: 'app-results-list',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './results-list.component.html',
+  styleUrls: ['./results-list.component.css']
+})
+export class ResultsListComponent implements OnInit {
+  results$: Observable<GameResult[]>;
+
+  constructor(private resultsService: ResultsService) {
+    this.results$ = this.resultsService.getAllResults();
+  }
+
+  ngOnInit(): void {
+    // Nada adicional aquí; el observable ya está listo
+  }
+}
+
+
+// import { Component } from '@angular/core';
+
+// @Component({
+//   selector: 'app-results-list',
+//   imports: [],
+//   templateUrl: './results-list.component.html',
+//   styleUrl: './results-list.component.css'
+// })
+// export class ResultsListComponent {
+
+// }
+
+=== END FILE: src\app\results-list\results-list.component.ts ===
+
+=== BEGIN FILE: src\app\reverse.pipe.ts ===
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+  name: 'reverse'
+})
+export class ReversePipe implements PipeTransform {
+
+  transform( v:string):string {
+    if(!v) return '';
+     return v.split('').reverse().join('');
+  }
+
+}
+=== END FILE: src\app\reverse.pipe.ts ===
+
+=== BEGIN FILE: src\app\services\auth.service.spec.ts ===
+import { TestBed } from '@angular/core/testing';
+
+import { AuthService } from './auth.service';
+
+describe('AuthService', () => {
+  let service: AuthService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(AuthService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
+=== END FILE: src\app\services\auth.service.spec.ts ===
+
+=== BEGIN FILE: src\app\services\auth.service.ts ===
+// src/app/services/auth.service.ts
+import { Injectable } from '@angular/core';
+import {
+  Auth,
+  authState,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  User as FirebaseUser
+} from '@angular/fire/auth';
+import { BehaviorSubject, Observable } from 'rxjs';
+
+export interface User {
+  email: string;
+  uid: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private userSubject = new BehaviorSubject<User | null>(null);
+  user$: Observable<User | null> = this.userSubject.asObservable();
+
+  constructor(private afAuth: Auth) {
+    //  ← Aquí nos suscribimos al estado de Firebase Auth
+    authState(this.afAuth).subscribe((fbUser: FirebaseUser | null) => {
+      if (fbUser) {
+        this.userSubject.next({ email: fbUser.email || '', uid: fbUser.uid });
+      } else {
+        this.userSubject.next(null);
+      }
+    });
+  }
+
+  /** Envía las credenciales a Firebase */
+  async login(email: string, password: string): Promise<void> {
+    await signInWithEmailAndPassword(this.afAuth, email, password);
+  }
+
+  /** Crea usuario + login */
+  async register(email: string, password: string): Promise<void> {
+    await createUserWithEmailAndPassword(this.afAuth, email, password);
+  }
+
+  /** Cierra la sesión en Firebase */
+  async logout(): Promise<void> {
+    await signOut(this.afAuth);
+  }
+}
+
+
+=== END FILE: src\app\services\auth.service.ts ===
+
+=== BEGIN FILE: src\app\services\question.service.ts ===
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { Question } from '../models/question.model';
+
+@Injectable({ providedIn: 'root' })
+export class QuestionService {
+  // Apunta al JSON estático en assets
+  private fileUrl = 'assets/questions.json';
+
+  constructor(private http: HttpClient) {}
+
+  getQuestion(theme: string): Observable<Question> {
+    return this.http.get<Question[]>(this.fileUrl).pipe(
+      // Filtra por tema
+      map(list => list.filter(q => q.theme === theme)),
+      // Elige una al azar
+      map(list => {
+        if (!list.length) {
+          throw new Error(`No hay preguntas para el tema "${theme}"`);
+        }
+        const idx = Math.floor(Math.random() * list.length);
+        return list[idx];
+      })
+    );
+  }
+}
+=== END FILE: src\app\services\question.service.ts ===
+
+=== BEGIN FILE: src\app\services\results.service.ts ===
+import { Injectable } from '@angular/core';
+import {
+  Firestore,
+  collection,
+  CollectionReference,
+  addDoc,
+  collectionData,
+  query,
+  orderBy,
+  Timestamp,
+  DocumentData
+} from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { GameResult } from '../models/result.models';
+
+@Injectable({ providedIn: 'root' })
+export class ResultsService {
+  private resultsCollection: CollectionReference<GameResult>;
+
+  constructor(private firestore: Firestore) {
+    // <-- Aquí aplicamos el casting
+    this.resultsCollection = collection(this.firestore, 'gameResults') as CollectionReference<GameResult>;
+  }
+
+  /** Guarda un resultado en Firestore */
+  async saveResult(result: Omit<GameResult, 'id'>): Promise<void> {
+    const toSave: any = {
+      userId: result['userId'],
+      userEmail: result['userEmail'],
+      game: result['game'],
+      score: result['score'],
+      date: Timestamp.fromDate(result['date'])
+    };
+    await addDoc(this.resultsCollection, toSave);
+  }
+
+  /** Devuelve todos los resultados ordenados por fecha descendente */
+  getAllResults(): Observable<GameResult[]> {
+    // query inferirá GameResult porque resultsCollection ya está casteada
+    const q = query(this.resultsCollection, orderBy('date', 'desc'));
+
+    return collectionData<GameResult>(q, { idField: 'id' }).pipe(
+      map((docs: DocumentData[]) =>
+        docs.map(doc => ({
+          id: doc['id'],
+          userId: doc['userId'],
+          userEmail: doc['userEmail'],
+          game: doc['game'],
+          score: doc['score'],
+          date: doc['date'] && (doc['date'] as any)?.toDate
+            ? (doc['date'] as any).toDate()
+            : new Date(doc['date'])
+        }))
+      )
+    );
+  }
+}
+
+
+
+
+// import { Injectable } from '@angular/core';
+// import {
+//   Firestore,
+//   collection,
+//   CollectionReference,
+//   addDoc,
+//   collectionData,
+//   query,
+//   orderBy,
+//   Timestamp,
+//   DocumentData
+// } from '@angular/fire/firestore';
+
+// import { Observable } from 'rxjs';
+// import { map } from 'rxjs/operators';
+// import { GameResult } from '../models/result.models';
+ 
+// @Injectable({ providedIn: 'root' })
+// export class ResultsService {
+//   //private resultsCollection: any; // Sólo declaración
+//   private resultsCollection: CollectionReference<GameResult>;
+
+//   constructor(private firestore: Firestore) {
+//     // Inicializamos aquí, cuando `firestore` sí existe
+//     this.resultsCollection = collection(this.firestore, 'gameResults');
+//   }
+
+//   /** Guarda un resultado en Firestore */
+//   async saveResult(result: Omit<GameResult, 'id'>): Promise<void> {
+//     const toSave: any = {
+//       userId: result.userId,
+//       userEmail: result.userEmail,
+//       game: result.game,
+//       score: result.score,
+//       date: Timestamp.fromDate(result.date)
+//     };
+//     await addDoc(this.resultsCollection, toSave);
+//   }
+
+//   getAllResults(): Observable<GameResult[]> {
+//       // Ahora query infiere que trabaja sobre documentos GameResult
+//       const q = query<GameResult>(this.resultsCollection, orderBy('date', 'desc'));
+
+//       return collectionData<GameResult>(q, { idField: 'id' }).pipe(
+//         map((docs: DocumentData[]) =>
+//           docs.map(doc => ({
+//             id: doc['id'],
+//             userId: doc['userId'],
+//             userEmail: doc['userEmail'],
+//             game: doc['game'],
+//             score: doc['score'],
+//             date: doc['date'] && (doc['date'] as any)?.toDate
+//               ? (doc['date'] as any).toDate()
+//               : new Date(doc['date'])
+//           }))
+//         )
+//       );
+//     }
+
+// }
+=== END FILE: src\app\services\results.service.ts ===
+
+=== BEGIN FILE: src\app\simple-form\simple-form.component.css ===
+=== END FILE: src\app\simple-form\simple-form.component.css ===
+
+=== BEGIN FILE: src\app\simple-form\simple-form.component.html ===
+<form>
+    <label for="letters">Ingresa solo letras (máximo 10 caracteres):</label>
+    <input id="letters" [formControl]="lettersControl"
+           maxlength="10"
+           (keypress)="onKeyPress($event)"
+           placeholder="Solo letras" />
+    
+    <!-- Mensajes de error -->
+    <div *ngIf="lettersControl.touched && lettersControl.invalid">
+      <div *ngIf="lettersControl.errors?.['pattern']">
+        Error: Solo se permiten letras y espacios.
+      </div>
+      <div *ngIf="lettersControl.errors?.['maxlength']">
+        Error: Máximo 10 caracteres.
+      </div>
+    </div>
+  </form>
+  
+=== END FILE: src\app\simple-form\simple-form.component.html ===
+
+=== BEGIN FILE: src\app\simple-form\simple-form.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { SimpleFormComponent } from './simple-form.component';
+
+describe('SimpleFormComponent', () => {
+  let component: SimpleFormComponent;
+  let fixture: ComponentFixture<SimpleFormComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SimpleFormComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(SimpleFormComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\simple-form\simple-form.component.spec.ts ===
+
+=== BEGIN FILE: src\app\simple-form\simple-form.component.ts ===
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+
+@Component({
+  selector: 'app-simple-form',
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  templateUrl: './simple-form.component.html',
+  styleUrl: './simple-form.component.css'
+
+  
+})
+export class SimpleFormComponent {
+
+  // El FormControl utiliza dos validadores:
+  // - Validators.pattern: solo permite letras (mayúsculas o minúsculas) y espacios.
+  // - Validators.maxLength: limita la longitud a 10 caracteres.
+  lettersControl = new FormControl('', [
+    Validators.pattern('^[a-zA-Z ]*$'),
+    Validators.maxLength(10)
+  ]);
+
+  // Este método evita que se ingresen caracteres no permitidos en tiempo real.
+  onKeyPress(event: KeyboardEvent) {
+    const allowedPattern = /[a-zA-Z ]/;
+    const inputChar = event.key;
+    if (!allowedPattern.test(inputChar)) {
+      event.preventDefault();
+    }
+  }
+
+}
+=== END FILE: src\app\simple-form\simple-form.component.ts ===
+
+=== BEGIN FILE: src\app\title-case.pipe.ts ===
+import { Pipe, PipeTransform } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+@Pipe({
+  name: 'titleCase'
+})
+export class TitleCasePipe implements PipeTransform {
+
+  constructor(private sanitizer: DomSanitizer) {}
+
+  transform(s:string): SafeHtml {
+
+    const a = s.split(' ');
+    
+    var res = '';
+
+    for(var item of a) {
+       
+        res += item.charAt(0).toUpperCase().toString();
+        res += item.substring(1).toString();
+        res += ' ';
+    }
+
+    //return res;
+    return this.sanitizer.bypassSecurityTrustHtml(res);
+  }
+}
+
+=== END FILE: src\app\title-case.pipe.ts ===
+
+=== BEGIN FILE: src\app\truncate.pipe.ts ===
+import { Pipe, PipeTransform } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+@Pipe({
+  name: 'truncate'
+})
+
+export class TruncatePipe implements PipeTransform {
+  
+  constructor(private sanitizer: DomSanitizer) {}
+
+  transform(value: string, limit: number = 10): SafeHtml {
+    if (value.length > limit) {
+      value = value.substring(0, limit) + "...";
+    }
+    return this.sanitizer.bypassSecurityTrustHtml(value);
+  }
+  
+}
+
+
+
+=== END FILE: src\app\truncate.pipe.ts ===
+
+=== BEGIN FILE: src\app\user-list\user-list.component.css ===
+=== END FILE: src\app\user-list\user-list.component.css ===
+
+=== BEGIN FILE: src\app\user-list\user-list.component.html ===
+<mat-card>
+    <mat-card-header class="p-2 bg-primary text-white">
+      <mat-card-title>Lista de Jugadores</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="mat-elevation-z8">
+        <mat-table [dataSource]="dataSource" matSort>
+  
+          <!-- Nombre -->
+          <ng-container matColumnDef="firstName">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</mat-header-cell>
+            <mat-cell        *matCellDef="let u">{{ u.firstName }}</mat-cell>
+          </ng-container>
+  
+          <!-- Apellido -->
+          <ng-container matColumnDef="lastName">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Apellido</mat-header-cell>
+            <mat-cell        *matCellDef="let u">{{ u.lastName }}</mat-cell>
+          </ng-container>
+  
+          <!-- Email -->
+          <ng-container matColumnDef="email">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Email</mat-header-cell>
+            <mat-cell        *matCellDef="let u">{{ u.email }}</mat-cell>
+          </ng-container>
+  
+          <!-- GamePlays (JSON o formateado) -->
+          <ng-container matColumnDef="gamePlays">
+            <mat-header-cell *matHeaderCellDef>Jugadas</mat-header-cell>
+            <mat-cell *matCellDef="let u">
+              <!-- Usamos el método para obtener un array tipado -->
+              <div *ngFor="let game of getGamePlays(u)">
+                <strong>{{ game.key }}:</strong>
+                <!-- Ahora game.value tiene tipo GameSessions, así que keyvalue funciona -->
+                <span *ngFor="let sess of game.value | keyvalue">
+                  (Partida {{ sess.key }} → {{ sess.value }} pts)
+                </span>
+              </div>
+            </mat-cell>
+          </ng-container>
+  
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row        *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+  
+        <mat-paginator [pageSize]="10" showFirstLastButtons></mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  
+=== END FILE: src\app\user-list\user-list.component.html ===
+
+=== BEGIN FILE: src\app\user-list\user-list.component.spec.ts ===
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { UserListComponent } from './user-list.component';
+
+describe('UserListComponent', () => {
+  let component: UserListComponent;
+  let fixture: ComponentFixture<UserListComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [UserListComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(UserListComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+=== END FILE: src\app\user-list\user-list.component.spec.ts ===
+
+=== BEGIN FILE: src\app\user-list\user-list.component.ts ===
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { CommonModule }    from '@angular/common';
+import { MatTableModule }  from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule }           from '@angular/material/sort';
+import { MatCardModule }    from '@angular/material/card';
+import { MatRippleModule }  from '@angular/material/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { GameSessions, User } from '../models/user.models';
+import { UsersService } from '../users.service';
+
+const USUARIOS: User[] = [
+  {
+    firstName: 'Juan',
+    lastName: 'Pérez',
+    email: 'juan.perez@example.com',
+    gamePlays: {
+      Ahorcado: { '1': 100, '2': 150 },
+      Memoria:  { '1': 200 }
+    }
+  },
+  {
+    firstName: 'María',
+    lastName: 'Gómez',
+    email: 'maria.gomez@example.com',
+    gamePlays: {
+      Ahorcado: { '1': 120, '2': 180 },
+      Puzzle:   { '1':  80 }
+    }
+  },
+  {
+    firstName: 'Dave',
+    lastName: 'Mustaine',
+    email: 'dave.mustaine@mega.com',
+    gamePlays: {
+      Ahorcado: { '1': 400, '2': 180 },
+      Puzzle:   { '1':  100 }
+    }
+  }, 
+  {
+    firstName: 'James',
+    lastName: 'Hetfield',
+    email: 'juan.het@hotmail.com',
+    gamePlays: {
+      Ahorcado: { '1': 400, '2': 180 },
+      Puzzle:   { '1':  100 }
+    }
+  },
+  {
+    firstName: 'Ignacio',
+    lastName: 'monllor',
+    email: 'nachomonllor@hotmail.com',
+    gamePlays: {
+      Ahorcado: { '2': 400, '4': 180 },
+      Puzzle:   { '1':  100 }
+    }
+  }
+
+
+
+];
+
+
+@Component({
+  selector: 'app-user-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatRippleModule
+  ],
+  templateUrl: './user-list.component.html',
+  styleUrls: ['./user-list.component.css']
+})
+export class UserListComponent implements OnInit {
+  dataSource = new MatTableDataSource<User>(USUARIOS); // ([]);
+  displayedColumns = ['firstName','lastName','email','gamePlays'];
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort)      sort!: MatSort;
+
+  constructor(private usersService: UsersService) { }
+
+  ngOnInit(): void {
+    this.usersService.getUsers().subscribe((users: User[]) => {
+      this.dataSource.data = users;
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort      = this.sort;
+    });
+  }
+
+    /**
+     * Convierte el objeto gamePlays en un array de pares { key, value }
+     * con el tipo correctamente inferido.
+     */
+    getGamePlays(user: User): Array<{ key: string; value: GameSessions }> {
+      return Object.entries(user.gamePlays).map(([key, value]) => ({
+        key,
+        value
+      }));
+    }
+
+
+}
+
+// // --------------------------
+
+// import { Component, OnInit, ViewChild } from '@angular/core';
+// import { CommonModule }    from '@angular/common';
+// import { MatTableModule }  from '@angular/material/table';
+// import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+// import { MatSort, MatSortModule }           from '@angular/material/sort';
+// import { MatCardModule }    from '@angular/material/card';
+// import { MatRippleModule }  from '@angular/material/core';
+// import { MatTableDataSource } from '@angular/material/table';
+// import { GameSessions, User } from '../models/user.models';
+
+// const DUMMY_USERS: User[] = [
+//   {
+//     firstName: 'Juan',
+//     lastName: 'Pérez',
+//     email: 'juan.perez@example.com',
+//     gamePlays: {
+//       Ahorcado: { '1': 100, '2': 150 },
+//       Memoria:  { '1': 200 }
+//     }
+//   },
+//   {
+//     firstName: 'María',
+//     lastName: 'Gómez',
+//     email: 'maria.gomez@example.com',
+//     gamePlays: {
+//       Ahorcado: { '1': 120, '2': 180 },
+//       Puzzle:   { '1':  80 }
+//     }
+//   }
+// ];
+
+// @Component({
+//   selector: 'app-user-list',
+//   standalone: true,
+//   imports: [
+//     CommonModule,
+//     MatTableModule,
+//     MatPaginatorModule,
+//     MatSortModule,
+//     MatCardModule,
+//     MatRippleModule
+//   ],
+//   templateUrl: './user-list.component.html',
+//   styleUrls: ['./user-list.component.css']
+// })
+// export class UserListComponent implements OnInit {
+//   // Inicializamos directamente con los datos ficticios
+//   dataSource = new MatTableDataSource<User>(DUMMY_USERS);
+//   displayedColumns = ['firstName','lastName','email','gamePlays'];
+
+//   @ViewChild(MatPaginator) paginator!: MatPaginator;
+//   @ViewChild(MatSort)      sort!: MatSort;
+
+//   ngOnInit(): void {
+//     // Asignamos paginador y ordenamiento
+//     this.dataSource.paginator = this.paginator;
+//     this.dataSource.sort      = this.sort;
+//   }
+
+//   /** Convierte el objeto gamePlays en un array de pares { key, value } */
+//   getGamePlays(user: User): Array<{ key: string; value: GameSessions }> {
+//     return Object.entries(user.gamePlays).map(([key, value]) => ({ key, value }));
+//   }
+// }
+
+
+=== END FILE: src\app\user-list\user-list.component.ts ===
+
+=== BEGIN FILE: src\app\users.service.spec.ts ===
+import { TestBed } from '@angular/core/testing';
+
+import { UsersService } from './users.service';
+
+describe('UsersService', () => {
+  let service: UsersService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(UsersService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
+=== END FILE: src\app\users.service.spec.ts ===
+
+=== BEGIN FILE: src\app\users.service.ts ===
+import { Injectable } from '@angular/core';
+import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
+import { User } from './models/user.models';
+
+@Injectable({ providedIn: 'root' })
+
+export class UsersService {
+  constructor(private firestore: Firestore) {}
+
+  getUsers(): Observable<User[]> {
+    const usersRef = collection(this.firestore, 'users');
+    return collectionData(usersRef, { idField: 'id' }) as Observable<User[]>;
+  }
+}
+
+
+=== END FILE: src\app\users.service.ts ===
+
+=== BEGIN FILE: src\app\word.service.ts ===
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable, map } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class WordService {
+  private wordsUrl = 'assets/palabras.json';
+
+  constructor(private http: HttpClient) { }
+
+  getRandomWord(): Observable<string> {
+    return this.http.get<{ palabras: string[] }>(this.wordsUrl)
+      .pipe(
+        map(response => {
+          const words = response.palabras;
+          const randomIndex = Math.floor(Math.random() * words.length);
+          return words[randomIndex];
+        })
+      );
+  }
+
+  getAllPalabras(): Observable<string[]> {
+    return this.http.get<{ palabras: string[] }>(this.wordsUrl)
+      .pipe(
+        map(response => response.palabras)
+      );
+  }
+}
+
+=== END FILE: src\app\word.service.ts ===
+
+=== BEGIN FILE: src\environments\environment.ts ===
+export const environment = {
+  production: false,
+   firebase: {
+    apiKey: "AIzaSyD93yxY8VVi5yds7OgTvL2VwRGedXB0ZSk",
+    authDomain: "sala-de-juegos-2025.firebaseapp.com",
+    projectId: "sala-de-juegos-2025",
+    storageBucket: "sala-de-juegos-2025.firebasestorage.app",
+    messagingSenderId: "38851858564",
+    appId: "1:38851858564:web:d4d3ea800ca911d861f2d1"
+
+   }
+}
+=== END FILE: src\environments\environment.ts ===
+
+=== BEGIN FILE: src\index.html ===
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>InputPipePrueba</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- link rel="icon" type="image/x-icon" href="favicon.ico" -->
+
+  <link rel="icon" type="image/png" href="assets/favicon.JPG" />
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="mat-typography">
+  <app-root></app-root>
+</body>
+</html>
+=== END FILE: src\index.html ===
+
+=== BEGIN FILE: src\main.ts ===
+// src/main.ts
+import { bootstrapApplication }                  from '@angular/platform-browser';
+import { provideRouter }                         from '@angular/router';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideAnimations }                     from '@angular/platform-browser/animations';
+
+// Firebase
+import { provideFirebaseApp, initializeApp }      from '@angular/fire/app';
+import { provideFirestore, getFirestore }         from '@angular/fire/firestore';
+import { provideAuth }                            from '@angular/fire/auth';
+import { getAuth }                                from 'firebase/auth';
+
+import { AppComponent } from './app/app.component';
+import { routes }       from './app/app.routes';
+import { environment }  from './environments/environment';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    // HTTP con interceptores desde DI
+    provideHttpClient(withInterceptorsFromDi()),
+
+    // Routing
+    provideRouter(routes),
+
+    // Animaciones (Angular Material)
+    provideAnimations(),
+
+    // Inicializa el App de Firebase con tus credenciales
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
+
+    // Firestore
+    provideFirestore(() => getFirestore()),
+
+    // **Auth**: aquí añades el provider de autenticación
+    provideAuth(() => getAuth()),
+  ]
+});
+
+
+
+
+
+// // src/main.ts
+// import { bootstrapApplication }         from '@angular/platform-browser';
+// import { provideRouter }                from '@angular/router';
+// import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+// import { provideAnimations }            from '@angular/platform-browser/animations';
+// import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+// import { provideFirestore, getFirestore }    from '@angular/fire/firestore';
+
+// import { AppComponent } from './app/app.component';
+// import { routes }       from './app/app.routes';
+// import { environment }  from './environments/environment';
+
+// bootstrapApplication(AppComponent, {
+//   providers: [
+//     // Cliente HTTP con interceptores desde DI
+//     provideHttpClient(withInterceptorsFromDi()),
+
+//     // Enrutador de la aplicación
+//     provideRouter(routes),
+
+//     // Inicializar Firebase App
+//     provideFirebaseApp(() => initializeApp(environment.firebase)),
+
+//     // Proveer Firestore
+//     provideFirestore(() => getFirestore()),
+
+//     // Habilitar animaciones (necesario si usas Angular Material)
+//     provideAnimations()
+//   ]
+// });
+
+
+
+
+
+
+
+=== END FILE: src\main.ts ===
+
+=== BEGIN FILE: src\styles.css ===
+/* You can add global styles to this file, and also import other style files */
+/* 
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Fondo global de la aplicación 
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color:  rgb(45, 83, 60);
+  color: #fff; /* para asegurar legibilidad del texto 
+}
+*/
+
+/* Fondo global tipo pizarrón */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: url('/assets/pizarron.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: #fff;
+  /* asegúrate de que el texto contraste */
+  opacity: 0.9;
+  
+}
+=== END FILE: src\styles.css ===
+
