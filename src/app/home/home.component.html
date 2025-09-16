@@ -1,3 +1,88 @@
+
+<main class="app-content">
+  <!-- VISTA LOGUEADO -->
+  <ng-container *ngIf="user$ | async as user; else loggedOut">
+    <section class="welcome">
+      <div class="user-info">
+        <div class="avatar" aria-hidden="true">{{ user.email?.charAt(0) | uppercase }}</div>
+        <div>
+          <h2>¡Hola!</h2>
+          <p class="muted">{{ user.email }}</p>
+        </div>
+      </div>
+      <button class="btn danger" (click)="logout()">Cerrar sesión</button>
+    </section>
+
+    <section class="games">
+      <h3>Selecciona un juego</h3>
+      <div class="games-grid">
+        <article
+          class="game-card"
+          *ngFor="let game of (games | keyvalue: originalOrder)"
+        >
+          <img
+            class="game-image"
+            [src]="'assets/games/' + game.value + '.jpg'"
+            [alt]="game.key"
+            loading="lazy"
+          />
+          <h4>{{ game.key }}</h4>
+          <button class="btn" [routerLink]="['/games', game.value]">Jugar</button>
+        </article>
+      </div>
+
+      <nav class="extra-links">
+        <a routerLink="/logs">Ver historial de ingresos</a>
+        <!-- agrega más accesos de listados si corresponde -->
+        <!-- <a routerLink="/listados">Ver listados</a> -->
+      </nav>
+    </section>
+
+    <!-- Listados (ej: usuarios) -->
+    <section class="lists">
+      <h3>Listados</h3>
+      <app-user-list></app-user-list>
+    </section>
+  </ng-container>
+
+  <!-- VISTA NO LOGUEADO -->
+  <ng-template #loggedOut>
+    <section class="hero">
+      <h1>Bienvenido a la Sala de Juegos</h1>
+      <p class="muted">Inicia sesión o regístrate para jugar y ver los listados.</p>
+      <div class="actions">
+        <a class="btn" routerLink="/login">Login</a>
+        <a class="btn outline" routerLink="/register">Registro</a>
+      </div>
+    </section>
+  </ng-template>
+</main>
+
+
+
+
+<!-- <main class="app-content">
+  <div *ngIf="isLoggedIn" class="games-grid">
+    <h3>Selecciona un Juego</h3>
+    <div class="games-container">
+      <div class="game-card" *ngFor="let game of games | keyvalue">
+        <img 
+          [src]="'assets/games/' + game.value + '.jpg'" 
+          [alt]="game.key" 
+          class="game-image"
+        >
+        <h4>{{ game.key }}</h4>
+        <button [routerLink]="['/games', game.value]">Jugar</button>
+      </div>
+    </div>
+    <div class="logs-link">
+      <a routerLink="/logs">Ver Historial de Ingresos</a>
+    </div>
+  </div>
+</main>
+<app-user-list></app-user-list> -->
+
+ 
 <!-- 
 <header class="app-header">
   <h1>Sala de Juegos</h1>
@@ -35,31 +120,6 @@
   <small>© 2025 Sala de Juegos</small>
 </footer> -->
 
-<!-- home.component.html -->
-<main class="app-content">
-  <div *ngIf="isLoggedIn" class="games-grid">
-    <h3>Selecciona un Juego</h3>
-    <div class="games-container">
-      <div class="game-card" *ngFor="let game of games | keyvalue">
-        <img 
-          [src]="'assets/games/' + game.value + '.jpg'" 
-          [alt]="game.key" 
-          class="game-image"
-        >
-        <h4>{{ game.key }}</h4>
-        <button [routerLink]="['/games', game.value]">Jugar</button>
-      </div>
-    </div>
-    <div class="logs-link">
-      <a routerLink="/logs">Ver Historial de Ingresos</a>
-    </div>
-  </div>
-</main>
-
-
- <app-user-list></app-user-list>
-
- 
 
 
 

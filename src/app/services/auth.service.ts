@@ -1,69 +1,124 @@
-// src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import type { Session, User as SupaUser, AuthChangeEvent } from '@supabase/supabase-js';
+import { BehaviorSubject } from 'rxjs';
 import { SupabaseService } from './supabase.service';
+import type {
+  Session,
+  User as SupaUser,
+  AuthChangeEvent
+} from '@supabase/supabase-js';
 
 export type User = SupaUser;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly _user$ = new BehaviorSubject<SupaUser | null>(null);
+  private readonly _user$ = new BehaviorSubject<User | null>(null);
+  public readonly user$ = this._user$.asObservable();
+
+  private unsubscribeAuthChange?: () => void;
 
   constructor(private readonly supa: SupabaseService) {
     this.init();
   }
 
   private async init(): Promise<void> {
-    try {
-      const session = await this.supa.getSession();
-      this._user$.next(session?.user ?? null);
+    const session = await this.supa.getSession();
+    this._user$.next(session?.user ?? null);
 
-      // Mantener sincronizado el usuario ante cambios de sesión
-      this.supa.onAuthChange(
-        (_event: AuthChangeEvent, newSession: Session | null) => {
-          this._user$.next(newSession?.user ?? null);
-        }
-      );
-    } catch (e) {
-      console.error('AuthService init error:', e);
-      this._user$.next(null);
-    }
+    this.unsubscribeAuthChange = this.supa.onAuthChange(
+      (_event: AuthChangeEvent, newSession: Session | null) => {
+        this._user$.next(newSession?.user ?? null);
+      }
+    );
   }
 
-  // ==== Observables / getters ====
-  get user$(): Observable<SupaUser | null> { return this._user$.asObservable(); }
-  get user(): SupaUser | null { return this._user$.value; }
-  get session(): Session | null { return this.supa.session; }
-  isLoggedIn(): boolean { return this.supa.isLoggedIn; }
-
-  // ==== Acciones de autenticación ====
-  async signIn(email: string, password: string): Promise<{ user: SupaUser }> {
-    const { user } = await this.supa.signIn(email, password);
-    this._user$.next(user ?? null); // sincroniza inmediatamente
-    return { user };
+  async login(email: string, password: string): Promise<void> {
+    await this.supa.signInWithPassword(email, password);
+    // onAuthChange actualiza user$ automáticamente
   }
 
-  async signOut(): Promise<void> {
+  async register(email: string, password: string): Promise<void> {
+    await this.supa.signUp(email, password);
+    // Dependiendo de tu política, quizá quieras forzar login luego del signUp:
+    // await this.login(email, password);
+  }
+
+  async logout(): Promise<void> {
     await this.supa.signOut();
-    this._user$.next(null);
   }
-
-  // ==== Helpers de conveniencia ====
-  get uid(): string | null { return this.user?.id ?? null; }
-  get email(): string | null { return this.user?.email ?? null; }
-
-  // async signOut(): Promise<void> {
-  //   await this.supa.signOut();
-  //   this._user$.next(null);
-  // }
-
-  // 👇 Agregá este alias para compatibilidad
-  logout(): Promise<void> {
-    return this.signOut();
-  }
-  
 }
+
+
+
+
+
+
+// // src/app/services/auth.service.ts
+// import { Injectable } from '@angular/core';
+// import { BehaviorSubject, Observable } from 'rxjs';
+// import type { Session, User as SupaUser, AuthChangeEvent } from '@supabase/supabase-js';
+// import { SupabaseService } from './supabase.service';
+
+// export type User = SupaUser;
+
+// @Injectable({ providedIn: 'root' })
+// export class AuthService {
+
+//   private readonly _user$ = new BehaviorSubject<SupaUser | null>(null);
+
+//   constructor(private readonly supa: SupabaseService) {
+//     this.init();
+//   }
+
+//   private async init(): Promise<void> {
+//     try {
+//       const session = await this.supa.getSession();
+//       this._user$.next(session?.user ?? null);
+
+//       // Mantener sincronizado el usuario ante cambios de sesión
+//       this.supa.onAuthChange(
+//         (_event: AuthChangeEvent, newSession: Session | null) => {
+//           this._user$.next(newSession?.user ?? null);
+//         }
+//       );
+//     } catch (e) {
+//       console.error('AuthService init error:', e);
+//       this._user$.next(null);
+//     }
+//   }
+
+//   // ==== Observables / getters ====
+//   get user$(): Observable<SupaUser | null> { return this._user$.asObservable(); }
+//   get user(): SupaUser | null { return this._user$.value; }
+//   get session(): Session | null { return this.supa.session; }
+//   isLoggedIn(): boolean { return this.supa.isLoggedIn; }
+
+//   // ==== Acciones de autenticación ====
+//   async signIn(email: string, password: string): Promise<{ user: SupaUser }> {
+//     const { user } = await this.supa.signIn(email, password);
+//     this._user$.next(user ?? null); // sincroniza inmediatamente
+//     return { user };
+//   }
+
+//   async signOut(): Promise<void> {
+//     await this.supa.signOut();
+//     this._user$.next(null);
+//   }
+
+//   // ==== Helpers de conveniencia ====
+//   get uid(): string | null { return this.user?.id ?? null; }
+//   get email(): string | null { return this.user?.email ?? null; }
+
+//   // async signOut(): Promise<void> {
+//   //   await this.supa.signOut();
+//   //   this._user$.next(null);
+//   // }
+
+//   // 👇 Agregá este alias para compatibilidad
+//   logout(): Promise<void> {
+//     return this.signOut();
+//   }
+  
+// }
 
 
 
