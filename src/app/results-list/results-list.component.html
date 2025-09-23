@@ -1,4 +1,29 @@
-<section class="results-container">
+
+<ng-container *ngIf="results$ | async as results">
+  <table *ngIf="results.length > 0; else empty" class="tabla">
+    <thead>
+      <tr>
+        <th>Juego</th>
+        <th>Puntaje</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let res of results">
+        <td>{{ res.game }}</td>
+        <td>{{ res.score }}</td>
+        <td>{{ res.created_at | date:'short' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <ng-template #empty>
+    <p>No hay resultados para mostrar.</p>
+  </ng-template>
+</ng-container>
+
+
+<!-- <section class="results-container">
     <h2>🏆 Resultados de Juegos</h2>
     <table>
         <thead>
@@ -19,6 +44,6 @@
     </tbody>
 </table>
 <p *ngIf="(results$ | async)?.length === 0">No hay resultados para mostrar.</p>
-</section>
+</section> -->
 
-<!-- <p>results-list works!</p> -->
+

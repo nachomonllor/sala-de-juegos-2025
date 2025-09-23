@@ -31,6 +31,7 @@ export class HomeComponent {
   logout(): void {
     this.authService.logout();
   }
+
 }
 
 
@@ -94,7 +95,7 @@ export class HomeComponent {
 //   styleUrl: './home.component.css'
 // })
 
-// export class HomeComponent  implements OnInit { 
+// export class HomeComponent  implements OnInit {
 //   isLoggedIn = false;
 //   userEmail: string | null = null;
 
@@ -117,7 +118,7 @@ export class HomeComponent {
 
 //   logout(): void {
 //     this.authService.logout();
-//   }  
+//   }
 
 // }
 

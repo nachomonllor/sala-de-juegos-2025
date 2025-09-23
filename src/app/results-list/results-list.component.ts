@@ -1,9 +1,8 @@
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { ResultsService } from '../services/results.service';
-import { GameResult } from '../models/result.models';
+import { ResultRow } from '../services/supabase.service';
 
 @Component({
   selector: 'app-results-list',
@@ -13,27 +12,55 @@ import { GameResult } from '../models/result.models';
   styleUrls: ['./results-list.component.css']
 })
 export class ResultsListComponent implements OnInit {
-  results$: Observable<GameResult[]>;
+  results$!: Observable<ResultRow[]>;   // 👈 ahora existe y está tipado
 
-  constructor(private resultsService: ResultsService) {
-    this.results$ = this.resultsService.getAllResults();
-  }
+  constructor(private readonly resultsService: ResultsService) {}
 
   ngOnInit(): void {
-    // Nada adicional aquí; el observable ya está listo
+    // Si querés solo los tuyos: this.results$ = from(this.resultsService.listMy());
+    this.results$ = this.resultsService.getAllResults(); // usa el método que agregamos
   }
 }
 
 
-// import { Component } from '@angular/core';
+
+
+
+// import { Component, OnInit } from '@angular/core';
+// import { CommonModule } from '@angular/common';
+// import { Observable } from 'rxjs';
+// import { ResultsService } from '../services/results.service';
+// import { GameResult } from '../models/result.models';
 
 // @Component({
 //   selector: 'app-results-list',
-//   imports: [],
+//   standalone: true,
+//   imports: [CommonModule],
 //   templateUrl: './results-list.component.html',
-//   styleUrl: './results-list.component.css'
+//   styleUrls: ['./results-list.component.css']
 // })
-// export class ResultsListComponent {
+// export class ResultsListComponent implements OnInit {
+//   // results$: Observable<GameResult[]> | undefined;
 
+//   // constructor(private resultsService: ResultsService) {
+//   //     this.results$ = this.resultsService.getAllResults();
+//   // }
+
+//   ngOnInit(): void {
+//     // Nada adicional aquí; el observable ya está listo
+//   }
 // }
+
+
+// // import { Component } from '@angular/core';
+
+// // @Component({
+// //   selector: 'app-results-list',
+// //   imports: [],
+// //   templateUrl: './results-list.component.html',
+// //   styleUrl: './results-list.component.css'
+// // })
+// // export class ResultsListComponent {
+
+// // }
 

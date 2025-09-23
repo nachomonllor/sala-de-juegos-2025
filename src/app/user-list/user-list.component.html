@@ -1,4 +1,49 @@
-<mat-card>
+<!-- user-list.component.html -->
+<table mat-table [dataSource]="dataSource" matSort>
+  <ng-container matColumnDef="firstName">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+    <td mat-cell *matCellDef="let u">{{ u.firstName }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="lastName">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Apellido</th>
+    <td mat-cell *matCellDef="let u">{{ u.lastName }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="email">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+    <td mat-cell *matCellDef="let u">{{ u.email }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="gamePlays">
+    <th mat-header-cell *matHeaderCellDef>Partidas</th>
+    <td mat-cell *matCellDef="let u">
+      <ng-container *ngIf="getGamePlays(u).length; else sinDatos">
+        <div *ngFor="let p of getGamePlays(u)">
+          <strong>{{ p.key }}:</strong>
+          {{ p.value.sessions }} partidas,
+          {{ p.value.wins }} ganadas,
+          {{ p.value.losses }} perdidas
+          <ng-container *ngIf="p.value.bestScore !== undefined">
+            — mejor: {{ p.value.bestScore }}
+          </ng-container>
+        </div>
+      </ng-container>
+      <ng-template #sinDatos>—</ng-template>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row        *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
+
+<mat-paginator [pageSize]="5" [pageSizeOptions]="[5,10,20]"></mat-paginator>
+
+
+
+
+
+<!-- <mat-card>
     <mat-card-header class="p-2 bg-primary text-white">
       <mat-card-title>Lista de Jugadores</mat-card-title>
     </mat-card-header>
@@ -6,32 +51,29 @@
       <div class="mat-elevation-z8">
         <mat-table [dataSource]="dataSource" matSort>
   
-          <!-- Nombre -->
           <ng-container matColumnDef="firstName">
             <mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</mat-header-cell>
             <mat-cell        *matCellDef="let u">{{ u.firstName }}</mat-cell>
           </ng-container>
   
-          <!-- Apellido -->
           <ng-container matColumnDef="lastName">
             <mat-header-cell *matHeaderCellDef mat-sort-header>Apellido</mat-header-cell>
             <mat-cell        *matCellDef="let u">{{ u.lastName }}</mat-cell>
           </ng-container>
   
-          <!-- Email -->
           <ng-container matColumnDef="email">
             <mat-header-cell *matHeaderCellDef mat-sort-header>Email</mat-header-cell>
             <mat-cell        *matCellDef="let u">{{ u.email }}</mat-cell>
           </ng-container>
   
-          <!-- GamePlays (JSON o formateado) -->
           <ng-container matColumnDef="gamePlays">
             <mat-header-cell *matHeaderCellDef>Jugadas</mat-header-cell>
             <mat-cell *matCellDef="let u">
-              <!-- Usamos el método para obtener un array tipado -->
+
+
               <div *ngFor="let game of getGamePlays(u)">
                 <strong>{{ game.key }}:</strong>
-                <!-- Ahora game.value tiene tipo GameSessions, así que keyvalue funciona -->
+
                 <span *ngFor="let sess of game.value | keyvalue">
                   (Partida {{ sess.key }} → {{ sess.value }} pts)
                 </span>
@@ -47,4 +89,4 @@
       </div>
     </mat-card-content>
   </mat-card>
-  
+   -->

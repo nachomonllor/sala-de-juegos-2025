@@ -1,8 +1,16 @@
 export const environment = {
   production: false,
   supabaseUrl: 'https://taswckilspgrlcrdouxb.supabase.co',
-  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhc3dja2lsc3BncmxjcmRvdXhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3MDcwOTYsImV4cCI6MjA3MTI4MzA5Nn0.lyzI_wsy-Ykdc_A3hu6Xs0MJPYFX5IBAXJnwR96vp5w',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhc3dja2lsc3BncmxjcmRvdXhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3MDcwOTYsImV4cCI6MjA3MTI4MzA5Nn0.lyzI_wsy-Ykdc_A3hu6Xs0MJPYFX5IBAXJnwR96vp5w'
 };
+
+
+// export const environment = {
+//   production: false,
+//   supabaseUrl: 'https://taswckilspgrlcrdouxb.supabase.co',
+//   supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhc3dja2lsc3BncmxjcmRvdXhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3MDcwOTYsImV4cCI6MjA3MTI4MzA5Nn0.lyzI_wsy-Ykdc_A3hu6Xs0MJPYFX5IBAXJnwR96vp5w',
+// };
+
 
 // export const environment = {
 //   production: false,

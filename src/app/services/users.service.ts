@@ -1,131 +1,122 @@
 
-// src/app/services/users.service.ts
+// src/app/services/users.service.tsimport { from, map } from 'rxjs';
+import { SupabaseService, type Profile } from './supabase.service';
+import { AppUser } from '../models/user.models';
 import { Injectable } from '@angular/core';
-import { from, map, Observable } from 'rxjs';
-import { SupabaseService } from './supabase.service';
-import { GameSessions, User } from '../models/user.models';
-
-// Define UIUser interface
-export interface UIUser {
-  firstName: string;
-  lastName: string;
-  email: string;
-  gamePlays: Record<string, GameSessions>;
-}
-
-// Helper function to split names
-function splitName(
-  firstName: string | null | undefined,
-  lastName: string | null | undefined,
-  displayName: string | null | undefined
-): { firstName: string; lastName: string } {
-  if (firstName || lastName) {
-    return {
-      firstName: firstName ?? '',
-      lastName: lastName ?? '',
-    };
-  }
-  if (displayName) {
-    const parts = displayName.split(' ');
-    return {
-      firstName: parts[0] ?? '',
-      lastName: parts.slice(1).join(' ') ?? '',
-    };
-  }
-  return { firstName: '', lastName: '' };
-}
-
-// export interface Profile {
-//   id: string;
-//   display_name: string | null;
-//   role: 'user' | 'admin';
-//   created_at: string;
-//   email?: string | null;
-// }
-
-export interface Profile {
-  id: string;
-  display_name: string | null;
-  first_name?: string | null;
-  last_name?: string | null;
-  email?: string | null;
-  game_plays?: Record<string, GameSessions> | null;
-  role?: 'user' | 'admin';
-  created_at?: string;
-}
+import { from, Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
+import { MOCK_USERS } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   constructor(private supa: SupabaseService) { }
 
-  getUsers(): Observable<User[]> {
-    return from(this.supa.listProfiles()).pipe(
-      map((profiles: any[]) =>
-        (profiles ?? []).map((p: any) => {
-          const { firstName, lastName } = splitName(p.first_name, p.last_name, p.display_name);
-          return {
-            firstName,
-            lastName,
-            email: p.email ?? '',
-            gamePlays: (p.game_plays ?? {}) as Record<string, GameSessions>,
-          } as User;
-        })
-      )
-    );
+   getUsers(): Observable<AppUser[]> {
+    // Simula latencia de red
+    return of(MOCK_USERS).pipe(delay(300));
   }
 
-  getMyProfile$(uid: string): Observable<Profile | null> {
-    return from(this.supa.getProfile(uid)).pipe(
-      map((data) =>
-        data
-          ? {
-            id: data.id,
-            display_name: data.display_name ?? null,
-            role: ('role' in data && data.role ? data.role : 'user') as 'user' | 'admin',
-            created_at: data.created_at,
-          }
-          : null
-      )
-    );
-  }
+  // getUsers() {
+  //   // from() porque selectProfiles() retorna una Promise
+  //   return from(this.supa.selectProfiles()).pipe(
+  //     map(({ data, error }) => {
+  //       if (error) throw error;
+  //       return (data ?? []).map((row: any) => {
+  //         const u: AppUser = {
+  //           id: row.id,
+  //           firstName: row.first_name,
+  //           lastName: row.last_name,
+  //           email: row.email,
+  //           gamePlays: (row.game_plays ?? {}) as Record<string, GameSessions>,
+  //         };
+  //         return u;
+  //       });
+  //     })
+  //   );
+  // }
 
-  upsertMyProfile(uid: string, displayName: string) {
-    return from(this.supa.upsertProfile(uid, displayName)).pipe(map(() => void 0));
-  }
-
+  // --- Métodos que quizá ya estabas usando ---
   listProfiles$(): Observable<Profile[]> {
-    return from(this.supa.listProfiles()).pipe(
-      map((profiles: any[]) =>
-        (profiles ?? []).map((p: any) => ({
-          id: p.id,
-          display_name: p.display_name ?? null,
-          role: (p.role ?? 'user') as 'user' | 'admin',
-          created_at: p.created_at,
-          email: p.email ?? null,
-        }))
-      )
-    );
+    return from(this.supa.listProfiles());
   }
+
+  getProfile$(uid: string): Observable<Profile | null> {
+    return from(this.supa.getProfile(uid));
+  }
+
+  upsertMyProfile(uid: string, displayName: string): Observable<void> {
+    return from(this.supa.upsertProfile(uid, displayName));
+  }
+
 
 }
 
 
 
-
 // import { Injectable } from '@angular/core';
-// import { Firestore, collection, collectionData } from '@angular/fire/firestore';
-// import { Observable } from 'rxjs';
-// import { User } from './models/user.models';
+// import { from, Observable } from 'rxjs';
+// import { SupabaseService, type Profile } from './supabase.service';
 
 // @Injectable({ providedIn: 'root' })
-
 // export class UsersService {
-//   constructor(private firestore: Firestore) {}
+//   constructor(private supa: SupabaseService) {}
 
-//   getUsers(): Observable<User[]> {
-//     const usersRef = collection(this.firestore, 'users');
-//     return collectionData(usersRef, { idField: 'id' }) as Observable<User[]>;
+//   listProfiles$(): Observable<Profile[]> {
+//     return from(this.supa.listProfiles());
+//   }
+
+//   getProfile$(uid: string): Observable<Profile | null> {
+//     return from(this.supa.getProfile(uid));
+//   }
+
+//   upsertMyProfile(uid: string, displayName: string): Observable<void> {
+//     return from(this.supa.upsertProfile(uid, displayName));
 //   }
 // }
+
+
+  // // --- Helper de mapeo Profile -> User (ajustá según tu modelo User) ---
+  // private toUser(p: Profile): User {
+  //   const email = p.email ?? '';
+  //   const display = (p.display_name ?? '').trim();
+
+  //   // Si no hay display_name, usamos el "usuario" del email como firstName
+  //   const [firstName, ...rest] = display
+  //     ? display.split(/\s+/)
+  //     : [email.split('@')[0] || ''];
+
+  //   const lastName = rest.join(' ');
+
+  //   const gamePlays: Record<string, GameSessions> = {}; // default vacío (ajustá si tenés datos)
+
+  //   // ⚠️ Si tu interfaz User tiene más campos (id, role, etc.), agregalos acá.
+  //   return { firstName, lastName, email, gamePlays };
+  // }
+
+  // Lee de una tabla "profiles" que referencia a auth.users(id)
+  // getUsers() {
+  //   return from(
+  //     this.supa.client
+  //       .from('profiles')
+  //       .select('id, first_name, last_name, email, game_plays')
+  //       .order('last_name', { ascending: true })
+  //   ).pipe(
+  //     map(({ data, error }) => {
+  //       if (error) throw error;
+  //       return (data ?? []).map(row => {
+  //         const u: AppUser = {
+  //           id: row.id,
+  //           firstName: row.first_name,
+  //           lastName: row.last_name,
+  //           email: row.email,
+  //           gamePlays: (row.game_plays ?? {}) as Record<string, GameSessions>,
+  //         };
+  //         return u;
+  //       });
+  //     })
+  //   );
+  // }
+
+
 
 

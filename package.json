@@ -15,7 +15,6 @@
     "@angular/common": "^19.2.0",
     "@angular/compiler": "^19.2.0",
     "@angular/core": "^19.2.0",
-    "@angular/fire": "^19.1.0",
     "@angular/forms": "^19.2.0",
     "@angular/material": "^19.2.10",
     "@angular/platform-browser": "^19.2.0",
@@ -23,7 +22,6 @@
     "@angular/router": "^19.2.0",
     "@supabase/supabase-js": "^2.57.4",
     "bootstrap": "^5.3.5",
-    "firebase": "^11.6.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

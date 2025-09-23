@@ -1,11 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-
 import { HomeComponent } from './home/home.component';
-import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
 import { LogsListComponent } from './logs-list/logs-list.component';
-
 import { HangmanComponent } from './ahorcado/ahorcado.component';
 import { MayorMenorComponent } from './mayor-menor/mayor-menor.component';
 import { DuelComponent } from './duel/duel.component';
@@ -15,6 +11,8 @@ import { ChatComponent } from './chat/chat.component';
 import { QuienSoyComponent } from './quien-soy/quien-soy.component';
 import { ResultsListComponent } from './results-list/results-list.component';
 import { EncuestaComponent } from './components/encuesta/encuesta.component';
+import { LoginComponent } from './login/login';
+import { RegisterComponent } from './register/register';
 
 export const routes: Routes = [
 

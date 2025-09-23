@@ -1,0 +1,22 @@
+<!-- src/app/components/register/register.component.html -->
+<div class="register-container">
+  <h3>Registro</h3>
+
+  <input type="email" placeholder="Email" [(ngModel)]="form.email" class="register-input" />
+  <input type="password" placeholder="Password" [(ngModel)]="form.password" class="register-input" />
+  <input type="text" placeholder="Nombre" [(ngModel)]="form.name" class="register-input" />
+  <input type="number" placeholder="Edad" [(ngModel)]="form.age" class="register-input" />
+  <input type="file" (change)="onFileSelected($event)" class="register-input" />
+
+  <button (click)="register()" class="register-button" [disabled]="loading">
+    {{ loading ? 'Registrando…' : 'Registrarse' }}
+  </button>
+
+  <p *ngIf="errorMsg" class="error">{{ errorMsg }}</p>
+
+  <div class="login-link-container">
+    <a routerLink="/login" class="login-link">Login</a>
+  </div>
+</div>
+
+

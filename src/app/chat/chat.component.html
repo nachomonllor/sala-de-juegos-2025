@@ -1,5 +1,36 @@
+<section class="chat">
+  <div class="messages">
+    <div *ngFor="let m of messages" class="msg">
+      <b>{{ m.display_name || 'Anónimo' }}</b>:
+      <span>{{ m.message }}</span>
+      <small>{{ m.created_at | date:'short' }}</small>
+    </div>
+  </div>
 
-<div class="chat-container">
+  <form (ngSubmit)="send()">
+    <input [(ngModel)]="text" name="text" placeholder="Escribe un mensaje..." />
+    <button type="submit">Enviar</button>
+  </form>
+</section>
+
+
+
+<!-- <section class="chat">
+  <div class="messages">
+    <div *ngFor="let m of messages" class="msg">
+      <b>{{ m.display_name || 'Anónimo' }}</b>:
+      <span>{{ m.message }}</span>
+      <small>{{ m.created_at | date:'short' }}</small>
+    </div>
+  </div>
+  <form (ngSubmit)="send()">
+    <input [(ngModel)]="text" name="text" placeholder="Escribe un mensaje..." />
+    <button type="submit">Enviar</button>
+  </form>
+</section> -->
+
+
+<!-- <div class="chat-container">
   <h2>🗨️ Sala de Chat</h2>
 
   <div class="messages">
@@ -19,4 +50,4 @@
     />
     <button type="submit" [disabled]="!newMessage.trim()">Enviar</button>
   </form>
-</div>
+</div> -->

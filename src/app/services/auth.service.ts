@@ -1,11 +1,8 @@
+
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { SupabaseService } from './supabase.service';
-import type {
-  Session,
-  User as SupaUser,
-  AuthChangeEvent
-} from '@supabase/supabase-js';
+import type { Session, User as SupaUser, AuthChangeEvent } from '@supabase/supabase-js';
 
 export type User = SupaUser;
 
@@ -31,21 +28,146 @@ export class AuthService {
     );
   }
 
-  async login(email: string, password: string): Promise<void> {
-    await this.supa.signInWithPassword(email, password);
-    // onAuthChange actualiza user$ automáticamente
+  // --- Nombres “propios” que ya tenías ---
+  async login(email: string, password: string) {
+    // Si quieres, puedes delegar en signIn:
+    return this.signIn(email, password);
   }
 
-  async register(email: string, password: string): Promise<void> {
-    await this.supa.signUp(email, password);
-    // Dependiendo de tu política, quizá quieras forzar login luego del signUp:
-    // await this.login(email, password);
+  async register(email: string, password: string) {
+    // Si quieres, puedes delegar en signUp:
+    return this.signUp(email, password);
   }
 
   async logout(): Promise<void> {
     await this.supa.signOut();
   }
+
+  // // --- Aliases para compatibilidad con el componente ---
+  // // Devuelven lo que devuelva tu SupabaseService (normalmente { data, error })
+  // async signIn(email: string, password: string) {
+  //   return this.supa.signInWithPassword(email, password);
+  // }
+
+  // async signUp(email: string, password: string) {
+  //   return this.supa.signUp(email, password);
+  // }
+
+  // --- Aliases para compatibilidad con el componente ---
+  // Devuelven exactamente { data, error } como espera tu LoginComponent
+  async signIn(email: string, password: string) {
+    try {
+      const data = await this.supa.signInWithPassword(email, password); // devuelve { user, session }
+      return { data, error: null as any };
+    } catch (err: any) {
+      return { data: null as any, error: err };
+    }
+  }
+
+  async signUp(email: string, password: string) {
+    try {
+      const data = await this.supa.signUp(email, password);
+      return { data, error: null as any };
+    } catch (err: any) {
+      return { data: null as any, error: err };
+    }
+  }
+
+  // --- NUEVO: exponer el cliente para poder usar .from(...) ---
+  get client() {
+    return this.supa.client; // asegúrate de exponer 'client' en SupabaseService (abajo)
+  }
+
+  // En src/app/services/auth.service.ts
+// dentro de export class AuthService { ... }
+
+async ensureProfile(
+  user: User,
+  opts: { name?: string; age?: number | null; avatar_url?: string | null } = {}
+): Promise<void> {
+  // Partimos el "name" en nombre y apellido (si existe)
+  const full = (opts.name ?? '').trim();
+  const [first, ...rest] = full.split(/\s+/);
+  const first_name = first || null;
+  const last_name = rest.join(' ') || null;
+
+  // Fallback razonable para display_name
+  const display_name = full || user.email || null;
+
+  // Armamos el payload; ignoramos "age" salvo que tengas esa columna
+  const payload: any = {
+    id: user.id,
+    email: user.email ?? null,
+    first_name,
+    last_name,
+    display_name,
+    avatar_url: opts.avatar_url ?? null,
+    updated_at: new Date().toISOString(),
+  };
+
+  // Upsert en 'profiles'
+  const { error } = await this.client
+    .from('profiles')
+    .upsert(payload, { onConflict: 'id' });
+
+  if (error) throw error;
 }
+
+}
+
+
+
+
+
+
+// import { Injectable } from '@angular/core';
+// import { BehaviorSubject } from 'rxjs';
+// import { SupabaseService } from './supabase.service';
+// import type {
+//   Session,
+//   User as SupaUser,
+//   AuthChangeEvent
+// } from '@supabase/supabase-js';
+
+// export type User = SupaUser;
+
+// @Injectable({ providedIn: 'root' })
+// export class AuthService {
+//   private readonly _user$ = new BehaviorSubject<User | null>(null);
+//   public readonly user$ = this._user$.asObservable();
+
+//   private unsubscribeAuthChange?: () => void;
+
+//   constructor(private readonly supa: SupabaseService) {
+//     this.init();
+//   }
+
+//   private async init(): Promise<void> {
+//     const session = await this.supa.getSession();
+//     this._user$.next(session?.user ?? null);
+
+//     this.unsubscribeAuthChange = this.supa.onAuthChange(
+//       (_event: AuthChangeEvent, newSession: Session | null) => {
+//         this._user$.next(newSession?.user ?? null);
+//       }
+//     );
+//   }
+
+//   async login(email: string, password: string): Promise<void> {
+//     await this.supa.signInWithPassword(email, password);
+//     // onAuthChange actualiza user$ automáticamente
+//   }
+
+//   async register(email: string, password: string): Promise<void> {
+//     await this.supa.signUp(email, password);
+//     // Dependiendo de tu política, quizá quieras forzar login luego del signUp:
+//     // await this.login(email, password);
+//   }
+
+//   async logout(): Promise<void> {
+//     await this.supa.signOut();
+//   }
+// }
 
 
 

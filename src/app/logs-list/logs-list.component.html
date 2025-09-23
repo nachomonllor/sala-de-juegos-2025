@@ -1,6 +1,14 @@
 <h2>Historial de Ingresos</h2>
+<div *ngIf="error" class="error">{{ error }}</div>
+<ul *ngIf="!error">
+    <li *ngFor="let log of logs">
+        <b>{{ log.email || '(sin email)' }}</b>
+        <small>— {{ log.created_at | date:'short' }}</small>
+    </li>
+</ul>
 
-<table class="logs-table">
+
+<!-- <table class="logs-table">
     <thead>
         <tr>
             <th>Email</th>
@@ -16,6 +24,4 @@
           </tr>
           
     </tbody>
-</table>
-
-
+</table> -->
