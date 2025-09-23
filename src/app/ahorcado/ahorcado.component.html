@@ -3,24 +3,24 @@
   <div class="game-area">
     <div class="hangman-canvas">
       <!-- Imagen compuesta según errores -->
-      <img [src]="getHangmanImage()"
-           alt="Ahorcado - etapa {{ errorCount }}"
-           class="hangman-image" />
-    <div *ngIf="!gameOver" class="keyboard">
-      <button *ngFor="let letter of alphabet"
-              (click)="letterInput = letter; confirmGuess()"
-              [disabled]="guessedLetters.includes(letter.toLowerCase())">
-        {{ letter }}
-      </button>
+      <img [src]="getHangmanImage()" alt="Ahorcado - etapa {{ errorCount }}" class="hangman-image" />
+      <div *ngIf="!gameOver" class="keyboard">
+        <button *ngFor="let letter of alphabet" (click)="letterInput = letter; confirmGuess()"
+          [disabled]="guessedLetters.includes(letter.toLowerCase())">
+          {{ letter }}
+        </button>
+      </div>
+
+      <div *ngIf="gameOver" class="result-message">
+        <h1>{{ winningMessage }}</h1>
+        <button (click)="resetGame()">Reiniciar Juego</button>
+      </div>
+
+      <p class="display-word">{{ getDisplayWord() }}</p>
     </div>
 
-    <div *ngIf="gameOver" class="result-message">
-      <h1>{{ winningMessage }}</h1>
-      <button (click)="resetGame()">Reiniciar Juego</button>
-    </div>
-
-    <p class="display-word">{{ getDisplayWord() }}</p>
   </div>
-</div>
 
-
+  <div class="mt-3">
+    <a routerLink="/home" class="btn btn-outline-primary">Volver al Home</a>
+  </div>

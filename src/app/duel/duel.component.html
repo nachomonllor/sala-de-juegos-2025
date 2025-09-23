@@ -2,11 +2,7 @@
   <!-- Selector de tema -->
   <div class="form-group">
     <label for="themeSelect">Seleccione Tema:</label>
-    <select
-      id="themeSelect"
-      [(ngModel)]="selectedTheme"
-      (change)="loadQuestion()"
-    >
+    <select id="themeSelect" [(ngModel)]="selectedTheme" (change)="loadQuestion()">
       <option *ngFor="let t of ['historia', 'geografia', 'arte', 'biologia']" [value]="t">
         {{ t | titlecase }}
       </option>
@@ -20,12 +16,7 @@
         Preguntados – Tema: {{ selectedTheme | titlecase }}
       </div>
       <div class="card-body">
-        <img
-          *ngIf="currentImage"
-          [src]="currentImage"
-          alt="Pregunta visual"
-          class="img-fluid"
-        />
+        <img *ngIf="currentImage" [src]="currentImage" alt="Pregunta visual" class="img-fluid" />
         <p class="lead">{{ currentQuestion }}</p>
 
         <div class="scoreboard">
@@ -33,11 +24,7 @@
         </div>
 
         <div class="controls">
-          <button
-            *ngFor="let opt of options"
-            (click)="selectAnswer(opt)"
-            [disabled]="answered"
-          >
+          <button *ngFor="let opt of options" (click)="selectAnswer(opt)" [disabled]="answered">
             {{ opt }}
           </button>
         </div>
@@ -46,15 +33,15 @@
           {{ message }}
         </div>
 
-        <button
-          *ngIf="answered && !gameOver"
-          class="btn btn-success"
-          (click)="nextQuestion()"
-        >
+        <button *ngIf="answered && !gameOver" class="btn btn-success" (click)="nextQuestion()">
           Siguiente
         </button>
       </div>
     </div>
+  </div>
+
+  <div class="mt-3">
+    <a routerLink="/home" class="btn btn-outline-primary">Volver al Home</a>
   </div>
 
   <!-- Game Over -->

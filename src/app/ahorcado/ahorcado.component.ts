@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WordService } from '../word.service';
+import {  RouterLink } from '@angular/router';
 
 export interface HangmanPart {
   name: string;
@@ -15,7 +16,7 @@ export interface HangmanPart {
 @Component({
   selector: 'app-ahorcado',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './ahorcado.component.html',
   styleUrls: ['./ahorcado.component.css']
 })

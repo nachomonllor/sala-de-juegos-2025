@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';      // ← IMPORTA ESTO
 import { Component, OnInit } from '@angular/core';
 import { QuestionService } from '../services/question.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   standalone: true,                                         // ← AGREGA ESTO
@@ -10,7 +11,8 @@ import { QuestionService } from '../services/question.service';
   imports: [
     CommonModule,
     FormsModule,
-    HttpClientModule                                      // ← Y ESTO
+    HttpClientModule ,                                     // ← Y ESTO
+    RouterLink
   ],
   templateUrl: './duel.component.html',
   styleUrls: ['./duel.component.css']                     // ← CORRIGE A styleUrls

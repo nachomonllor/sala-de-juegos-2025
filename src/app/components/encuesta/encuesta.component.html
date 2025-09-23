@@ -52,7 +52,8 @@
     <div class="form-group">
       <label for="preguntaTexto">1. ¿Cuál es tu comida favorita?</label>
       <input id="preguntaTexto" formControlName="preguntaTexto" type="text" placeholder="Escribe tu respuesta" />
-      <div class="error" *ngIf="encuestaForm.get('preguntaTexto')?.touched && encuestaForm.get('preguntaTexto')?.invalid">
+      <div class="error"
+        *ngIf="encuestaForm.get('preguntaTexto')?.touched && encuestaForm.get('preguntaTexto')?.invalid">
         <small *ngIf="encuestaForm.get('preguntaTexto')?.errors?.['required']">Respuesta obligatoria.</small>
       </div>
     </div>
@@ -61,15 +62,11 @@
     <div class="form-group">
       <label>2. ¿Qué color prefieres?</label>
       <div *ngFor="let opcion of opcionesRadio">
-        <input
-          type="radio"
-          [value]="opcion"
-          formControlName="preguntaRadio"
-          [id]="opcion"
-        />
+        <input type="radio" [value]="opcion" formControlName="preguntaRadio" [id]="opcion" />
         <label [for]="opcion">{{ opcion }}</label>
       </div>
-      <div class="error" *ngIf="encuestaForm.get('preguntaRadio')?.touched && encuestaForm.get('preguntaRadio')?.invalid">
+      <div class="error"
+        *ngIf="encuestaForm.get('preguntaRadio')?.touched && encuestaForm.get('preguntaRadio')?.invalid">
         <small *ngIf="encuestaForm.get('preguntaRadio')?.errors?.['required']">Debes seleccionar un color.</small>
       </div>
     </div>
@@ -79,11 +76,7 @@
       <label>3. ¿Qué redes sociales usas? (marca al menos una)</label>
       <div formArrayName="preguntaCheckbox">
         <div *ngFor="let opcion of opcionesCheck; let i = index">
-          <input
-            type="checkbox"
-            [formControlName]="i"
-            [id]="'chk' + i"
-          />
+          <input type="checkbox" [formControlName]="i" [id]="'chk' + i" />
           <label [for]="'chk' + i">{{ opcion }}</label>
         </div>
       </div>
@@ -98,3 +91,7 @@
     <button type="submit">Enviar Encuesta</button>
   </form>
 </section>
+
+<div class="mt-3">
+  <a routerLink="/home" class="btn btn-outline-primary">Volver al Home</a>
+</div>

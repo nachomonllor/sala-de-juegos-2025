@@ -2,11 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FlowFreeSolver, Pair, Point } from './flowfree-solver';
-
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-flow-free',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './flow-free.component.html',
   styleUrl: './flow-free.component.css'
 })

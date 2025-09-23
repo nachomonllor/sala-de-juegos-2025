@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { ResultsService } from '../services/results.service';
 import { ResultRow } from '../services/supabase.service';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-results-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './results-list.component.html',
   styleUrls: ['./results-list.component.css']
 })
