@@ -21,7 +21,8 @@ export class HomeComponent {
     'Ahorcado': 'ahorcado',
     'Mayor o Menor': 'mayor-menor',
     'Preguntados': 'preguntados',
-    'FlowFree': 'flowfree'
+    'FlowFree': 'flowfree',
+      'Preguntados DBZ': 'preguntados-dbz'
   };
 
   constructor(private readonly authService: AuthService) {

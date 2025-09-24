@@ -13,6 +13,7 @@ import { ResultsListComponent } from './results-list/results-list.component';
 import { EncuestaComponent } from './components/encuesta/encuesta.component';
 import { LoginComponent } from './login/login';
 import { RegisterComponent } from './register/register';
+import { PreguntadosDbzComponent } from './preguntados-dbz/preguntados-dbz';
 
 export const routes: Routes = [
 
@@ -33,7 +34,8 @@ export const routes: Routes = [
       { path: 'mayor-menor', component: MayorMenorComponent },
       { path: 'preguntados', component: DuelComponent },
       { path: 'flowfree', component: FlowfreeComponent },
-      { path: 'resultados', component: ResultsListComponent }
+      { path: 'resultados', component: ResultsListComponent },
+      {path: 'preguntados-dbz', component: PreguntadosDbzComponent}
 
     ]
   },

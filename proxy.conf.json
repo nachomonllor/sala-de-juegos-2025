@@ -1,0 +1,10 @@
+{
+  "/dbz": {
+    "target": "https://dragonball-api.com/api",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": { "^/dbz": "" },
+    "logLevel": "debug"
+  }
+}
+
