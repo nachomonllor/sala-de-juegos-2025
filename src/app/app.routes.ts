@@ -5,7 +5,6 @@ import { LogsListComponent } from './logs-list/logs-list.component';
 import { HangmanComponent } from './ahorcado/ahorcado.component';
 import { MayorMenorComponent } from './mayor-menor/mayor-menor.component';
 import { DuelComponent } from './duel/duel.component';
-import { FlowfreeComponent } from './flow-free/flow-free.component';
 import { AuthGuard } from './guards/auth.guard';
 import { ChatComponent } from './chat/chat.component';
 import { QuienSoyComponent } from './quien-soy/quien-soy.component';
@@ -14,6 +13,7 @@ import { EncuestaComponent } from './components/encuesta/encuesta.component';
 import { LoginComponent } from './login/login';
 import { RegisterComponent } from './register/register';
 import { PreguntadosDbzComponent } from './preguntados-dbz/preguntados-dbz';
+import { FlowFreeComponent } from './flowfree/flowfree';
 
 export const routes: Routes = [
 
@@ -33,7 +33,7 @@ export const routes: Routes = [
       { path: 'ahorcado', component: HangmanComponent },
       { path: 'mayor-menor', component: MayorMenorComponent },
       { path: 'preguntados', component: DuelComponent },
-      { path: 'flowfree', component: FlowfreeComponent },
+      { path: 'flowfree', component: FlowFreeComponent },
       { path: 'resultados', component: ResultsListComponent },
       {path: 'preguntados-dbz', component: PreguntadosDbzComponent}
 

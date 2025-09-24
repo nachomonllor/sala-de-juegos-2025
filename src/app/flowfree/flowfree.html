@@ -1,0 +1,112 @@
+<div class="hud">
+  <div class="stats">
+    <span *ngIf="message" class="ok">{{ message }}</span>
+    <button class="btn" (click)="reset()">Reiniciar</button>
+
+    <div class="clock" [class.win]="message === '¡Resuelto! 🎉'">⏱ {{ clock }}</div>
+
+    <button class="btn" (click)="newGame()">Nuevo</button>
+
+  </div>
+</div>
+
+<div class="board" [style.gridTemplateColumns]="'repeat(' + board.length + ', 1fr)'"
+  [style.gridTemplateRows]="'repeat(' + board.length + ', 1fr)'">
+  <ng-container *ngFor="let row of board; let r = index">
+    <div class="cell" *ngFor="let cell of row; let c = index" (pointerdown)="onPointerDown(r, c, $event)"
+      (pointerenter)="onPointerEnter(r, c, $event)">
+      <!-- Fondo del azulejo -->
+      <div class="tile"></div>
+
+      <!-- Tubería -->
+      <ng-container *ngIf="cell.pathColor as col">
+        <div class="tube" [style.background]="colorToCss(col)!">
+          <span class="arm n" *ngIf="conn(r,c,'n')" [style.background]="colorToCss(col)!"></span>
+          <span class="arm e" *ngIf="conn(r,c,'e')" [style.background]="colorToCss(col)!"></span>
+          <span class="arm s" *ngIf="conn(r,c,'s')" [style.background]="colorToCss(col)!"></span>
+          <span class="arm w" *ngIf="conn(r,c,'w')" [style.background]="colorToCss(col)!"></span>
+        </div>
+      </ng-container>
+
+      <!-- Endpoint (botón) -->
+      <div *ngIf="cell.endpointColor" class="dot" [style.background]="colorToCss(cell.endpointColor)!">
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<div class="mt-3">
+  <a routerLink="/home" class="btn btn-outline-primary">Volver al Home</a>
+</div>
+
+
+
+
+<!-- <div class="hud">
+  <div class="stats">
+    <span *ngIf="message" class="ok">{{ message }}</span>
+    <button class="btn" (click)="reset()">Reiniciar</button>
+  </div>
+  <div class="palette">
+    <span *ngFor="let p of pairs()" class="swatch" [style.background]="colorToCss(p.color)!"
+      (click)="clearColor(p.color)">
+    </span>
+  </div>
+</div>
+
+<div class="board" [style.gridTemplateColumns]="'repeat(' + board.length + ', minmax(0,1fr))'"
+  [style.gridTemplateRows]="'repeat(' + board.length + ', minmax(0,1fr))'" [style.gap.px]="board.length >= 12 ? 2 : 4">
+  <ng-container *ngFor="let row of board; let r = index">
+    <div *ngFor="let cell of row; let c = index" class="cell" [class.has-path]="!!cell.pathColor"
+      [style.background]="cell.pathColor ? colorToCss(cell.pathColor)! : ''" (pointerdown)="onPointerDown(r, c, $event)"
+      (pointerenter)="onPointerEnter(r, c, $event)">
+      <div *ngIf="cell.endpointColor" class="dot" [style.background]="colorToCss(cell.endpointColor)!">
+      </div>
+    </div>
+  </ng-container>
+</div>
+ -->
+
+
+
+<!-- 
+<div class="hud">
+  <div class="stats">
+    <span *ngIf="message" class="ok">{{ message }}</span>
+    <button class="btn" (click)="reset()">Reiniciar</button>
+  </div>
+  <div class="palette">
+    <span *ngFor="let p of pairs()"
+          class="swatch"
+          [style.background]="colorToCss(p.color)!"
+          title="Limpiar {{p.color}}"
+          (click)="clearColor(p.color)">
+    </span>
+  </div>
+</div>
+
+  <div class="board"
+     [style.gridTemplateColumns]="'repeat(' + board.length + ', 1fr)'"
+     [style.gridTemplateRows]="'repeat(' + board.length + ', 1fr)'">
+
+  <ng-container *ngFor="let row of board; let r = index">
+    <div
+      *ngFor="let cell of row; let c = index"
+      class="cell"
+      [class.has-path]="!!cell.pathColor"
+      [style.background]="cell.pathColor ? colorToCss(cell.pathColor)! : ''"
+      (pointerdown)="onPointerDown(r, c, $event)"
+      (pointerenter)="onPointerEnter(r, c, $event)"
+    >
+      <div *ngIf="cell.endpointColor"
+           class="dot"
+           [style.background]="colorToCss(cell.endpointColor)!">
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+
+
+
+ -->

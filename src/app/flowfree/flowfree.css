@@ -1,0 +1,227 @@
+:host {
+  display: block;
+  padding: 12px;
+  user-select: none;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.ok {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.btn {
+  border: 0;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #334155;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn:hover {
+  filter: brightness(1.1);
+}
+
+.board {
+  display: grid;
+  width: min(90vmin, 520px);
+  aspect-ratio: 1/1;
+  margin: 0 auto;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 14px;
+  background: #0a0f1a;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.05);
+  touch-action: none;
+}
+
+/* Cada celda */
+.cell {
+  position: relative;
+  border-radius: 12px;
+  overflow: visible;
+  touch-action: none;
+}
+
+/* Baldosa gris con brillo */
+.tile {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 35%),
+    linear-gradient(145deg, #353c44, #1f2328);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, .45),
+    0 2px 6px rgba(0, 0, 0, .35);
+}
+
+/* Tubería central */
+.tube {
+  position: absolute;
+  inset: 22%;
+  border-radius: 14px;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, .25) inset, 0 2px 5px rgba(0, 0, 0, .35);
+}
+
+/* Brazos (extensiones a lados) */
+.arm {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22%;
+  height: 22%;
+  transform: translate(-50%, -50%);
+  border-radius: 10px;
+}
+
+.arm.n {
+  top: -11%;
+  width: 22%;
+  height: 61%;
+}
+
+.arm.s {
+  top: 111%;
+  width: 22%;
+  height: 61%;
+}
+
+.arm.e {
+  left: 111%;
+  width: 61%;
+  height: 22%;
+}
+
+.arm.w {
+  left: -11%;
+  width: 61%;
+  height: 22%;
+}
+
+/* Endpoint */
+.dot {
+  position: absolute;
+  inset: 18%;
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 3px rgba(0, 0, 0, .35) inset,
+    0 4px 10px rgba(0, 0, 0, .40);
+}
+
+.clock {
+  justify-self: center;
+  font: 700 18px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  letter-spacing: .5px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #233047, #101827);
+  color: #e5e7eb;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .08),
+    0 4px 12px rgba(0, 0, 0, .25);
+  border: 1px solid rgba(255, 255, 255, .06);
+}
+
+.clock.win {
+  background: linear-gradient(180deg, #166534, #0b3d22);
+  color: #d1fae5;
+  border-color: rgba(16, 185, 129, .35);
+}
+
+
+
+
+/* :host {
+  display: block;
+  padding: 12px;
+  user-select: none;
+}
+
+.hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ok {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.btn {
+  border: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #334155;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn:hover {
+  filter: brightness(1.1);
+}
+
+.palette {
+  display: flex;
+  gap: 6px;
+}
+
+.swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .3) inset;
+}
+
+.board {
+  display: grid;
+  aspect-ratio: 1 / 1;
+
+  width: min(92vmin, 820px);
+  margin: 0 auto;
+  background: #0f172a;
+  padding: 6px;
+  border-radius: 12px;
+  touch-action: none;
+
+}
+
+.row {
+  display: contents;
+}
+
+.cell {
+  background: #111827;
+  border-radius: 6px;
+
+  position: relative;
+  touch-action: none;
+}
+
+.cell.has-path {
+  box-shadow: inset 0 0 0 6px rgba(0, 0, 0, .06);
+}
+
+.dot {
+  position: absolute;
+  inset: 22%;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, .25) inset, 0 2px 6px rgba(0, 0, 0, .35);
+} */
