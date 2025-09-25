@@ -166,7 +166,6 @@ export class FlowFreeComponent implements OnInit {
   }
 
   // -------------------------------
-
   private boardCovered(): boolean {
     const b = this.engine.getBoard();
     for (let r = 0; r < b.length; r++) {

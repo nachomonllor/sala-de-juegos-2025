@@ -22,7 +22,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   room = 'global';
   private unsubscribe?: () => void;
 
-  constructor(private supa: SupabaseService) {}
+  constructor(private supa: SupabaseService) { }
 
   async ngOnInit() {
     this.messages = await this.supa.listChatMessages(this.room, 50);
