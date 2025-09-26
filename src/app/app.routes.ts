@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './home/home.component';
 import { LogsListComponent } from './logs-list/logs-list.component';
 import { HangmanComponent } from './ahorcado/ahorcado.component';
 import { MayorMenorComponent } from './mayor-menor/mayor-menor.component';
@@ -14,6 +13,7 @@ import { LoginComponent } from './login/login';
 import { RegisterComponent } from './register/register';
 import { PreguntadosDbzComponent } from './preguntados-dbz/preguntados-dbz';
 import { FlowFreeComponent } from './flowfree/flowfree';
+import { HomeComponent } from './homeX/home/home';
 
 export const routes: Routes = [
 

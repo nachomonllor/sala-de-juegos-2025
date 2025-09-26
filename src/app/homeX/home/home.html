@@ -1,0 +1,70 @@
+<p>home works!</p>
+
+<div class="container">
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <h1>Sala de Juegos</h1>
+      <p>Juegos rápidos y livianos. Elegí, buscá y jugá.</p>
+
+      <!-- BUSCADOR -->
+      <div class="search" role="search">
+        <input
+          type="search"
+          placeholder="Buscar por nombre o tag…"
+          [(ngModel)]="search"
+          aria-label="Buscar juegos"
+        />
+      </div>
+
+      <!-- CATEGORÍAS -->
+      <div class="chips" role="tablist" aria-label="Categorías de juegos">
+        <button
+          *ngFor="let cat of categories"
+          (click)="setCategory(cat)"
+          [class.active]="activeCategory === cat"
+          role="tab"
+          [attr.aria-selected]="activeCategory === cat"
+        >
+          {{ cat }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GRID DE JUEGOS -->
+  <section aria-live="polite">
+    <div class="games-grid" *ngIf="filteredGames.length; else emptyList">
+      <article
+        class="game-card"
+        *ngFor="let game of filteredGames; trackBy: trackByTitle"
+      >
+        <img
+          class="game-thumb"
+          [src]="game.thumb"
+          [alt]="game.title"
+          loading="lazy"
+        />
+        <div *ngIf="game.badge" class="badge">{{ game.badge }}</div>
+
+        <div class="game-info">
+          <h4 class="game-title">{{ game.title }}</h4>
+          <p class="game-desc">{{ game.description }}</p>
+        </div>
+
+        <!-- Link invisible que cubre la card -->
+        <a
+          class="card-link"
+          [routerLink]="game.route"
+          [attr.aria-label]="'Abrir ' + game.title"
+        ></a>
+      </article>
+    </div>
+
+    <ng-template #emptyList>
+      <p style="opacity:.8; padding:16px">
+        No hay juegos que coincidan con tu búsqueda.
+      </p>
+    </ng-template>
+  </section>
+</div>
