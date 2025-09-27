@@ -27,7 +27,7 @@ const PUZZLE_5: Pair[] = [
 @Component({
   selector: 'app-flowfree',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './flowfree.html',
   styleUrls: ['./flowfree.css']
 })

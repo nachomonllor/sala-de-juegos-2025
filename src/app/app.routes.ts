@@ -27,6 +27,7 @@ export const routes: Routes = [
   { path: 'logs', component: LogsListComponent, canActivate:  [AuthGuard] },
   {
     path: 'games',
+ 
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'ahorcado', pathMatch: 'full' },

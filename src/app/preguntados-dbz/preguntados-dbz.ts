@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { DragonBallService } from '../services/dragon-ball';
 import { Question } from './preguntados-dbz.model';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-preguntados-dbz',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, RouterLink],
+  imports: [CommonModule, HttpClientModule],
   templateUrl: './preguntados-dbz.html',
   styleUrl: './preguntados-dbz.css',
   changeDetection: ChangeDetectionStrategy.OnPush

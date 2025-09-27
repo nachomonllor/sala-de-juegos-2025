@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -10,7 +9,7 @@ import { WordService } from '../word.service';
 @Component({
   selector: 'app-ahorcado',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MatToolbarModule, MatCardModule, MatButtonModule],
+  imports: [CommonModule, FormsModule, MatToolbarModule, MatCardModule, MatButtonModule],
   templateUrl: './ahorcado.component.html',
   styleUrls: ['./ahorcado.component.css']
 })

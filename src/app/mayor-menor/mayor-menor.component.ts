@@ -2,7 +2,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 
 export interface Card {
   suit: 'oro' | 'espada' | 'copa' | 'basto';
@@ -13,7 +12,7 @@ export interface Card {
 @Component({
   selector: 'app-mayor-menor',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './mayor-menor.component.html',
   styleUrls: ['./mayor-menor.component.css']
 })

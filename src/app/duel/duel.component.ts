@@ -12,7 +12,6 @@ import { RouterLink } from '@angular/router';
     CommonModule,
     FormsModule,
     HttpClientModule ,                                     // ← Y ESTO
-    RouterLink
   ],
   templateUrl: './duel.component.html',
   styleUrls: ['./duel.component.css']                     // ← CORRIGE A styleUrls

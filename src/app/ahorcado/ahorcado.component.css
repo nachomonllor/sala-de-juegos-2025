@@ -1,4 +1,4 @@
- @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+/*  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap'); */
 
 /* Centrar la tarjeta y quitar ese fondo gris enorme si querés */
 .game-card{
@@ -38,8 +38,6 @@
 }
 
 /* (resto: teclado/word/banner como ya lo tenías) */
-
-
 /* líneas visibles y letras con buen contraste */
 .display-word{
   display:flex; justify-content:center; align-items:center; flex-wrap:wrap;
