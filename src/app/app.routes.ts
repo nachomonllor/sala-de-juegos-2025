@@ -35,7 +35,7 @@ export const routes: Routes = [
       { path: 'preguntados', component: DuelComponent },
       { path: 'flowfree', component: FlowFreeComponent },
       { path: 'resultados', component: ResultsListComponent },
-      {path: 'preguntados-dbz', component: PreguntadosDbzComponent}
+      { path: 'preguntados-dbz', component: PreguntadosDbzComponent}
 
     ]
   },
