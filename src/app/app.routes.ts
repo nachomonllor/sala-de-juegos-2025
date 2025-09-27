@@ -27,7 +27,6 @@ export const routes: Routes = [
   { path: 'logs', component: LogsListComponent, canActivate:  [AuthGuard] },
   {
     path: 'games',
- 
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'ahorcado', pathMatch: 'full' },
@@ -37,17 +36,16 @@ export const routes: Routes = [
       { path: 'flowfree', component: FlowFreeComponent },
       { path: 'resultados', component: ResultsListComponent },
       { path: 'preguntados-dbz', component: PreguntadosDbzComponent}
-
     ]
   },
   { path: '**', redirectTo: 'home' }
 ];
 
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
-})
-export class AppRoutingModule {}
+// @NgModule({
+//   imports: [RouterModule.forRoot(routes)],
+//   exports: [RouterModule]
+// })
+// export class AppRoutingModule {}
 
 
 

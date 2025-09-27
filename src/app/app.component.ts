@@ -5,7 +5,7 @@ import { HomeFabComponent } from "./home-fab/home-fab.component";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterModule, CommonModule, RouterOutlet],
+  imports: [RouterModule, CommonModule, RouterOutlet, HomeFabComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

@@ -1,28 +1,21 @@
-  :host {
-    position: fixed;
-    left: 16px;
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    z-index: 1400;
-    pointer-events: none;
-  }
+.home-fab{
+  position: fixed;
+  left: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 1400;
 
-  .home-fab {
-    pointer-events: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    padding: .6rem .9rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .08);
-    border: 1px solid rgba(255, 255, 255, .18);
-    color: #e5e7eb;
-    text-decoration: none;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
-    transition: transform .15s ease, filter .15s ease;
-  }
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
 
-  .home-fab:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.05);
-  }
+  padding: .6rem .9rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.18);
+  color: #e5e7eb;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  transition: transform .15s ease, filter .15s ease;
+}
+.home-fab:hover{ transform: translateY(-1px); filter: brightness(1.05); }
