@@ -28,6 +28,24 @@ export class AuthService {
     );
   }
 
+  // // AuthService (ejemplo)
+  // async ensureProfile(user: any, patch?: { first_name?: string; last_name?: string; birth_date?: string }) {
+  //   const up = {
+  //     id: user.id,
+  //     email: user.email ?? null,
+  //     first_name: patch?.first_name ?? null,
+  //     last_name: patch?.last_name ?? null,
+  //     birth_date: patch?.birth_date ?? null, // si NO existe, quítalo
+  //   };
+  //   const { data, error } = await this.client
+  //     .from('profiles')
+  //     .upsert(up, { onConflict: 'id' })
+  //     .select('*')            // <- no listar columnas inexistentes
+  //     .single();
+  //   if (error) throw error;
+  //   return data;
+  // }
+
   // --- Nombres “propios” que ya tenías ---
   async login(email: string, password: string) {
     // Si quieres, puedes delegar en signIn:
@@ -101,7 +119,7 @@ async ensureProfile(
     first_name,
     last_name,
     display_name,
-    avatar_url: opts.avatar_url ?? null,
+   // avatar_url: opts.avatar_url ?? null,
     updated_at: new Date().toISOString(),
   };
 
