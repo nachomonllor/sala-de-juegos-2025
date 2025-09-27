@@ -18,6 +18,7 @@ export const routes: Routes = [
   { path: '', redirectTo: 'register', pathMatch: 'full' },
   //{ path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
+  //{path:'home-inicial', component: HomeComponentInicial},
   { path: 'login', component: LoginComponent },
   { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
   { path: 'register', component: RegisterComponent },

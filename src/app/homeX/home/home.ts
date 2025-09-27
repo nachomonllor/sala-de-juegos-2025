@@ -3,6 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
+import { Observable } from 'rxjs';
+import { AuthService, User } from '../../services/auth.service';
+
+// ajustá la ruta según tu proyecto
+//type Category 
+
 type Category = 'Todos' | 'Arcade' | 'Puzzles' | 'Trivia' | 'Cartas' | 'Clásicos';
 
 interface Game {
@@ -27,13 +33,19 @@ export class HomeComponent {
   activeCategory: Category = 'Todos';
   categories: Category[] = ['Todos', 'Arcade', 'Puzzles', 'Trivia', 'Cartas', 'Clásicos'];
 
+    // ▼ NUEVO
+  user$!: Observable<User | null>;
+  constructor(private auth: AuthService) {
+    this.user$ = this.auth.user$;
+  }
+  logout(){ this.auth.logout(); }
+
   games: Game[] = [
     { title: 'Ahorcado',        route: '/games/ahorcado',           thumb: 'assets/games/ahorcado.jpg',         category: 'Puzzles', description: 'Adivina la palabra antes de que sea tarde.',   tags: ['ahorcado', 'palabras'], badge: 'Popular' },
     { title: 'Mayor o Menor',   route: '/games/mayor-menor',        thumb: 'assets/games/mayor-menor.jpg',      category: 'Cartas',  description: '¿Mayor o menor? Probá tu intuición.',          tags: ['cartas', 'azar'], },
     { title: 'Preguntados DBZ', route: '/games/preguntados-dbz',    thumb: 'assets/games/preguntados-dbz.jpg',  category: 'Trivia',  description: 'Demostr\u00e1 cuánto sabés de Dragon Ball Z.', tags: ['trivia', 'dbz', 'anime'], badge: 'Nuevo',},
     { title: 'Flow Free',       route: '/games/flowfree',           thumb: 'assets/games/flowfree.jpg',         category: 'Puzzles', description: 'Conectá pares sin cruzar caminos.',            tags: ['puzzle', 'rutas'],},
   ];
-
 
   get filteredGames(): Game[] {
     const byCat = this.activeCategory === 'Todos'

@@ -1,3 +1,40 @@
+/* --- Welcome bar --- */
+.welcome{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; padding:14px 18px; margin:16px 0 12px;
+  border-radius:18px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid #1f2937;
+  box-shadow:0 8px 30px rgba(0,0,0,.35);
+  backdrop-filter: blur(6px);
+}
+.user-info{ display:flex; align-items:center; gap:12px; }
+.avatar{
+  width:42px; height:42px; border-radius:50%;
+  display:grid; place-items:center;
+  background: rgba(255,255,255,.08); color:#e5e7eb; font-weight:800;
+}
+.muted{ color:#94a3b8; margin:2px 0 0; }
+
+.actions{ display:flex; gap:10px; }
+
+/* --- Botones --- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:.55rem .9rem; border-radius:12px; cursor:pointer;
+  border:1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.08);
+  color:#e5e7eb; text-decoration:none; font-weight:700;
+  transition: filter .15s ease, transform .15s ease;
+}
+.btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
+.btn.outline{ background: transparent; }
+.btn.danger{
+  background: linear-gradient(180deg, #ff6b6b, #ef4444);
+  border-color: transparent; color:#fff;
+}
+
+/* (el resto de tu CSS del home queda igual) */
 :host {
   display: block;
   min-height: 100dvh;

@@ -1,4 +1,36 @@
 <div class="container">
+
+
+  <!-- VISTA LOGUEADO -->
+  <ng-container *ngIf="user$ | async as user; else loggedOut">
+    <section class="welcome">
+      <div class="user-info">
+        <div class="avatar" aria-hidden="true">{{ user.email?.charAt(0) | uppercase }}</div>
+        <div>
+          <h2>¡Hola!</h2>
+          <p class="muted">{{ user.email }}</p>
+        </div>
+      </div>
+      <button class="btn danger" (click)="logout()">Cerrar sesión</button>
+    </section>
+  </ng-container>
+
+  <ng-template #loggedOut>
+    <section class="welcome">
+      <div class="user-info">
+        <div class="avatar" aria-hidden="true">?</div>
+        <div>
+          <h2>Bienvenido</h2>
+          <p class="muted">Iniciá sesión para guardar tus partidas</p>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="btn" routerLink="/login">Iniciar sesión</a>
+        <a class="btn outline" routerLink="/register">Registrarme</a>
+      </div>
+    </section>
+  </ng-template>
+
   <!-- HERO -->
   <section class="hero">
     <div>
@@ -7,23 +39,13 @@
 
       <!-- BUSCADOR -->
       <div class="search" role="search">
-        <input
-          type="search"
-          placeholder="Buscar por nombre o tag…"
-          [(ngModel)]="search"
-          aria-label="Buscar juegos"
-        />
+        <input type="search" placeholder="Buscar por nombre o tag…" [(ngModel)]="search" aria-label="Buscar juegos" />
       </div>
 
       <!-- CATEGORÍAS -->
       <div class="chips" role="tablist" aria-label="Categorías de juegos">
-        <button
-          *ngFor="let cat of categories"
-          (click)="setCategory(cat)"
-          [class.active]="activeCategory === cat"
-          role="tab"
-          [attr.aria-selected]="activeCategory === cat"
-        >
+        <button *ngFor="let cat of categories" (click)="setCategory(cat)" [class.active]="activeCategory === cat"
+          role="tab" [attr.aria-selected]="activeCategory === cat">
           {{ cat }}
         </button>
       </div>
@@ -33,16 +55,8 @@
   <!-- GRID DE JUEGOS -->
   <section aria-live="polite">
     <div class="games-grid" *ngIf="filteredGames.length; else emptyList">
-      <article
-        class="game-card"
-        *ngFor="let game of filteredGames; trackBy: trackByTitle"
-      >
-        <img
-          class="game-thumb"
-          [src]="game.thumb"
-          [alt]="game.title"
-          loading="lazy"
-        />
+      <article class="game-card" *ngFor="let game of filteredGames; trackBy: trackByTitle">
+        <img class="game-thumb" [src]="game.thumb" [alt]="game.title" loading="lazy" />
         <div *ngIf="game.badge" class="badge">{{ game.badge }}</div>
 
         <div class="game-info">
@@ -51,11 +65,7 @@
         </div>
 
         <!-- Link invisible que cubre la card -->
-        <a
-          class="card-link"
-          [routerLink]="game.route"
-          [attr.aria-label]="'Abrir ' + game.title"
-        ></a>
+        <a class="card-link" [routerLink]="game.route" [attr.aria-label]="'Abrir ' + game.title"></a>
       </article>
     </div>
 
