@@ -1,17 +1,95 @@
-/* Estilo general del contenedor */
+/* Contenedor de la página del juego */
+.page {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+/* Card del juego: ancho razonable, centrado */
+.game-card {
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+  border-radius: 16px;
+  background: transparent; /* dejamos ver el fondo global */
+}
+
+/* “Pantalla” del ahorcado: CUADRADA y BLANCA */
+.art {
+  width: min(900px, 94vw);
+  aspect-ratio: 1 / 1;          /* cuadrado perfecto */
+  margin: 0 auto 12px;
+  background: #ffffff;          /* pantalla blanca */
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.08) inset;
+  display: grid;
+  place-items: center;          /* centra la imagen */
+}
+
+/* Imagen del ahorcado dentro de la pantalla */
+.hangman-image {
+  width: 92%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Palabra mostrada (guiones/letras) */
+.display-word {
+  text-align: center;
+  font-size: clamp(18px, 2.2vw, 26px);
+  letter-spacing: 4px;
+  margin: 8px 0 16px;
+}
+
+/* TECLADO en varias filas */
+.keyboard {
+  display: flex;
+  flex-wrap: wrap;              /* << wrap en varias filas */
+  gap: 10px 12px;
+  justify-content: center;
+  width: min(900px, 94vw);
+  margin: 8px auto 24px;
+}
+
+/* Botones del teclado (Angular Material o nativo) */
+.keyboard button,
+.keyboard button[mat-raised-button] {
+  width: 44px;                  /* ancho fijo = se acomoda en varias filas */
+  height: 44px;
+  padding: 0;
+  border-radius: 999px;
+  line-height: 44px;
+  font-weight: 600;
+}
+/* Botones deshabilitados (letras ya usadas) */
+.keyboard button:disabled,
+.keyboard button[mat-raised-button]:disabled {
+  background: #ddd;
+  color: #999;
+  cursor: not-allowed;
+}
+
+  
+
+
+
+
+/*
+
+Estilo general del contenedor 
 div {
   text-align: center;
   font-family: Arial, sans-serif;
 }
 
-/* Estilo para la palabra oculta */
+ Estilo para la palabra oculta 
 p {
   font-size: 2em;
   letter-spacing: 0.3em;
   margin-bottom: 20px;
 }
 
-/* Estilo para el input y botón */
+Estilo para el input y botón 
 input[type="text"] {
   font-size: 1.2em;
   width: 50px;
@@ -24,13 +102,13 @@ button {
   padding: 5px 10px;
 }
 
-/* Estilo para el mensaje de victoria */
+Estilo para el mensaje de victoria 
 h1 {
   font-size: 3em;
   color: green;
 }
 
-/* Lista de partes del muñeco */
+ Lista de partes del muñeco 
 ul {
   list-style-type: none;
   padding: 0;
@@ -40,3 +118,5 @@ li {
   font-size: 1.1em;
   margin: 5px 0;
 }
+  
+*/
