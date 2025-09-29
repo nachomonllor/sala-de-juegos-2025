@@ -23,7 +23,7 @@ export const routes: Routes = [
   { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
   { path: 'register', component: RegisterComponent },
   { path: 'encuesta', component: EncuestaComponent},
-  { path: 'quien-soy', component: QuienSoyComponent},
+  { path: 'quien-soy', component: QuienSoyComponent },
   { path: 'logs', component: LogsListComponent, canActivate:  [AuthGuard] },
   {
     path: 'games',

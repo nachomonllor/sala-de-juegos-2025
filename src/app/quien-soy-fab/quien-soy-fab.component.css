@@ -1,0 +1,35 @@
+.quien-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 1000;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px 16px;
+  border-radius: 9999px;
+  background: #0ea5e9;          /* celeste */
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: .2px;
+
+  box-shadow: 0 8px 24px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.12);
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+
+.quien-fab:hover { 
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(0,0,0,.22), 0 3px 10px rgba(0,0,0,.14);
+}
+
+.quien-fab:active { 
+  transform: translateY(0); 
+}
+
+@media (max-width: 480px) {
+  .quien-fab { padding: 10px 14px; }
+}
+
