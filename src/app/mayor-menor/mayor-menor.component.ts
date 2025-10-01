@@ -152,16 +152,6 @@ export class MayorMenorComponent implements OnInit {
     }
   }
 
-  // finalizarJuego() {
-  //   this.juegoTerminado = true;
-  //   if (this.puntaje > this.mejorPuntaje) {
-  //     this.mejorPuntaje = this.puntaje;
-  //     // Guardamos en clave nueva y también en la vieja por compatibilidad
-  //     localStorage.setItem('mejorPuntaje', this.mejorPuntaje.toString());
-  //     localStorage.setItem('bestScore', this.mejorPuntaje.toString());
-  //   }
-  // }
-
   finalizarJuego() {
     this.juegoTerminado = true;
     this.nuevoRecord = this.puntaje > this.mejorPuntaje;
@@ -180,10 +170,15 @@ export class MayorMenorComponent implements OnInit {
 }
 
 
-
-
-
-
+// finalizarJuego() {
+//   this.juegoTerminado = true;
+//   if (this.puntaje > this.mejorPuntaje) {
+//     this.mejorPuntaje = this.puntaje;
+//     // Guardamos en clave nueva y también en la vieja por compatibilidad
+//     localStorage.setItem('mejorPuntaje', this.mejorPuntaje.toString());
+//     localStorage.setItem('bestScore', this.mejorPuntaje.toString());
+//   }
+// }
 
 
 
