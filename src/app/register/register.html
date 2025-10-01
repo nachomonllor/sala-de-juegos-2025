@@ -1,6 +1,53 @@
 
-<!-- src/app/components/register/register.html -->
-<div class="register-container">
+<div class="contenedor-registro">
+  <h3>Registro</h3>
+
+  <input
+    type="email"
+    placeholder="Correo electrónico"
+    [(ngModel)]="formulario.email"
+    class="campo-registro"
+  />
+  <input
+    type="password"
+    placeholder="Contraseña"
+    [(ngModel)]="formulario.contrasenia"
+    class="campo-registro"
+  />
+
+  <input
+    type="text"
+    placeholder="Nombre"
+    [(ngModel)]="formulario.nombre"
+    class="campo-registro"
+  />
+  <input
+    type="text"
+    placeholder="Apellido"
+    [(ngModel)]="formulario.apellido"
+    class="campo-registro"
+  />
+
+  <input
+    type="date"
+    placeholder="Fecha de nacimiento"
+    [(ngModel)]="formulario.fechaNacimiento"
+    class="campo-registro"
+  />
+
+  <button (click)="registrarse()" class="boton-registro" [disabled]="cargando">
+    {{ cargando ? 'Registrando…' : 'Registrarse' }}
+  </button>
+
+  <p *ngIf="mensajeDeError" class="mensaje-error">{{ mensajeDeError }}</p>
+
+  <div class="contenedor-enlace-inicio">
+    <a routerLink="/login" class="enlace-inicio">Iniciar sesión</a>
+  </div>
+</div>
+
+
+<!-- <div class="register-container">
   <h3>Registro</h3>
 
   <input type="email"    placeholder="Email"               [(ngModel)]="form.email"          class="register-input" />
@@ -11,38 +58,15 @@
 
   <input type="date"     placeholder="Fecha de nacimiento" [(ngModel)]="form.birthDate"      class="register-input" />
 
-  <button (click)="register()" class="register-button" [disabled]="loading">
+  <button (click)="registrarse()" class="register-button" [disabled]="loading">
     {{ loading ? 'Registrando…' : 'Registrarse' }}
   </button>
 
-  <p *ngIf="errorMsg" class="error">{{ errorMsg }}</p>
+  <p *ngIf="mensajeDeError" class="error">{{ mensajeDeError }}</p>
 
   <div class="login-link-container">
     <a routerLink="/login" class="login-link">Login</a>
   </div>
-</div>
+</div> -->
 
-
-
-<!-- src/app/components/register/register.component.html -->
-<!-- <div class="register-container">
-  <h3>Registro</h3>
-
-  <input type="email" placeholder="Email" [(ngModel)]="form.email" class="register-input" />
-  <input type="password" placeholder="Password" [(ngModel)]="form.password" class="register-input" />
-  <input type="text" placeholder="Nombre" [(ngModel)]="form.name" class="register-input" />
-  <input type="number" placeholder="Edad" [(ngModel)]="form.age" class="register-input" />
-  <input type="file" (change)="onFileSelected($event)" class="register-input" />
-
-  <button (click)="register()" class="register-button" [disabled]="loading">
-    {{ loading ? 'Registrando…' : 'Registrarse' }}
-  </button>
-
-  <p *ngIf="errorMsg" class="error">{{ errorMsg }}</p>
-
-  <div class="login-link-container">
-    <a routerLink="/login" class="login-link">Login</a>
-  </div>
-</div>
- -->
 

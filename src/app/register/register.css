@@ -1,4 +1,121 @@
 /* src/app/components/register/register.component.scss */
+
+/* src/app/components/register/register.component.scss */
+:host {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.contenedor-registro {
+  width: 100%;
+  max-width: 520px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 22px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+
+h3 {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.campo-registro {
+  width: 100%;
+  padding: 12px 14px;
+  margin-top: 10px;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.campo-registro::placeholder { color: var(--muted); }
+
+.campo-registro:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+/* Estilo específico para el input de archivo */
+.campo-registro[type="file"] {
+  padding: 10px;
+  border-style: dashed;
+  cursor: pointer;
+}
+.campo-registro[type="file"]::file-selector-button {
+  margin-right: 12px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Botón principal */
+.boton-registro {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: .2px;
+  transition: transform .06s ease, box-shadow .15s ease, opacity .15s;
+  box-shadow: 0 8px 24px rgba(99,102,241,.35);
+}
+.boton-registro:hover { transform: translateY(-1px); }
+.boton-registro:active { transform: translateY(0); }
+.boton-registro:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Mensaje de error */
+.mensaje-error {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 70%, transparent);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+  border-radius: 12px;
+  font-size: .95rem;
+}
+
+/* Link a Login */
+.contenedor-enlace-inicio {
+  margin-top: 12px;
+  text-align: center;
+  color: var(--muted);
+}
+.enlace-inicio {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+.enlace-inicio:hover { text-decoration: underline; }
+
+/* (Opcional) si luego mostrás una previsualización de avatar */
+.previsualizacion-avatar {
+  margin-top: 12px;
+  width: 96px; height: 96px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  object-fit: cover;
+}
+
+
+
+
+/* 
+
 :host {
   min-height: 100dvh;
   display: grid;
@@ -41,7 +158,7 @@ h3 {
   box-shadow: 0 0 0 3px var(--ring);
 }
 
-/* Estilo específico para el input de archivo */
+ Estilo específico para el input de archivo 
 .register-input[type="file"] {
   padding: 10px;
   border-style: dashed;
@@ -58,7 +175,7 @@ h3 {
   cursor: pointer;
 }
 
-/* Botón principal */
+Botón principal 
 .register-button {
   width: 100%;
   margin-top: 14px;
@@ -76,7 +193,7 @@ h3 {
 .register-button:active { transform: translateY(0); }
 .register-button:disabled { opacity: .6; cursor: not-allowed; }
 
-/* Mensaje de error */
+Mensaje de error 
 .error {
   margin-top: 10px;
   padding: 10px 12px;
@@ -87,7 +204,7 @@ h3 {
   font-size: .95rem;
 }
 
-/* Link a Login */
+Link a Login 
 .login-link-container {
   margin-top: 12px;
   text-align: center;
@@ -100,11 +217,11 @@ h3 {
 }
 .login-link:hover { text-decoration: underline; }
 
-/* (Opcional) si luego mostrás una previsualización de avatar */
+(Opcional) si luego mostrás una previsualización de avatar 
 .avatar-preview {
   margin-top: 12px;
   width: 96px; height: 96px;
   border-radius: 12px;
   border: 1px solid var(--border);
   object-fit: cover;
-}
+} */

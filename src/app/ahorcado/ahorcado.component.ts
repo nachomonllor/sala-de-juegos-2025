@@ -13,8 +13,8 @@ import { WordService } from '../word.service';
   templateUrl: './ahorcado.component.html',
   styleUrls: ['./ahorcado.component.css']
 })
-export class HangmanComponent implements OnInit {
-  selectedWord = '';
+export class AhorcadoComponent implements OnInit {
+  palabraSeleccionada = '';
   guessedLetters: string[] = [];
   letterInput = '';
   errorCount = 0;
@@ -37,7 +37,7 @@ export class HangmanComponent implements OnInit {
   ngOnInit(): void { this.resetGame(); }
 
   get displayCells() {
-    const word = this.selectedWord ?? '';
+    const word = this.palabraSeleccionada ?? '';
     return [...word].map(ch => {
       const isLetter = /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(ch);
       if (!isLetter) return { text: ch, revealed: true, separator: true };
@@ -53,7 +53,7 @@ export class HangmanComponent implements OnInit {
     this.gameStatus = null;
     this.winningMessage = '';
     this.wordService.getRandomWord().subscribe(word => {
-      this.selectedWord = word;
+      this.palabraSeleccionada = word;
          console.log('Palabra seleccionada:', word);
     });
   }
@@ -67,11 +67,11 @@ export class HangmanComponent implements OnInit {
 
     this.guessedLetters.push(letter);
 
-    const hasLetter = this.selectedWord.toLowerCase().includes(letter);
+    const hasLetter = this.palabraSeleccionada.toLowerCase().includes(letter);
 
     if (hasLetter) {
       // ¿ganó? -> todas las letras (solo alfabéticas) están adivinadas
-      const won = [...this.selectedWord].every(ch =>
+      const won = [...this.palabraSeleccionada].every(ch =>
         !/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(ch) || this.guessedLetters.includes(ch.toLowerCase())
       );
       if (won) {
@@ -90,7 +90,7 @@ export class HangmanComponent implements OnInit {
   }
 
   getDisplayWord(): string {
-    return this.selectedWord
+    return this.palabraSeleccionada
       .split('')
       .map(ch => this.guessedLetters.includes(ch.toLowerCase()) ? ch : '_')
       .join(' ');

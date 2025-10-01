@@ -1,4 +1,4 @@
-// src/app/components/register/register.component.ts
+
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -7,83 +7,177 @@ import { AuthService } from '../services/auth.service';
 
 @Component({
   standalone: true,
-  selector: 'app-register',
+  selector: 'app-register',                     //  el selector como está para no romper rutas/plantillas
   imports: [FormsModule, RouterLink, CommonModule],
   templateUrl: './register.html',
-  styleUrls: ['./register.css']   // ← plural
+  styleUrls: ['./register.css']                 // (propiedad reservada de Angular)
 })
 export class RegisterComponent {
-  form = { email: '', password: '', first_name: '', last_name: '', birthDate: '' }; // ← fecha de nacimiento
-  loading = false;
-  errorMsg = '';
-  infoMsg = '';
+  formulario = {
+    email: '',
+    contrasenia: '',
+    nombre: '',
+    apellido: '',
+    fechaNacimiento: ''
+  };
 
-  constructor(private router: Router, private auth: AuthService) {}
+  cargando = false;
+  mensajeDeError = '';
+  mensajeInformativo = '';
 
-  async register() {
-    if (this.loading) return;
-    this.loading = true;
-    this.errorMsg = '';
-    this.infoMsg = '';
+  constructor(private enrutador: Router, private autenticacion: AuthService) {}
+
+  async registrarse() {
+    if (this.cargando) return;
+
+    this.cargando = true;
+    this.mensajeDeError = '';
+    this.mensajeInformativo = '';
 
     try {
-      // 1) Crear usuario
-      const { data, error } = await this.auth.client.auth.signUp({
-        email: this.form.email.trim(),
-        password: this.form.password,
+      // 1) Crear usuario en el proveedor de autenticación
+      const { data, error } = await this.autenticacion.client.auth.signUp({
+        email: this.formulario.email.trim(),
+        password: this.formulario.contrasenia,
         options: { emailRedirectTo: window.location.origin + '/login' }
       });
       if (error) throw error;
 
-      const user = data.user ?? null;
+      const usuario = data.user ?? null;
 
-      // 2) Si no hay sesión aún (confirmación por mail), avisamos y vamos a login
-      if (!user) {
-        this.infoMsg = 'Revisá tu email para confirmar la cuenta. Tu perfil se creará al primer login.';
-        await this.router.navigate(['/login']);
+      // 2) Si aún no hay sesión (confirmación por email), avisamos y vamos al login
+      if (!usuario) {
+        this.mensajeInformativo =
+          'Revisá tu correo para confirmar la cuenta. Tu perfil se creará al iniciar sesión por primera vez.';
+        await this.enrutador.navigate(['/login']);
         return;
       }
 
-      // 3) Crear/asegurar perfil
-      //    Si tu tabla aún tiene `age`, calculamos edad desde birthDate (back-compat).
-      // const payload: any = {
-      //   name: this.form.name || undefined,
-      //   birth_date: this.form.birthDate || undefined,
-      //   age: this.form.birthDate ? this.calcAge(this.form.birthDate) : undefined
-      // };
-      //await this.auth.ensureProfile(user, payload);
-      const payload: any = {
-        first_name: this.form.first_name || undefined,
-        last_name: this.form.last_name || undefined,
-        birth_date: this.form.birthDate || undefined,
-       // age: this.form.birthDate ? this.calcAge(this.form.birthDate) : undefined
+      // 3) (Opcional futuro) Guardar/actualizar perfil en tu tabla propia
+      //    Si tu esquema usa 'edad', podés calcularla así:
+      // const edad = this.formulario.fechaNacimiento
+      //   ? this.calcularEdad(this.formulario.fechaNacimiento)
+      //   : undefined;
+      //
+      // insertar/actualizar en 'users_data' con:
+      // await this.autenticacion.client.from('users_data').upsert({
+      //   auth_id: usuario.id,
+      //   nombre: this.formulario.nombre || null,
+      //   apellido: this.formulario.apellido || null,
+      //   fecha_nacimiento: this.formulario.fechaNacimiento || null,
+      //   edad
+      // });
 
-       age: this.form.birthDate ? this.calcAge(this.form.birthDate) : undefined
-
-        
-      };
-
-
-      // 4) Ir a Home
-      await this.router.navigate(['/home']);
-    } catch (err: any) {
-      console.error(err);
-      this.errorMsg = err?.message ?? 'No se pudo registrar.';
+      // 4) Ir al Home
+      await this.enrutador.navigate(['/home']);
+    } catch (e: any) {
+      console.error(e);
+      this.mensajeDeError = e?.message ?? 'No se pudo completar el registro.';
     } finally {
-      this.loading = false;
+      this.cargando = false;
     }
   }
 
-  // Helper: calcula edad si tu schema todavía usa `age`
-  private calcAge(iso: string): number {
-    const d = new Date(iso);
-    const now = new Date();
-    let age = now.getFullYear() - d.getFullYear();
-    const m = now.getMonth() - d.getMonth();
-    if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
-    return age;
+  // Utilidad: calcular edad a partir de una fecha ISO (YYYY-MM-DD)
+  private calcularEdad(fechaIso: string): number {
+    const d = new Date(fechaIso);
+    const ahora = new Date();
+    let edad = ahora.getFullYear() - d.getFullYear();
+    const mes = ahora.getMonth() - d.getMonth();
+    if (mes < 0 || (mes === 0 && ahora.getDate() < d.getDate())) edad--;
+    return edad;
   }
 }
+
+
+
+
+// // src/app/components/register/register.component.ts
+// import { Component } from '@angular/core';
+// import { FormsModule } from '@angular/forms';
+// import { Router, RouterLink } from '@angular/router';
+// import { CommonModule } from '@angular/common';
+// import { AuthService } from '../services/auth.service';
+
+// @Component({
+//   standalone: true,
+//   selector: 'app-register',
+//   imports: [FormsModule, RouterLink, CommonModule],
+//   templateUrl: './register.html',
+//   styleUrls: ['./register.css']   // ← plural
+// })
+// export class RegisterComponent {
+//   form = { email: '', password: '', first_name: '', last_name: '', birthDate: '' }; // ← fecha de nacimiento
+//   loading = false;
+//   mensajeDeError = '';
+//   infoMsg = '';
+
+//   constructor(private router: Router, private auth: AuthService) {}
+
+//   async registrarse() {
+//     if (this.loading) return;
+//     this.loading = true;
+//     this.mensajeDeError = '';
+//     this.infoMsg = '';
+
+//     try {
+//       // 1) Crear usuario
+//       const { data, error } = await this.auth.client.auth.signUp({
+//         email: this.form.email.trim(),
+//         password: this.form.password,
+//         options: { emailRedirectTo: window.location.origin + '/login' }
+//       });
+//       if (error) throw error;
+
+//       const user = data.user ?? null;
+
+//       // 2) Si no hay sesión aún (confirmación por mail), avisamos y vamos a login
+//       if (!user) {
+//         this.infoMsg = 'Revisá tu email para confirmar la cuenta. Tu perfil se creará al primer login.';
+//         await this.router.navigate(['/login']);
+//         return;
+//       }
+
+//       // 3) Crear/asegurar perfil
+//       //    Si tu tabla aún tiene `age`, calculamos edad desde birthDate (back-compat).
+//       // const payload: any = {
+//       //   name: this.form.name || undefined,
+//       //   birth_date: this.form.birthDate || undefined,
+//       //   age: this.form.birthDate ? this.calcAge(this.form.birthDate) : undefined
+//       // };
+//       //await this.auth.ensureProfile(user, payload);
+//       const payload: any = {
+//         first_name: this.form.first_name || undefined,
+//         last_name: this.form.last_name || undefined,
+//         birth_date: this.form.birthDate || undefined,
+//        // age: this.form.birthDate ? this.calcAge(this.form.birthDate) : undefined
+
+//        age: this.form.birthDate ? this.calcAge(this.form.birthDate) : undefined
+
+        
+//       };
+
+
+//       // 4) Ir a Home
+//       await this.router.navigate(['/home']);
+//     } catch (err: any) {
+//       console.error(err);
+//       this.mensajeDeError = err?.message ?? 'No se pudo registrar.';
+//     } finally {
+//       this.loading = false;
+//     }
+//   }
+
+//   // Helper: calcula edad si tu schema todavía usa `age`
+//   private calcAge(iso: string): number {
+//     const d = new Date(iso);
+//     const now = new Date();
+//     let age = now.getFullYear() - d.getFullYear();
+//     const m = now.getMonth() - d.getMonth();
+//     if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+//     return age;
+//   }
+// }
 
 
 

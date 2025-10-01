@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { LogsListComponent } from './logs-list/logs-list.component';
-import { HangmanComponent } from './ahorcado/ahorcado.component';
+import { AhorcadoComponent } from './ahorcado/ahorcado.component';
 import { MayorMenorComponent } from './mayor-menor/mayor-menor.component';
 import { DuelComponent } from './duel/duel.component';
 import { AuthGuard } from './guards/auth.guard';
@@ -30,7 +30,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'ahorcado', pathMatch: 'full' },
-      { path: 'ahorcado', component: HangmanComponent },
+      { path: 'ahorcado', component: AhorcadoComponent },
       { path: 'mayor-menor', component: MayorMenorComponent },
       { path: 'preguntados', component: DuelComponent },
       { path: 'flowfree', component: FlowFreeComponent },
