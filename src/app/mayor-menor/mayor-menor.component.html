@@ -11,23 +11,18 @@
   </div>
 
   <div class="controls">
-    <button (click)="makeGuess('higher')">Mayor ↑</button>
-    <button (click)="makeGuess('equal')">Igual =</button>
-    <button (click)="makeGuess('lower')">Menor ↓</button>
+    <button (click)="makeGuess('mayor')">Mayor ↑</button>
+    <button (click)="makeGuess('igual')">Igual =</button>
+    <button (click)="makeGuess('menor')">Menor ↓</button>
   </div>
 </div>
 
 <div class="game-over" *ngIf="gameOver">
-  <h2>¡Game Over!</h2>
+  <h2>¡Fin del juego!</h2>
   <p>Tu puntuación: {{ score }}</p>
   <p>Récord: {{ bestScore }}</p>
   <button (click)="startGame()">Jugar de nuevo</button>
 </div>
-
-<!-- 
-<div class="mt-3">
-  <a routerLink="/home" class="btn btn-outline-primary">Volver al Home</a>
-</div> -->
 
 
 
@@ -54,6 +49,6 @@
   <p>Tu puntuación: {{ score }}</p>
   <p>Récord: {{ bestScore }}</p>
   <button (click)="startGame()">Jugar de nuevo</button>
-</div>
+</div> -->
 
- -->
+

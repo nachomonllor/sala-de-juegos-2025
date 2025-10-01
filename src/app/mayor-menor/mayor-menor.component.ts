@@ -9,6 +9,8 @@ export interface Card {
   label: string;          // '1'..'7', '10', '11', '12'
 }
 
+type Adivinanza = 'mayor' | 'menor' | 'igual';
+
 @Component({
   selector: 'app-mayor-menor',
   standalone: true,
@@ -88,7 +90,7 @@ export class MayorMenorComponent implements OnInit {
     return card;
   }
 
-  makeGuess(guess: 'higher' | 'lower' | 'equal') {
+  makeGuess(guess: Adivinanza) {
     if (this.gameOver) {
       this.finishGame();
       return;
@@ -102,15 +104,15 @@ export class MayorMenorComponent implements OnInit {
     const nVal = this.nextCard.value;
     let correct = false;
 
-    if (guess === 'higher') {
+    if (guess === 'mayor') {
       if (nVal > cVal) correct = true;
       else if (nVal === cVal && this.suitRank[this.nextCard.suit] > this.suitRank[this.currentCard.suit])
         correct = true;
-    } else if (guess === 'lower') {
+    } else if (guess === 'menor') {
       if (nVal < cVal) correct = true;
       else if (nVal === cVal && this.suitRank[this.nextCard.suit] < this.suitRank[this.currentCard.suit])
         correct = true;
-    } else { // equal
+    } else { // 'igual'
       if (nVal === cVal && this.nextCard.suit === this.currentCard.suit)
         correct = true;
     }
@@ -148,6 +150,163 @@ export class MayorMenorComponent implements OnInit {
     return `assets/cards/${card.label}_${card.suit}.JPG`;
   }
 }
+
+
+
+
+
+// // mayor-menor.component.ts
+// import { CommonModule } from '@angular/common';
+// import { Component, OnInit } from '@angular/core';
+// import { FormsModule } from '@angular/forms';
+
+// export interface Card {
+//   suit: 'oro' | 'espada' | 'copa' | 'basto';
+//   value: number;          // 1–7, 10–12
+//   label: string;          // '1'..'7', '10', '11', '12'
+// }
+
+// @Component({
+//   selector: 'app-mayor-menor',
+//   standalone: true,
+//   imports: [CommonModule, FormsModule],
+//   templateUrl: './mayor-menor.component.html',
+//   styleUrls: ['./mayor-menor.component.css']
+// })
+// export class MayorMenorComponent implements OnInit {
+
+//    // Ranking de palos: oro > espada > copa > basto 
+//   private suitRank: Record<Card['suit'], number> = {
+//     basto: 1,
+//     copa:  2,
+//     espada:3,
+//     oro:   4
+//   };
+
+//   deck: Card[] = [];
+//   currentCard!: Card;
+//   nextCard!: Card;
+
+//   score = 0;
+//   lives = 3;
+//   bestScore = 0;
+//   gameOver = false;
+
+//   ngOnInit() {
+//     this.bestScore = Number(localStorage.getItem('bestScore') || '0');
+//     this.startGame();
+//   }
+
+//   startGame() {
+//     this.gameOver = false;
+//     this.score = 0;
+//     this.lives = 3;
+//     this.buildDeck();
+//     this.shuffleDeck();
+//     // Cargar carta actual y próxima
+//     this.currentCard = this.drawCard();
+//     this.nextCard    = this.drawCard();
+//     console.log(`Carta actual: ${this.currentCard.label} de ${this.currentCard.suit}`);
+//     console.log(`Próxima carta: ${this.nextCard.label} de ${this.nextCard.suit}`);
+//   }
+
+//   buildDeck() {
+//     this.deck = [];
+//     const suits: Card['suit'][] = ['oro', 'espada', 'copa', 'basto'];
+//     const cardDefs = [
+//       { value: 1, label: '1' },
+//       { value: 2, label: '2' },
+//       { value: 3, label: '3' },
+//       { value: 4, label: '4' },
+//       { value: 5, label: '5' },
+//       { value: 6, label: '6' },
+//       { value: 7, label: '7' },
+//       { value: 10, label: '10' },
+//       { value: 11, label: '11' },
+//       { value: 12, label: '12' },
+//     ];
+//     for (let suit of suits) {
+//       for (let card of cardDefs) {
+//         this.deck.push({ suit, value: card.value, label: card.label });
+//       }
+//     }
+//   }
+
+//   shuffleDeck() {
+//     for (let i = this.deck.length - 1; i > 0; i--) {
+//       const j = Math.floor(Math.random() * (i + 1));
+//       [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+//     }
+//   }
+
+//   drawCard(): Card {
+//     const card = this.deck.pop();
+//     if (!card) throw new Error('No quedan más cartas');
+//     return card;
+//   }
+
+//   makeGuess(guess: 'higher' | 'lower' | 'equal') {
+//     if (this.gameOver) {
+//       this.finishGame();
+//       return;
+//     }
+
+//     // Mostrar en consola carta actual y próxima antes de evaluar
+//     console.log(`Carta actual: ${this.currentCard.label} de ${this.currentCard.suit}`);
+//     console.log(`Próxima carta: ${this.nextCard.label} de ${this.nextCard.suit}`);
+
+//     const cVal = this.currentCard.value;
+//     const nVal = this.nextCard.value;
+//     let correct = false;
+
+//     if (guess === 'higher') {
+//       if (nVal > cVal) correct = true;
+//       else if (nVal === cVal && this.suitRank[this.nextCard.suit] > this.suitRank[this.currentCard.suit])
+//         correct = true;
+//     } else if (guess === 'lower') {
+//       if (nVal < cVal) correct = true;
+//       else if (nVal === cVal && this.suitRank[this.nextCard.suit] < this.suitRank[this.currentCard.suit])
+//         correct = true;
+//     } else { // equal
+//       if (nVal === cVal && this.nextCard.suit === this.currentCard.suit)
+//         correct = true;
+//     }
+
+//     // Avanzar: la próxima se convierte en actual
+//     this.currentCard = this.nextCard;
+//     // Extraer nueva próxima, si quedan cartas
+//     if (this.deck.length > 0) {
+//       this.nextCard = this.drawCard();
+//     }
+
+//     // Ajustar puntuación o penalización
+//     if (correct) {
+//       this.score++;
+//     } else {
+//       this.lives--;
+//       if (this.lives <= 0) this.finishGame();
+//     }
+
+//     // Mostrar la nueva próxima carta en consola (opcional)
+//     if (!this.gameOver && this.deck.length > 0) {
+//       console.log(`Nueva próxima carta: ${this.nextCard.label} de ${this.nextCard.suit}`);
+//     }
+//   }
+
+//   finishGame() {
+//     this.gameOver = true;
+//     if (this.score > this.bestScore) {
+//       this.bestScore = this.score;
+//       localStorage.setItem('bestScore', this.bestScore.toString());
+//     }
+//   }
+
+//   getCardImage(card: Card): string {
+//     return `assets/cards/${card.label}_${card.suit}.JPG`;
+//   }
+// }
+
+
 
 
 // ------------------------------------------------------------------------------------------------------------------------
