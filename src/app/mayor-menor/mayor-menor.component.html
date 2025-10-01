@@ -1,28 +1,55 @@
-<div class="game-container" *ngIf="!gameOver">
+<div class="game-container" *ngIf="!juegoTerminado">
   <div class="scoreboard">
-    <span>💖 Vidas: {{ lives }}</span>
-    <span>⭐ Puntuación: {{ score }}</span>
-    <span>🏆 Récord: {{ bestScore }}</span>
+    <span>💖 Vidas: {{ vidas }}</span>
+    <span>⭐ Puntuación: {{ puntaje }}</span>
+    <span>🏆 Récord: {{ mejorPuntaje }}</span>
   </div>
 
   <div class="card-area">
-    <!-- Siempre muestra la carta actual (que se actualiza tras cada elección) -->
-    <img [src]="getCardImage(currentCard)" alt="Carta actual" class="card">
+    <img
+      [src]="obtenerImagenCarta(cartaActual)"
+      alt="Carta actual"
+      class="card"
+    />
   </div>
 
   <div class="controls">
-    <button (click)="makeGuess('mayor')">Mayor ↑</button>
-    <button (click)="makeGuess('igual')">Igual =</button>
-    <button (click)="makeGuess('menor')">Menor ↓</button>
+    <button (click)="hacerAdivinanza('mayor')">Mayor ↑</button>
+    <button (click)="hacerAdivinanza('igual')">Igual =</button>
+    <button (click)="hacerAdivinanza('menor')">Menor ↓</button>
   </div>
 </div>
 
-<div class="game-over" *ngIf="gameOver">
+<!-- <div class="game-over" *ngIf="juegoTerminado">
   <h2>¡Fin del juego!</h2>
-  <p>Tu puntuación: {{ score }}</p>
-  <p>Récord: {{ bestScore }}</p>
-  <button (click)="startGame()">Jugar de nuevo</button>
+  <p>Tu puntuación: {{ puntaje }}</p>
+  <p>Récord: {{ mejorPuntaje }}</p>
+  <button (click)="iniciarJuego()">Jugar de nuevo</button>
+</div> -->
+
+<div class="game-over" *ngIf="juegoTerminado">
+  <div class="go-card">
+    <div class="go-header">
+      <h2>¡Fin del juego!</h2>
+      <span *ngIf="nuevoRecord" class="go-badge">¡Nuevo récord!</span>
+    </div>
+
+    <div class="go-stats">
+      <div class="go-stat">
+        <span class="go-label">Puntuación</span>
+        <span class="go-value">{{ puntaje }}</span>
+      </div>
+      <div class="go-sep" aria-hidden="true"></div>
+      <div class="go-stat">
+        <span class="go-label">Récord</span>
+        <span class="go-value">{{ mejorPuntaje }}</span>
+      </div>
+    </div>
+
+    <button class="go-button" (click)="iniciarJuego()">Jugar de nuevo</button>
+  </div>
 </div>
+
 
 
 

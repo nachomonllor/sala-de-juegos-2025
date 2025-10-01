@@ -1,202 +1,240 @@
-/* mayor-menor.component.css */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
+/* ===== Estilos Mayor–Menor ===== */
 :host {
+  /* Paleta (modificá a gusto) */
+ 
+  --bg-2: #0d2e26;          /* degradado */
+  --panel-bg: rgba(255, 255, 255, 0.88);
+  --panel-border: rgba(0, 0, 0, 0.08);
+  --text: #0b1a16;
+  --muted: #2a3f39;
+
+  --ok: hsl(142 72% 35%);   /* Mayor */
+  --ok-ink: white;
+  --warn: hsl(0 72% 45%);   /* Menor */
+  --warn-ink: white;
+  --mid: hsl(220 10% 50%);  /* Igual */
+  --mid-ink: white;
+
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(0,0,0,.25);
+
   display: block;
-  font-family: 'Poppins', sans-serif;
-  text-align: center;
-  color: #333;
+  min-height: 100dvh;
+  background: radial-gradient(1200px 800px at 30% 20%, var(--bg-1), var(--bg-2));
+  color: var(--text);
 }
 
+/* Contenedor principal in-game */
 .game-container {
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  min-height: 100dvh;
+  padding: 24px clamp(16px, 4vw, 32px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 24px;
+  align-items: start;
 }
 
+/* Marcador: vidas, puntaje, récord */
 .scoreboard {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  align-items: center;
+  justify-content: center;
   font-weight: 600;
+  color: #e8f3ef;
+  text-shadow: 0 1px 0 rgba(0,0,0,.25);
 }
 
 .scoreboard span {
-  font-size: 1.1rem;
-  letter-spacing: 0.5px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.1);
+  padding: 8px 12px;
+  border-radius: 999px;
+  backdrop-filter: blur(2px);
 }
 
+/* Panel de carta centrado */
 .card-area {
-  margin: 1.5rem 0;
+  display: grid;
+  place-items: center;
+  margin-inline: auto;
+  width: min(92vw, 520px);
+  padding: clamp(16px, 3vw, 24px);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(3px);
 }
 
+/* Imagen de carta */
 .card {
-  width: 160px;
+  width: min(70vw, 280px);
   height: auto;
-  border-radius: 12px;
-  box-shadow: 0 6px 10px rgba(0,0,0,0.15);
-  transition: transform 0.2s ease-in-out;
-}
-
-.card:hover {
-  transform: scale(1.05);
-}
-
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.controls button {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  font-size: 1.1rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  background-color: #4a90e2;
-  color: #fff;
-  transition: background-color 0.2s;
-}
-
-.controls button:hover {
-  background-color: #357ab8;
-}
-
-.game-over {
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  background: #ffecec;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.game-over h2 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-  color: #d84315;
-  letter-spacing: 1px;
-}
-
-.game-over p {
-  font-size: 1.1rem;
-  margin: 0.25rem 0;
-}
-
-.game-over button {
-  margin-top: 1rem;
-  padding: 0.75rem 1.25rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 0.5rem;
-  background-color: #43a047;
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.game-over button:hover {
-  background-color: #388e3c;
-}
-
-
-
-/* mayor-menor.component.css */
-
-/*
-:host {
   display: block;
-  font-family: 'Arial', sans-serif;
-  text-align: center;
-  color: #333;
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgba(0,0,0,.25);
+  image-rendering: auto;
+  object-fit: contain;
+  transition: transform .12s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
 }
 
-.game-container {
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 1rem;
-  background: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.scoreboard {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.card-area {
-  margin: 1rem 0;
-}
-
-.card {
-  width: 150px;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
+/* Controles (botones) */
 .controls {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: min(92vw, 520px);
+  margin: 0 auto;
 }
 
 .controls button {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 0.5rem;
+  appearance: none;
+  border: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: clamp(14px, 2.4vw, 16px);
+  letter-spacing: .2px;
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
   cursor: pointer;
-  background-color: #2196f3;
-  color: #fff;
-  transition: background-color 0.2s;
+  transition: transform .08s ease, filter .08s ease, opacity .2s ease;
 }
 
-.controls button:hover {
-  background-color: #1976d2;
+/* Colores por posición: 1) Mayor, 2) Igual, 3) Menor */
+.controls button:nth-child(1) {
+  background: var(--ok);
+  color: var(--ok-ink);
+}
+.controls button:nth-child(2) {
+  background: var(--mid);
+  color: var(--mid-ink);
+}
+.controls button:nth-child(3) {
+  background: var(--warn);
+  color: var(--warn-ink);
 }
 
+.controls button:hover { filter: brightness(1.05); }
+.controls button:active { transform: translateY(1px); }
+.controls button:focus-visible {
+  outline: 3px solid rgba(255,255,255,.7);
+  outline-offset: 2px;
+}
+.controls button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+
+/* —— FIN DE JUEGO PROLIJO —— */
 .game-over {
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 1rem;
+  min-height: 100dvh;
+  padding: 24px;
+  display: grid;
+  place-items: center;
 }
 
-.game-over h2 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  color: #e53935;
+.go-card {
+  width: min(92vw, 440px);
+  background: var(--panel-bg, rgba(255,255,255,0.95));
+  border: 1px solid var(--panel-border, rgba(0,0,0,0.08));
+  border-radius: var(--radius, 16px);
+  box-shadow: var(--shadow, 0 10px 30px rgba(0,0,0,.25));
+  padding: 22px;
+  color: var(--text, #0b1a16);
 }
 
-.game-over button {
-  padding: 0.75rem 1.25rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 0.5rem;
-  background-color: #4caf50;
-  color: #fff;
+.go-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.go-header h2 {
+  margin: 0;
+  font-size: clamp(20px, 3.6vw, 28px);
+}
+
+.go-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: .2px;
+  color: white;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  box-shadow: 0 4px 10px rgba(22,163,74,.35);
+}
+
+.go-stats {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 6px 0 18px;
+}
+
+.go-stat {
+  text-align: center;
+  background: rgba(0,0,0,.04);
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 12px;
+  padding: 12px 10px;
+}
+
+.go-label {
+  display: block;
+  font-size: 12px;
+  color: #5b6b66;
+  margin-bottom: 4px;
+}
+.go-value {
+  font-size: clamp(22px, 5vw, 28px);
+  font-weight: 800;
+}
+
+.go-sep {
+  width: 1px;
+  height: 46px;
+  background: rgba(0,0,0,.08);
+  border-radius: 1px;
+}
+
+.go-button {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  background: var(--ok, #169c53);
+  color: var(--ok-ink, #fff);
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
   cursor: pointer;
-  transition: background-color 0.2s;
+}
+.go-button:hover { filter: brightness(1.05); }
+.go-button:active { transform: translateY(1px); }
+.go-button:focus-visible {
+  outline: 3px solid rgba(0,0,0,.18);
+  outline-offset: 2px;
 }
 
-.game-over button:hover {
-  background-color: #388e3c;
+
+
+/* —— Responsivo —— */
+@media (max-width: 420px) {
+  .scoreboard span { font-size: 13px; }
+  .controls { gap: 10px; }
+  .controls button { padding: 10px 12px; }
 }
-*/
+
+@media (min-width: 900px) {
+  .card { width: 320px; }
+}
