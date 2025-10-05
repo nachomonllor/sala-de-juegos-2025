@@ -1,4 +1,36 @@
+<div class="contenedor-registro">
+  <h3>Registro</h3>
 
+  <input type="email" placeholder="Correo electrónico"
+         [(ngModel)]="formulario.email" class="campo-registro" />
+  <input type="password" placeholder="Contraseña"
+         [(ngModel)]="formulario.contrasenia" class="campo-registro" />
+
+  <input type="text" placeholder="Nombre"
+         [(ngModel)]="formulario.nombre" class="campo-registro" />
+  <input type="text" placeholder="Apellido"
+         [(ngModel)]="formulario.apellido" class="campo-registro" />
+  <input type="date" placeholder="Fecha de nacimiento"
+         [(ngModel)]="formulario.fechaNacimiento" class="campo-registro" />
+
+  <button (click)="registrarse()" class="boton-registro" [disabled]="cargando">
+    {{ cargando ? 'Registrando…' : 'Registrarse' }}
+  </button>
+
+  <p *ngIf="mensajeInformativo" class="mensaje-info">{{ mensajeInformativo }}</p>
+  <p *ngIf="mensajeDeError" class="mensaje-error">{{ mensajeDeError }}</p>
+
+  <div class="contenedor-enlace-inicio">
+    <a routerLink="/login" class="enlace-inicio">Iniciar sesión</a>
+  </div>
+</div>
+
+
+
+
+
+
+<!-- 
 <div class="contenedor-registro">
   <h3>Registro</h3>
 
@@ -44,7 +76,9 @@
   <div class="contenedor-enlace-inicio">
     <a routerLink="/login" class="enlace-inicio">Iniciar sesión</a>
   </div>
-</div>
+</div> -->
+
+
 
 
 <!-- <div class="register-container">
