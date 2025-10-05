@@ -1,4 +1,57 @@
 <div class="login-container">
+  <h3>Iniciar Sesión</h3>
+
+  <label for="correo">Email:</label>
+  <input
+    id="correo"
+    type="email"
+    placeholder="Email"
+    [(ngModel)]="formulario.correo"
+    class="login-input"
+  />
+
+  <label for="contrasenia">Contraseña:</label>
+  <input
+    id="contrasenia"
+    type="password"
+    placeholder="Contraseña"
+    [(ngModel)]="formulario.contrasenia"
+    class="login-input"
+  />
+
+  <button (click)="ingresar()" class="login-button" [disabled]="cargando">
+    {{ cargando ? 'Ingresando…' : 'Ingresar' }}
+  </button>
+
+  <p *ngIf="mensajeDeError" class="error">{{ mensajeDeError }}</p>
+
+  <!-- ACCESO RÁPIDO  -->
+  <div class="quick-access" *ngIf="mostrarAccesoRapido && usuariosAccesoRapido?.length">
+    <div class="quick-title">Acceso rápido:</div>
+
+    <div class="quick-grid">
+      <button
+        type="button"
+        class="quick-btn"
+        *ngFor="let u of usuariosAccesoRapido"
+        (click)="autocompletarAccesoRapido(u)"
+        [disabled]="cargando"
+        [attr.aria-label]="'Completar con ' + u.etiqueta">
+        <span class="icon">👤</span>
+        <span>{{ u.etiqueta }}</span>
+      </button>
+    </div>
+    <small class="hint">Los botones completan email y contraseña. Luego presioná <b>Ingresar</b>.</small>
+  </div>
+
+  <div class="register-link-container">
+    <a routerLink="/register" class="register-link">¿No tienes cuenta? Regístrate</a>
+  </div>
+</div>
+
+
+
+<!-- <div class="login-container">
   <h3>Login</h3>
 
   <input type="email" placeholder="Email" [(ngModel)]="form.email" class="login-input" />
@@ -11,4 +64,4 @@
   <div class="register-link-container">
     <a routerLink="/register" class="register-link">Crear cuenta</a>
   </div>
-</div>
+</div> -->

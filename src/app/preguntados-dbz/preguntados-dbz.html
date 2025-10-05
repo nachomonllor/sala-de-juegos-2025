@@ -13,14 +13,10 @@
       </div>
 
       <div class="options">
-        <button
-          *ngFor="let opcion of p.options"
-          type="button"
-          class="btn option"
+        <button *ngFor="let opcion of p.options" type="button" class="btn option"
           [class.correct]="respondida() && opcion.id === p.correct.id"
           [class.wrong]="respondida() && opcion.id === idSeleccionado() && opcion.id !== p.correct.id"
-          [disabled]="respondida()"
-          (click)="elegir(opcion.id)">
+          [disabled]="respondida()" (click)="elegir(opcion.id)">
           {{ opcion.name }}
         </button>
       </div>
