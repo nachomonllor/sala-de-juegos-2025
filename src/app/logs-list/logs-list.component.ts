@@ -33,6 +33,7 @@ export class LogsListComponent implements OnInit {
   }
 }
 
+
 // export class LogsListComponent implements OnInit {
 //   logs: LogEntry[] = [];
 
