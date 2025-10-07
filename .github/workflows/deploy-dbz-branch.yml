@@ -1,0 +1,31 @@
+name: Deploy preview (supabase-recur-deploy-modulos-dbz)
+
+on:
+  push:
+    branches:
+      - supabase-recur-deploy-modulos-dbz
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+      - run: npm run build -- --configuration=production
+      - run: npm install -g firebase-tools
+
+      # Canal = nombre de la rama (ya es válido)
+      - name: Deploy preview channel
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          firebase --project sala-de-juegos-2025 \
+            hosting:channel:deploy supabase-recur-deploy-modulos-dbz \
+            --only hosting:sala-de-juegos-2025 \
+            --expires 30d \
+            --token "$FIREBASE_TOKEN"

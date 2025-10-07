@@ -7,6 +7,9 @@ export const environment = {
     { etiqueta: 'Nacho', correo: 'nachomonllor@hotmail.com', contrasenia: '123456' },
     { etiqueta: 'Hector', correo: 'hector@hotmail.com', contrasenia: '123456' },
   ],
+  dbzBaseUrl: '/dbz-api'   //   el proxy local  
+
+
 };
 
 

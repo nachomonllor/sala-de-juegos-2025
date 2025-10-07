@@ -1,26 +1,17 @@
 {
   "hosting": {
+    "site": "sala-de-juegos-2025",
     "public": "dist/sala-de-juegos-2025/browser",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      { "source": "**", "destination": "/index.html" }
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [{ "source": "**", "destination": "/index.html" }],
     "headers": [
       {
         "source": "**/*.{js,css,ico,png,jpg,jpeg,webp,svg,woff,woff2,json}",
-        "headers": [
-          { "key": "Cache-Control", "value": "public,max-age=31536000,immutable" }
-        ]
-        },
+        "headers": [{ "key": "Cache-Control", "value": "public,max-age=31536000,immutable" }]
+      },
       {
         "source": "index.html",
-        "headers": [
-          { "key": "Cache-Control", "value": "no-cache" }
-        ]
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       }
     ]
   }

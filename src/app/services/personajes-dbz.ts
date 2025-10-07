@@ -3,6 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, from, Observable } from 'rxjs';
 import { OpcionPregunta, Pregunta } from '../models/preguntados-dbz.model';
 
+import { environment } from '../../environments/environment';
+
+
 @Injectable({ providedIn: 'root' })
 export class PersonajesDbzService {
   private http = inject(HttpClient);
@@ -10,8 +13,16 @@ export class PersonajesDbzService {
   private readonly TOTAL = 58;   // aproximado (se puede ajustar)
   private readonly LIMITE = 20;
 
+  // private url(page: number, limit: number) {
+  //   return `${environment.dbzBaseUrl}/api/characters?page=${page}&limit=${limit}`;
+  // }
+
+  // private url(page: number, limit: number) {
+  //   return `/dbz-api/api/characters?page=${page}&limit=${limit}`;
+  // }
+
   private url(page: number, limit: number) {
-    return `/dbz-api/api/characters?page=${page}&limit=${limit}`;
+    return `${environment.dbzBaseUrl}/api/characters?page=${page}&limit=${limit}`;
   }
 
   private toArray(resp: any): any[] {
