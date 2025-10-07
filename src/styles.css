@@ -24,3 +24,19 @@ body{
 }
 .home-fab:hover{ transform: translateY(-1px); filter: brightness(1.05); }
 .home-fab:active{ transform: translateY(0); filter: brightness(0.95); }
+
+.subnav-acciones{
+  display:flex; gap:.5rem; align-items:center;
+  padding:.5rem 1rem; border-top:1px solid rgba(0,0,0,.08);
+  background: rgba(0,0,0,.03);
+}
+
+.chip-accion{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:.35rem .9rem; border-radius:999px;
+  border:1px solid rgba(0,0,0,.12);
+  font-weight:600; text-decoration:none;
+  transition:transform .15s, box-shadow .15s;
+}
+.chip-accion:focus{ outline: 2px solid Highlight; outline-offset: 2px; }
+.chip-accion:hover{ transform: translateY(-1px); box-shadow:0 6px 14px rgba(0,0,0,.08); }

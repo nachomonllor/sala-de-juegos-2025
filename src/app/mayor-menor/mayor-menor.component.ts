@@ -42,18 +42,12 @@ export class MayorMenorComponent implements OnInit {
   t0 = performance.now();
   rachaMax = 0;
 
-  constructor(private score: ScoreService) { }
+  // NUEVO: llevar la racha actual y un guard para el save
+  private rachaActual = 0;           // NUEVO
+  private scoreGuardado = false;     // NUEVO
 
-  terminar() {
-    const duracionSec = Math.round((performance.now() - this.t0) / 1000);
-    const pts = pointsMayorMenor({ rachaMax: this.rachaMax, duracionSec });
-    this.score.recordScore({
-      gameCode: 'mayor_menor',
-      points: pts,
-      durationSec: duracionSec,
-      metaJson: { rachaMax: this.rachaMax }
-    }).catch(console.error);
-  }
+  //----------------------------------------------------------------
+  constructor(private score: ScoreService) { }
 
   ngOnInit() {
     // Migración de récord guardado (para no perder el valor anterior)
@@ -72,10 +66,29 @@ export class MayorMenorComponent implements OnInit {
     this.iniciarJuego();
   }
 
+  //   iniciarJuego() {
+  //   this.juegoTerminado = false;
+  //   this.puntaje = 0;
+  //   this.vidas = 3;
+  //   this.construirMazo();
+  //   this.barajarMazo();
+
+  //   this.cartaActual = this.robarCarta();
+  //   this.cartaSiguiente = this.robarCarta();
+
+  //   console.log(`Carta actual: ${this.cartaActual.etiqueta} de ${this.cartaActual.palo}`);
+  //   console.log(`Próxima carta: ${this.cartaSiguiente.etiqueta} de ${this.cartaSiguiente.palo}`);
+  // }
+
   iniciarJuego() {
     this.juegoTerminado = false;
+    this.scoreGuardado = false;     // NUEVO
     this.puntaje = 0;
     this.vidas = 3;
+    this.rachaActual = 0;           // NUEVO
+    this.rachaMax = 0;              // NUEVO
+    this.t0 = performance.now();    // NUEVO
+
     this.construirMazo();
     this.barajarMazo();
 
@@ -84,6 +97,76 @@ export class MayorMenorComponent implements OnInit {
 
     console.log(`Carta actual: ${this.cartaActual.etiqueta} de ${this.cartaActual.palo}`);
     console.log(`Próxima carta: ${this.cartaSiguiente.etiqueta} de ${this.cartaSiguiente.palo}`);
+  }
+
+  hacerAdivinanza(opcion: Adivinanza) {
+    if (this.juegoTerminado) return; // antes llamaba a finalizarJuego(); evitamos doble save
+
+    const valAct = this.cartaActual.valor;
+    const valSig = this.cartaSiguiente.valor;
+    let acierto = false;
+
+    if (opcion === 'mayor') {
+      if (valSig > valAct) acierto = true;
+      else if (valSig === valAct && this.jerarquiaPalo[this.cartaSiguiente.palo] > this.jerarquiaPalo[this.cartaActual.palo]) acierto = true;
+    } else if (opcion === 'menor') {
+      if (valSig < valAct) acierto = true;
+      else if (valSig === valAct && this.jerarquiaPalo[this.cartaSiguiente.palo] < this.jerarquiaPalo[this.cartaActual.palo]) acierto = true;
+    } else { // igual
+      if (valSig === valAct && this.cartaSiguiente.palo === this.cartaActual.palo) acierto = true;
+    }
+
+    // Avance de cartas
+    this.cartaActual = this.cartaSiguiente;
+    if (this.mazo.length > 0) {
+      this.cartaSiguiente = this.robarCarta();
+    }
+
+    // Puntaje/Vidas/Racha
+    if (acierto) {
+      this.puntaje++;
+      this.rachaActual++;                      // NUEVO
+      if (this.rachaActual > this.rachaMax) {  // NUEVO
+        this.rachaMax = this.rachaActual;      // NUEVO
+      }
+    } else {
+      this.rachaActual = 0;                    // NUEVO
+      this.vidas--;
+      if (this.vidas <= 0) this.finalizarJuego();  // ya lo tenías
+    }
+
+    // NUEVO: si se agotaron las cartas, terminar el juego
+    if (!this.juegoTerminado && this.mazo.length === 0) {
+      this.finalizarJuego();
+    }
+  }
+
+  finalizarJuego() {
+    this.juegoTerminado = true;
+    this.nuevoRecord = this.puntaje > this.mejorPuntaje;
+
+    if (this.nuevoRecord) {
+      this.mejorPuntaje = this.puntaje;
+      localStorage.setItem('mejorPuntaje', this.mejorPuntaje.toString());
+      localStorage.setItem('bestScore', this.mejorPuntaje.toString()); // compat
+    }
+
+    // PERSISTIR PUNTAJE (solo una vez)
+    if (!this.scoreGuardado) {
+      this.terminar();               // llama a ScoreService.recordScore(...)
+      this.scoreGuardado = true;
+    }
+  }
+
+  terminar() {
+    const duracionSec = Math.round((performance.now() - this.t0) / 1000);
+    const pts = pointsMayorMenor({ rachaMax: this.rachaMax, duracionSec });
+    this.score.recordScore({
+      gameCode: 'mayor_menor',
+      points: pts,
+      durationSec: duracionSec,
+      metaJson: { rachaMax: this.rachaMax }
+    }).catch(console.error);
   }
 
   construirMazo() {
@@ -122,68 +205,96 @@ export class MayorMenorComponent implements OnInit {
     return carta;
   }
 
-  hacerAdivinanza(opcion: Adivinanza) {
-    if (this.juegoTerminado) {
-      this.finalizarJuego();
-      return;
-    }
-
-    console.log(`Carta actual: ${this.cartaActual.etiqueta} de ${this.cartaActual.palo}`);
-    console.log(`Próxima carta: ${this.cartaSiguiente.etiqueta} de ${this.cartaSiguiente.palo}`);
-
-    const valAct = this.cartaActual.valor;
-    const valSig = this.cartaSiguiente.valor;
-    let acierto = false;
-
-    if (opcion === 'mayor') {
-      if (valSig > valAct) acierto = true;
-      else if (valSig === valAct && this.jerarquiaPalo[this.cartaSiguiente.palo] > this.jerarquiaPalo[this.cartaActual.palo]) {
-        acierto = true;
-      }
-    } else if (opcion === 'menor') {
-      if (valSig < valAct) acierto = true;
-      else if (valSig === valAct && this.jerarquiaPalo[this.cartaSiguiente.palo] < this.jerarquiaPalo[this.cartaActual.palo]) {
-        acierto = true;
-      }
-    } else { // 'igual'
-      if (valSig === valAct && this.cartaSiguiente.palo === this.cartaActual.palo) {
-        acierto = true;
-      }
-    }
-
-    // Avance de cartas
-    this.cartaActual = this.cartaSiguiente;
-    if (this.mazo.length > 0) {
-      this.cartaSiguiente = this.robarCarta();
-    }
-
-    // Puntaje/Vidas
-    if (acierto) {
-      this.puntaje++;
-    } else {
-      this.vidas--;
-      if (this.vidas <= 0) this.finalizarJuego();
-    }
-
-    if (!this.juegoTerminado && this.mazo.length > 0) {
-      console.log(`Nueva próxima carta: ${this.cartaSiguiente.etiqueta} de ${this.cartaSiguiente.palo}`);
-    }
-  }
-
-  finalizarJuego() {
-    this.juegoTerminado = true;
-    this.nuevoRecord = this.puntaje > this.mejorPuntaje;
-
-    if (this.nuevoRecord) {
-      this.mejorPuntaje = this.puntaje;
-      localStorage.setItem('mejorPuntaje', this.mejorPuntaje.toString());
-      localStorage.setItem('bestScore', this.mejorPuntaje.toString()); // compat
-    }
-  }
-
   obtenerImagenCarta(carta: Carta): string {
     // Mantengo la convención de nombres y extensión original
     return `assets/cards/${carta.etiqueta}_${carta.palo}.JPG`;
   }
-  
+
 }
+
+
+// ----------------------------------------------------------------
+
+// iniciarJuego() {
+//   this.juegoTerminado = false;
+//   this.puntaje = 0;
+//   this.vidas = 3;
+//   this.construirMazo();
+//   this.barajarMazo();
+
+//   this.cartaActual = this.robarCarta();
+//   this.cartaSiguiente = this.robarCarta();
+
+//   console.log(`Carta actual: ${this.cartaActual.etiqueta} de ${this.cartaActual.palo}`);
+//   console.log(`Próxima carta: ${this.cartaSiguiente.etiqueta} de ${this.cartaSiguiente.palo}`);
+// }
+
+// terminar() {
+//   const duracionSec = Math.round((performance.now() - this.t0) / 1000);
+//   const pts = pointsMayorMenor({ rachaMax: this.rachaMax, duracionSec });
+//   this.score.recordScore({
+//     gameCode: 'mayor_menor',
+//     points: pts,
+//     durationSec: duracionSec,
+//     metaJson: { rachaMax: this.rachaMax }
+//   }).catch(console.error);
+// }
+
+// hacerAdivinanza(opcion: Adivinanza) {
+//   if (this.juegoTerminado) {
+//     this.finalizarJuego();
+//     return;
+//   }
+
+//   console.log(`Carta actual: ${this.cartaActual.etiqueta} de ${this.cartaActual.palo}`);
+//   console.log(`Próxima carta: ${this.cartaSiguiente.etiqueta} de ${this.cartaSiguiente.palo}`);
+
+//   const valAct = this.cartaActual.valor;
+//   const valSig = this.cartaSiguiente.valor;
+//   let acierto = false;
+
+//   if (opcion === 'mayor') {
+//     if (valSig > valAct) acierto = true;
+//     else if (valSig === valAct && this.jerarquiaPalo[this.cartaSiguiente.palo] > this.jerarquiaPalo[this.cartaActual.palo]) {
+//       acierto = true;
+//     }
+//   } else if (opcion === 'menor') {
+//     if (valSig < valAct) acierto = true;
+//     else if (valSig === valAct && this.jerarquiaPalo[this.cartaSiguiente.palo] < this.jerarquiaPalo[this.cartaActual.palo]) {
+//       acierto = true;
+//     }
+//   } else { // 'igual'
+//     if (valSig === valAct && this.cartaSiguiente.palo === this.cartaActual.palo) {
+//       acierto = true;
+//     }
+//   }
+
+//   // Avance de cartas
+//   this.cartaActual = this.cartaSiguiente;
+//   if (this.mazo.length > 0) {
+//     this.cartaSiguiente = this.robarCarta();
+//   }
+
+//   // Puntaje/Vidas
+//   if (acierto) {
+//     this.puntaje++;
+//   } else {
+//     this.vidas--;
+//     if (this.vidas <= 0) this.finalizarJuego();
+//   }
+
+//   if (!this.juegoTerminado && this.mazo.length > 0) {
+//     console.log(`Nueva próxima carta: ${this.cartaSiguiente.etiqueta} de ${this.cartaSiguiente.palo}`);
+//   }
+// }
+
+// finalizarJuego() {
+//   this.juegoTerminado = true;
+//   this.nuevoRecord = this.puntaje > this.mejorPuntaje;
+
+//   if (this.nuevoRecord) {
+//     this.mejorPuntaje = this.puntaje;
+//     localStorage.setItem('mejorPuntaje', this.mejorPuntaje.toString());
+//     localStorage.setItem('bestScore', this.mejorPuntaje.toString()); // compat
+//   }
+// }
