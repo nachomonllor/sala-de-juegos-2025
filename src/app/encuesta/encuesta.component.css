@@ -1,4 +1,71 @@
-.encuesta-container {
+.encuesta-card mat-card-title,
+.encuesta-card mat-card-subtitle,
+.encuesta-card .section-title,
+.encuesta-card .mat-mdc-checkbox .mdc-form-field,
+.encuesta-card .mat-mdc-radio-button .mdc-form-field,
+.encuesta-card .mat-button-toggle-label-content {
+  color: rgba(0,0,0,0.87) !important;
+  opacity: 1 !important;
+}
+
+.encuesta-card {
+  max-width: 880px;
+  margin: 24px auto;
+  padding-bottom: 8px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+.full { grid-column: span 12; }
+.half { grid-column: span 6; }
+
+@media (max-width: 768px) {
+  .half, .full { grid-column: span 12; }
+}
+
+.section { margin: 12px 0 8px; }
+.section-title { margin: 0 0 8px 0; font-weight: 600; }
+
+.sp-24 { margin: 24px 0; }
+
+.pill-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill ::ng-deep .mat-button-toggle-button {
+  border-radius: 999px !important;
+  padding: 6px 16px;
+}
+
+.checks {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.radios {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.err {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #c62828;
+  margin-top: 6px;
+}
+
+
+/* --------------------------------------------- */
+/* .encuesta-container {
   max-width: 500px;
   margin: 20px auto;
   padding: 16px;
@@ -31,4 +98,4 @@
 
 .error small {
   color: #c00;
-}
+} */

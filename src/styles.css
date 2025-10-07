@@ -40,3 +40,6 @@ body{
 }
 .chip-accion:focus{ outline: 2px solid Highlight; outline-offset: 2px; }
 .chip-accion:hover{ transform: translateY(-1px); box-shadow:0 6px 14px rgba(0,0,0,.08); }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

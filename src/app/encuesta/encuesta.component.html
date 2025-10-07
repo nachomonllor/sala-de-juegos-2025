@@ -1,10 +1,114 @@
-<p>encuesta works!</p>
+<mat-card class="encuesta-card">
+  <mat-card-header>
+    <mat-card-title>Encuesta de Opinión</mat-card-title>
+    <mat-card-subtitle>Dame un feedback para mejorar la sala de juegos</mat-card-subtitle>
+  </mat-card-header>
 
+  <mat-card-content [formGroup]="form">
+    <!-- DATOS PERSONALES -->
+    <div class="grid">
+      <mat-form-field class="full" appearance="outline">
+        <mat-label>Nombre y apellido</mat-label>
+        <input matInput formControlName="nombreApellido" placeholder="Juan Pérez">
+        <mat-error *ngIf="form.get('nombreApellido')?.hasError('required')">Obligatorio</mat-error>
+        <mat-error *ngIf="form.get('nombreApellido')?.hasError('pattern')">
+          Solo letras y espacios.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="half" appearance="outline">
+        <mat-label>Edad</mat-label>
+        <input matInput type="number" formControlName="edad" placeholder="25" min="19" max="98">
+        <mat-error *ngIf="form.get('edad')?.hasError('required')">Obligatoria</mat-error>
+        <mat-error *ngIf="form.get('edad')?.hasError('min') || form.get('edad')?.hasError('max')">
+          Debe ser entre 19 y 98 años.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="half" appearance="outline">
+        <mat-label>Teléfono</mat-label>
+        <input matInput formControlName="telefono" inputmode="numeric" maxlength="10" placeholder="1122334455">
+        <mat-hint align="end">{{ form.value.telefono?.length || 0 }}/10</mat-hint>
+        <mat-error *ngIf="form.get('telefono')?.hasError('required')">Obligatorio</mat-error>
+        <mat-error *ngIf="form.get('telefono')?.hasError('pattern')">
+          Solo números (hasta 10 dígitos).
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-divider class="sp-24">
+
+    </mat-divider>
+
+    <!-- P1: ¿Qué juego te gustó más? (Button Toggles redondeados, selección única) -->
+    <section class="section">
+      <h3 class="section-title">¿Qué juego te gustó más?</h3>
+      <mat-button-toggle-group class="pill-group" formControlName="juegoFavorito" name="juegoFavorito"
+        aria-label="Juego favorito" >
+        <mat-button-toggle class="pill" *ngFor="let j of juegos" [value]="j">{{ j }}</mat-button-toggle>
+      </mat-button-toggle-group>
+      <div class="err" *ngIf="form.get('juegoFavorito')?.touched && form.get('juegoFavorito')?.invalid">
+        <mat-icon inline>error</mat-icon> Debe seleccionar un juego.
+      </div>
+    </section>
+
+    <!-- P2: ¿Por qué te gustó más ese juego? (textarea) -->
+    <mat-form-field class="full" appearance="outline">
+      <mat-label>¿Por qué te gustó más ese juego?</mat-label>
+      <textarea matInput formControlName="motivo" rows="4" maxlength="500"
+        placeholder="Contanos qué te gustó: dinámica, estética, dificultad, etc."></textarea>
+      <mat-hint align="end">{{ form.value.motivo?.length || 0 }}/500</mat-hint>
+      <mat-error *ngIf="form.get('motivo')?.hasError('required')">Obligatorio</mat-error>
+      <mat-error *ngIf="form.get('motivo')?.hasError('minLength')">Demasiado corto.</mat-error>
+
+    </mat-form-field>
+
+    <!-- P3: ¿Cómo mejorarías la sala de juegos? (checkbox group, al menos 1) -->
+    <section class="section">
+      <h3 class="section-title">¿Cómo mejorarías la sala de juegos? (elige al menos una)</h3>
+      <div formArrayName="mejoras" class="checks">
+        <mat-checkbox *ngFor="let op of mejorasOpciones; let i = index" [formControlName]="i">{{ op }}</mat-checkbox>
+      </div>
+      <div class="err" *ngIf="mejorasFA.touched && mejorasFA.invalid">
+        <mat-icon inline>error</mat-icon> Marcá al menos una mejora.
+      </div>
+    </section>
+
+    <!-- P4: Opinión (radio group) -->
+    <section class="section">
+      <h3 class="section-title">La experiencia jugando te…</h3>
+      <mat-radio-group formControlName="opinion" class="radios">
+        <mat-radio-button *ngFor="let op of opinionOpciones" [value]="op">
+          {{ op }}
+        </mat-radio-button>
+      </mat-radio-group>
+      <div class="err" *ngIf="form.get('opinion')?.touched && form.get('opinion')?.invalid">
+        <mat-icon inline>error</mat-icon> Elegí una opción.
+      </div>
+    </section>
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <button mat-stroked-button color="primary" type="button" (click)="form.reset()">Limpiar</button>
+    <button mat-raised-button color="accent" type="submit" [disabled]="form.invalid || enviando" (click)="onSubmit()">
+      <mat-icon *ngIf="!enviando">send</mat-icon>
+      <mat-icon *ngIf="enviando">hourglass_empty</mat-icon>
+      {{ enviando ? 'Enviando…' : 'Enviar encuesta' }}
+    </button>
+  </mat-card-actions>
+</mat-card>
+
+
+
+
+
+
+<!-- 
 <section class="encuesta-container">
   <h2>Encuesta de Opinión</h2>
   <form [formGroup]="encuestaForm" (ngSubmit)="onSubmit()">
 
-    <!-- NOMBRE -->
+    NOMBRE 
     <div class="form-group">
       <label for="nombre">Nombre y Apellido:</label>
       <input id="nombre" formControlName="nombre" type="text" placeholder="Juan" />
@@ -14,7 +118,7 @@
       </div>
     </div>
 
-    <!-- APELLIDO -->
+     APELLIDO 
     <div class="form-group">
       <label for="apellido">Apellido:</label>
       <input id="apellido" formControlName="apellido" type="text" placeholder="Pérez" />
@@ -24,7 +128,7 @@
       </div>
     </div>
 
-    <!-- EDAD -->
+    EDAD
     <div class="form-group">
       <label for="edad">Edad:</label>
       <input id="edad" formControlName="edad" type="number" placeholder="Ej: 25" min="19" max="98" />
@@ -36,7 +140,7 @@
       </div>
     </div>
 
-    <!-- TELÉFONO -->
+     TELÉFONO 
     <div class="form-group">
       <label for="telefono">Teléfono:</label>
       <input id="telefono" formControlName="telefono" type="text" placeholder="Ej: 1122334455" maxlength="10" />
@@ -48,7 +152,7 @@
 
     <hr />
 
-    <!-- PREGUNTA 1: TEXTO -->
+    PREGUNTA 1: TEXTO 
     <div class="form-group">
       <label for="preguntaTexto">1. ¿Cuál es tu comida favorita?</label>
       <input id="preguntaTexto" formControlName="preguntaTexto" type="text" placeholder="Escribe tu respuesta" />
@@ -58,7 +162,7 @@
       </div>
     </div>
 
-    <!-- PREGUNTA 2: RADIO BUTTON -->
+     PREGUNTA 2: RADIO BUTTON 
     <div class="form-group">
       <label>2. ¿Qué color prefieres?</label>
       <div *ngFor="let opcion of opcionesRadio">
@@ -71,7 +175,7 @@
       </div>
     </div>
 
-    <!-- PREGUNTA 3: CHECKBOX -->
+    PREGUNTA 3: CHECKBOX 
     <div class="form-group">
       <label>3. ¿Qué redes sociales usas? (marca al menos una)</label>
       <div formArrayName="preguntaCheckbox">
@@ -87,11 +191,8 @@
 
     <hr />
 
-    <!-- BOTÓN DE ENVÍO -->
+     BOTÓN DE ENVÍO 
     <button type="submit">Enviar Encuesta</button>
   </form>
 </section>
-
-<!-- <div class="mt-3">
-  <a routerLink="/home" class="btn btn-outline-primary">Volver al Home</a>
-</div> -->
+ -->
