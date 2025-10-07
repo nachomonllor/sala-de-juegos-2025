@@ -1,4 +1,80 @@
-<section class="wrapper" *ngIf="!cargando(); else tplCargando">
+<section class="wrapper" *ngIf="!finalizada(); else tplResumen">
+  <ng-container *ngIf="!cargando(); else tplCargando">
+    <ng-container *ngIf="pregunta() as p; else tplError">
+      <header class="hud">
+        <div><strong>Pregunta:</strong> {{ totalPreguntas() }} / {{ LIMITE_RONDA }}</div>
+        <div><strong>Puntaje:</strong> {{ puntaje() }} / {{ LIMITE_RONDA }}</div>
+        <button type="button" class="btn ghost" (click)="nuevaPartida()">Reiniciar</button>
+      </header>
+
+      <div class="card">
+        <h2>¿Quién es este personaje?</h2>
+
+        <div class="image-box">
+          <img [src]="p.imageUrl" [alt]="p.correct.name" loading="eager" />
+        </div>
+
+        <div class="options">
+          <button
+            *ngFor="let opcion of p.options"
+            type="button"
+            class="btn option"
+            [class.correct]="respondida() && opcion.id === p.correct.id"
+            [class.wrong]="respondida() && opcion.id === idSeleccionado() && opcion.id !== p.correct.id"
+            [disabled]="respondida()"
+            (click)="elegir(opcion.id)">
+            {{ opcion.name }}
+          </button>
+        </div>
+
+        <div class="feedback" *ngIf="respondida()">
+          <p *ngIf="esCorrecta(); else tplIncorrecta">✅ ¡Correcto! Era <strong>{{ p.correct.name }}</strong>.</p>
+          <ng-template #tplIncorrecta>
+            <p>❌ Incorrecto. La respuesta era <strong>{{ p.correct.name }}</strong>.</p>
+          </ng-template>
+
+          <button type="button" class="btn primary" (click)="siguientePregunta()">
+            {{ totalPreguntas() >= LIMITE_RONDA ? 'Finalizar' : 'Siguiente' }}
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</section>
+
+<ng-template #tplCargando>
+  <div class="loading">Cargando pregunta…</div>
+</ng-template>
+
+<ng-template #tplError>
+  <div class="error">
+    No fue posible cargar la pregunta. Intenta nuevamente.
+    <button type="button" class="btn primary" (click)="siguientePregunta()">Reintentar</button>
+  </div>
+</ng-template>
+
+<!-- Resumen final -->
+<ng-template #tplResumen>
+  <div class="card" style="max-width:760px;margin:0 auto;">
+    <h2>¡Partida finalizada!</h2>
+    <p>Tu puntaje: <strong>{{ puntaje() }}</strong> / {{ LIMITE_RONDA }}</p>
+
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;">
+      <button class="btn primary" (click)="nuevaPartida()" [disabled]="guardando()">Jugar otra partida</button>
+      <!-- Si querés, agregá un botón a tu pantalla de resultados -->
+      <!-- <button class="btn ghost" routerLink="/results">Ver mis resultados</button> -->
+    </div>
+
+    <p *ngIf="guardando()" style="margin-top:.5rem;opacity:.8;">Guardando resultado…</p>
+  </div>
+</ng-template>
+
+
+
+
+
+
+<!-- <section class="wrapper" *ngIf="!cargando(); else tplCargando">
   <ng-container *ngIf="pregunta() as p; else tplError">
     <header class="hud">
       <div><strong>Puntaje:</strong> {{ puntaje() }} / {{ totalPreguntas() }}</div>
@@ -47,4 +123,4 @@
     <button type="button" class="btn primary" (click)="siguientePregunta()">Reintentar</button>
   </div>
 </ng-template>
-
+ -->
