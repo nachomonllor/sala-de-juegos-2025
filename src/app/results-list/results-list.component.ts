@@ -68,6 +68,14 @@ export class ResultsListComponent implements AfterViewInit {
   columnas: (keyof ScoreWithUser)[] = ['createdAt', 'userDisplayName', 'gameCode', 'points', 'durationSec'];
   dataSource = new MatTableDataSource<ScoreWithUser>([]);
 
+  // dentro de ResultsListComponent
+modoFondo: 'solid' | 'glass' = 'solid'; // por defecto legible
+
+toggleFondo() {
+  this.modoFondo = this.modoFondo === 'solid' ? 'glass' : 'solid';
+}
+
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 

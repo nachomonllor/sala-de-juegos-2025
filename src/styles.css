@@ -43,3 +43,24 @@ body{
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+/* Panel del mat-select (overlay) en dark */
+.cdk-overlay-container .mat-mdc-select-panel{
+  background: #0e1b32;                       /* mismo tono que el header/filtros */
+  color: #eaf2ff;
+  border: 1px solid rgba(180,200,230,.12);
+  box-shadow: 0 14px 36px rgba(0,0,0,.55);
+}
+.cdk-overlay-container .mat-mdc-option .mdc-list-item__primary-text{
+  color: #eaf2ff;
+}
+.cdk-overlay-container .mat-mdc-option:hover:not(.mdc-list-item--disabled){
+  background: rgba(255,255,255,.06);
+}
+.cdk-overlay-container .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled){
+  background: rgba(26,164,255,.18);
+}
+.cdk-overlay-container .mat-mdc-option.mdc-list-item--disabled .mdc-list-item__primary-text{
+  color: rgba(234,242,255,.4);
+}
