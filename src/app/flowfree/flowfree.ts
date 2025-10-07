@@ -62,23 +62,77 @@ export class FlowFreeComponent implements OnInit {
     }).catch(console.error);
   }
 
+  //-----------------------
+
+  reset() {
+    this.engine.resetAll();
+    this.board = this.engine.getBoard();
+    this.message = '';
+    this.restartTimer();
+  }
+
+  newGame() {
+    const N = 5;
+    const palette = ['blue', 'green', 'yellow', 'red', 'purple', 'orange'];
+    const { pairs, solution } = generatePuzzle(N, palette, { k: 5, minSeg: 3 });
+    this.solution = solution;
+    this.engine = new FlowFreeEngine(N, pairs);
+    this.board = this.engine.getBoard();
+    this.message = '';
+    this.restartTimer();
+  }
+
+  // newGame() {
+  //   const N = 5;
+  //   const palette = ['blue', 'green', 'yellow', 'red', 'purple', 'orange'];
+  //   const { pairs, solution } = generatePuzzle(N, palette, { k: 5, minSeg: 3 });
+  //   this.solution = solution;
+  //   this.engine = new FlowFreeEngine(N, pairs);
+  //   this.board = this.engine.getBoard();
+  //   this.message = '';
+  //   this.restartTimer();                // ← reinicia cronómetro
+  //   this.terminar();  // ===================>  PARA EL PUNTAJE Y LISTADO DE RESULTADOS 
+  // }
+
+  
+  //-----------------------
   ngOnInit() {
     const N = 5;
     const palette = ['blue', 'green', 'yellow', 'red', 'purple', 'orange']; // recorta a K
     const { pairs, solution } = generatePuzzle(N, palette, { k: 5, minSeg: 3 });
     this.solution = solution; // guardamos la matriz de la solución (oculta)
 
+
     this.engine = new FlowFreeEngine(N, pairs);
     this.engine.onPairConnected = () => {
       this.board = this.engine.getBoard();
+
+      this.manejarVictoria();       // <============= PARA EL PUNTAJE 
       if (this.engine.isSolved()) this.message = '¡Resuelto! 🎉';
     };
     this.engine.onPairDisconnected = () => {
       this.board = this.engine.getBoard();
-      this.checkWinHard();            // ← aquí
+      // this.checkWinHard();            // ← aquí
+
+      this.manejarVictoria();
       this.message = '';
     };
     this.board = this.engine.getBoard();
+
+    // ---------------------------------------------------------------
+
+    // this.engine.onPairConnected = () => {
+    //   this.board = this.engine.getBoard();
+    //   this.manejarVictoria();   // en vez de setear message directo
+    // };
+    // this.engine.onPairDisconnected = () => {
+    //   this.board = this.engine.getBoard();
+    //   this.message = '';
+    // };
+
+    // ---------------------------------------------------------------
+
+
 
     this.restartTimer();
   }
@@ -88,6 +142,12 @@ export class FlowFreeComponent implements OnInit {
 
     // this.restartTimer(); // <-------------------
   }
+
+  // private restartTimer() {
+  //   this.startTimer();
+  //   this.guardado = false;
+  //   this.lastScore = 0;
+  // }
 
   // ====== TIMER helpers ======
   private startTimer() {
@@ -104,8 +164,17 @@ export class FlowFreeComponent implements OnInit {
 
   private restartTimer() {
     this.startTimer();
-    this.terminar();  // ===================>  PARA EL PUNTAJE Y LISTADO DE RESULTADOS 
+    //this.terminar();  // ===================>  PARA EL PUNTAJE Y LISTADO DE RESULTADOS 
+
+    this.guardado = false;
+    this.lastScore = 0;
   }
+
+  //   private restartTimer() {
+  //   this.startTimer();
+  //   this.guardado = false;
+  //   this.lastScore = 0;
+  // }
 
   get clock(): string {
     const total = Math.floor(this.elapsedMs / 1000);
@@ -137,23 +206,31 @@ export class FlowFreeComponent implements OnInit {
 
   onPointerEnter(r: number, c: number, _ev: PointerEvent) {
     if (!this.engine.isDragging()) return;
+    // if (this.engine.dragTo({ r, c })) {
+    //   this.board = this.engine.getBoard();
+    //   this.checkWinHard();          // 
+    // }
+
+
     if (this.engine.dragTo({ r, c })) {
       this.board = this.engine.getBoard();
-      this.checkWinHard();          // ← aquí
+      this.manejarVictoria();   // NO USAMOS checkWinHard directo
     }
+
   }
 
   @HostListener('document:pointerup') onPointerUp() { this.engine.endDrag(); }
 
-  reset() {
-    this.engine.resetAll();
-    this.board = this.engine.getBoard();
-    this.message = '';
-    // this.restartTimer();                // ← reinicia cronómetro
+  // reset() {
+  //   this.engine.resetAll();
+  //   this.board = this.engine.getBoard();
+  //   this.message = '';
+  //   // this.restartTimer();                // ← reinicia cronómetro
 
-    this.terminar();  // ===================>  PARA EL PUNTAJE Y LISTADO DE RESULTADOS 
+  //   this.terminar();  // ===================>  PARA EL PUNTAJE Y LISTADO DE RESULTADOS 
 
-  }
+  // }
+
   // reset() {
   //   this.engine.resetAll();
   //   this.board = this.engine.getBoard();
@@ -177,22 +254,6 @@ export class FlowFreeComponent implements OnInit {
     return !!nb && nb.pathColor === color;
   }
 
-  newGame() {
-    const N = 5;
-    const palette = ['blue', 'green', 'yellow', 'red', 'purple', 'orange'];
-    const { pairs, solution } = generatePuzzle(N, palette, { k: 5, minSeg: 3 });
-    this.solution = solution;
-    this.engine = new FlowFreeEngine(N, pairs);
-    this.board = this.engine.getBoard();
-    this.message = '';
-    this.restartTimer();                // ← reinicia cronómetro
-
-
-    this.terminar();  // ===================>  PARA EL PUNTAJE Y LISTADO DE RESULTADOS 
-
-
-  }
-
   // -------------------------------
   private boardCovered(): boolean {
     const b = this.engine.getBoard();
@@ -209,13 +270,61 @@ export class FlowFreeComponent implements OnInit {
     return this.pairs().every((p: { color: string; }) => this.engine.isColorConnected(p.color));
   }
 
-  private checkWinHard(): void {
+  // private checkWinHard(): void {
+  //   if (this.allPairsConnected() && this.boardCovered()) {
+  //     this.message = '¡Resuelto! 🎉';
+  //   }
+  // }
+
+
+  // ------------------------------------------------------------------- PUNTAJES: --------------------------------------------------------------------------------
+
+  // estado
+  lastScore = 0;
+  private guardado = false;
+
+  // Calcula puntaje solo en base al tiempo (menos tiempo, más puntos)
+  private calcularPuntaje(seg: number): number {
+    const N = this.board.length || this.engine?.getBoard().length || 5;
+    const K = this.pairs().length || 1;
+    const bruto = (N * N * K * 300) / (seg + 1); // factor 300: ajustable
+    return Math.max(50, Math.round(bruto));      // piso de 50 pts
+  }
+
+  //  persiste una sola vez
+  private guardarPuntaje(): void {
+    if (this.guardado) return;
+    const duracionSec = Math.max(1, Math.floor(this.elapsedMs / 1000));
+    const puntos = this.calcularPuntaje(duracionSec);
+
+    this.lastScore = puntos;
+    this.guardado = true;
+
+    this.score.recordScore({
+      gameCode: 'flow_free',
+      points: puntos,
+      durationSec: duracionSec,
+      metaJson: {
+        size: this.board.length,
+        pairs: this.pairs().length,
+        elapsedMs: this.elapsedMs
+      }
+    }).catch(console.error);
+  }
+
+
+  // NUEVO: chequeo centralizado de victoria
+  private manejarVictoria() {
     if (this.allPairsConnected() && this.boardCovered()) {
       this.message = '¡Resuelto! 🎉';
+      this.stopTimer();
+      this.guardarPuntaje();
     }
   }
 
-  
+  // --------------------------------------------------------------------------------------------------------------------------------------
+
+
 }
 
 

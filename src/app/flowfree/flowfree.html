@@ -1,14 +1,25 @@
+<!-- <div class="hud">
+  <div class="stats">
+    <span *ngIf="message" class="ok">{{ message }}</span>
+    <button class="btn" (click)="reset()">Reiniciar</button>
+    <div class="clock" [class.win]="message === '¡Resuelto! 🎉'">⏱ {{ clock }}</div>
+    <button class="btn" (click)="newGame()">Nuevo</button>
+  </div>
+</div> -->
+
+
 <div class="hud">
   <div class="stats">
     <span *ngIf="message" class="ok">{{ message }}</span>
     <button class="btn" (click)="reset()">Reiniciar</button>
-
     <div class="clock" [class.win]="message === '¡Resuelto! 🎉'">⏱ {{ clock }}</div>
-
+    <!-- PUNTAJE UNA VEZ RESUELTO  -->
+    <span *ngIf="lastScore" class="score">⭐ {{ lastScore }} pts</span>
     <button class="btn" (click)="newGame()">Nuevo</button>
-
   </div>
 </div>
+
+
 
 <div class="board" [style.gridTemplateColumns]="'repeat(' + board.length + ', 1fr)'"
   [style.gridTemplateRows]="'repeat(' + board.length + ', 1fr)'">
