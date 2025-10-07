@@ -25,6 +25,9 @@ export class PersonajesDbzService {
     return `${environment.dbzBaseUrl}/api/characters?page=${page}&limit=${limit}`;
   }
 
+ // private url(p: number, l: number) { return `https://dragonball-api.com/api/characters?page=${p}&limit=${l}`; }
+
+
   private toArray(resp: any): any[] {
     if (Array.isArray(resp)) return resp;
     if (Array.isArray(resp?.items)) return resp.items;
