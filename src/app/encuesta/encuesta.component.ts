@@ -108,69 +108,6 @@ export class EncuestaComponent implements OnInit {
     control.markAsTouched({ onlySelf: true });
   }
 
-  // // --- Envío a Supabase ---
-  // async onSubmit(): Promise<void> {
-  //   if (this.form.invalid) {
-  //     this.markAllAsTouched(this.form);
-  //     return;
-  //   }
-
-  //   this.enviando = true;
-  //   try {
-  //     // 1) Usuario logueado
-  //     // const { data: userData, error: userErr } = await this.supabaseSvc.client.auth.getUser();
-  //     // if (userErr || !userData?.user) {
-  //     //   throw new Error('No se encontró el usuario autenticado.');
-  //     // }
-
-  //     const { data: { session } } = await this.supabaseSvc.client.auth.getSession();
-
-  //     const user = session.user ;
-
-
-  //     if (!session) {
-  //       this.snack.open('Iniciá sesión para enviar la encuesta', 'OK', { duration: 4000 });
-  //       return; // el finally igual se ejecuta
-  //     }
-
-  //     const seleccionMejoras = this.mejorasOpciones
-  //       .filter((_, idx) => this.mejorasFA.at(idx).value);
-
-  //     // 2) Armar fila
-  //     const row = {
-  //       user_id: userData.user.id,
-  //       nombre_apellido: (this.form.value.nombreApellido as string).trim(),
-  //       edad: Number(this.form.value.edad),
-  //       telefono: (this.form.value.telefono as string).trim(),
-  //       juego_favorito: this.form.value.juegoFavorito,
-  //       motivo: (this.form.value.motivo as string).trim(),
-  //       mejoras: seleccionMejoras,     // text[]
-  //       opinion: this.form.value.opinion
-  //     };
-
-  //     // 3) Insert
-  //     const { error: insertErr } = await this.supabaseSvc.client
-  //       .from('encuestas')
-  //       .insert(row);
-
-  //     if (insertErr) throw insertErr;
-
-  //     this.snack.open('¡Gracias! Encuesta enviada correctamente.', 'OK', { duration: 3000 });
-  //     this.form.reset();
-  //     // Rehacer checkboxes
-  //     this.form.setControl('mejoras', this.buildCheckboxArray());
-
-  //   } catch (e: any) {
-  //     console.error(e);
-  //     // this.snack.open('No se pudo guardar la encuesta. Intenta otra vez.', 'Cerrar', { duration: 3500 });
-
-  //     this.snack.open(e?.message || e?.error_description || 'Error al guardar', 'Cerrar', { duration: 5000 });
-
-  //   } finally {
-  //     this.enviando = false;
-  //   }
-  // }
-
   // --- Envío a Supabase ---
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
@@ -228,8 +165,71 @@ export class EncuestaComponent implements OnInit {
   }
 
 
-
 }
+
+
+// // --- Envío a Supabase ---
+// async onSubmit(): Promise<void> {
+//   if (this.form.invalid) {
+//     this.markAllAsTouched(this.form);
+//     return;
+//   }
+
+//   this.enviando = true;
+//   try {
+//     // 1) Usuario logueado
+//     // const { data: userData, error: userErr } = await this.supabaseSvc.client.auth.getUser();
+//     // if (userErr || !userData?.user) {
+//     //   throw new Error('No se encontró el usuario autenticado.');
+//     // }
+
+//     const { data: { session } } = await this.supabaseSvc.client.auth.getSession();
+
+//     const user = session.user ;
+
+
+//     if (!session) {
+//       this.snack.open('Iniciá sesión para enviar la encuesta', 'OK', { duration: 4000 });
+//       return; // el finally igual se ejecuta
+//     }
+
+//     const seleccionMejoras = this.mejorasOpciones
+//       .filter((_, idx) => this.mejorasFA.at(idx).value);
+
+//     // 2) Armar fila
+//     const row = {
+//       user_id: userData.user.id,
+//       nombre_apellido: (this.form.value.nombreApellido as string).trim(),
+//       edad: Number(this.form.value.edad),
+//       telefono: (this.form.value.telefono as string).trim(),
+//       juego_favorito: this.form.value.juegoFavorito,
+//       motivo: (this.form.value.motivo as string).trim(),
+//       mejoras: seleccionMejoras,     // text[]
+//       opinion: this.form.value.opinion
+//     };
+
+//     // 3) Insert
+//     const { error: insertErr } = await this.supabaseSvc.client
+//       .from('encuestas')
+//       .insert(row);
+
+//     if (insertErr) throw insertErr;
+
+//     this.snack.open('¡Gracias! Encuesta enviada correctamente.', 'OK', { duration: 3000 });
+//     this.form.reset();
+//     // Rehacer checkboxes
+//     this.form.setControl('mejoras', this.buildCheckboxArray());
+
+//   } catch (e: any) {
+//     console.error(e);
+//     // this.snack.open('No se pudo guardar la encuesta. Intenta otra vez.', 'Cerrar', { duration: 3500 });
+
+//     this.snack.open(e?.message || e?.error_description || 'Error al guardar', 'Cerrar', { duration: 5000 });
+
+//   } finally {
+//     this.enviando = false;
+//   }
+// }
 
 
 // private markAllAsTouched(control: AbstractControl): void {

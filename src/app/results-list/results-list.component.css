@@ -1,4 +1,65 @@
 
+.res-card {
+  overflow: hidden;
+}
+
+.res-toolbar .titulo {
+  font-weight: 600;
+  letter-spacing: .2px;
+}
+
+.flex-espaciador { flex: 1 1 auto; }
+
+.filtros {
+  display: grid;
+  grid-template-columns: 240px auto 1fr;
+  gap: .75rem;
+  padding: 1rem;
+}
+
+.w-240 { width: 240px; }
+.flex-1 { width: 100%; }
+
+.tabla-wrap {
+  padding: .5rem 1rem 1rem;
+}
+
+table {
+  width: 100%;
+}
+
+th.num, td.num {
+  text-align: right;
+}
+
+.vacio, .error {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: 1rem;
+  opacity: .8;
+}
+
+.vacio {
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant, #666);
+}
+
+.vacio mat-icon {
+  font-size: 44px;
+  width: 44px;
+  height: 44px;
+  opacity: .6;
+}
+
+@media (max-width: 720px) {
+  .filtros {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 .th, .td { text-align:left; padding:.5rem; border-bottom:1px solid #444; }
 .th.num, .td.num { text-align:right; }
