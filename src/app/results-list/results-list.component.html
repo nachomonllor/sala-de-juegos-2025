@@ -2,14 +2,20 @@
   <header style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
     <h2 style="margin:0;">Resultados recientes</h2>
 
-    <!-- select (change)="juegoSeleccionado.set(($event.target as HTMLSelectElement).value as any)" -->
     <select (change)="onJuegoChange($event)">
       <option value="todos">Todos los juegos</option>
       <option *ngFor="let j of juegos" [value]="j">{{ j }}</option>
     </select>
 
+    <label style="display:flex;gap:.35rem;align-items:center;">
+      <input type="checkbox" [checked]="soloMios()" (change)="soloMios.set(($any($event.target).checked))">
+      Solo mis resultados
+    </label>
+
     <button (click)="refrescar()">Actualizar</button>
     <span *ngIf="cargando()">Cargando…</span>
+    <span *ngIf="error()" style="color:#ff7070;">{{ error() }}</span>
+
   </header>
 
   <table *ngIf="!cargando()" style="width:100%;border-collapse:collapse;margin-top:1rem;">
@@ -33,35 +39,7 @@
     </tbody>
   </table>
 
-  <p *ngIf="!cargando() && resultados().length === 0" style="opacity:.7;margin-top:1rem;">
+  <p *ngIf="!cargando() && !resultados().length && !error()" style="opacity:.7;margin-top:1rem;">
     Aún no hay resultados para este filtro.
   </p>
 </section>
-
-
-
-
-
-
-<!-- <ng-container *ngIf="results$ | async as results">
-  <table *ngIf="results.length > 0; else empty" class="tabla">
-    <thead>
-      <tr>
-        <th>Juego</th>
-        <th>Puntaje</th>
-        <th>Fecha</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let res of results">
-        <td>{{ res.game }}</td>
-        <td>{{ res.score }}</td>
-        <td>{{ res.created_at | date:'short' }}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <ng-template #empty>
-    <p>No hay resultados para mostrar.</p>
-  </ng-template>
-</ng-container> -->
