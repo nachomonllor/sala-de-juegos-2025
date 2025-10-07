@@ -1,6 +1,5 @@
 <div class="container">
 
-
   <!-- VISTA LOGUEADO -->
   <ng-container *ngIf="user$ | async as user; else loggedOut">
     <section class="welcome">
@@ -14,6 +13,39 @@
       <button class="btn danger" (click)="logout()">Cerrar sesión</button>
     </section>
   </ng-container>
+
+  <!-- PANEL RÁPIDO (solo logueado) -->
+  <section class="quick-panels" *ngIf="user$ | async as user">
+    <!-- Mis estadísticas -->
+    <div class="panel panel-stats">
+      <header class="panel-header">
+        <span class="panel-icon" aria-hidden="true">📊</span>
+        <h3>Mis Estadísticas</h3>
+      </header>
+      <div class="panel-actions">
+        <!-- Va a /resultados?me=1 para filtrar "solo míos" -->
+        <a class="btn outline wide" [routerLink]="['/resultados']" [queryParams]="{ me: 1 }">
+          Ver Resultados
+        </a>
+        <a class="btn outline wide" routerLink="/encuesta">
+          Encuesta
+        </a>
+      </div>
+    </div>
+
+    <!-- Chat -->
+    <div class="panel panel-chat">
+      <header class="panel-header">
+        <span class="panel-icon" aria-hidden="true">💬</span>
+        <h3>Chat</h3>
+      </header>
+      <div class="panel-actions">
+        <a class="btn outline wide" routerLink="/chat">
+          Ir al Chat
+        </a>
+      </div>
+    </div>
+  </section>
 
   <ng-template #loggedOut>
     <section class="welcome">

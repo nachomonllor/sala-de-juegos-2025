@@ -1,4 +1,49 @@
-<ng-container *ngIf="results$ | async as results">
+<section style="max-width:900px;margin:1rem auto;padding:1rem;">
+  <header style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+    <h2 style="margin:0;">Resultados recientes</h2>
+
+    <!-- select (change)="juegoSeleccionado.set(($event.target as HTMLSelectElement).value as any)" -->
+    <select (change)="onJuegoChange($event)">
+      <option value="todos">Todos los juegos</option>
+      <option *ngFor="let j of juegos" [value]="j">{{ j }}</option>
+    </select>
+
+    <button (click)="refrescar()">Actualizar</button>
+    <span *ngIf="cargando()">Cargando…</span>
+  </header>
+
+  <table *ngIf="!cargando()" style="width:100%;border-collapse:collapse;margin-top:1rem;">
+    <thead>
+      <tr>
+        <th class="th">Fecha</th>
+        <th class="th">Jugador</th>
+        <th class="th">Juego</th>
+        <th class="th num">Puntos</th>
+        <th class="th num">Duración (s)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of resultados()">
+        <td class="td">{{ r.createdAt | date:'short' }}</td>
+        <td class="td">{{ r.userDisplayName }}</td>
+        <td class="td">{{ r.gameCode }}</td>
+        <td class="td num">{{ r.points }}</td>
+        <td class="td num">{{ r.durationSec || '—' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="!cargando() && resultados().length === 0" style="opacity:.7;margin-top:1rem;">
+    Aún no hay resultados para este filtro.
+  </p>
+</section>
+
+
+
+
+
+
+<!-- <ng-container *ngIf="results$ | async as results">
   <table *ngIf="results.length > 0; else empty" class="tabla">
     <thead>
       <tr>
@@ -19,33 +64,4 @@
   <ng-template #empty>
     <p>No hay resultados para mostrar.</p>
   </ng-template>
-</ng-container>
-
-<!-- 
-<div class="mt-3">
-  <a routerLink="/home" class="btn btn-outline-primary">Volver al Home</a>
-</div> -->
-
-
-<!-- <section class="results-container">
-    <h2>🏆 Resultados de Juegos</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Usuario</th>
-                <th>Juego</th>
-                <th>Puntaje</th>
-                <th>Fecha</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let res of results$ | async">
-                <td>{{ res.userEmail }}</td>
-                <td>{{ res.game }}</td>
-                <td>{{ res.score }}</td>
-                <td>{{ res.date | date: 'short' }}</td>
-      </tr>
-    </tbody>
-</table>
-<p *ngIf="(results$ | async)?.length === 0">No hay resultados para mostrar.</p>
-</section> -->
+</ng-container> -->

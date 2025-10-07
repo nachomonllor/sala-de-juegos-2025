@@ -9,26 +9,7 @@ import {
 } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 
-// export interface Profile {
-//   id: string;                // auth.users.id
-//   email: string | null;
-//   display_name: string | null;
-//   avatar_url?: string | null;
-//   updated_at?: string | null;
-// }
-
-// supabase.service.ts (parte superior)
-
-// export interface Profile {
-//   id: string;
-//   email: string | null;
-//   display_name: string | null;
-//   avatar_url?: string | null;
-//   updated_at?: string | null;
-//   created_at?: string | null;        // 👈 agregado para coincidir con tu UsersService
-// }
-
-// Asegurate de tener esta interfaz arriba del archivo:
+// DEBE EXISTIR esta interfaz arriba del archivo:
 export interface Profile {
   id: string;
   email: string | null;
@@ -47,7 +28,7 @@ export interface ChatMessage {
   message: string;
   created_at: string;
 
-  // Compat opcional si en algún lugar usaste estos nombres
+  // OPCIONALES POR SI EN ALGUN LUGAR SE USARON ESTOS NOMBRES
   uid?: string | null;
   email?: string | null;
   text?: string;
@@ -61,15 +42,6 @@ export interface LoginLog {
   created_at: string;
 }
 
-// export interface ChatMessage {
-//   id: number;
-//   room: string;
-//   user_id: string | null;
-//   display_name: string | null;
-//   message: string;
-//   created_at: string;
-// }
-
 export interface ResultRow {
   id: number;
   user_id: string | null;
@@ -79,19 +51,50 @@ export interface ResultRow {
   created_at: string;
 }
 
+declare global {
+  interface Window { __supabaseClient__?: SupabaseClient }
+}
+
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
   public readonly client: SupabaseClient;
 
-  constructor() {
-    this.client = createClient(environment.supabaseUrl, environment.supabaseAnonKey, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-    });
-  }
+  // constructor() {
+  //   this.client = createClient(environment.supabaseUrl, environment.supabaseAnonKey, {
+  //     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+  //   });
+  // }
 
   // constructor() {
-  //   this.client = createClient(environment.supabaseUrl, environment.supabaseKey);
+  //   this.client = createClient(environment.supabaseUrl, environment.supabaseAnonKey, {
+  //     auth: {
+  //       persistSession: true,
+  //       autoRefreshToken: true,
+  //       detectSessionInUrl: true,
+  //       //opcional: fijar storageKey explícito para evitar colisiones
+  //       // storageKey: 'sb-taswckilspgrlcrdouxb-auth-token',
+  //     }
+  //   });
   // }
+
+  constructor() {
+    if (!window.__supabaseClient__) {
+      window.__supabaseClient__ = createClient(
+        environment.supabaseUrl,
+        environment.supabaseAnonKey,
+        {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            // clave única para este proyecto/app (evita colisiones con otros proyectos en localhost)
+            storageKey: 'sb-taswckilspgrlcrdouxb-auth-token-sdj2025',
+          },
+        }
+      );
+    }
+    this.client = window.__supabaseClient__;
+  }
 
   /** ===== AUTH ===== */
   async getSession(): Promise<Session | null> {
@@ -158,9 +161,7 @@ export class SupabaseService {
   //   return data as Profile[];
   // }
 
-
-  
-  // 👇 Exponé métodos de acceso en vez de exponer el cliente
+  //   EXPONER METODOS DE acceso en vez de exponer el cliente
   selectProfiles() {
     // Devuelve una Promise<{ data, error }>
     return this.client
@@ -168,7 +169,6 @@ export class SupabaseService {
       .select('id, first_name, last_name, email, game_plays')
       .order('last_name', { ascending: true });
   }
-
 
   async upsertProfile(uid: string, displayName: string, avatar_url: string | null = null): Promise<void> {
     const me = await this.getUser();

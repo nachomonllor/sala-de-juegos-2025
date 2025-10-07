@@ -1,12 +1,15 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './homeX/home/home';
 import { AuthGuard } from './guards/auth.guard';
+import { ResultsListComponent } from './results-list/results-list.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'auth/register', pathMatch: 'full' },
 
   // Home (puede quedar eager [[  ver definicion eager   ]])
   { path: 'home', component: HomeComponent },
+  { path: 'resultados', component: ResultsListComponent },
+
 
   // Alias para no romper enlaces existentes
   { path: 'login', redirectTo: 'auth/login', pathMatch: 'full' },

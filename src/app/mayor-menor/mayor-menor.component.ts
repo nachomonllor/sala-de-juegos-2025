@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ScoreService } from '../services/score.service';
+import { pointsMayorMenor } from '../models/score-utils';
 
 export interface Carta {
   palo: 'oro' | 'espada' | 'copa' | 'basto';
@@ -36,6 +38,22 @@ export class MayorMenorComponent implements OnInit {
   mejorPuntaje = 0;
   juegoTerminado = false;
   nuevoRecord = false;
+
+  t0 = performance.now();
+  rachaMax = 0;
+
+  constructor(private score: ScoreService) { }
+
+  terminar() {
+    const duracionSec = Math.round((performance.now() - this.t0) / 1000);
+    const pts = pointsMayorMenor({ rachaMax: this.rachaMax, duracionSec });
+    this.score.recordScore({
+      gameCode: 'mayor_menor',
+      points: pts,
+      durationSec: duracionSec,
+      metaJson: { rachaMax: this.rachaMax }
+    }).catch(console.error);
+  }
 
   ngOnInit() {
     // Migración de récord guardado (para no perder el valor anterior)
@@ -167,4 +185,5 @@ export class MayorMenorComponent implements OnInit {
     // Mantengo la convención de nombres y extensión original
     return `assets/cards/${carta.etiqueta}_${carta.palo}.JPG`;
   }
+  
 }

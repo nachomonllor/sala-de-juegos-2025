@@ -1,4 +1,11 @@
-.results-container {
+
+
+.th, .td { text-align:left; padding:.5rem; border-bottom:1px solid #444; }
+.th.num, .td.num { text-align:right; }
+
+
+
+/* .results-container {
   padding: 16px;
 }
 
@@ -19,4 +26,4 @@ th, td {
 
 tbody tr:nth-child(even) {
   background-color: #fafafa;
-}
+} */

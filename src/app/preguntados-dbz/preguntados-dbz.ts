@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { DragonBallService } from '../services/dragon-ball';
 import { Pregunta } from './preguntados-dbz.model';
+import { ScoreService } from '../services/score.service';
+import { pointsPreguntados } from '../models/score-utils';
 
 @Component({
   selector: 'app-preguntados-dbz',
@@ -15,6 +17,8 @@ import { Pregunta } from './preguntados-dbz.model';
 })
 export class PreguntadosDbzComponent {
   private readonly servicioDragonBall = inject(DragonBallService);
+
+  // constructor(private score: ScoreService) {}
 
   // Estado reactivo (signals) en castellano
   cargando = signal<boolean>(true);
@@ -29,7 +33,9 @@ export class PreguntadosDbzComponent {
     this.respondida() && this.idSeleccionado() === this.pregunta()?.correct.id
   );
 
-  constructor() {
+  //constructor(private score: ScoreService) {}
+
+  constructor(private score: ScoreService) {
     this.siguientePregunta();
 
     // Si la respuesta es correcta, sumar al puntaje
@@ -66,6 +72,29 @@ export class PreguntadosDbzComponent {
     this.puntaje.set(0);
     this.totalPreguntas.set(0);
   }
+
+ 
+  t0 = performance.now();
+  correctas = 0;
+  incorrectas = 0;
+  bonusRacha = 0; //si ya esta distinto hayque mapearlo
+
+  finalizar() {
+    const duracionSec = Math.round((performance.now() - this.t0) / 1000);
+    const pts = pointsPreguntados({
+      correctas: this.correctas,
+      incorrectas: this.incorrectas,
+      bonusRacha: this.bonusRacha,
+      duracionSec
+    });
+    this.score.recordScore({
+      gameCode: 'preguntados_dbz',
+      points: pts,
+      durationSec: duracionSec,
+      metaJson: { correctas: this.correctas, incorrectas: this.incorrectas, bonusRacha: this.bonusRacha }
+    }).catch(console.error);
+  }
+
 }
 
 

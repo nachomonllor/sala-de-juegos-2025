@@ -5,6 +5,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { WordService } from '../word.service';
+import { ScoreService } from '../services/score.service';
+import { pointsAhorcado } from '../models/score-utils';
 
 @Component({
   selector: 'app-ahorcado',
@@ -21,6 +23,15 @@ export class AhorcadoComponent implements OnInit {
   maxErrors = 6;
   gameOver = false;
 
+  private t0 = performance.now();
+  errores = 0;
+  
+  // palabraSecreta = '...';
+  // private t0 = performance.now();
+  // errores = 0;
+  // palabraSecreta = '...';
+  // constructor(private score: ScoreService) {}
+
   // nuevo: estado del resultado y mensaje
   gameStatus: 'win' | 'lose' | null = null;
   winningMessage = '';
@@ -28,11 +39,12 @@ export class AhorcadoComponent implements OnInit {
   alphabet = 'QWERTYUIOPASDFGHJKLÑZXCVBNM'.split('');
 
   stages: string[] = [
-    'hangman_1k.png','hangman_2k.png','hangman_3k.png','hangman_4k.png',
-    'hangman_5k.png','hangman_6k.png','hangman_7k.png'
+    'hangman_1k.png', 'hangman_2k.png', 'hangman_3k.png', 'hangman_4k.png',
+    'hangman_5k.png', 'hangman_6k.png', 'hangman_7k.png'
   ];
 
-  constructor(private wordService: WordService) {}
+  //constructor(private score: ScoreService) {}
+  constructor(private wordService: WordService, private score: ScoreService) { }
 
   ngOnInit(): void { this.resetGame(); }
 
@@ -54,7 +66,7 @@ export class AhorcadoComponent implements OnInit {
     this.winningMessage = '';
     this.wordService.getRandomWord().subscribe(word => {
       this.palabraSeleccionada = word;
-         console.log('Palabra seleccionada:', word);
+      console.log('Palabra seleccionada:', word);
     });
   }
 
@@ -76,6 +88,13 @@ export class AhorcadoComponent implements OnInit {
       );
       if (won) {
         this.gameOver = true;
+
+
+
+        this.finalizarPartida(true);  // ====> para el puntaje y listado dE resultados 
+
+
+
         this.gameStatus = 'win';
         this.winningMessage = '¡Ganaste! 🎉';
       }
@@ -83,6 +102,10 @@ export class AhorcadoComponent implements OnInit {
       this.errorCount++;
       if (this.errorCount >= this.maxErrors) {
         this.gameOver = true;
+
+        this.finalizarPartida(false); // ====> para el puntaje y listado dE resultados 
+
+
         this.gameStatus = 'lose';
         this.winningMessage = '¡Perdiste!';
       }
@@ -100,6 +123,19 @@ export class AhorcadoComponent implements OnInit {
     const idx = Math.min(this.errorCount, this.stages.length - 1);
     return `/assets/parts/${this.stages[idx]}`;
   }
+
+  finalizarPartida(victoria: boolean) {
+    const duracionSec = Math.round((performance.now() - this.t0) / 1000);
+    const pts = pointsAhorcado({ errores: this.errores, duracionSec });
+    this.score.recordScore({
+      gameCode: 'ahorcado',
+      points: pts,
+      durationSec: duracionSec,
+      metaJson: { errores: this.errores, victoria, palabra: this.palabraSeleccionada }
+    }).catch(console.error);
+  }
+
+
 }
 
 

@@ -2,7 +2,8 @@ import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { generatePuzzle } from './puzzle-gen';
 import { FlowFreeEngine, Pair } from './flowfree-engine';
-import { RouterLink } from '@angular/router';
+import { ScoreService } from '../services/score.service';
+import { pointsFlowFree } from '../models/score-utils';
 
 type RGB = string;
 
@@ -44,6 +45,22 @@ export class FlowFreeComponent implements OnInit {
   private startEpoch = 0;
   elapsedMs = 0;                        // lo mostramos como mm:ss
 
+  t0 = performance.now();
+  nivelesCompletados = 0;
+  pistasUsadas = 0;
+
+  constructor(private score: ScoreService) { }
+
+  terminar() {
+    const duracionSec = Math.round((performance.now() - this.t0) / 1000);
+    const pts = pointsFlowFree({ niveles: this.nivelesCompletados, pistasUsadas: this.pistasUsadas, duracionSec });
+    this.score.recordScore({
+      gameCode: 'flow_free',
+      points: pts,
+      durationSec: duracionSec,
+      metaJson: { niveles: this.nivelesCompletados, pistasUsadas: this.pistasUsadas }
+    }).catch(console.error);
+  }
 
   ngOnInit() {
     const N = 5;
@@ -63,13 +80,13 @@ export class FlowFreeComponent implements OnInit {
     };
     this.board = this.engine.getBoard();
 
-    this.restartTimer(); 
+    this.restartTimer();
   }
 
-  ngOnDestroy(): void { 
-    this.stopTimer(); 
-  
-   // this.restartTimer(); // <-------------------
+  ngOnDestroy(): void {
+    this.stopTimer();
+
+    // this.restartTimer(); // <-------------------
   }
 
   // ====== TIMER helpers ======
@@ -85,7 +102,10 @@ export class FlowFreeComponent implements OnInit {
     if (this.timerRef) { clearInterval(this.timerRef); this.timerRef = null; }
   }
 
-  private restartTimer() { this.startTimer(); }
+  private restartTimer() {
+    this.startTimer();
+    this.terminar();  // ===================>  PARA EL PUNTAJE Y LISTADO DE RESULTADOS 
+  }
 
   get clock(): string {
     const total = Math.floor(this.elapsedMs / 1000);
@@ -129,7 +149,10 @@ export class FlowFreeComponent implements OnInit {
     this.engine.resetAll();
     this.board = this.engine.getBoard();
     this.message = '';
-   // this.restartTimer();                // ← reinicia cronómetro
+    // this.restartTimer();                // ← reinicia cronómetro
+
+    this.terminar();  // ===================>  PARA EL PUNTAJE Y LISTADO DE RESULTADOS 
+
   }
   // reset() {
   //   this.engine.resetAll();
@@ -163,6 +186,11 @@ export class FlowFreeComponent implements OnInit {
     this.board = this.engine.getBoard();
     this.message = '';
     this.restartTimer();                // ← reinicia cronómetro
+
+
+    this.terminar();  // ===================>  PARA EL PUNTAJE Y LISTADO DE RESULTADOS 
+
+
   }
 
   // -------------------------------
@@ -187,7 +215,7 @@ export class FlowFreeComponent implements OnInit {
     }
   }
 
-
+  
 }
 
 

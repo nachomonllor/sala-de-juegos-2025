@@ -1,67 +1,60 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, signal, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs';
-import { ResultsService } from '../services/results.service';
-import { ResultRow } from '../services/supabase.service';
-import { FormsModule } from '@angular/forms';
+import { ScoreService } from '../services/score.service';
+import { GameCode, ScoreWithUser } from '../models/resultados';
 
 @Component({
   selector: 'app-results-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './results-list.component.html',
   styleUrls: ['./results-list.component.css']
 })
-export class ResultsListComponent implements OnInit {
-  results$!: Observable<ResultRow[]>;   // 👈 ahora existe y está tipado
+export class ResultsListComponent {
 
-  constructor(private readonly resultsService: ResultsService) {}
+  juegos: GameCode[] = ['ahorcado', 'mayor_menor', 'flow_free', 'preguntados_dbz'];
+  juegoSeleccionado = signal<GameCode | 'todos'>('todos');
 
-  ngOnInit(): void {
-    // Si querés solo los tuyos: this.results$ = from(this.resultsService.listMy());
-    this.results$ = this.resultsService.getAllResults(); // usa el método que agregamos
+  cargando = signal(false);
+  error = signal<string | null>(null);
+
+  // todos los resultados desde Supabase
+  private todos = signal<ScoreWithUser[]>([]);
+
+  // derivados por filtro (NO pega a Supabase)
+  resultados = computed(() => {
+    const filtro = this.juegoSeleccionado();
+    const all = this.todos();
+    return filtro === 'todos' ? all : all.filter(r => r.gameCode === filtro);
+  });
+
+  constructor(private scores: ScoreService) {
+    this.refrescar();
   }
+
+  async refrescar() {
+    this.cargando.set(true);
+    this.error.set(null);
+    try {
+      const all = await this.scores.listRecent(100);
+      this.todos.set(all);
+    } catch (e: any) {
+      console.error(e);
+      this.error.set(e?.message ?? 'Error al cargar resultados');
+    } finally {
+      this.cargando.set(false);
+    }
+  }
+
+  onJuegoChange(ev: Event) {
+    const val = (ev.target as HTMLSelectElement).value as 'todos' | GameCode;
+    this.juegoSeleccionado.set(val);
+  }
+
 }
 
 
 
 
 
-// import { Component, OnInit } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { Observable } from 'rxjs';
-// import { ResultsService } from '../services/results.service';
-// import { GameResult } from '../models/result.models';
-
-// @Component({
-//   selector: 'app-results-list',
-//   standalone: true,
-//   imports: [CommonModule],
-//   templateUrl: './results-list.component.html',
-//   styleUrls: ['./results-list.component.css']
-// })
-// export class ResultsListComponent implements OnInit {
-//   // results$: Observable<GameResult[]> | undefined;
-
-//   // constructor(private resultsService: ResultsService) {
-//   //     this.results$ = this.resultsService.getAllResults();
-//   // }
-
-//   ngOnInit(): void {
-//     // Nada adicional aquí; el observable ya está listo
-//   }
-// }
-
-
-// // import { Component } from '@angular/core';
-
-// // @Component({
-// //   selector: 'app-results-list',
-// //   imports: [],
-// //   templateUrl: './results-list.component.html',
-// //   styleUrl: './results-list.component.css'
-// // })
-// // export class ResultsListComponent {
-
-// // }
 
