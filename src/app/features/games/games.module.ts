@@ -19,7 +19,6 @@ import { PreguntadosDbzComponent } from '../../preguntados-dbz_II/preguntados-db
     DuelComponent,
     FlowFreeComponent,
     ResultsListComponent,
-    //PreguntadosDbzInicialComponent
 
     PreguntadosDbzComponent
   ]

@@ -21,3 +21,4 @@ export interface Pregunta {
   correct: OpcionPregunta;
   options: OpcionPregunta[];  // <- plural
 }
+
