@@ -4,7 +4,7 @@ import { AhorcadoComponent } from '../../ahorcado/ahorcado.component';
 import { DuelComponent } from '../../duel/duel.component';
 import { FlowFreeComponent } from '../../flowfree/flowfree';
 import { MayorMenorComponent } from '../../mayor-menor/mayor-menor.component';
-import { PreguntadosDbzComponent } from '../../preguntados-dbz/preguntados-dbz';
+import { PreguntadosDbzInicialComponent } from '../../preguntados-dbz/preguntados-dbz';
 import { ResultsListComponent } from '../../results-list/results-list.component';
 
 const routes: Routes = [
@@ -14,7 +14,7 @@ const routes: Routes = [
   { path: 'preguntados', component: DuelComponent },
   { path: 'flowfree', component: FlowFreeComponent },
   { path: 'resultados', component: ResultsListComponent },
-  { path: 'preguntados-dbz', component: PreguntadosDbzComponent }
+  { path: 'preguntados-dbz', component: PreguntadosDbzInicialComponent }
 ];
 
 @NgModule({

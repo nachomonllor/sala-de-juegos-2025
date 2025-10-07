@@ -6,8 +6,8 @@ import { AhorcadoComponent } from '../../ahorcado/ahorcado.component';
 import { DuelComponent } from '../../duel/duel.component';
 import { FlowFreeComponent } from '../../flowfree/flowfree';
 import { MayorMenorComponent } from '../../mayor-menor/mayor-menor.component';
-import { PreguntadosDbzComponent } from '../../preguntados-dbz/preguntados-dbz';
 import { ResultsListComponent } from '../../results-list/results-list.component';
+import { PreguntadosDbzComponent } from '../../preguntados-dbz_II/preguntados-dbz';
 
 @NgModule({
   imports: [
@@ -19,6 +19,8 @@ import { ResultsListComponent } from '../../results-list/results-list.component'
     DuelComponent,
     FlowFreeComponent,
     ResultsListComponent,
+    //PreguntadosDbzInicialComponent
+
     PreguntadosDbzComponent
   ]
 })

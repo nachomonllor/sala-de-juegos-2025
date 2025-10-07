@@ -1,0 +1,51 @@
+
+/* Contenedor con marco */
+.image-box {
+  width: clamp(240px, 35vw, 360px);
+  aspect-ratio: 1 / 1;       /* Siempre cuadrada */
+  margin: 1rem auto;
+  border: 3px solid #111;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;          /* relleno si sobra espacio */
+  display: grid;
+  place-items: center;
+}
+
+/* Imagen encajada completa dentro del cuadro */
+.image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;       /* <- muestra todo el personaje */
+  object-position: center;   /* centrada */
+  image-rendering: auto;     
+}
+
+.wrapper { max-width: 900px; margin: 2rem auto; padding: 1rem; }
+.hud { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.card { background: #fff; border-radius: 12px; padding: 1rem; box-shadow: 0 10px 20px rgba(0,0,0,.1); }
+.image-box { display: grid; place-items: center; margin: 1rem 0; }
+.image-box img { width: 260px; height: 260px; object-fit: cover; border-radius: 12px; border: 3px solid #111; }
+.options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.btn { border: 0; border-radius: 10px; padding: .75rem 1rem; cursor: pointer; font-weight: 600; }
+.btn.option { background: #f4f4f5; }
+.btn.option.correct { outline: 3px solid #16a34a; }
+.btn.option.wrong { outline: 3px solid #dc2626; }
+.btn.primary { background: #111; color: #fff; }
+.btn.ghost { background: transparent; border: 2px solid #111; }
+.loading, .error { text-align: center; padding: 2rem; }
+.loading img { width: 120px; height: 120px; }
+.loading p, .error p { margin-top: 1rem; font-size: 1
+.25rem; font-weight: 600; color: #555; }
+.error p { color: #dc2626; }
+.score { font-size: 1.25rem; font-weight: 600; }
+.score span { font-size: 1.5rem; font-weight: 700; color: #16a34a; }
+@media (max-width: 600px) {
+  .image-box img { width: 200px; height: 200px; }
+}
+@media (max-width: 400px) {
+  .options { grid-template-columns: 1fr; }
+}
+
+
+

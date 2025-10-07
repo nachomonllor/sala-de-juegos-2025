@@ -15,7 +15,7 @@ import { pointsPreguntados } from '../models/score-utils';
   styleUrls: ['./preguntados-dbz.css'], // <- plural para evitar problemas
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PreguntadosDbzComponent {
+export class PreguntadosDbzInicialComponent {
   private readonly servicioDragonBall = inject(DragonBallService);
 
   // constructor(private score: ScoreService) {}
