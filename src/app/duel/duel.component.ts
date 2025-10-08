@@ -1,20 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';      // ← IMPORTA ESTO
+import { HttpClientModule } from '@angular/common/http';      // IMPORTAR
 import { Component, OnInit } from '@angular/core';
 import { QuestionService } from '../services/question.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  standalone: true,                                         // ← AGREGA ESTO
+  standalone: true,                                         //AGREGAR 
   selector: 'app-duel',
   imports: [
     CommonModule,
     FormsModule,
-    HttpClientModule ,                                     // ← Y ESTO
+    HttpClientModule ,                                     //AGREGAR 
   ],
   templateUrl: './duel.component.html',
-  styleUrls: ['./duel.component.css']                     // ← CORRIGE A styleUrls
+  styleUrls: ['./duel.component.css']                     //CAMBIAR 
 })
 
 export class DuelComponent implements OnInit {

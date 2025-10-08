@@ -35,7 +35,7 @@ export class UsersService {
   //   );
   // }
 
-  // --- Métodos que quizá ya estabas usando ---
+  // --- 
   listProfiles$(): Observable<Profile[]> {
     return from(this.supa.listProfiles());
   }
@@ -89,7 +89,7 @@ export class UsersService {
 
   //   const gamePlays: Record<string, GameSessions> = {}; // default vacío (ajustá si tenés datos)
 
-  //   // ⚠️ Si tu interfaz User tiene más campos (id, role, etc.), agregalos acá.
+  //   // Si tu interfaz User tiene más campos (id, role, etc.), agregalos acá.
   //   return { firstName, lastName, email, gamePlays };
   // }
 
