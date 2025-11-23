@@ -35,6 +35,9 @@ export class ScoreService {
     }
   }
 
+   private async getCurrentUserPrueba() {
+     console.log('getCurrentUser - antes de getUser');
+  } 
 
   /*
   async recordScore(params: {
