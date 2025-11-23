@@ -1,0 +1,43 @@
+ID;Sprint;Módulo;Caso de prueba;Datos / precondiciones;Resultado esperado
+TC-001;1;Login;Visualización de pantalla de Login;Aplicación levantada en el navegador;Se muestra el formulario de login con campos de email y contraseña y botones de ingresar/registrarse
+TC-002;1;Home;Visualización de Home sin estar logueado;Usuario no autenticado;Home muestra opciones básicas y botones de Login/Registro o redirige al Login según implementación
+TC-003;1;Quién Soy;Pantalla "Quién Soy" con datos completos;Ruta /quien-soy accesible;Se muestran datos personales, imagen del alumno y explicación del juego propio
+TC-004;1;General;Favicon visible;Aplicación cargada en el navegador;La pestaña del navegador muestra el favicon personalizado
+
+TC-005;2;Registro;Registro de usuario nuevo válido;Email no registrado y contraseña válida;Se crea el usuario, se muestra mensaje de éxito y se redirige a Home logueado
+TC-006;2;Registro;Intento de registro con email ya registrado;Email ya existente en el sistema;No se crea el usuario y se muestra mensaje de error sin usar alert()
+TC-007;2;Login;Login correcto;Usuario registrado con email/contraseña válidos;Se accede a Home, se ocultan botones de Login/Registro y se registra log con usuario y fecha
+TC-008;2;Login;Login con contraseña incorrecta;Usuario registrado, contraseña errónea;No se accede a Home, se muestra mensaje de error y NO se registra log de ingreso exitoso
+TC-009;2;Login;Botón de acceso rápido 1;Usuario de prueba configurado para acceso rápido;Al presionar el botón se completan email/contraseña y se ingresa correctamente a Home
+TC-010;2;Login;Botón de acceso rápido 2;Segundo usuario de prueba configurado;Al presionar el botón se loguea el otro usuario y se muestra Home
+TC-011;2;Home;Logout;Usuario logueado en Home;Al hacer logout se cierra sesión, se vuelve a pantalla de Login y en Home no se muestra botón de Logout
+
+TC-012;3;Chat;Acceso a chat sin login;Usuario no autenticado;Al intentar entrar al chat se redirige a Login o se bloquea el acceso
+TC-013;3;Chat;Acceso a chat con usuario logueado;Usuario autenticado;Puede acceder a la sala de chat sin restricciones
+TC-014;3;Chat;Envío de mensaje en chat;Usuario logueado dentro del chat;El mensaje se muestra en la lista con el nombre del usuario y la fecha/hora del envío y se guarda en la base
+TC-015;3;Ahorcado;Ingreso de letra por botón;Partida de Ahorcado iniciada;Al hacer clic en una letra se procesa el intento sin usar teclado y se actualiza el estado del juego
+TC-016;3;Ahorcado;Fin de partida Ahorcado (gana o pierde);Palabra completada o ahorcado completo;Se muestra mensaje de resultado y se permite volver a Home o reiniciar juego
+TC-017;3;Mayor o Menor;Primera jugada;Juego Mayor o Menor iniciado;Se muestra primera carta y botones Mayor/Menor para elegir sin teclado
+TC-018;3;Mayor o Menor;Respuesta correcta suma punto;Jugador elige correctamente Mayor o Menor;El puntaje aumenta en 1 y se muestra la siguiente carta
+TC-019;3;Mayor o Menor;Fin del mazo;Se llega al final del mazo de cartas;El juego se detiene y se muestra puntaje final
+
+TC-020;4;Preguntados;Carga de pregunta con imagen desde API;API disponible y servicio configurado;Se muestra una pregunta con la imagen obtenida desde la API
+TC-021;4;Preguntados;Respuesta correcta;Pregunta de Preguntados en pantalla;Al seleccionar la opción correcta se marca como acertada y se actualiza el puntaje
+TC-022;4;Preguntados;Respuesta incorrecta;Pregunta de Preguntados en pantalla;Al seleccionar opción incorrecta se indica el error y opcionalmente se muestra la correcta
+TC-023;4;Juego propio;Acceso al juego propio;Link o tarjeta de juego propio en Home;Al hacer clic se navega al componente del juego propio
+TC-024;4;Juego propio;Flujo completo del juego propio;Reglas definidas para el juego, usuario logueado;Se puede jugar de principio a fin y se muestra claramente cómo se gana o pierde
+
+TC-025;5;Resultados;Guardado resultado Ahorcado;Usuario termina una partida de Ahorcado;Se inserta registro en tabla de partidas con usuario, juego, fecha, puntaje y datos_extra
+TC-026;5;Resultados;Guardado resultado Mayor o Menor;Usuario termina una partida de Mayor o Menor;Se inserta registro de partida con puntaje alcanzado
+TC-027;5;Resultados;Guardado resultado Preguntados;Usuario termina una partida de Preguntados;Se inserta registro en partidas incluyendo cantidad de aciertos
+TC-028;5;Resultados;Listado de resultados general;Existen varias partidas cargadas;El componente de listados muestra filas con usuario, juego, fecha y puntaje ordenados y legibles
+TC-029;5;Encuesta;Validación de edad menor a 18;Se ingresa edad 15;El formulario marca error y no permite enviar
+TC-030;5;Encuesta;Validación de edad mayor a 99;Se ingresa edad 120;El formulario marca error y no permite enviar
+TC-031;5;Encuesta;Validación de teléfono no numérico;Se ingresa teléfono con letras o símbolos;El campo muestra error y no permite enviar hasta que sea solo numérico
+TC-032;5;Encuesta;Validación de teléfono con más de 10 dígitos;Se ingresa teléfono de 11 o más dígitos;El formulario marca error y obliga a acotar a 10 dígitos
+TC-033;5;Encuesta;Campos requeridos;Se deja al menos un campo obligatorio vacío;El formulario indica campos requeridos y no envía la encuesta
+TC-034;5;Encuesta;Envió exitoso de encuesta;Todos los campos completos y válidos;Se envía la encuesta, se muestra mensaje de éxito y se guarda registro asociado al usuario
+
+TC-035;6;Admin encuestas;Acceso a sección de respuestas como admin;Usuario logueado con es_admin = true;Puede acceder a la ruta de administración y ver listado de respuestas de encuestas
+TC-036;6;Admin encuestas;Acceso bloqueado a sección de respuestas como usuario común;Usuario logueado con es_admin = false;CanActivate/Guard impide el acceso y redirige (por ejemplo) a Home
+TC-037;6;Admin encuestas;Visualización de detalle de respuestas;Existen varias encuestas respondidas;El admin puede ver para cada respuesta nombre, edad, teléfono y respuestas a cada pregunta
