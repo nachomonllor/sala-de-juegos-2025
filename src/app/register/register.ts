@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { SupabaseService } from '../services/supabase.service';
 
 @Component({
   standalone: true,
@@ -24,7 +25,11 @@ export class RegisterComponent {
   mensajeDeError = '';
   mensajeInformativo = '';
 
-  constructor(private enrutador: Router, private autenticacion: AuthService) {}
+  constructor(
+    private enrutador: Router,
+    private autenticacion: AuthService,
+    private supabaseSvc: SupabaseService
+  ) {}
 
   async registrarse() {
     if (this.cargando) return;
@@ -59,6 +64,21 @@ export class RegisterComponent {
           'Revisá tu correo para confirmar la cuenta. Luego podés iniciar sesión.';
         await this.enrutador.navigate(['/login']);
         return;
+      }
+
+      // Crear usuario en esquema_juegos.usuarios con los datos del formulario
+      try {
+        await this.supabaseSvc.createUsuarioInEsquemaJuegos(
+          this.formulario.nombre.trim(),
+          this.formulario.apellido.trim() || null,
+          this.formulario.email.trim(),
+          this.formulario.fechaNacimiento || null,
+          usuario.id
+        );
+      } catch (createError: any) {
+        console.error('Error al crear usuario en esquema_juegos:', createError);
+        // No bloqueamos el flujo si falla la creación del usuario
+        // El usuario podrá crearse en el login si es necesario
       }
 
       // Si hubo autologin (confirmación desactivada), pasamos a Home

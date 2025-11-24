@@ -21,14 +21,17 @@ export interface Profile {
 }
 
 export interface ChatMessage {
-  id: number;                 // <- tu app lo usa como number
+  id: number;
   room: string;
-  user_id: string | null;
+  usuario_id?: number | null;  // bigint en BD, opcional para mensajes optimistas
   display_name: string | null;
-  message: string;
-  created_at: string;
+  mensaje?: string;            // nombre de columna en BD, opcional para mensajes optimistas
+  enviado_en?: string;         // nombre de columna en BD, opcional para mensajes optimistas
 
-  // opcionales por compatibilidad (si en algún punto se usaron)
+  // Campos de compatibilidad para el código existente (usados por el componente)
+  user_id?: string | null;
+  message?: string;
+  created_at?: string;
   uid?: string | null;
   email?: string | null;
   text?: string;
@@ -83,14 +86,21 @@ export class SupabaseService {
 
   async listChatMessages(room: string, limit = 50): Promise<ChatMessage[]> {
     const { data, error } = await this.client
-      .from('chat_messages')
+      .schema('esquema_juegos')
+      .from('mensajes_chat')
       .select('*')
       .eq('room', room)
-      .order('created_at', { ascending: true })
+      .order('enviado_en', { ascending: true })
       .limit(limit);
 
     if (error) throw error;
-    return data as ChatMessage[];
+    // Mapear campos de BD a la interfaz
+    return (data || []).map((row: any) => ({
+      ...row,
+      message: row.mensaje,
+      created_at: row.enviado_en,
+      user_id: row.usuario_id?.toString() || null
+    })) as ChatMessage[];
   }
 
   /** Inserta y devuelve la fila (para reemplazar el mensaje optimista en UI) */
@@ -136,14 +146,80 @@ export class SupabaseService {
 
     const display_name = user.email?.split('@')[0] ?? 'Anónimo';
 
+    // Obtener el usuario_id (el usuario ya debe existir, creado en registro/login)
+    const usuarioId = await this.getUsuarioIdFromSupabaseUid(user.id);
+    if (!usuarioId) {
+      throw new Error('Usuario no encontrado. Debes registrarte primero.');
+    }
+
     const { data, error } = await this.client
-      .from('chat_messages')
-      .insert({ room, message, display_name }) // <- SIN user_id
+      .schema('esquema_juegos')
+      .from('mensajes_chat')
+      .insert({ 
+        usuario_id: usuarioId,  // ID del usuario en esquema_juegos.usuarios
+        room, 
+        mensaje: message,
+        display_name 
+      })
       .select('*')
       .single();
 
     if (error) throw error;
-    return data as ChatMessage;
+    // Mapear campos de BD a la interfaz
+    const mapped = {
+      ...data,
+      message: data.mensaje,
+      created_at: data.enviado_en,
+      user_id: data.usuario_id?.toString() || null
+    };
+    return mapped as ChatMessage;
+  }
+
+  /* ========================= USUARIOS ESQUEMA_JUEGOS ========================= */
+
+  /**
+   * Crea un usuario en esquema_juegos.usuarios
+   * Usado en registro/login
+   */
+  async createUsuarioInEsquemaJuegos(
+    nombre: string,
+    apellido: string | null,
+    email: string,
+    fechaNacimiento: string | null,
+    supabaseUid: string
+  ): Promise<number> {
+    const { data, error } = await this.client
+      .schema('esquema_juegos')
+      .from('usuarios')
+      .insert({
+        supabase_uid: supabaseUid,
+        email,
+        nombre,
+        apellido: apellido || null,
+        fecha_nacimiento: fechaNacimiento || null
+      })
+      .select('id')
+      .single();
+
+    if (error) throw error;
+    return data.id;
+  }
+
+  /**
+   * Obtiene el usuario_id (bigint) de esquema_juegos.usuarios a partir del UUID de Supabase Auth
+   * Solo busca, NO crea usuarios (asume que el usuario ya existe)
+   * Usado en chat, logins, resultados, etc.
+   */
+  async getUsuarioIdFromSupabaseUid(supabaseUid: string): Promise<number | null> {
+    const { data, error } = await this.client
+      .schema('esquema_juegos')
+      .from('usuarios')
+      .select('id')
+      .eq('supabase_uid', supabaseUid)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data?.id ?? null;
   }
 
 
@@ -153,8 +229,23 @@ export class SupabaseService {
       .channel(`room:${room}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `room=eq.${room}` },
-        (payload) => onNew(payload.new as ChatMessage)
+        { 
+          event: 'INSERT', 
+          schema: 'esquema_juegos', 
+          table: 'mensajes_chat', 
+          filter: `room=eq.${room}` 
+        },
+        (payload) => {
+          // Mapear campos de BD a la interfaz
+          const newMsg = payload.new as any; // TypeScript puede ser estricto con payload.new
+          const mapped = {
+            ...newMsg,
+            message: newMsg.mensaje,
+            created_at: newMsg.enviado_en,
+            user_id: newMsg.usuario_id?.toString() || null
+          };
+          onNew(mapped as ChatMessage);
+        }
       )
       .subscribe();
     return () => this.client.removeChannel(channel);
@@ -224,114 +315,129 @@ export class SupabaseService {
     if (error) throw error;
   }
 
-  /* ========================= PROFILES ========================= */
-
-  selectProfiles() {
-    // Devuelve una Promise<{ data, error }>
-    return this.client
-      .from('profiles')
-      .select('id, first_name, last_name, email, game_plays')
-      .order('last_name', { ascending: true });
-  }
-
-  async upsertProfile(uid: string, displayName: string, avatar_url: string | null = null): Promise<void> {
-    const me = await this.getUser();
-    const email = me?.email ?? null;
-    const { error } = await this.client.from('profiles').upsert(
-      {
-        id: uid,
-        email,
-        display_name: displayName,
-        avatar_url,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'id' }
-    );
-    if (error) throw error;
-  }
-
-  async getProfile(uid: string): Promise<Profile | null> {
-    const { data, error } = await this.client
-      .from('profiles')
-      .select('id,email,display_name,avatar_url,role,created_at,updated_at')
-      .eq('id', uid)
-      .maybeSingle();
-    if (error) throw error;
-    return data as Profile | null;
-  }
-
-  async listProfiles(): Promise<Profile[]> {
-    const { data, error } = await this.client
-      .from('profiles')
-      .select('id,email,display_name,avatar_url,role,created_at,updated_at')
-      .order('updated_at', { ascending: false });
-    if (error) throw error;
-    return data as Profile[];
-  }
-
-  async upsertProfileNames(uid: string, firstName: string, lastName: string, email?: string | null): Promise<void> {
-    const display = [firstName, lastName].filter(Boolean).join(' ').trim() || null;
-    const { error } = await this.client.from('profiles').upsert(
-      {
-        id: uid,
-        email: email ?? null,
-        first_name: firstName || null,
-        last_name: lastName || null,
-        display_name: display,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'id' }
-    );
-    if (error) throw error;
-  }
+  /* ========================= USUARIOS (esquema_juegos) ========================= */
+  /* Métodos de profiles eliminados - ahora se usa esquema_juegos.usuarios */
 
   /* ========================= LOGS & RESULTS ========================= */
 
-  async logLogin(user_id: string, email: string | null): Promise<void> {
-    const { error } = await this.client.from('login_logs').insert({ user_id, email });
+  async logLogin(supabaseUid: string): Promise<void> {
+    const usuarioId = await this.getUsuarioIdFromSupabaseUid(supabaseUid);
+    if (!usuarioId) {
+      throw new Error('Usuario no encontrado en esquema_juegos.usuarios');
+    }
+
+    const { error } = await this.client
+      .schema('esquema_juegos')
+      .from('log_logins')
+      .insert({ usuario_id: usuarioId });
     if (error) throw error;
   }
 
   async getLoginLogs(limit = 100): Promise<LoginLog[]> {
     const { data, error } = await this.client
-      .from('login_logs')
+      .schema('esquema_juegos')
+      .from('log_logins')
       .select('*')
-      .order('created_at', { ascending: false })
+      .order('fecha_ingreso', { ascending: false })
       .limit(limit);
     if (error) throw error;
-    return data as LoginLog[];
+    // Mapear campos de BD a la interfaz
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      user_id: row.usuario_id?.toString() || null,
+      email: null, // no está en el esquema, se puede obtener del usuario si es necesario
+      created_at: row.fecha_ingreso
+    })) as LoginLog[];
   }
 
   async saveResult(game: string, score: number, meta: any = null): Promise<void> {
-    const me = await this.getUser();
-    const { error } = await this.client.from('results').insert({
-      user_id: me?.id ?? null,
-      game,
-      score,
-      meta,
-    });
+    const { data: { user } } = await this.client.auth.getUser();
+    if (!user) throw new Error('No hay usuario logueado');
+
+    const usuarioId = await this.getUsuarioIdFromSupabaseUid(user.id);
+    if (!usuarioId) {
+      throw new Error('Usuario no encontrado en esquema_juegos.usuarios');
+    }
+
+    // Buscar el juego_id por código
+    const { data: juego, error: juegoError } = await this.client
+      .schema('esquema_juegos')
+      .from('juegos')
+      .select('id')
+      .eq('codigo', game)
+      .maybeSingle();
+
+    if (juegoError) throw juegoError;
+    if (!juego) {
+      throw new Error(`Juego con código '${game}' no encontrado`);
+    }
+
+    const { error } = await this.client
+      .schema('esquema_juegos')
+      .from('partidas')
+      .insert({
+        usuario_id: usuarioId,
+        juego_id: juego.id,
+        puntaje: score,
+        datos_extra: meta,
+        gano: null // se puede calcular si es necesario
+      });
     if (error) throw error;
   }
 
-  async listResultsByUser(uid?: string): Promise<ResultRow[]> {
-    const me = uid ? { id: uid } : await this.getUser();
+  async listResultsByUser(supabaseUid?: string): Promise<ResultRow[]> {
+    let usuarioId: number | null = null;
+    
+    if (supabaseUid) {
+      usuarioId = await this.getUsuarioIdFromSupabaseUid(supabaseUid);
+    } else {
+      const { data: { user } } = await this.client.auth.getUser();
+      if (user) {
+        usuarioId = await this.getUsuarioIdFromSupabaseUid(user.id);
+      }
+    }
+
+    if (!usuarioId) {
+      return [];
+    }
+
     const { data, error } = await this.client
-      .from('results')
+      .schema('esquema_juegos')
+      .from('partidas')
       .select('*')
-      .eq('user_id', me?.id ?? '')
-      .order('created_at', { ascending: false });
+      .eq('usuario_id', usuarioId)
+      .order('fecha_partida', { ascending: false });
     if (error) throw error;
-    return data as ResultRow[];
+    
+    // Mapear campos de BD a la interfaz
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      user_id: row.usuario_id?.toString() || null,
+      game: row.juego_id?.toString() || null, // TODO: obtener código del juego si es necesario
+      score: row.puntaje || 0,
+      meta: row.datos_extra,
+      created_at: row.fecha_partida
+    })) as ResultRow[];
   }
 
   async listAllResults(limit = 100) {
     const { data, error } = await this.client
-      .from('results')
+      .schema('esquema_juegos')
+      .from('partidas')
       .select('*')
-      .order('created_at', { ascending: false })
+      .order('fecha_partida', { ascending: false })
       .limit(limit);
     if (error) throw error;
-    return data as ResultRow[];
+    
+    // Mapear campos de BD a la interfaz
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      user_id: row.usuario_id?.toString() || null,
+      game: row.juego_id?.toString() || null,
+      score: row.puntaje || 0,
+      meta: row.datos_extra,
+      created_at: row.fecha_partida
+    })) as ResultRow[];
   }
 
   /* Acceso directo al cliente si necesitás queries ad-hoc */
@@ -672,42 +778,7 @@ export class SupabaseService {
 //   //   return data as Profile[];
 //   // }
 
-//   // Dentro de la clase SupabaseService:
-//   async getProfile(uid: string): Promise<Profile | null> {
-//     const { data, error } = await this.client
-//       .from('profiles')
-//       .select('id,email,display_name,avatar_url,role,created_at,updated_at')
-//       .eq('id', uid)
-//       .maybeSingle();
-//     if (error) throw error;
-//     return data as Profile | null;
-//   }
-
-//   async listProfiles(): Promise<Profile[]> {
-//     const { data, error } = await this.client
-//       .from('profiles')
-//       .select('id,email,display_name,avatar_url,role,created_at,updated_at')
-//       .order('updated_at', { ascending: false });
-//     if (error) throw error;
-//     return data as Profile[];
-//   }
-
-//   // src/app/services/supabase.service.ts (dentro de la clase)
-//   async upsertProfileNames(uid: string, firstName: string, lastName: string, email?: string | null): Promise<void> {
-//     const display = [firstName, lastName].filter(Boolean).join(' ').trim() || null;
-//     const { error } = await this.client.from('profiles').upsert(
-//       {
-//         id: uid,
-//         email: email ?? null,
-//         first_name: firstName || null,
-//         last_name: lastName || null,
-//         display_name: display,
-//         updated_at: new Date().toISOString(),
-//       },
-//       { onConflict: 'id' }
-//     );
-//     if (error) throw error;
-//   }
+//   Métodos de profiles eliminados - ahora se usa esquema_juegos.usuarios
 
 // }
 

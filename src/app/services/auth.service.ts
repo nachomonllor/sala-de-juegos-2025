@@ -66,38 +66,6 @@ export class AuthService {
   get client() {
     return this.supa.client; // asegúrate de exponer 'client' en SupabaseService (abajo)
   }
-
-  async ensureProfile(
-    user: User,
-    opts: { name?: string; age?: number | null; avatar_url?: string | null } = {}
-  ): Promise<void> {
-    // Partimos el "name" en nombre y apellido (si existe)
-    const full = (opts.name ?? '').trim();
-    const [first, ...rest] = full.split(/\s+/);
-    const first_name = first || null;
-    const last_name = rest.join(' ') || null;
-
-    // Fallback razonable para display_name
-    const display_name = full || user.email || null;
-
-    // Armamos el payload; ignoramos "age" salvo que tengas esa columna
-    const payload: any = {
-      id: user.id,
-      email: user.email ?? null,
-      first_name,
-      last_name,
-      display_name,
-      // avatar_url: opts.avatar_url ?? null,
-      updated_at: new Date().toISOString(),
-    };
-
-    // Upsert en 'profiles'
-    const { error } = await this.client
-      .from('profiles')
-      .upsert(payload, { onConflict: 'id' });
-
-    if (error) throw error;
-  }
 }
 
 

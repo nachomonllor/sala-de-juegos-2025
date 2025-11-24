@@ -4,40 +4,7 @@ import { GameCode, Score, ScoreWithUser } from '../models/resultados';
 
 @Injectable({ providedIn: 'root' })
 export class ScoreService {
-  constructor(private supa: SupabaseService) { }
-
-  private async ensureProfile(user: any) {
-    const display =
-      user.user_metadata?.name ??
-      user.email?.split('@')[0] ??
-      'Jugador';
-
-    const { data: exists } = await this.supa.client
-      .from('profiles')
-      .select('id')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (!exists) {
-      await this.supa.client.from('profiles').insert({
-        id: user.id,
-        display_name: display,
-        avatar_url: user.user_metadata?.avatar_url ?? null
-      });
-    } else {
-      await this.supa.client
-        .from('profiles')
-        .update({
-          display_name: display,
-          avatar_url: user.user_metadata?.avatar_url ?? null
-        })
-        .eq('id', user.id);
-    }
-  }
-
-   private async getCurrentUserPrueba() {
-     console.log('getCurrentUser - antes de getUser');
-  } 
+  constructor(private supa: SupabaseService) { } 
 
   /*
   async recordScore(params: {
@@ -82,68 +49,142 @@ export class ScoreService {
     durationSec?: number;
     metaJson?: Record<string, unknown>;
   }): Promise<Score> {
-    
-    //SOLO user ACA
     const { data: { user }, error: userErr } = await this.supa.client.auth.getUser();
     if (userErr) throw userErr;
     if (!user) throw new Error('No hay usuario logueado');
 
-    // PARA VER EL TOKEN:
-     const { data: { session } } = await this.supa.client.auth.getSession();
-     console.log('TOKEN?', !!session?.access_token);
+    // Obtener usuario_id de esquema_juegos.usuarios
+    const usuarioId = await this.supa.getUsuarioIdFromSupabaseUid(user.id);
+    if (!usuarioId) {
+      throw new Error('Usuario no encontrado en esquema_juegos.usuarios');
+    }
 
-    // USAR RPC o INSERT directo (EL QUE SE ESTE USANDO). Ejemplo con RPC:
-    const { data, error } = await this.supa.client.rpc('record_score', {
-      p_game_code: params.gameCode,
-      p_points: params.points,
-      p_duration_sec: params.durationSec ?? null,
-      p_meta_json: params.metaJson ?? null
-    });
+    // Buscar el juego_id por código
+    const { data: juego, error: juegoError } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('juegos')
+      .select('id')
+      .eq('codigo', params.gameCode)
+      .maybeSingle();
+
+    if (juegoError) throw juegoError;
+    if (!juego) {
+      throw new Error(`Juego con código '${params.gameCode}' no encontrado`);
+    }
+
+    // Insertar en esquema_juegos.partidas
+    const metaData: any = params.metaJson || {};
+    if (params.durationSec !== undefined) {
+      metaData.duration_sec = params.durationSec;
+    }
+
+    const { data, error } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('partidas')
+      .insert({
+        usuario_id: usuarioId,
+        juego_id: juego.id,
+        puntaje: params.points,
+        datos_extra: Object.keys(metaData).length > 0 ? metaData : null,
+        gano: null
+      })
+      .select('*')
+      .single();
+
     if (error) throw error;
 
     return {
       id: data.id,
-      userId: data.user_id,
-      gameCode: data.game_code,
-      points: Number(data.points),
-      durationSec: data.duration_sec ?? undefined,
-      createdAt: data.created_at,
-      metaJson: data.meta_json ?? undefined,
+      userId: user.id, // UUID de Supabase Auth
+      gameCode: params.gameCode,
+      points: Number(data.puntaje),
+      durationSec: params.durationSec,
+      createdAt: data.fecha_partida,
+      metaJson: data.datos_extra ?? undefined,
     };
   }
 
   async listRecent(limit = 100): Promise<ScoreWithUser[]> {
     const { data, error } = await this.supa.client
-      .from('scores')
+      .schema('esquema_juegos')
+      .from('partidas')
       .select(`
-        id, user_id, game_code, points, duration_sec, created_at, meta_json,
-        profiles: user_id ( display_name, avatar_url )
+        id, usuario_id, juego_id, puntaje, datos_extra, fecha_partida,
+        usuarios:usuario_id ( nombre, apellido, email ),
+        juegos:juego_id ( codigo, nombre )
       `)
-      .order('created_at', { ascending: false })
+      .order('fecha_partida', { ascending: false })
       .limit(limit);
     if (error) throw error;
-    return (data ?? []).map((r: any) => ({
-      id: r.id,
-      userId: r.user_id,
-      gameCode: r.game_code,
-      points: Number(r.points),
-      durationSec: r.duration_sec ?? undefined,
-      createdAt: r.created_at,
-      metaJson: r.meta_json ?? undefined,
-      userDisplayName: r.profiles?.display_name ?? '—',
-      userAvatarUrl: r.profiles?.avatar_url ?? undefined,
-    }));
+    
+    return (data ?? []).map((r: any) => {
+      const meta = r.datos_extra || {};
+      const displayName = r.usuarios 
+        ? `${r.usuarios.nombre} ${r.usuarios.apellido || ''}`.trim() 
+        : '—';
+      
+      return {
+        id: r.id,
+        userId: r.usuario_id?.toString() || null,
+        gameCode: r.juegos?.codigo || null,
+        points: Number(r.puntaje || 0),
+        durationSec: meta.duration_sec ?? undefined,
+        createdAt: r.fecha_partida,
+        metaJson: r.datos_extra ?? undefined,
+        userDisplayName: displayName,
+        userAvatarUrl: undefined, // no está en el esquema
+      };
+    });
   }
 
   async leaderboard(game: GameCode, limit = 10) {
+    // Buscar el juego_id por código
+    const { data: juego, error: juegoError } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('juegos')
+      .select('id')
+      .eq('codigo', game)
+      .maybeSingle();
+
+    if (juegoError) throw juegoError;
+    if (!juego) {
+      throw new Error(`Juego con código '${game}' no encontrado`);
+    }
+
+    // Obtener mejores puntajes por usuario para este juego
     const { data, error } = await this.supa.client
-      .from('v_leaderboard')
-      .select('*')
-      .eq('game_code', game)
-      .order('best_points', { ascending: false })
-      .limit(limit);
+      .schema('esquema_juegos')
+      .from('partidas')
+      .select(`
+        usuario_id, puntaje,
+        usuarios:usuario_id ( nombre, apellido, email )
+      `)
+      .eq('juego_id', juego.id)
+      .order('puntaje', { ascending: false })
+      .limit(limit * 2); // tomar más para luego agrupar por usuario
+
     if (error) throw error;
-    return data;
+
+    // Agrupar por usuario y tomar el mejor puntaje
+    const userBest: Map<number, any> = new Map();
+    (data || []).forEach((r: any) => {
+      const userId = r.usuario_id;
+      const currentBest = userBest.get(userId);
+      if (!currentBest || r.puntaje > currentBest.puntaje) {
+        userBest.set(userId, {
+          user_id: userId,
+          game_code: game,
+          best_points: r.puntaje,
+          display_name: r.usuarios 
+            ? `${r.usuarios.nombre} ${r.usuarios.apellido || ''}`.trim() 
+            : '—'
+        });
+      }
+    });
+
+    return Array.from(userBest.values())
+      .sort((a, b) => b.best_points - a.best_points)
+      .slice(0, limit);
   }
 
 }

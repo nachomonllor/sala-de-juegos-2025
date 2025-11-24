@@ -68,7 +68,8 @@
               "buildTarget": "sala-de-juegos-2025:build:production"
             },
             "development": {
-              "buildTarget": "sala-de-juegos-2025:build:development"
+              "buildTarget": "sala-de-juegos-2025:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

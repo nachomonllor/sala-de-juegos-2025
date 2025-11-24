@@ -35,18 +35,8 @@ export class UsersService {
   //   );
   // }
 
-  // --- 
-  listProfiles$(): Observable<Profile[]> {
-    return from(this.supa.listProfiles());
-  }
-
-  getProfile$(uid: string): Observable<Profile | null> {
-    return from(this.supa.getProfile(uid));
-  }
-
-  upsertMyProfile(uid: string, displayName: string): Observable<void> {
-    return from(this.supa.upsertProfile(uid, displayName));
-  }
+  // Métodos de profiles eliminados - ahora se usa esquema_juegos.usuarios
+  // Si necesitas listar usuarios, usa esquema_juegos.usuarios directamente
 
 
 }

@@ -128,28 +128,79 @@ export class EncuestaComponent implements OnInit {
       }
       const user = session.user;
 
-      // 2) Selección de mejoras
+      // 2) Obtener usuario_id de esquema_juegos.usuarios
+      const usuarioId = await this.supabaseSvc.getUsuarioIdFromSupabaseUid(user.id);
+
+      // 3) Obtener encuesta activa (asumimos que hay una con id=1, o buscar la primera activa)
+      const { data: encuesta, error: encuestaError } = await this.supabaseSvc.client
+        .schema('esquema_juegos')
+        .from('encuestas')
+        .select('id')
+        .eq('activa', true)
+        .order('creada_en', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (encuestaError) throw encuestaError;
+      if (!encuesta) {
+        throw new Error('No hay encuestas activas');
+      }
+
+      // 4) Insertar respuesta principal en respuestas_encuesta
+      const { data: respuestaEncuesta, error: insertErr } = await this.supabaseSvc.client
+        .schema('esquema_juegos')
+        .from('respuestas_encuesta')
+        .insert({
+          encuesta_id: encuesta.id,
+          usuario_id: usuarioId,
+          nombre_apellido: (this.form.value.nombreApellido as string).trim(),
+          edad: Number(this.form.value.edad),
+          telefono: (this.form.value.telefono as string).trim()
+        })
+        .select('id')
+        .single();
+
+      if (insertErr) throw insertErr;
+
+      // 5) Guardar respuestas de preguntas en respuestas_pregunta
+      // Nota: Esto requiere que las preguntas existan en la BD. Por ahora guardamos como texto.
+      // En una implementación completa, necesitarías mapear cada pregunta del formulario a su pregunta_id en la BD.
       const seleccionMejoras = this.mejorasOpciones
         .filter((_, idx) => this.mejorasFA.at(idx).value === true);
 
-      // 3) Armar fila
-      const row = {
-        user_id: user.id,
-        nombre_apellido: (this.form.value.nombreApellido as string).trim(),
-        edad: Number(this.form.value.edad),
-        telefono: (this.form.value.telefono as string).trim(),
-        juego_favorito: this.form.value.juegoFavorito as string,
+      // Guardar respuestas como texto en respuestas_pregunta
+      // Asumiendo que hay preguntas con IDs conocidos o creando un mapeo
+      // Por simplicidad, guardamos las respuestas en un formato JSON en valor_texto
+      const respuestasData = {
+        juego_favorito: this.form.value.juegoFavorito,
         motivo: (this.form.value.motivo as string).trim(),
-        mejoras: seleccionMejoras,     // text[]
-        opinion: this.form.value.opinion as string
+        mejoras: seleccionMejoras,
+        opinion: this.form.value.opinion
       };
 
-      // 4) Insert
-      const { error: insertErr } = await this.supabaseSvc.client
-        .from('encuestas')
-        .insert(row);
+      // Buscar preguntas de la encuesta para guardar respuestas
+      const { data: preguntas, error: preguntasError } = await this.supabaseSvc.client
+        .schema('esquema_juegos')
+        .from('preguntas_encuesta')
+        .select('id, texto')
+        .eq('encuesta_id', encuesta.id)
+        .order('orden', { ascending: true });
 
-      if (insertErr) throw insertErr;
+      if (preguntasError) {
+        console.warn('No se pudieron obtener las preguntas, guardando solo respuesta principal');
+      } else if (preguntas && preguntas.length > 0) {
+        // Guardar cada respuesta en respuestas_pregunta
+        // Por simplicidad, guardamos todo en la primera pregunta como JSON
+        // En una implementación completa, mapearías cada campo del formulario a su pregunta_id
+        await this.supabaseSvc.client
+          .schema('esquema_juegos')
+          .from('respuestas_pregunta')
+          .insert({
+            respuesta_encuesta_id: respuestaEncuesta.id,
+            pregunta_id: preguntas[0].id, // Usar la primera pregunta como contenedor
+            valor_texto: JSON.stringify(respuestasData)
+          });
+      }
 
       this.snack.open('¡Gracias! Encuesta enviada correctamente.', 'OK', { duration: 3000 });
       this.form.reset();

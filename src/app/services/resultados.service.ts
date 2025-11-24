@@ -13,31 +13,58 @@ interface GuardarScoreArgs {
 @Injectable({ providedIn: 'root' })
 export class ResultadosService {
   private supabase = inject(SupabaseService);
-  private readonly TABLE = 'scores';
 
   async guardarScore({ game_code, points, duration_sec, meta }: GuardarScoreArgs) {
     const { data: { session }, error: sErr } = await this.supabase.client.auth.getSession();
     if (sErr || !session?.user) {
-      console.warn('[scores] no session; omitiendo guardado');
+      console.warn('[resultados] no session; omitiendo guardado');
       return { ok: false as const, reason: 'no-session' as const };
     }
 
-    const row = {
-      user_id: session.user.id,
-      game_code,
-      points,                          // numeric en DB
-      duration_sec: duration_sec ?? null,
-      meta_json: meta ?? null          // jsonb
-      // created_at lo completa default now()
-    };
+    // Obtener usuario_id de esquema_juegos.usuarios
+    const usuarioId = await this.supabase.getUsuarioIdFromSupabaseUid(session.user.id);
+    if (!usuarioId) {
+      console.warn('[resultados] usuario no encontrado en esquema_juegos.usuarios');
+      return { ok: false as const, reason: 'usuario-no-encontrado' as const };
+    }
 
-    const { error } = await this.supabase.client.from(this.TABLE).insert(row);
+    // Buscar el juego_id por código
+    const { data: juego, error: juegoError } = await this.supabase.client
+      .schema('esquema_juegos')
+      .from('juegos')
+      .select('id')
+      .eq('codigo', game_code)
+      .maybeSingle();
+
+    if (juegoError) {
+      console.error('[resultados] error buscando juego:', juegoError);
+      return { ok: false as const, error: juegoError };
+    }
+    if (!juego) {
+      console.warn(`[resultados] juego '${game_code}' no encontrado`);
+      return { ok: false as const, reason: 'juego-no-encontrado' as const };
+    }
+
+    // Preparar datos_extra
+    const datosExtra: any = meta || {};
+    if (duration_sec !== undefined) {
+      datosExtra.duration_sec = duration_sec;
+    }
+
+    // Insertar en esquema_juegos.partidas
+    const { error } = await this.supabase.client
+      .schema('esquema_juegos')
+      .from('partidas')
+      .insert({
+        usuario_id: usuarioId,
+        juego_id: juego.id,
+        puntaje: points,
+        datos_extra: Object.keys(datosExtra).length > 0 ? datosExtra : null,
+        gano: null
+      });
+
     if (error) {
-      //console.error('[scores] insert error:', error);
-
-      const { data: { user } } = await this.supabase.client.auth.getUser();
-      console.log('[scores] uid=', user?.id, 'row.user_id=', row.user_id);
-
+      console.error('[resultados] insert error:', error);
       return { ok: false as const, error };
     }
     return { ok: true as const };

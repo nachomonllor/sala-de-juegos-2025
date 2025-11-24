@@ -6,12 +6,15 @@ create schema if not exists esquema_juegos;
 ---------------------------------------------------
 create table if not exists esquema_juegos.usuarios (
     id              bigserial primary key,
-    firebase_uid    text unique,          -- opcional, si usás Firebase Auth
+    supabase_uid    uuid not null unique,          -- UUID de Supabase Auth (FK a auth.users)
     email           text not null unique,
     nombre          text not null,
     apellido        text,
+    fecha_nacimiento date,                          -- fecha de nacimiento del usuario
     es_admin        boolean not null default false,  -- para el guard de administrador
-    fecha_registro  timestamptz not null default now()
+    fecha_registro  timestamptz not null default now(),
+    constraint usuarios_supabase_uid_fkey
+        foreign key (supabase_uid) references auth.users(id)
 );
 
 ---------------------------------------------------
@@ -97,10 +100,12 @@ create table if not exists esquema_juegos.log_logins (
 -- 6) Chat
 ---------------------------------------------------
 create table if not exists esquema_juegos.mensajes_chat (
-    id         bigserial primary key,
-    usuario_id bigint not null references esquema_juegos.usuarios(id) on delete cascade,
-    mensaje    text not null,
-    enviado_en timestamptz not null default now()
+    id          bigserial primary key,
+    usuario_id  bigint not null references esquema_juegos.usuarios(id) on delete cascade,
+    room        text not null default 'global',  -- sala de chat (global, privada, etc.)
+    mensaje     text not null,
+    display_name text,                           -- nombre visible del usuario
+    enviado_en  timestamptz not null default now()
 );
 
 ---------------------------------------------------

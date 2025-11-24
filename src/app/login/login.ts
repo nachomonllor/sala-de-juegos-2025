@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { SupabaseService } from '../services/supabase.service';
 import { environment } from '../../environments/environment';
 
 type UsuarioAccesoRapido = { etiqueta: string; correo: string; contrasenia: string };
@@ -23,7 +24,11 @@ export class LoginComponent {
   usuariosAccesoRapido: UsuarioAccesoRapido[] = environment.demoUsers;
   get mostrarAccesoRapido(): boolean { return !!environment.accesoRapidoHabilitado; }
 
-  constructor(private enrutador: Router, private servicioAuth: AuthService) {}
+  constructor(
+    private enrutador: Router,
+    private servicioAuth: AuthService,
+    private supabaseSvc: SupabaseService
+  ) {}
 
   autocompletarAccesoRapido(u: UsuarioAccesoRapido) {
     this.formulario.correo = u.correo;
@@ -62,19 +67,32 @@ export class LoginComponent {
       return;
     }
 
-    // (Opcional) Traer perfil
+    // Verificar/crear usuario en esquema_juegos.usuarios y registrar login
     const usuario = data.user;
     if (usuario) {
-      const { data: datosPerfil, error: errorPerfil } = await this.servicioAuth.client
-        .from('profiles')
-        .select('id, first_name, last_name, email')
-        .eq('id', usuario.id)
-        .maybeSingle();
+      try {
+        // Verificar si el usuario existe en esquema_juegos.usuarios
+        let usuarioId = await this.supabaseSvc.getUsuarioIdFromSupabaseUid(usuario.id);
+        
+        // Si no existe (caso edge: usuario creado antes de la migración), crearlo con datos mínimos
+        if (!usuarioId) {
+          const nombre = usuario.email?.split('@')[0] || 'Usuario';
+          usuarioId = await this.supabaseSvc.createUsuarioInEsquemaJuegos(
+            nombre,
+            null,
+            usuario.email || '',
+            null,
+            usuario.id
+          );
+        }
 
-      if (errorPerfil) {
-        console.warn('No se pudo leer el perfil (profiles):', errorPerfil.message);
-      } else {
-        console.log('Perfil:', datosPerfil);
+        // Registrar login en esquema_juegos.log_logins
+        if (usuarioId) {
+          await this.supabaseSvc.logLogin(usuario.id);
+        }
+      } catch (error: any) {
+        console.warn('Error al verificar/crear usuario o registrar login:', error);
+        // No bloqueamos el login por esto
       }
     }
 

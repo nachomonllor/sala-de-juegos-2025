@@ -2,19 +2,19 @@ export const environment = {
   // production: false,
   // supabaseUrl: 'https://taswckilspgrlcrdouxb.supabase.co',
   // supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhc3dja2lsc3BncmxjcmRvdXhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3MDcwOTYsImV4cCI6MjA3MTI4MzA5Nn0.lyzI_wsy-Ykdc_A3hu6Xs0MJPYFX5IBAXJnwR96vp5w',
-  
-    production: false,
+
+  production: false,
   // Supabase Cloud (entorno por defecto)
   supabaseUrl: 'https://tuwlrspqlkpqatnaintx.supabase.co',
-  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1d2xyc3BxbGtwcWF0bmFpbnR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3NDcyOTEsImV4cCI6MjA3MTMyMzI5MX0.O5eawMd27SKifzyOvKp5fJZcvgBodxXA5LZWZdexRSA',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1d2xyc3BxbGtwcWF0bmFpbnR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3NDcyOTEsImV4cCI6MjA3MTMyMzI5MX0.O5eawMd27SKifzyOvKp5fJZcvgBodxXA5LZWZdexRSA',
   // Si necesitás volver a la instancia local, reemplazá estas variables por las de localhost.
- 
+
   accesoRapidoHabilitado: true,
   demoUsers: [
     { etiqueta: 'Nacho', correo: 'nachomonllor@hotmail.com', contrasenia: '123456' },
     { etiqueta: 'Hector', correo: 'hector@hotmail.com', contrasenia: '123456' },
   ],
-  dbzBaseUrl: '/dbz-api'   //   el proxy local  
+  dbzBaseUrl: '/dbz'   //   el proxy local  
 
 
 };

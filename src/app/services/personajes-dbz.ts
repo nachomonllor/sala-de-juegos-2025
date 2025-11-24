@@ -22,7 +22,7 @@ export class PersonajesDbzService {
   // }
 
   private url(page: number, limit: number) {
-    return `${environment.dbzBaseUrl}/api/characters?page=${page}&limit=${limit}`;
+    return `${environment.dbzBaseUrl}/characters?page=${page}&limit=${limit}`;
   }
 
  // private url(p: number, l: number) { return `https://dragonball-api.com/api/characters?page=${p}&limit=${l}`; }
