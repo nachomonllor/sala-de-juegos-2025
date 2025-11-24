@@ -30,6 +30,9 @@
         <a class="btn outline wide" routerLink="/encuesta">
           Encuesta
         </a>
+        <a class="btn outline wide" routerLink="/encuesta/respuestas" *ngIf="esAdmin()" style="background: rgba(63, 81, 181, 0.1); border-color: #3f51b5;">
+          📊 Ver Respuestas (Admin)
+        </a>
       </div>
     </div>
 
