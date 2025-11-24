@@ -60,8 +60,16 @@ export class PreguntadosDbzComponent {
 
       console.log('[DBZ] guardarScore ->', res);
 
+      if (!res.ok) {
+        console.error('[DBZ] Error al guardar puntaje:', res.reason || res.error);
+        // Opcional: mostrar mensaje al usuario
+        // alert(`No se pudo guardar el puntaje: ${res.reason || 'Error desconocido'}`);
+      } else {
+        console.log('[DBZ] Puntaje guardado correctamente');
+      }
 
-
+    } catch (error) {
+      console.error('[DBZ] Excepción al guardar puntaje:', error);
     } finally {
       this.guardando.set(false);
     }

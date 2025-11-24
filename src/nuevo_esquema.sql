@@ -128,6 +128,8 @@ insert into esquema_juegos.juegos (codigo, nombre, descripcion) values
 ('ahorcado',     'Ahorcado',       'Juego del ahorcado'),
 ('mayor_menor',  'Mayor o Menor',  'Cartas: adivinar si la siguiente es mayor o menor'),
 ('preguntados',  'Preguntados',    'Preguntas con imágenes de una API'),
+('preguntados_dbz', 'Preguntados DBZ', 'Preguntas sobre personajes de Dragon Ball Z'),
+('flow_free',    'Flow Free',      'Conectar pares de colores en un tablero'),
 ('juego_propio', 'Juego propio',   'Tu juego personalizado')
 on conflict (codigo) do nothing;
 
