@@ -130,3 +130,17 @@ insert into esquema_juegos.juegos (codigo, nombre, descripcion) values
 ('preguntados',  'Preguntados',    'Preguntas con imágenes de una API'),
 ('juego_propio', 'Juego propio',   'Tu juego personalizado')
 on conflict (codigo) do nothing;
+
+alter table esquema_juegos.usuarios
+    rename column firebase_uid to supabase_uid;
+
+alter table esquema_juegos.usuarios
+    alter column supabase_uid type uuid
+    using supabase_uid::uuid;
+
+alter table esquema_juegos.usuarios
+    alter column supabase_uid set not null;
+
+alter table esquema_juegos.usuarios
+    add constraint usuarios_supabase_uid_fkey
+        foreign key (supabase_uid) references auth.users(id);
