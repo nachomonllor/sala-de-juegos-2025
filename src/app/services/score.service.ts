@@ -105,28 +105,104 @@ export class ScoreService {
   }
 
   async listRecent(limit = 100): Promise<ScoreWithUser[]> {
-    const { data, error } = await this.supa.client
+    // Obtener partidas con relaciones
+    const { data: partidas, error } = await this.supa.client
       .schema('esquema_juegos')
       .from('partidas')
       .select(`
         id, usuario_id, juego_id, puntaje, datos_extra, fecha_partida,
-        usuarios:usuario_id ( nombre, apellido, email ),
+        usuarios:usuario_id ( nombre, apellido, email, supabase_uid ),
         juegos:juego_id ( codigo, nombre )
       `)
       .order('fecha_partida', { ascending: false })
       .limit(limit);
-    if (error) throw error;
     
-    return (data ?? []).map((r: any) => {
+    if (error) {
+      console.error('[score.service] Error al obtener partidas:', error);
+      throw error;
+    }
+    
+    if (!partidas || partidas.length === 0) {
+      return [];
+    }
+    
+    // Si las relaciones no funcionaron, hacer consultas separadas para obtener los datos faltantes
+    const juegoIds = [...new Set(partidas.map((p: any) => p.juego_id).filter(Boolean))];
+    const usuarioIds = [...new Set(partidas.map((p: any) => p.usuario_id).filter(Boolean))];
+    
+    // Obtener juegos si faltan
+    let juegosMap: Map<number, any> = new Map();
+    if (juegoIds.length > 0) {
+      const juegosConCodigo = partidas.filter((p: any) => p.juegos?.codigo);
+      if (juegosConCodigo.length < partidas.length) {
+        // Algunas relaciones fallaron, hacer consulta separada
+        const { data: juegos, error: juegosError } = await this.supa.client
+          .schema('esquema_juegos')
+          .from('juegos')
+          .select('id, codigo, nombre')
+          .in('id', juegoIds);
+        
+        if (!juegosError && juegos) {
+          juegos.forEach((j: any) => juegosMap.set(j.id, j));
+        }
+      } else {
+        // Las relaciones funcionaron, crear map desde los datos
+        partidas.forEach((p: any) => {
+          if (p.juegos && p.juego_id) {
+            juegosMap.set(p.juego_id, p.juegos);
+          }
+        });
+      }
+    }
+    
+    // Obtener usuarios si faltan
+    let usuariosMap: Map<number, any> = new Map();
+    if (usuarioIds.length > 0) {
+      const usuariosConSupabaseUid = partidas.filter((p: any) => p.usuarios?.supabase_uid);
+      if (usuariosConSupabaseUid.length < partidas.length) {
+        // Algunas relaciones fallaron, hacer consulta separada
+        const { data: usuarios, error: usuariosError } = await this.supa.client
+          .schema('esquema_juegos')
+          .from('usuarios')
+          .select('id, nombre, apellido, email, supabase_uid')
+          .in('id', usuarioIds);
+        
+        if (!usuariosError && usuarios) {
+          usuarios.forEach((u: any) => usuariosMap.set(u.id, u));
+        }
+      } else {
+        // Las relaciones funcionaron, crear map desde los datos
+        partidas.forEach((p: any) => {
+          if (p.usuarios && p.usuario_id) {
+            usuariosMap.set(p.usuario_id, p.usuarios);
+          }
+        });
+      }
+    }
+    
+    // Mapear resultados
+    return partidas.map((r: any) => {
       const meta = r.datos_extra || {};
-      const displayName = r.usuarios 
-        ? `${r.usuarios.nombre} ${r.usuarios.apellido || ''}`.trim() 
+      
+      // Obtener datos del usuario (de relación o de map)
+      const usuario = r.usuarios || usuariosMap.get(r.usuario_id);
+      const displayName = usuario
+        ? `${usuario.nombre} ${usuario.apellido || ''}`.trim() 
         : '—';
+      const supabaseUid = usuario?.supabase_uid || null;
+      
+      // Obtener código del juego (de relación o de map)
+      const juego = r.juegos || juegosMap.get(r.juego_id);
+      const gameCode = juego?.codigo || null;
+      
+      if (!gameCode) {
+        console.warn(`[score.service] No se pudo obtener código del juego para juego_id=${r.juego_id}`);
+      }
       
       return {
-        id: r.id,
-        userId: r.usuario_id?.toString() || null,
-        gameCode: r.juegos?.codigo || null,
+        id: r.id?.toString() || '', // Convertir bigint a string
+        userId: supabaseUid, // UUID de Supabase Auth
+        gameCode: gameCode as any, // GameCode type
         points: Number(r.puntaje || 0),
         durationSec: meta.duration_sec ?? undefined,
         createdAt: r.fecha_partida,
