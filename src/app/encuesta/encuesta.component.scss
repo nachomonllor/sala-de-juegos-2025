@@ -1,3 +1,4 @@
+
 :host {
   display: block;
   min-height: 100vh;
@@ -265,3 +266,50 @@
 .encuesta-card button mat-icon {
   font-size: 18px;
 }
+
+
+
+/* ============================
+   TEXTO CLARO DENTRO DEL FORM
+   ============================ */
+
+:host ::ng-deep .encuesta-card {
+  color: #f9fafb; // texto general casi blanco
+}
+
+/* Inputs, labels flotantes y placeholder */
+:host ::ng-deep .encuesta-card .mat-mdc-input-element,
+:host ::ng-deep .encuesta-card .mat-mdc-input-element::placeholder,
+:host ::ng-deep .encuesta-card textarea.mat-mdc-input-element,
+:host ::ng-deep .encuesta-card .mat-mdc-floating-label,
+:host ::ng-deep .encuesta-card .mat-mdc-form-field-subscript-wrapper,
+:host ::ng-deep .encuesta-card .mat-mdc-form-field-hint {
+  color: rgba(249, 250, 251, 0.92) !important;
+}
+
+/* Bordes del campo para que no se pierdan */
+:host ::ng-deep .encuesta-card .mdc-notched-outline__leading,
+:host ::ng-deep .encuesta-card .mdc-notched-outline__trailing,
+:host ::ng-deep .encuesta-card .mdc-notched-outline__notch {
+  border-color: rgba(249, 250, 251, 0.35) !important;
+}
+
+/* Contadores (ej: 0/10, 0/500) */
+:host ::ng-deep .encuesta-card .mat-mdc-form-field-subscript-wrapper span {
+  color: rgba(249, 250, 251, 0.8) !important;
+}
+
+/* Labels de radio y checkbox */
+:host ::ng-deep .encuesta-card .mat-mdc-radio-button .mdc-label,
+:host ::ng-deep .encuesta-card .mat-mdc-checkbox .mdc-label {
+  color: #f9fafb !important;
+}
+
+/* Mantener errores en rojo para que destaquen */
+:host ::ng-deep .encuesta-card .mat-mdc-form-field-error,
+:host ::ng-deep .encuesta-card .mat-mdc-form-field-subscript-wrapper .mat-mdc-form-field-error,
+:host ::ng-deep .encuesta-card .err {
+  color: #ff8a80 !important;
+}
+
+

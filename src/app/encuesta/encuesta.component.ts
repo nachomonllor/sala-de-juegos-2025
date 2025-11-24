@@ -51,7 +51,7 @@ export interface PreguntaEncuesta {
     MatDividerModule
   ],
   templateUrl: './encuesta.component.html',
-  styleUrls: ['./encuesta.component.css'],
+  styleUrls: ['./encuesta.component.scss'],
 })
 export class EncuestaComponent implements OnInit {
   private fb = inject(FormBuilder);
