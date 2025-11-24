@@ -4,92 +4,101 @@
     <mat-card-subtitle>Dame un feedback para mejorar la sala de juegos</mat-card-subtitle>
   </mat-card-header>
 
-  <mat-card-content [formGroup]="form">
-    <!-- DATOS PERSONALES -->
-    <div class="grid">
-      <mat-form-field class="full" appearance="outline">
-        <mat-label>Nombre y apellido</mat-label>
-        <input matInput formControlName="nombreApellido" placeholder="Juan Pérez">
-        <mat-error *ngIf="form.get('nombreApellido')?.hasError('required')">Obligatorio</mat-error>
-        <mat-error *ngIf="form.get('nombreApellido')?.hasError('pattern')">
-          Solo letras y espacios.
-        </mat-error>
-      </mat-form-field>
-
-      <mat-form-field class="half" appearance="outline">
-        <mat-label>Edad</mat-label>
-        <input matInput type="number" formControlName="edad" placeholder="25" min="19" max="98">
-        <mat-error *ngIf="form.get('edad')?.hasError('required')">Obligatoria</mat-error>
-        <mat-error *ngIf="form.get('edad')?.hasError('min') || form.get('edad')?.hasError('max')">
-          Debe ser entre 19 y 98 años.
-        </mat-error>
-      </mat-form-field>
-
-      <mat-form-field class="half" appearance="outline">
-        <mat-label>Teléfono</mat-label>
-        <input matInput formControlName="telefono" inputmode="numeric" maxlength="10" placeholder="1122334455">
-        <mat-hint align="end">{{ form.value.telefono?.length || 0 }}/10</mat-hint>
-        <mat-error *ngIf="form.get('telefono')?.hasError('required')">Obligatorio</mat-error>
-        <mat-error *ngIf="form.get('telefono')?.hasError('pattern')">
-          Solo números (hasta 10 dígitos).
-        </mat-error>
-      </mat-form-field>
+  <mat-card-content>
+    <!-- Estado de carga -->
+    <div *ngIf="cargando()" class="loading">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <p>Cargando encuesta...</p>
     </div>
 
-    <mat-divider class="sp-24">
+    <!-- Error -->
+    <div *ngIf="!cargando() && error()" class="error-banner">
+      <mat-icon color="warn">error</mat-icon>
+      <span>{{ error() }}</span>
+    </div>
 
-    </mat-divider>
+    <!-- Formulario -->
+    <form [formGroup]="form" *ngIf="!cargando() && !error()">
+      <!-- DATOS PERSONALES -->
+      <div class="grid">
+        <mat-form-field class="full" appearance="outline">
+          <mat-label>Nombre y apellido</mat-label>
+          <input matInput formControlName="nombreApellido" placeholder="Juan Pérez">
+          <mat-error *ngIf="form.get('nombreApellido')?.hasError('required')">Obligatorio</mat-error>
+          <mat-error *ngIf="form.get('nombreApellido')?.hasError('pattern')">
+            Solo letras y espacios.
+          </mat-error>
+        </mat-form-field>
 
-    <!-- P1: ¿Qué juego te gustó más? (Button Toggles redondeados, selección única) -->
-    <section class="section">
-      <h3 class="section-title">¿Qué juego te gustó más?</h3>
-      <mat-button-toggle-group class="pill-group" formControlName="juegoFavorito" name="juegoFavorito"
-        aria-label="Juego favorito" >
-        <mat-button-toggle class="pill" *ngFor="let j of juegos" [value]="j">{{ j }}</mat-button-toggle>
-      </mat-button-toggle-group>
-      <div class="err" *ngIf="form.get('juegoFavorito')?.touched && form.get('juegoFavorito')?.invalid">
-        <mat-icon inline>error</mat-icon> Debe seleccionar un juego.
+        <mat-form-field class="half" appearance="outline">
+          <mat-label>Edad</mat-label>
+          <input matInput type="number" formControlName="edad" placeholder="25" min="19" max="98">
+          <mat-error *ngIf="form.get('edad')?.hasError('required')">Obligatoria</mat-error>
+          <mat-error *ngIf="form.get('edad')?.hasError('min') || form.get('edad')?.hasError('max')">
+            Debe ser entre 19 y 98 años.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="half" appearance="outline">
+          <mat-label>Teléfono</mat-label>
+          <input matInput formControlName="telefono" inputmode="numeric" maxlength="10" placeholder="1122334455">
+          <mat-hint align="end">{{ form.value.telefono?.length || 0 }}/10</mat-hint>
+          <mat-error *ngIf="form.get('telefono')?.hasError('required')">Obligatorio</mat-error>
+          <mat-error *ngIf="form.get('telefono')?.hasError('pattern')">
+            Solo números (hasta 10 dígitos).
+          </mat-error>
+        </mat-form-field>
       </div>
-    </section>
 
-    <!-- P2: ¿Por qué te gustó más ese juego? (textarea) -->
-    <mat-form-field class="full" appearance="outline">
-      <mat-label>¿Por qué te gustó más ese juego?</mat-label>
-      <textarea matInput formControlName="motivo" rows="4" maxlength="500"
-        placeholder="Contanos qué te gustó: dinámica, estética, dificultad, etc."></textarea>
-      <mat-hint align="end">{{ form.value.motivo?.length || 0 }}/500</mat-hint>
-      <mat-error *ngIf="form.get('motivo')?.hasError('required')">Obligatorio</mat-error>
-      <mat-error *ngIf="form.get('motivo')?.hasError('minLength')">Demasiado corto.</mat-error>
+      <mat-divider class="sp-24"></mat-divider>
 
-    </mat-form-field>
+      <!-- PREGUNTAS DINÁMICAS -->
+      <ng-container *ngFor="let pregunta of preguntas(); let i = index">
+        <section class="section" *ngIf="pregunta.tipo_control === 'radio'">
+          <h3 class="section-title">{{ pregunta.texto }}<span *ngIf="pregunta.es_requerida">*</span></h3>
+          <mat-radio-group [formControlName]="'pregunta_' + pregunta.id" class="radios">
+            <mat-radio-button *ngFor="let opcion of pregunta.opciones" [value]="opcion.valor">
+              {{ opcion.texto }}
+            </mat-radio-button>
+          </mat-radio-group>
+          <div class="err" *ngIf="getPreguntaFormControl(pregunta.id).touched && getPreguntaFormControl(pregunta.id).invalid">
+            <mat-icon inline>error</mat-icon> Esta pregunta es obligatoria.
+          </div>
+        </section>
 
-    <!-- P3: ¿Cómo mejorarías la sala de juegos? (checkbox group, al menos 1) -->
-    <section class="section">
-      <h3 class="section-title">¿Cómo mejorarías la sala de juegos? (elige al menos una)</h3>
-      <div formArrayName="mejoras" class="checks">
-        <mat-checkbox *ngFor="let op of mejorasOpciones; let i = index" [formControlName]="i">{{ op }}</mat-checkbox>
-      </div>
-      <div class="err" *ngIf="mejorasFA.touched && mejorasFA.invalid">
-        <mat-icon inline>error</mat-icon> Marcá al menos una mejora.
-      </div>
-    </section>
+        <section class="section" *ngIf="pregunta.tipo_control === 'checkbox'">
+          <h3 class="section-title">{{ pregunta.texto }}<span *ngIf="pregunta.es_requerida">*</span></h3>
+          <div [formArrayName]="'pregunta_' + pregunta.id" class="checks">
+            <mat-checkbox *ngFor="let opcion of pregunta.opciones; let j = index" [formControlName]="j">
+              {{ opcion.texto }}
+            </mat-checkbox>
+          </div>
+          <div class="err" *ngIf="getPreguntaFormArray(pregunta.id).touched && getPreguntaFormArray(pregunta.id).invalid">
+            <mat-icon inline>error</mat-icon> Marcá al menos una opción.
+          </div>
+        </section>
 
-    <!-- P4: Opinión (radio group) -->
-    <section class="section">
-      <h3 class="section-title">La experiencia jugando te…</h3>
-      <mat-radio-group formControlName="opinion" class="radios">
-        <mat-radio-button *ngFor="let op of opinionOpciones" [value]="op">
-          {{ op }}
-        </mat-radio-button>
-      </mat-radio-group>
-      <div class="err" *ngIf="form.get('opinion')?.touched && form.get('opinion')?.invalid">
-        <mat-icon inline>error</mat-icon> Elegí una opción.
-      </div>
-    </section>
+        <mat-form-field class="full" appearance="outline" *ngIf="pregunta.tipo_control === 'textbox'">
+          <mat-label>{{ pregunta.texto }}<span *ngIf="pregunta.es_requerida">*</span></mat-label>
+          <textarea 
+            matInput 
+            [formControlName]="'pregunta_' + pregunta.id" 
+            rows="4" 
+            maxlength="500"
+            [placeholder]="'Escribí tu respuesta aquí...'">
+          </textarea>
+          <mat-hint align="end">{{ getPreguntaFormControl(pregunta.id).value?.length || 0 }}/500</mat-hint>
+          <mat-error *ngIf="getPreguntaFormControl(pregunta.id).hasError('required')">Obligatorio</mat-error>
+          <mat-error *ngIf="getPreguntaFormControl(pregunta.id).hasError('minlength')">Demasiado corto (mínimo 10 caracteres).</mat-error>
+        </mat-form-field>
+
+        <mat-divider class="sp-24" *ngIf="i < preguntas().length - 1"></mat-divider>
+      </ng-container>
+    </form>
   </mat-card-content>
 
-  <mat-card-actions align="end">
-    <button mat-stroked-button color="primary" type="button" (click)="form.reset()">Limpiar</button>
+  <mat-card-actions align="end" *ngIf="!cargando() && !error()">
+    <button mat-stroked-button color="primary" type="button" (click)="form.reset(); construirFormulario(preguntas())">Limpiar</button>
     <button mat-raised-button color="accent" type="submit" [disabled]="form.invalid || enviando" (click)="onSubmit()">
       <mat-icon *ngIf="!enviando">send</mat-icon>
       <mat-icon *ngIf="enviando">hourglass_empty</mat-icon>

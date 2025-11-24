@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { Observable } from 'rxjs';
 import { AuthService, User } from '../../services/auth.service';
+import { SupabaseService } from '../../services/supabase.service';
 
 // ajustá la ruta según tu proyecto
 //type Category 
@@ -28,16 +29,49 @@ interface Game {
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   search = '';
   activeCategory: Category = 'Todos';
   categories: Category[] = ['Todos', 'Arcade', 'Puzzles', 'Trivia', 'Cartas', 'Clásicos'];
 
     // ▼ NUEVO
   user$!: Observable<User | null>;
-  constructor(private auth: AuthService) {
+  esAdmin = signal(false);
+
+  constructor(
+    private auth: AuthService,
+    private supa: SupabaseService
+  ) {
     this.user$ = this.auth.user$;
   }
+
+  async ngOnInit() {
+    await this.verificarAdmin();
+  }
+
+  async verificarAdmin() {
+    const session = await this.supa.getSession();
+    if (!session?.user) {
+      this.esAdmin.set(false);
+      return;
+    }
+
+    const { data, error } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('usuarios')
+      .select('es_admin')
+      .eq('supabase_uid', session.user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('[Home] Error verificando admin:', error);
+      this.esAdmin.set(false);
+      return;
+    }
+
+    this.esAdmin.set(data?.es_admin ?? false);
+  }
+
   logout(){ this.auth.logout(); }
 
   games: Game[] = [
