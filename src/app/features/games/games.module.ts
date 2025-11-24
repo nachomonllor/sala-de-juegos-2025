@@ -2,12 +2,12 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GamesRoutingModule } from './games-routing.module';
-import { AhorcadoComponent } from '../../ahorcado/ahorcado.component';
 import { DuelComponent } from '../../duel/duel.component';
 import { FlowFreeComponent } from '../../flowfree/flowfree';
 import { MayorMenorComponent } from '../../mayor-menor/mayor-menor.component';
 import { ResultsListComponent } from '../../results-list/results-list.component';
 import { PreguntadosDbzComponent } from '../../preguntados-dbz_II/preguntados-dbz';
+import { AhorcadoComponent } from '../../ahorcado_pista/ahorcado';
 
 @NgModule({
   imports: [

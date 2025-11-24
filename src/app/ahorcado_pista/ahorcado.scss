@@ -1,0 +1,37 @@
+
+.page { display: grid; place-items: center; padding: 24px; }
+.game-card { max-width: 720px; width: 100%; display: grid; gap: 16px; }
+.art { display: grid; place-items: center; }
+.hangman-image { max-width: 320px; height: auto; display: block; }
+
+.display-word { font: 600 28px/1.6 ui-sans-serif, system-ui; letter-spacing: 4px; text-align: center; }
+.display-word .separator { opacity: .7; }
+
+.hint-chip { margin: 8px auto 0; width: fit-content; background: #eef3ff; padding: 6px 10px; border-radius: 999px; font-size: 14px; }
+.hint-chip .hint-sep { margin: 0 6px; opacity: .6; }
+
+.keyboard { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 8px; justify-items: center; }
+.keyboard button { padding: 8px 0; width: 100%; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; font-weight: 600; }
+.keyboard button:disabled { opacity: .4; cursor: default; }
+
+.result-banner { text-align: center; padding: 12px; border-radius: 12px; background: #f3f4f6; }
+.result-banner.win { background: #e9fbe9; border: 1px solid #9ae69a; }
+.result-banner.lose { background: #fdeaea; border: 1px solid #f2a7a7; }
+.word-chip { display: inline-block; padding: 2px 8px; border-radius: 8px; background: #fff; border: 1px solid #ddd; }
+
+.btn-restart { margin-top: 8px; padding: 8px 14px; border-radius: 8px; border: 1px solid #999; background: #fff; font-weight: 600; cursor: pointer; }
+.btn-restart:hover { background: #f3f4f6; }
+.btn-restart:active { background: #e5e7eb; }
+.btn-restart:disabled { opacity: .4; cursor: default; }
+@media (min-width: 640px) {
+  .display-word { font-size: 32px; }
+  .keyboard { gap: 12px; }
+  .keyboard button { padding: 12px 0; font-size: 16px; }
+}
+
+
+
+
+
+
+

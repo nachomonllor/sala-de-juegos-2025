@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AhorcadoComponent } from '../../ahorcado/ahorcado.component';
 import { DuelComponent } from '../../duel/duel.component';
 import { FlowFreeComponent } from '../../flowfree/flowfree';
 import { MayorMenorComponent } from '../../mayor-menor/mayor-menor.component';
 import { ResultsListComponent } from '../../results-list/results-list.component';
 import { PreguntadosDbzComponent } from '../../preguntados-dbz_II/preguntados-dbz';
+import { AhorcadoComponent } from '../../ahorcado_pista/ahorcado';
 
 const routes: Routes = [
   { path: '', redirectTo: 'ahorcado', pathMatch: 'full' },

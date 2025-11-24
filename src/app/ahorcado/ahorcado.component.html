@@ -1,5 +1,4 @@
-
-<!-- mat-toolbar color="primary">Ahorcado</mat-toolbar -->
+<!-- 
 
 <div class="page">
   <mat-card class="game-card mat-elevation-z6">
@@ -10,7 +9,6 @@
         <figcaption>Ahorcado</figcaption>
       </figure>
 
-      <!-- Palabra (guiones/lineas + letras reveladas) -->
       <div class="display-word" aria-label="Palabra">
         <span *ngFor="let c of displayCells"
               [class.revealed]="c.revealed"
@@ -19,7 +17,6 @@
         </span>
       </div>
 
-      <!-- Teclado -->
       <div *ngIf="!gameOver" class="keyboard">
         <button mat-raised-button
                 *ngFor="let letter of alphabet"
@@ -29,7 +26,6 @@
         </button>
       </div>
 
-      <!-- Resultado con alto contraste -->
       <div *ngIf="gameOver"
            class="result-banner"
            [class.win]="gameStatus==='win'"
@@ -54,149 +50,9 @@
 
   <div class="spacer"></div>
 
-  <!-- <footer class="footer">
-    <a mat-stroked-button color="primary" routerLink="/home">Volver al Home</a>
-  </footer> -->
+
 </div>
 
 
 
-
-
-<!-- <mat-toolbar color="primary">Ahorcado</mat-toolbar>
-
-<div class="page">
-  <mat-card class="game-card mat-elevation-z6">
-    <mat-card-content>
-
-      <figure class="art">
-        <img [src]="getHangmanImage()" alt="Ahorcado - etapa {{ errorCount }}" class="hangman-image" />
-        <figcaption>Imagen compuesta según errores</figcaption>
-      </figure>
-
-      <div class="display-word" aria-label="Palabra">
-        <span *ngFor="let c of displayCells" [class.revealed]="c.revealed" [class.separator]="c.separator">
-          {{ c.text }}
-        </span>
-      </div>
-
-      <div *ngIf="!gameOver" class="keyboard">
-        <button mat-raised-button *ngFor="let letter of alphabet" (click)="letterInput = letter; confirmGuess()"
-          [disabled]="guessedLetters.includes(letter.toLowerCase())">
-          {{ letter }}
-        </button>
-      </div>
-
-      <div *ngIf="gameOver" class="result">
-        <h2>{{ winningMessage }}</h2>
-        <button mat-flat-button color="accent" (click)="resetGame()">Reiniciar juego</button>
-      </div>
-
-    </mat-card-content>
-  </mat-card>
-
-  <div class="spacer"></div>
-
-  <footer class="footer">
-    <a mat-stroked-button color="primary" routerLink="/home">Volver al Home</a>
-  </footer>
-</div>
  -->
-
-
-
-<!-- <div class="hangman-container">
-  <h2>Ahorcado</h2>
-  <div class="game-area">
-    <div class="hangman-canvas">
-      Imagen compuesta según errores
-      <img [src]="getHangmanImage()" alt="Ahorcado - etapa {{ errorCount }}" class="hangman-image" />
-
-     <div *ngIf="!gameOver" class="keyboard">
-        <button *ngFor="let letter of alphabet" (click)="letterInput = letter; confirmGuess()"
-          [disabled]="guessedLetters.includes(letter.toLowerCase())">
-          {{ letter }}
-        </button>
-      </div> 
-
-      <div class="display-word" aria-label="Palabra">
-        <span *ngFor="let c of displayCells" [class.revealed]="c.revealed" [class.separator]="c.separator">
-          {{ c.text }}
-        </span>
-      </div>
-
-      <div *ngIf="gameOver" class="result-message">
-        <h1>{{ winningMessage }}</h1>
-        <button (click)="resetGame()">Reiniciar Juego</button>
-      </div> 
-
-    </div>
-
-    <div class="mt-3">
-      <a routerLink="/home" class="btn btn-outline-primary">Volver al Home</a>
-    </div>
-  </div>
-</div>
- -->
-
-
-
-<!-- <div class="hangman-container">
-  <h2>Ahorcado</h2>
-  <div class="game-area">
-    <div class="hangman-canvas">
-      Imagen compuesta según errores
-      <img [src]="getHangmanImage()" alt="Ahorcado - etapa {{ errorCount }}" class="hangman-image" />
-      <div *ngIf="!gameOver" class="keyboard">
-        <button *ngFor="let letter of alphabet" (click)="letterInput = letter; confirmGuess()"
-          [disabled]="guessedLetters.includes(letter.toLowerCase())">
-          {{ letter }}
-        </button>
-      </div>
-
-      <div *ngIf="gameOver" class="result-message">
-        <h1>{{ winningMessage }}</h1>
-        <button (click)="resetGame()">Reiniciar Juego</button>
-      </div>
-
-      <p class="display-word">{{ getDisplayWord() }}</p>
-    </div>
-
-    <div class="spacer"></div> 
-
-    <div class="mt-3">
-      <a routerLink="/home" class="btn btn-outline-primary">Volver al Home</a>
-    </div>
-  </div>
-</div> -->
-
-
-<!--   
-  <div class="hangman-container">
-  <h2>Ahorcado</h2>
-
-  <section class="game-area">
-    <div class="hangman-canvas">
-      <img [src]="getHangmanImage()" alt="Ahorcado - etapa {{ errorCount }}" class="hangman-image" />
-
-      <p class="display-word">{{ getDisplayWord() }}</p>
-
-      <div *ngIf="!gameOver" class="keyboard">
-        <button *ngFor="let letter of alphabet"
-                (click)="letterInput = letter; confirmGuess()"
-                [disabled]="guessedLetters.includes(letter.toLowerCase())">
-          {{ letter }}
-        </button>
-      </div>
-
-      <div *ngIf="gameOver" class="result-message">
-        <h1>{{ winningMessage }}</h1>
-        <button (click)="resetGame()">Reiniciar Juego</button>
-      </div>
-    </div>
-  </section>
-
-  <footer class="page-footer">
-    <a routerLink="/home" class="btn btn-outline-primary">Volver al Home</a>
-  </footer>
-</div> -->

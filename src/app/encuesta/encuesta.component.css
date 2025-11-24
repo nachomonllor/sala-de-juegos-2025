@@ -1,101 +1,267 @@
-.encuesta-card mat-card-title,
-.encuesta-card mat-card-subtitle,
-.encuesta-card .section-title,
-.encuesta-card .mat-mdc-checkbox .mdc-form-field,
-.encuesta-card .mat-mdc-radio-button .mdc-form-field,
-.encuesta-card .mat-button-toggle-label-content {
-  color: rgba(0,0,0,0.87) !important;
-  opacity: 1 !important;
+:host {
+  display: block;
+  min-height: 100vh;
+  padding: 24px;
+  box-sizing: border-box;
+
+  /* Fondo con degradado suave tipo sala de juegos */
+  background:
+    radial-gradient(circle at 0% 0%, #7b1fa2 0, transparent 40%),
+    radial-gradient(circle at 100% 100%, #ff4081 0, transparent 45%),
+    linear-gradient(135deg, #0f172a, #020617);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
+/* Card principal */
 .encuesta-card {
-  max-width: 880px;
-  margin: 24px auto;
-  padding-bottom: 8px;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+
+  background: linear-gradient(
+      135deg,
+      rgba(15, 23, 42, 0.92),
+      rgba(15, 23, 42, 0.85)
+    );
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.9),
+    0 0 0 1px rgba(15, 23, 42, 0.6);
+  color: #e5e7eb;
+
+  overflow: hidden;
+  position: relative;
 }
+
+/* Detalle sutil en la esquina */
+.encuesta-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 0 0, rgba(244, 114, 182, 0.18), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(129, 140, 248, 0.25), transparent 60%);
+  opacity: 0.9;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.encuesta-card .mat-mdc-card-header {
+  position: relative;
+  z-index: 1;
+  padding: 24px 28px 12px;
+}
+
+.encuesta-card .mat-mdc-card-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #f9fafb;
+}
+
+.encuesta-card .mat-mdc-card-subtitle {
+  font-size: 0.95rem;
+  color: #9ca3af;
+}
+
+.mat-mdc-card-content {
+  position: relative;
+  z-index: 1;
+  padding: 8px 24px 24px;
+}
+
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+  margin-top: 8px;
 }
 
-.full { grid-column: span 12; }
-.half { grid-column: span 6; }
+.full {
+  grid-column: 1 / -1;
+}
 
+.half {
+  min-width: 0;
+}
+
+.sp-24 {
+  margin: 24px 0;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .half, .full { grid-column: span 12; }
+  :host {
+    padding: 16px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .encuesta-card {
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+  }
 }
 
-.section { margin: 12px 0 8px; }
-.section-title { margin: 0 0 8px 0; font-weight: 600; }
 
-.sp-24 { margin: 24px 0; }
-
-.pill-group {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.section {
+  background: radial-gradient(circle at top left,
+      rgba(148, 163, 184, 0.12),
+      rgba(15, 23, 42, 0.9));
+  border-radius: 18px;
+  padding: 18px 18px 12px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  transition: transform 160ms ease-out, box-shadow 160ms ease-out,
+    border-color 160ms ease-out, background 160ms ease-out;
 }
 
-.pill ::ng-deep .mat-button-toggle-button {
-  border-radius: 999px !important;
-  padding: 6px 16px;
+.section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.85);
+  border-color: rgba(248, 250, 252, 0.55);
 }
 
-.checks {
-  display: grid;
-  gap: 6px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-.radios {
-  display: grid;
-  gap: 6px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-.err {
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 12px;
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #c62828;
-  margin-top: 6px;
+  color: #e5e7eb;
+}
+
+.section-title span {
+  color: #f97373;
+  font-size: 1.1rem;
+}
+
+/* Radios en fila con wrap */
+.radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+/* Checkboxes en columna */
+.checks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 
-/* --------------------------------------------- */
-/* .encuesta-container {
-  max-width: 500px;
-  margin: 20px auto;
-  padding: 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #fafafa;
+/* Campos de Angular Material dentro de la encuesta */
+.encuesta-card .mat-mdc-form-field {
+  width: 100%;
 }
 
-.encuesta-container h2 {
-  text-align: center;
+/* Placeholder / label más visibles sobre fondo oscuro */
+.encuesta-card .mat-mdc-form-field-subscript-wrapper,
+.encuesta-card .mat-mdc-floating-label,
+.encuesta-card .mat-mdc-form-field-hint,
+.encuesta-card .mat-mdc-form-field-subscript-wrapper span {
+  color: #9ca3af !important;
+}
+
+.encuesta-card .mat-mdc-input-element,
+.encuesta-card textarea.mat-mdc-input-element {
+  color: #e5e7eb;
+}
+
+/* Banner de error general */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
   margin-bottom: 16px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  color: #fecaca;
 }
 
-.form-group {
-  margin-bottom: 12px;
+/* Errores bajo preguntas */
+.err {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #fecaca;
 }
 
-.form-group label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 4px;
+/* Estado de carga */
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  justify-content: center;
+  padding: 24px 0;
+  text-align: center;
+  color: #cbd5f5;
 }
 
-.form-group input[type="text"],
-.form-group input[type="number"],
-.form-group input[type="radio"],
-.form-group input[type="checkbox"] {
-  margin-right: 8px;
+.loading p {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.error small {
-  color: #c00;
-} */
+
+.encuesta-card .mat-mdc-card-actions {
+  position: relative;
+  z-index: 1;
+  padding: 0 24px 22px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Botón limpiar */
+.encuesta-card button[mat-stroked-button] {
+  border-radius: 999px;
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* Botón enviar */
+.encuesta-card button[mat-raised-button] {
+  border-radius: 999px;
+  text-transform: none;
+  font-weight: 600;
+  padding-inline: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 10px 25px rgba(236, 72, 153, 0.45);
+  transition: transform 120ms ease-out, box-shadow 120ms ease-out, opacity 120ms;
+}
+
+.encuesta-card button[mat-raised-button]:hover:not([disabled]) {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 35px rgba(236, 72, 153, 0.65);
+}
+
+.encuesta-card button[mat-raised-button][disabled] {
+  opacity: 0.65;
+  box-shadow: none;
+}
+
+/* Íconos alineados mejor */
+.encuesta-card button mat-icon {
+  font-size: 18px;
+}

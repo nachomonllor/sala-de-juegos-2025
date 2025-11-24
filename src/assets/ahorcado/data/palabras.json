@@ -1,0 +1,38 @@
+{
+  "palabras": [
+    { "text": "abaco", "display": "Ábaco", "hint": "Objeto para contar", "category": "sustantivo", "difficulty": 1, "tags": ["escuela","matemática"] },
+    { "text": "abdomen", "display": "Abdomen", "hint": "Parte del cuerpo", "category": "sustantivo", "difficulty": 1, "tags": ["anatomía"] },
+    { "text": "abeja", "display": "Abeja", "hint": "Insecto que produce miel", "category": "animal", "difficulty": 1 },
+    { "text": "arbol", "display": "Árbol", "hint": "Planta grande y leñosa", "category": "sustantivo", "difficulty": 1 },
+    { "text": "raton", "display": "Ratón", "hint": "Mamífero pequeño o periférico de PC", "category": "sustantivo", "difficulty": 1 },
+    { "text": "teclado", "display": "Teclado", "hint": "Periférico para escribir", "category": "sustantivo", "difficulty": 1 },
+    { "text": "ahorcado", "display": "Ahorcado", "hint": "Juego clásico de letras", "category": "sustantivo", "difficulty": 1 },
+
+    { "text": "programar", "display": "Programar", "hint": "Acción de escribir código", "category": "verbo", "difficulty": 2, "tags": ["informática"] },
+    { "text": "pintar", "display": "Pintar", "hint": "Acción artística con pinceles", "category": "verbo", "difficulty": 1, "tags": ["arte"] },
+    { "text": "correr", "display": "Correr", "hint": "Moverse rápidamente a pie", "category": "verbo", "difficulty": 1 },
+    { "text": "aprender", "display": "Aprender", "hint": "Adquirir conocimiento", "category": "verbo", "difficulty": 1 },
+
+    { "text": "espana", "display": "España", "hint": "País de Europa", "category": "pais de europa", "difficulty": 2, "tags": ["europa"] },
+    { "text": "alemania", "display": "Alemania", "hint": "País de Europa", "category": "pais de europa", "difficulty": 2 },
+    { "text": "francia", "display": "Francia", "hint": "País de Europa", "category": "pais de europa" },
+    { "text": "italia", "display": "Italia", "hint": "País de Europa", "category": "pais de europa" },
+    { "text": "portugal", "display": "Portugal", "hint": "País de Europa", "category": "pais de europa" },
+
+    { "text": "sofia", "display": "Sofía", "hint": "Nombre de persona (femenino)", "category": "nombre de persona" },
+    { "text": "martin", "display": "Martín", "hint": "Nombre de persona (masculino)", "category": "nombre de persona" },
+    { "text": "andrea", "display": "Andrea", "hint": "Nombre de persona (femenino)", "category": "nombre de persona" },
+
+    { "text": "iguazu", "display": "Iguazú", "hint": "Cataratas compartidas por AR/BR", "category": "lugar", "difficulty": 2, "tags": ["turismo"] },
+    { "text": "rio de janeiro", "display": "Río de Janeiro", "hint": "Ciudad famosa de Brasil", "category": "ciudad", "difficulty": 3 },
+    { "text": "buenos aires", "display": "Buenos Aires", "hint": "Capital de Argentina", "category": "ciudad" },
+    { "text": "cordoba", "display": "Córdoba", "hint": "Provincia/Ciudad de Argentina", "category": "ciudad" },
+
+    { "text": "python", "display": "Python", "hint": "Lenguaje de programación", "category": "tecnologia" },
+    { "text": "angular", "display": "Angular", "hint": "Framework frontend", "category": "tecnologia" },
+    { "text": "biotecnologia", "display": "Biotecnología", "hint": "Uso tecnológico de sistemas biológicos", "category": "ciencia" },
+    { "text": "genetica", "display": "Genética", "hint": "Estudio de la herencia", "category": "ciencia" }
+  ]
+}
+
+
