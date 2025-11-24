@@ -1,6 +1,6 @@
 export const environment = {
 
-    production: false,
+    production: true,
     // Supabase Cloud (entorno por defecto)
     supabaseUrl: 'https://tuwlrspqlkpqatnaintx.supabase.co',
     supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1d2xyc3BxbGtwcWF0bmFpbnR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3NDcyOTEsImV4cCI6MjA3MTMyMzI5MX0.O5eawMd27SKifzyOvKp5fJZcvgBodxXA5LZWZdexRSA',
@@ -10,7 +10,9 @@ export const environment = {
         { etiqueta: 'Nacho', correo: 'nachomonllor@hotmail.com', contrasenia: '123456' },
         { etiqueta: 'Hector', correo: 'hector@hotmail.com', contrasenia: '123456' },
     ],
-    dbzBaseUrl: 'https://dragonball-api.com'
+   dbzBaseUrl: 'https://dragonball-api.com'
+
+
 
 };
 
