@@ -67,7 +67,7 @@ export class SupabaseService {
     if (!window.__supabaseClient__) {
       window.__supabaseClient__ = createClient(
         environment.supabaseUrl,
-        environment.supabaseAnonKey,
+        environment.supabaseKey,
         {
           auth: {
             persistSession: true,
