@@ -34,7 +34,7 @@ export class ResultsService {
 //     return this.supa.listResultsByUser();
 //   }
 
-//   // 👇 nuevo: coincide con el uso en ResultsList
+//   // nuevo: coincide con el uso en ResultsList
 //   getAllResults(limit = 100): Observable<ResultRow[]> {
 //     return from(this.supa.listAllResults(limit));
 //   }
