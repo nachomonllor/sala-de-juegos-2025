@@ -142,7 +142,6 @@ export class MayorMenorComponent implements OnInit {
 
     console.log(`Carta actual: ${this.cartaActual.etiqueta} de ${this.cartaActual.palo}`);
     console.log(`Próxima carta: ${this.cartaSiguiente.etiqueta} de ${this.cartaSiguiente.palo}`);
-
   }
 
   finalizarJuego() {
