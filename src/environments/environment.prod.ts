@@ -10,7 +10,9 @@ export const environment = {
         { etiqueta: 'Nacho', correo: 'nachomonllor@hotmail.com', contrasenia: '123456' },
         { etiqueta: 'Hector', correo: 'hector@hotmail.com', contrasenia: '123456' },
     ],
-    dbzBaseUrl: 'https://dragonball-api.com'
+
+    //dbzBaseUrl: 'https://dragonball-api.com'
+    dbzBaseUrl: 'https://dragonball-api.com/api'
 
 };
 
