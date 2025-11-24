@@ -1,3 +1,4 @@
+
 <mat-card class="game-card mat-elevation-z6">
   <mat-card-content>
 
@@ -5,7 +6,7 @@
       <img [src]="getHangmanImage()" alt="Ahorcado - etapa {{ errorCount }}" class="hangman-image" />
     </figure>
 
-    <!-- Palabra -->
+
     <div class="display-word">
       <span *ngFor="let c of displayCells"
             [class.revealed]="c.revealed"
@@ -14,13 +15,12 @@
       </span>
     </div>
 
-    <!-- Pista -->
+ 
     <div class="hint-chip" *ngIf="selectedHint">
       <strong>Pista:</strong> {{ selectedHint }}
       <span *ngIf="selectedCategory">({{ selectedCategory }})</span>
     </div>
 
-    <!-- Teclado -->
     <div *ngIf="!gameOver" class="keyboard">
       <button mat-raised-button
               *ngFor="let letter of alphabet"
@@ -30,7 +30,6 @@
       </button>
     </div>
 
-    <!-- Resultado -->
     <div *ngIf="gameOver" class="result-banner" [class.win]="gameStatus==='win'" [class.lose]="gameStatus==='lose'">
       <h2>{{ gameStatus === 'win' ? '¡Ganaste!' : '¡Perdiste!' }}</h2>
       <p *ngIf="gameStatus==='lose'">La palabra era: <strong>{{ selectedDisplay }}</strong></p>
@@ -38,4 +37,4 @@
     </div>
 
   </mat-card-content>
-</mat-card>
+</mat-card> 
