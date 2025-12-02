@@ -9,13 +9,33 @@
   </mat-toolbar>
 
   <div class="filtros">
-    <mat-form-field appearance="outline" class="w-240">
+    <!-- <mat-form-field appearance="outline" class="w-240">
       <mat-label>Juego</mat-label>
       <mat-select [value]="juegoSeleccionado()" (valueChange)="onJuegoChangeSelect($event)">
         <mat-option value="todos">Todos los juegos</mat-option>
         <mat-option *ngFor="let j of juegos" [value]="j">{{ j }}</mat-option>
       </mat-select>
-    </mat-form-field>
+    </mat-form-field> -->
+
+    <div class="chips-container">
+      <span class="filtro-label">Filtrar por juego:</span>
+
+      <mat-chip-listbox aria-label="Selección de juego" selectable>
+
+        <mat-chip-option color="accent" [selected]="juegoSeleccionado() === 'todos'"
+          (click)="onJuegoChangeSelect('todos')">
+          Todos
+        </mat-chip-option>
+
+        <mat-chip-option *ngFor="let j of juegos" color="accent" [selected]="juegoSeleccionado() === j"
+          (click)="onJuegoChangeSelect(j)">
+          {{ j | titlecase }}
+        </mat-chip-option>
+
+      </mat-chip-listbox>
+    </div>
+
+    <!-- --------------------------------- - -->
 
     <mat-checkbox [checked]="soloMios()" (change)="soloMios.set($event.checked)">
       Solo mis resultados

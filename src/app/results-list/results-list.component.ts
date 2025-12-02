@@ -22,6 +22,7 @@ import { MatSort } from '@angular/material/sort';
 import { ScoreService } from '../services/score.service';
 import { SupabaseService } from '../services/supabase.service';
 import { GameCode, ScoreWithUser } from '../models/resultados';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-results-list',
@@ -31,7 +32,8 @@ import { GameCode, ScoreWithUser } from '../models/resultados';
     // Material
     MatCardModule, MatToolbarModule, MatTableModule, MatPaginatorModule, MatSortModule,
     MatFormFieldModule, MatSelectModule, MatCheckboxModule, MatInputModule,
-    MatIconModule, MatButtonModule, MatProgressBarModule
+    MatIconModule, MatButtonModule, MatProgressBarModule,
+    MatChipsModule
   ],
   templateUrl: './results-list.component.html',
   styleUrls: ['./results-list.component.css']

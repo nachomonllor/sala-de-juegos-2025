@@ -187,9 +187,53 @@ th.num, td.num { text-align:right; }
 
 
 
+/* Contenedor para separar los chips del resto de filtros */
+.chips-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.filtro-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7); /* Texto gris claro */
+  margin-left: 4px;
+}
+
+/* Ajuste del contenedor general de filtros para que fluya bien */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 16px;
+}
+
+/* Forzar estilo si es necesario para el tema oscuro */
+mat-chip-option {
+  --mdc-chip-label-text-color: #e0e0e0; /* Texto claro por defecto */
+}
+
+/* Cuando está seleccionado, Material usa el color 'accent', 
+   pero aseguramos que el texto sea legible */
+mat-chip-option[aria-selected="true"] {
+  font-weight: 500;
+}
 
 
 
+/* Esto fuerza el color blanco en la etiqueta interna del checkbox */
+:host ::ng-deep mat-checkbox label {
+    color: white !important;
+}
+
+/* Opcional: Para asegurar que el texto se vea bien también en los estados inactivos */
+:host ::ng-deep mat-checkbox .mdc-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
 
 /* 
 .res-card {
