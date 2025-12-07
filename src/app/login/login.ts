@@ -103,3 +103,26 @@ export class LoginComponent {
 
 // ---------------------------------------------------------------------------------------
 
+/*
+# Estando en la rama de trabajo
+git status
+git add .
+git commit -m "mensaje"
+git push origin ultima-fecha
+
+# Pasar a main y actualizar
+git checkout main
+git pull origin main
+
+# Mergear
+git merge ultima-fecha
+
+# Resolver conflictos si los hay:
+# (editar archivos, luego)
+git add .
+git commit  # solo si hubo conflictos
+
+# Subir main (deploy)
+git push origin main
+
+*/
