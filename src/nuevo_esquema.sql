@@ -146,3 +146,16 @@ alter table esquema_juegos.usuarios
 alter table esquema_juegos.usuarios
     add constraint usuarios_supabase_uid_fkey
         foreign key (supabase_uid) references auth.users(id);
+
+
+-- 1. Creamos la tabla ping_keep_alive en esquema_juegos
+create table if not exists esquema_juegos.ping_keep_alive (
+    id integer primary key default 1,
+    ultimo_ping timestamptz not null default now(),
+    origen text default 'App Sala de Juegos'
+);
+
+-- 2. Insertamos la fila inicial (el UPSERT posterior actualizará esta misma fila)
+insert into esquema_juegos.ping_keep_alive (id, ultimo_ping, origen) 
+values (1, now(), 'Inicialización Sala de Juegos')
+on conflict (id) do nothing;
