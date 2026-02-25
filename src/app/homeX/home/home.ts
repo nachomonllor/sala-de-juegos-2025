@@ -136,7 +136,19 @@ export class HomeComponent implements OnInit {
       description: 'Uní conceptos de biología y genética evolutiva.',
       tags: ['biología', 'genética', 'unq', 'ciencia', 'drag-drop'],
       badge: 'Propio'
+    },
+
+    {
+      title: 'Calculo Mental',
+      route: '/games/math-game', // Asegurate de que esta ruta coincida con la que pongas en tu app.routes.ts
+      thumb: 'assets/games/calculo-mental.jpg', // ¡No te olvides de guardar una imagen con este nombre en tu carpeta assets!
+      category: 'Matemáticas',
+      description: 'Ejercita tu mente con operaciones matemáticas rápidas.',
+      tags: ['matemáticas', 'mental', 'cálculo'],
+
+      badge: 'Propio'
     }
+
   ];
 
   get filteredGames(): Game[] {
