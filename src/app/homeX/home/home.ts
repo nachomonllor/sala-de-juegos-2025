@@ -35,7 +35,7 @@ export class HomeComponent implements OnInit {
   activeCategory: Category = 'Todos';
   categories: Category[] = ['Todos', 'Arcade', 'Puzzles', 'Trivia', 'Cartas', 'Clásicos'];
 
-    // ▼ NUEVO
+  // ▼ NUEVO
   user$!: Observable<User | null>;
   esAdmin = signal(false);
 
@@ -83,13 +83,60 @@ export class HomeComponent implements OnInit {
     this.esAdmin.set(data?.es_admin ?? false);
   }
 
-  logout(){ this.auth.logout(); }
+  logout() { this.auth.logout(); }
+
+  // games: Game[] = [
+  //   { title: 'Ahorcado', route: '/games/ahorcado', thumb: 'assets/games/ahorcado.jpg', category: 'Puzzles', description: 'Adivina la palabra antes de que sea tarde.', tags: ['ahorcado', 'palabras'], badge: 'Popular' },
+  //   { title: 'Mayor o Menor', route: '/games/mayor-menor', thumb: 'assets/games/mayor-menor.jpg', category: 'Cartas', description: '¿Mayor o menor? Probá tu intuición.', tags: ['cartas', 'azar'], },
+  //   { title: 'Preguntados DBZ', route: '/games/preguntados-dbz', thumb: 'assets/games/preguntados-dbz.jpg', category: 'Trivia', description: 'Demostr\u00e1 cuánto sabés de Dragon Ball Z.', tags: ['trivia', 'dbz', 'anime'], badge: 'Nuevo', },
+  //   { title: 'Flow Free', route: '/games/flowfree', thumb: 'assets/games/flowfree.jpg', category: 'Puzzles', description: 'Conectá pares sin cruzar caminos.', tags: ['puzzle', 'rutas'], },
+  // ];
 
   games: Game[] = [
-    { title: 'Ahorcado',        route: '/games/ahorcado',           thumb: 'assets/games/ahorcado.jpg',         category: 'Puzzles', description: 'Adivina la palabra antes de que sea tarde.',   tags: ['ahorcado', 'palabras'], badge: 'Popular' },
-    { title: 'Mayor o Menor',   route: '/games/mayor-menor',        thumb: 'assets/games/mayor-menor.jpg',      category: 'Cartas',  description: '¿Mayor o menor? Probá tu intuición.',          tags: ['cartas', 'azar'], },
-    { title: 'Preguntados DBZ', route: '/games/preguntados-dbz',    thumb: 'assets/games/preguntados-dbz.jpg',  category: 'Trivia',  description: 'Demostr\u00e1 cuánto sabés de Dragon Ball Z.', tags: ['trivia', 'dbz', 'anime'], badge: 'Nuevo',},
-    { title: 'Flow Free',       route: '/games/flowfree',           thumb: 'assets/games/flowfree.jpg',         category: 'Puzzles', description: 'Conectá pares sin cruzar caminos.',            tags: ['puzzle', 'rutas'],},
+    {
+      title: 'Ahorcado',
+      route: '/games/ahorcado',
+      thumb: 'assets/games/ahorcado.jpg',
+      category: 'Puzzles',
+      description: 'Adivina la palabra antes de que sea tarde.',
+      tags: ['ahorcado', 'palabras'],
+      badge: 'Popular'
+    },
+    {
+      title: 'Mayor o Menor',
+      route: '/games/mayor-menor',
+      thumb: 'assets/games/mayor-menor.jpg',
+      category: 'Cartas',
+      description: '¿Mayor o menor? Probá tu intuición.',
+      tags: ['cartas', 'azar']
+    },
+    {
+      title: 'Preguntados DBZ',
+      route: '/games/preguntados-dbz',
+      thumb: 'assets/games/preguntados-dbz.jpg',
+      category: 'Trivia',
+      description: 'Demostrá cuánto sabés de Dragon Ball Z.',
+      tags: ['trivia', 'dbz', 'anime'],
+      badge: 'Nuevo'
+    },
+    {
+      title: 'Flow Free',
+      route: '/games/flowfree',
+      thumb: 'assets/games/flowfree.jpg',
+      category: 'Puzzles',
+      description: 'Conectá pares sin cruzar caminos.',
+      tags: ['puzzle', 'rutas']
+    },
+    // --- ACÁ AGREGAMOS EL JUEGO NUEVO ---
+    {
+      title: 'BioMatch',
+      route: '/games/gen-game', // Asegurate de que esta ruta coincida con la que pongas en tu app.routes.ts
+      thumb: 'assets/games/gen-game.jpg', // ¡No te olvides de guardar una imagen con este nombre en tu carpeta assets!
+      category: 'Ciencia',
+      description: 'Uní conceptos de biología y genética evolutiva.',
+      tags: ['biología', 'genética', 'unq', 'ciencia', 'drag-drop'],
+      badge: 'Propio'
+    }
   ];
 
   get filteredGames(): Game[] {
@@ -116,40 +163,40 @@ export class HomeComponent implements OnInit {
 }
 
 
-  // games: Game[] = [
-  //   {
-  //     title: 'Ahorcado',
-  //     route: 'games/ahorcado',
-  //     thumb: 'assets/games/ahorcado.jpg',
-  //     category: 'Puzzles',
-  //     description: 'Adivina la palabra antes de que sea tarde.',
-  //     tags: ['ahorcado', 'palabras'],
-  //     badge: 'Popular',
-  //   },
-  //   {
-  //     title: 'Mayor o Menor',
-  //     route: 'games/mayor-menor',
-  //     thumb: 'assets/games/mayor-menor.jpg',
-  //     category: 'Cartas',
-  //     description: '¿Mayor o menor? Probá tu intuición.',
-  //     tags: ['cartas', 'azar'],
-  //   },
-  //   {
-  //     title: 'Preguntados DBZ',
-  //     route: 'games/preguntados-dbz',
-  //     thumb: 'assets/games/preguntados-dbz.jpg',
-  //     category: 'Trivia',
-  //     description: 'Demostr\u00e1 cuánto sabés de Dragon Ball Z.',
-  //     tags: ['trivia', 'dbz', 'anime'],
-  //     badge: 'Nuevo',
-  //   },
-  //   {
-  //     title: 'Flow Free',
-  //     route: 'games/flowfree',
-  //     thumb: 'assets/games/flowfree.jpg',
-  //     category: 'Puzzles',
-  //     description: 'Conectá pares sin cruzar caminos.',
-  //     tags: ['puzzle', 'rutas'],
-  //   },
+// games: Game[] = [
+//   {
+//     title: 'Ahorcado',
+//     route: 'games/ahorcado',
+//     thumb: 'assets/games/ahorcado.jpg',
+//     category: 'Puzzles',
+//     description: 'Adivina la palabra antes de que sea tarde.',
+//     tags: ['ahorcado', 'palabras'],
+//     badge: 'Popular',
+//   },
+//   {
+//     title: 'Mayor o Menor',
+//     route: 'games/mayor-menor',
+//     thumb: 'assets/games/mayor-menor.jpg',
+//     category: 'Cartas',
+//     description: '¿Mayor o menor? Probá tu intuición.',
+//     tags: ['cartas', 'azar'],
+//   },
+//   {
+//     title: 'Preguntados DBZ',
+//     route: 'games/preguntados-dbz',
+//     thumb: 'assets/games/preguntados-dbz.jpg',
+//     category: 'Trivia',
+//     description: 'Demostr\u00e1 cuánto sabés de Dragon Ball Z.',
+//     tags: ['trivia', 'dbz', 'anime'],
+//     badge: 'Nuevo',
+//   },
+//   {
+//     title: 'Flow Free',
+//     route: 'games/flowfree',
+//     thumb: 'assets/games/flowfree.jpg',
+//     category: 'Puzzles',
+//     description: 'Conectá pares sin cruzar caminos.',
+//     tags: ['puzzle', 'rutas'],
+//   },
 
-  // ];
+// ];

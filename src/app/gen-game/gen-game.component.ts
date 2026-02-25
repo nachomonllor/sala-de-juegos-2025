@@ -68,6 +68,7 @@ export class GenGameComponent implements OnInit {
       definicion: 'Concepto de ecología que se divide en sus variantes fundamental y real.',
       conceptoAnclado: []
     }
+
   ];
 
   // IDs para conectar todas las zonas de drop
