@@ -372,6 +372,42 @@ export class SupabaseService {
     if (error) throw error;
   }
 
+  // async listResultsByUser(supabaseUid?: string): Promise<ResultRow[]> {
+  //   let usuarioId: number | null = null;
+    
+  //   if (supabaseUid) {
+  //     usuarioId = await this.getUsuarioIdFromSupabaseUid(supabaseUid);
+  //   } else {
+  //     const { data: { user } } = await this.client.auth.getUser();
+  //     if (user) {
+  //       usuarioId = await this.getUsuarioIdFromSupabaseUid(user.id);
+  //     }
+  //   }
+
+  //   if (!usuarioId) {
+  //     return [];
+  //   }
+
+  //   const { data, error } = await this.client
+  //     .schema('esquema_juegos')
+  //     .from('partidas')
+  //     .select('*')
+  //     .eq('usuario_id', usuarioId)
+  //     .order('fecha_partida', { ascending: false });
+  //   if (error) throw error;
+    
+  //   // Mapear campos de BD a la interfaz
+  //   return (data || []).map((row: any) => ({
+  //     id: row.id,
+  //     user_id: row.usuario_id?.toString() || null,
+  //     game: row.juego_id?.toString() || null, // TODO: obtener código del juego si es necesario
+  //     score: row.puntaje || 0,
+  //     meta: row.datos_extra,
+  //     created_at: row.fecha_partida
+  //   })) as ResultRow[];
+  // }
+
+
   async listResultsByUser(supabaseUid?: string): Promise<ResultRow[]> {
     let usuarioId: number | null = null;
     
@@ -391,36 +427,63 @@ export class SupabaseService {
     const { data, error } = await this.client
       .schema('esquema_juegos')
       .from('partidas')
-      .select('*')
+      // ACÁ LA MAGIA: Traemos los datos de la partida y cruzamos con la tabla juegos
+      .select('*, juegos(codigo, nombre)') 
       .eq('usuario_id', usuarioId)
       .order('fecha_partida', { ascending: false });
+      
     if (error) throw error;
     
     // Mapear campos de BD a la interfaz
     return (data || []).map((row: any) => ({
       id: row.id,
       user_id: row.usuario_id?.toString() || null,
-      game: row.juego_id?.toString() || null, // TODO: obtener código del juego si es necesario
+      // MAPEAMOS EL NOMBRE DEL JUEGO (Prioriza el nombre legible, si no usa el código)
+      game: row.juegos?.nombre || row.juegos?.codigo || 'Desconocido', 
       score: row.puntaje || 0,
       meta: row.datos_extra,
       created_at: row.fecha_partida
     })) as ResultRow[];
   }
 
+  // async listAllResults(limit = 100) {
+  //   const { data, error } = await this.client
+  //     .schema('esquema_juegos')
+  //     .from('partidas')
+  //     .select('*')
+  //     .order('fecha_partida', { ascending: false })
+  //     .limit(limit);
+  //   if (error) throw error;
+    
+  //   // Mapear campos de BD a la interfaz
+  //   return (data || []).map((row: any) => ({
+  //     id: row.id,
+  //     user_id: row.usuario_id?.toString() || null,
+  //     game: row.juego_id?.toString() || null,
+  //     score: row.puntaje || 0,
+  //     meta: row.datos_extra,
+  //     created_at: row.fecha_partida
+  //   })) as ResultRow[];
+  // }
+
   async listAllResults(limit = 100) {
     const { data, error } = await this.client
       .schema('esquema_juegos')
       .from('partidas')
-      .select('*')
+      // JOIN MÚLTIPLE: Traemos la info de la partida, el nombre del juego y el email del jugador
+      .select('*, juegos(codigo, nombre), usuarios(email)') 
       .order('fecha_partida', { ascending: false })
       .limit(limit);
+      
     if (error) throw error;
     
     // Mapear campos de BD a la interfaz
     return (data || []).map((row: any) => ({
       id: row.id,
       user_id: row.usuario_id?.toString() || null,
-      game: row.juego_id?.toString() || null,
+      // MAPEAMOS NOMBRE DEL JUEGO Y EMAIL DEL JUGADOR
+      game: row.juegos?.nombre || row.juegos?.codigo || 'Desconocido',
+      email: row.usuarios?.email || 'Anónimo', // Podés agregar este campo opcional a tu ResultRow si te sirve
       score: row.puntaje || 0,
       meta: row.datos_extra,
       created_at: row.fecha_partida
