@@ -1,19 +1,37 @@
+// Paleta de colores basada en la imagen generada
+$bg-dark: #09121c; // Fondo oscuro principal
+$panel-bg: #111e2d; // Fondo de los paneles
+$neon-blue: #00d2ff; // Celeste neón para conceptos
+$neon-blue-glow: rgba(0, 210, 255, 0.4);
+$neon-green: #39ff14; // Verde neón para definiciones y aciertos
+$neon-green-glow: rgba(57, 255, 20, 0.4);
+$text-light: #e2e8f0; // Texto base claro
+
 .game-container {
   max-width: 900px;
   margin: 30px auto;
-  padding: 20px;
-  background: #f8f9fa;
+  padding: 25px;
+  background: $bg-dark;
+  border: 2px solid #1a2a3a;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 0 30px rgba(0, 210, 255, 0.1); // Brillo exterior sutil
   font-family: 'Inter', sans-serif;
+  color: $text-light;
 }
 
 .game-header {
   text-align: center;
   margin-bottom: 30px;
   
-  h1 { color: #2c3e50; margin-bottom: 5px; font-weight: 700; }
-  p { color: #666; font-size: 1.1rem; }
+  h1 { 
+    color: $neon-blue; 
+    margin-bottom: 5px; 
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px $neon-blue-glow;
+  }
+  p { color: #94a3b8; font-size: 1.1rem; }
 }
 
 .board {
@@ -25,14 +43,22 @@
   }
 }
 
+// COLUMNA IZQUIERDA: CONCEPTOS (Celeste)
 .concepts-column {
   flex: 1;
-  background: #ffffff;
+  background: $panel-bg;
   padding: 20px;
   border-radius: 12px;
-  border: 2px dashed #cbd5e1;
+  border: 1px solid rgba(0, 210, 255, 0.2);
 
-  h3 { color: #34495e; margin-bottom: 15px; text-align: center; }
+  h3 { 
+    color: $neon-blue; 
+    margin-bottom: 15px; 
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px $neon-blue-glow;
+  }
 }
 
 .concept-list {
@@ -42,102 +68,285 @@
   gap: 12px;
 }
 
+// TARJETAS
 .concept-card {
-  background: #3498db;
-  color: white;
+  background: rgba(0, 210, 255, 0.05);
+  color: $neon-blue;
   padding: 12px 20px;
   border-radius: 8px;
+  border: 2px solid $neon-blue;
   cursor: grab;
   font-weight: 600;
-  box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: inset 0 0 10px $neon-blue-glow, 0 0 10px $neon-blue-glow;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
 
-  .drag-handle { margin-right: 10px; opacity: 0.7; }
+  .drag-handle { margin-right: 10px; opacity: 0.8; }
   
-  &:active { cursor: grabbing; box-shadow: 0 8px 15px rgba(52, 152, 219, 0.4); }
+  &:hover {
+    background: rgba(0, 210, 255, 0.15);
+    box-shadow: inset 0 0 20px $neon-blue-glow, 0 0 20px $neon-blue-glow;
+  }
+
+  &:active { cursor: grabbing; transform: scale(0.98); }
   
+  // Cuando se ancla correctamente
   &.matched {
-    background: #2ecc71; /* Verde cuando está anclado */
-    box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+    color: $neon-green;
+    border-color: $neon-green;
+    box-shadow: inset 0 0 10px $neon-green-glow, 0 0 10px $neon-green-glow;
     cursor: default;
     justify-content: center;
+    
+    &:hover { background: rgba(57, 255, 20, 0.05); }
   }
 }
 
-/* Efectos de Angular CDK */
+/* Efectos de Angular CDK al arrastrar */
 .cdk-drag-preview {
   box-sizing: border-box;
   border-radius: 8px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  background: #2980b9;
-  color: white;
+  background: $bg-dark;
+  color: $neon-blue;
+  border: 2px solid $neon-blue;
+  box-shadow: 0 0 25px $neon-blue;
   padding: 12px 20px;
   font-weight: 600;
   display: flex;
   align-items: center;
+  z-index: 1000;
 }
 .cdk-drag-animating { transition: transform 250ms cubic-bezier(0, 0, 0.2, 1); }
+
 .drag-placeholder {
-  background: #e2e8f0;
-  border: 2px dashed #94a3b8;
+  background: rgba(0, 210, 255, 0.05);
+  border: 2px dashed rgba(0, 210, 255, 0.3);
   min-height: 48px;
   border-radius: 8px;
 }
+
 .concept-list.cdk-drop-list-dragging .concept-card:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
+// COLUMNA DERECHA: DEFINICIONES (Verde)
 .definitions-column {
   flex: 2;
   display: flex;
   flex-direction: column;
   gap: 15px;
 
-  h3 { color: #34495e; margin-bottom: 15px; text-align: center; }
+  h3 { 
+    color: $neon-green; 
+    margin-bottom: 15px; 
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px $neon-green-glow;
+  }
 }
 
 .def-row {
   display: flex;
-  background: white;
+  background: $panel-bg;
   border-radius: 12px;
   padding: 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border: 1px solid rgba(57, 255, 20, 0.2);
   align-items: center;
   gap: 15px;
 }
 
 .def-text-box {
   flex: 1;
-  p { margin: 0; color: #475569; font-size: 0.95rem; line-height: 1.4; }
+  p { margin: 0; color: $text-light; font-size: 0.95rem; line-height: 1.4; }
 }
 
 .drop-slot {
   width: 200px;
   min-height: 50px;
-  border: 2px dashed #cbd5e1;
+  border: 2px dashed rgba(57, 255, 20, 0.4);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8fafc;
-  transition: all 0.2s;
+  background: rgba(57, 255, 20, 0.02);
+  transition: all 0.3s;
 
-  &.filled { border: 2px solid #2ecc71; background: #f0fdf4; }
+  &.filled { 
+    border: 2px solid $neon-green; 
+    background: rgba(57, 255, 20, 0.05);
+    box-shadow: 0 0 15px $neon-green-glow;
+  }
 
-  .slot-hint { color: #94a3b8; font-size: 0.85rem; font-weight: 500; }
+  .slot-hint { 
+    color: rgba(57, 255, 20, 0.6); 
+    font-size: 0.85rem; 
+    font-weight: 500; 
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
 }
 
 .empty-message {
   text-align: center;
-  color: #2ecc71;
+  color: $neon-green;
   font-weight: bold;
   margin-top: 20px;
+  text-shadow: 0 0 8px $neon-green-glow;
 }
 
 .actions {
   text-align: center;
   margin-top: 30px;
 }
+
+
+
+
+
+
+
+// .game-container {
+//   max-width: 900px;
+//   margin: 30px auto;
+//   padding: 20px;
+//   background: #f8f9fa;
+//   border-radius: 16px;
+//   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+//   font-family: 'Inter', sans-serif;
+// }
+
+// .game-header {
+//   text-align: center;
+//   margin-bottom: 30px;
+  
+//   h1 { color: #2c3e50; margin-bottom: 5px; font-weight: 700; }
+//   p { color: #666; font-size: 1.1rem; }
+// }
+
+// .board {
+//   display: flex;
+//   gap: 30px;
+  
+//   @media (max-width: 768px) {
+//     flex-direction: column;
+//   }
+// }
+
+// .concepts-column {
+//   flex: 1;
+//   background: #ffffff;
+//   padding: 20px;
+//   border-radius: 12px;
+//   border: 2px dashed #cbd5e1;
+
+//   h3 { color: #34495e; margin-bottom: 15px; text-align: center; }
+// }
+
+// .concept-list {
+//   min-height: 400px;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 12px;
+// }
+
+// .concept-card {
+//   background: #3498db;
+//   color: white;
+//   padding: 12px 20px;
+//   border-radius: 8px;
+//   cursor: grab;
+//   font-weight: 600;
+//   box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+//   transition: transform 0.2s, box-shadow 0.2s;
+//   display: flex;
+//   align-items: center;
+
+//   .drag-handle { margin-right: 10px; opacity: 0.7; }
+  
+//   &:active { cursor: grabbing; box-shadow: 0 8px 15px rgba(52, 152, 219, 0.4); }
+  
+//   &.matched {
+//     background: #2ecc71; /* Verde cuando está anclado */
+//     box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+//     cursor: default;
+//     justify-content: center;
+//   }
+// }
+
+// /* Efectos de Angular CDK */
+// .cdk-drag-preview {
+//   box-sizing: border-box;
+//   border-radius: 8px;
+//   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+//   background: #2980b9;
+//   color: white;
+//   padding: 12px 20px;
+//   font-weight: 600;
+//   display: flex;
+//   align-items: center;
+// }
+// .cdk-drag-animating { transition: transform 250ms cubic-bezier(0, 0, 0.2, 1); }
+// .drag-placeholder {
+//   background: #e2e8f0;
+//   border: 2px dashed #94a3b8;
+//   min-height: 48px;
+//   border-radius: 8px;
+// }
+// .concept-list.cdk-drop-list-dragging .concept-card:not(.cdk-drag-placeholder) {
+//   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+// }
+
+// .definitions-column {
+//   flex: 2;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 15px;
+
+//   h3 { color: #34495e; margin-bottom: 15px; text-align: center; }
+// }
+
+// .def-row {
+//   display: flex;
+//   background: white;
+//   border-radius: 12px;
+//   padding: 15px;
+//   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+//   align-items: center;
+//   gap: 15px;
+// }
+
+// .def-text-box {
+//   flex: 1;
+//   p { margin: 0; color: #475569; font-size: 0.95rem; line-height: 1.4; }
+// }
+
+// .drop-slot {
+//   width: 200px;
+//   min-height: 50px;
+//   border: 2px dashed #cbd5e1;
+//   border-radius: 8px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   background: #f8fafc;
+//   transition: all 0.2s;
+
+//   &.filled { border: 2px solid #2ecc71; background: #f0fdf4; }
+
+//   .slot-hint { color: #94a3b8; font-size: 0.85rem; font-weight: 500; }
+// }
+
+// .empty-message {
+//   text-align: center;
+//   color: #2ecc71;
+//   font-weight: bold;
+//   margin-top: 20px;
+// }
+
+// .actions {
+//   text-align: center;
+//   margin-top: 30px;
+// }
 

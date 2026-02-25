@@ -1,15 +1,3 @@
-// import { Component } from '@angular/core';
-
-// @Component({
-//   selector: 'app-gen-game',
-//   imports: [],
-//   templateUrl: './gen-game.component.html',
-//   styleUrl: './gen-game.component.css'
-// })
-// export class GenGameComponent {
-
-// }
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DragDropModule, CdkDragDrop, transferArrayItem } from '@angular/cdk/drag-drop';
@@ -170,3 +158,19 @@ export class GenGameComponent implements OnInit {
     }
   }
 }
+
+
+
+
+
+
+// import { Component } from '@angular/core';
+// @Component({
+//   selector: 'app-gen-game',
+//   imports: [],
+//   templateUrl: './gen-game.component.html',
+//   styleUrl: './gen-game.component.css'
+// })
+// export class GenGameComponent {
+
+// }
