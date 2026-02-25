@@ -80,6 +80,8 @@ export class SupabaseService {
       );
     }
     this.client = window.__supabaseClient__!;
+
+    this.hacerPing(); // Enviar un ping inicial al crear el servicio
   }
 
   /* ========================= CHAT ========================= */
@@ -297,19 +299,40 @@ export class SupabaseService {
     if (error) throw error;
   }
 
+  // async getLoginLogs(limit = 100): Promise<LoginLog[]> {
+  //   const { data, error } = await this.client
+  //     .schema('esquema_juegos')
+  //     .from('log_logins')
+  //     .select('*')
+  //     .order('fecha_ingreso', { ascending: false })
+  //     .limit(limit);
+  //   if (error) throw error;
+  //   // Mapear campos de BD a la interfaz
+  //   return (data || []).map((row: any) => ({
+  //     id: row.id,
+  //     user_id: row.usuario_id?.toString() || null,
+  //     email: null, // no está en el esquema, se puede obtener del usuario si es necesario
+  //     created_at: row.fecha_ingreso
+  //   })) as LoginLog[];
+  // }
+
   async getLoginLogs(limit = 100): Promise<LoginLog[]> {
     const { data, error } = await this.client
       .schema('esquema_juegos')
       .from('log_logins')
-      .select('*')
+      // ACÁ ESTÁ LA MAGIA: Traemos todo de log_logins Y el email de usuarios
+      .select('*, usuarios(email)') 
       .order('fecha_ingreso', { ascending: false })
       .limit(limit);
+      
     if (error) throw error;
+    
     // Mapear campos de BD a la interfaz
     return (data || []).map((row: any) => ({
       id: row.id,
       user_id: row.usuario_id?.toString() || null,
-      email: null, // no está en el esquema, se puede obtener del usuario si es necesario
+      // ACÁ MAPEAMOS EL EMAIL QUE TRAJIMOS EN EL SELECT
+      email: row.usuarios?.email || 'Desconocido', 
       created_at: row.fecha_ingreso
     })) as LoginLog[];
   }
