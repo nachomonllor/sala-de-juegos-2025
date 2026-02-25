@@ -86,12 +86,6 @@ export class GenGameComponent implements OnInit {
 
 
 
-
-
-
-
-
-
   // -------------------------------------------------------------------------------------------------
 
   // Lista de conceptos que el usuario va a arrastrar (se mezclan al inicio)
