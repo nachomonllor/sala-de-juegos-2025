@@ -1,0 +1,29 @@
+🎮 Tus clásicos en C# (Para traducir a Angular)
+Snake (La Serpiente): Ideal para manejar bucles de renderizado y estados simples.
+
+Tetris: Un gran desafío para el manejo de matrices y detección de colisiones.
+
+Pacman: Excelente para implementar algoritmos de búsqueda de caminos (pathfinding) para los fantasmas.
+
+Water-Color-Sort: Pura lógica de pilas (stacks) y validaciones de estado.
+
+Torres de Hanói: El ejemplo perfecto para lucir tu dominio de la recursividad.
+
+Tabla Periódica: ¡Este va directo a la categoría "Ciencia" junto con el BioMatch!
+
+Nature Park: Ese clon que armaste con ingeniería inversa visual de tu celular viejo.
+
+Simón Dice (Simon): Muy bueno para trabajar con secuencias, arrays y temporizadores (setTimeout).
+
+💡 Nuevas sugerencias para sumar al CV
+Ya que venís con un perfil muy fuerte en lógica y resolución de algoritmos, estos juegos encajarían perfecto en tu sala y son muy valorados por los reclutadores:
+
+Buscaminas (Minesweeper): Es un clásico que demuestra un manejo impecable de grillas bidimensionales y algoritmos de expansión (recursividad para abrir las celdas vacías).
+
+2048: Muy adictivo y perfecto para demostrar transformaciones de matrices y animaciones de desplazamiento fluidas en Angular.
+
+Wordle (Adivinar la palabra): Es un juego moderno y excelente para mostrar manipulación de strings, validaciones por teclado y uso de colores de estado.
+
+Juego de la Vida de Conway (Cellular Automaton): Más que un juego, es una simulación matemática continua. Programar esto en el frontend es un "flex" absoluto para perfiles orientados a la ciencia y la bioinformática.
+
+¡Quedó una hoja de ruta espectacular! Éxitos con el resto de tus tareas, y cuando vuelvas, ¿te gustaría que arranquemos traduciendo alguno de los más rápidos como el Simón o las Torres de Hanói?
