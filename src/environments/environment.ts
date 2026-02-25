@@ -12,7 +12,8 @@ export const environment = {
   accesoRapidoHabilitado: true,
   demoUsers: [
     { etiqueta: 'Nacho', correo: 'nachomonllor@hotmail.com', contrasenia: '123456' },
-    { etiqueta: 'Hector', correo: 'hector@hotmail.com', contrasenia: '123456' },
+    { etiqueta: 'Juana', correo: 'juana@hotmail.com', contrasenia: '123456' },
+
   ],
   dbzBaseUrl: '/dbz'   //   el proxy local  
 
