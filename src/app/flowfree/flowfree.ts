@@ -4,6 +4,7 @@ import { generatePuzzle } from './puzzle-gen';
 import { FlowFreeEngine, Pair } from './flowfree-engine';
 import { ScoreService } from '../services/score.service';
 import { pointsFlowFree } from '../models/score-utils';
+import { LogsJuegosService } from '../services/logs-juegos.service';
 
 type RGB = string;
 
@@ -49,7 +50,7 @@ export class FlowFreeComponent implements OnInit {
   nivelesCompletados = 0;
   pistasUsadas = 0;
 
-  constructor(private score: ScoreService) { }
+  constructor(private score: ScoreService, private logService: LogsJuegosService  ) { }
 
   terminar() {
     const duracionSec = Math.round((performance.now() - this.t0) / 1000);
@@ -135,6 +136,15 @@ export class FlowFreeComponent implements OnInit {
 
 
     this.restartTimer();
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que iniciar el juego es un evento exitoso
+      'FlowFreeComponent',
+      'ngOnInit',
+      'Inició una nueva partida de Flow Free'
+    );
+
   }
 
   ngOnDestroy(): void {
@@ -157,6 +167,7 @@ export class FlowFreeComponent implements OnInit {
     this.timerRef = setInterval(() => {
       this.elapsedMs = Date.now() - this.startEpoch;
     }, 1000);
+
   }
   private stopTimer() {
     if (this.timerRef) { clearInterval(this.timerRef); this.timerRef = null; }
@@ -320,6 +331,14 @@ export class FlowFreeComponent implements OnInit {
       this.stopTimer();
       this.guardarPuntaje();
     }
+
+    this.logService.registrarLog( 
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que cada conexión/desconexión es un evento exitoso
+      'FlowFreeComponent',
+      'manejarVictoria',
+      `Revisó estado de victoria - ${this.message === '¡Resuelto! 🎉' ? 'Ganó la partida' : 'Sigue jugando'}`
+     );
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------

@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { AuthService, User } from '../../services/auth.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { LogsJuegosService } from '../../services/logs-juegos.service';
 
 // ajustá la ruta según tu proyecto
 //type Category 
@@ -40,13 +41,23 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private auth: AuthService,
-    private supa: SupabaseService
+    private supa: SupabaseService,
+    private logService: LogsJuegosService
   ) {
     this.user$ = this.auth.user$;
   }
 
   async ngOnInit() {
     await this.verificarAdmin();
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que cargar la página es un evento exitoso
+      'HomeComponent',
+      'ngOnInit',
+      'Ingresó a la página principal'
+    );
+
   }
 
   async verificarAdmin() {

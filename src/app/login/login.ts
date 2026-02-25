@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { SupabaseService } from '../services/supabase.service';
 import { environment } from '../../environments/environment';
+import { LogsJuegosService } from '../services/logs-juegos.service';
 
 type UsuarioAccesoRapido = { etiqueta: string; correo: string; contrasenia: string };
 
@@ -27,7 +28,8 @@ export class LoginComponent {
   constructor(
     private enrutador: Router,
     private servicioAuth: AuthService,
-    private supabaseSvc: SupabaseService
+    private supabaseSvc: SupabaseService,
+    private logService: LogsJuegosService
   ) {}
 
   autocompletarAccesoRapido(u: UsuarioAccesoRapido) {
@@ -64,6 +66,15 @@ export class LoginComponent {
           break;
       }
       this.cargando = false;
+
+        this.logService.registrarLog(
+          'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario si lo tenés, o null
+          false, // El login falló
+          'LoginComponent',
+          'ingresar',
+          `Intentó ingresar con ${this.formulario.correo} - Error: ${this.mensajeDeError}`
+        );
+
       return;
     }
 
@@ -90,6 +101,15 @@ export class LoginComponent {
         if (usuarioId) {
           await this.supabaseSvc.logLogin(usuario.id);
         }
+
+        this.logService.registrarLog(
+          usuario.id, // Aquí sí tenemos el UID del usuario
+          true, // El login fue exitoso
+          'LoginComponent',
+          'ingresar',
+          `Ingresó exitosamente con ${usuario.email}` 
+        );
+
       } catch (error: any) {
         console.warn('Error al verificar/crear usuario o registrar login:', error);
         // No bloqueamos el login por esto

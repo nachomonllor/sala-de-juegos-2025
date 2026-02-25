@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { SupabaseService } from '../services/supabase.service';
+import { LogsJuegosService } from '../services/logs-juegos.service';
 
 @Component({
   standalone: true,
@@ -28,7 +29,8 @@ export class RegisterComponent {
   constructor(
     private enrutador: Router,
     private autenticacion: AuthService,
-    private supabaseSvc: SupabaseService
+    private supabaseSvc: SupabaseService,
+    private logService: LogsJuegosService
   ) {}
 
   async registrarse() {
@@ -63,6 +65,15 @@ export class RegisterComponent {
         this.mensajeInformativo =
           'Revisá tu correo para confirmar la cuenta. Luego podés iniciar sesión.';
         await this.enrutador.navigate(['/login']);
+
+        this.logService.registrarLog(
+          'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario si lo tenés, aunque en este caso no hay sesión aún
+          true, // Asumimos que iniciar el proceso de registro es un evento exitoso 
+          'RegisterComponent',
+          'registrarse',
+          `Inició el proceso de registro con email: ${this.formulario.email}`
+        );
+
         return;
       }
 
@@ -75,6 +86,15 @@ export class RegisterComponent {
           this.formulario.fechaNacimiento || null,
           usuario.id
         );
+
+        this.logService.registrarLog(
+          usuario.id, // Aquí sí tenemos el UID real del usuario
+          true, // Asumimos que crear el usuario en esquema_juegos es un evento exitoso
+          'RegisterComponent',
+          'registrarse',
+          'Usuario registrado exitosamente y creado en esquema_juegos'
+        );
+
       } catch (createError: any) {
         console.error('Error al crear usuario en esquema_juegos:', createError);
         // No bloqueamos el flujo si falla la creación del usuario
@@ -86,6 +106,15 @@ export class RegisterComponent {
     } catch (e: any) {
       console.error(e);
       this.mensajeDeError = this.traducirErrorRegistro(e);
+
+        this.logService.registrarLog( 
+          'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario si lo tenés, o null
+          false, // El registro falló
+          'RegisterComponent',  
+          'registrarse',
+          `Intentó registrarse con ${this.formulario.email} - Error: ${this.mensajeDeError}`
+        );
+
     } finally {
       this.cargando = false;
     }

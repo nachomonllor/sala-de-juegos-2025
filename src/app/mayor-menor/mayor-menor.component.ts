@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ScoreService } from '../services/score.service';
 import { pointsMayorMenor } from '../models/score-utils';
+import { LogsJuegosService } from '../services/logs-juegos.service';
 
 export interface Carta {
   palo: 'oro' | 'espada' | 'copa' | 'basto';
@@ -47,7 +48,9 @@ export class MayorMenorComponent implements OnInit {
   private scoreGuardado = false;     // NUEVO
 
   //----------------------------------------------------------------
-  constructor(private score: ScoreService) { }
+  constructor(private score: ScoreService, 
+              private logService: LogsJuegosService
+  ) { }
 
   ngOnInit() {
     // Migración de récord guardado (para no perder el valor anterior)
@@ -64,6 +67,15 @@ export class MayorMenorComponent implements OnInit {
     }
 
     this.iniciarJuego();
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que iniciar el juego es un evento exitoso
+      'MayorMenorComponent',
+      'ngOnInit',
+      'Inició una partida de Mayor o Menor'
+    );
+
   }
 
   //   iniciarJuego() {
@@ -97,6 +109,15 @@ export class MayorMenorComponent implements OnInit {
 
     console.log(`Carta actual: ${this.cartaActual.etiqueta} de ${this.cartaActual.palo}`);
     console.log(`Próxima carta: ${this.cartaSiguiente.etiqueta} de ${this.cartaSiguiente.palo}`);
+
+    this.logService.registrarLog( 
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que iniciar el juego es un evento exitoso
+      'MayorMenorComponent',
+      'iniciarJuego',
+      'Inició una partida de Mayor o Menor'
+      );
+
   }
 
   hacerAdivinanza(opcion: Adivinanza) {
@@ -142,6 +163,15 @@ export class MayorMenorComponent implements OnInit {
 
     console.log(`Carta actual: ${this.cartaActual.etiqueta} de ${this.cartaActual.palo}`);
     console.log(`Próxima carta: ${this.cartaSiguiente.etiqueta} de ${this.cartaSiguiente.palo}`);
+
+    this.logService.registrarLog( 
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que cada adivinanza es un evento exitoso (aunque falle la respuesta)
+      'MayorMenorComponent',
+      'hacerAdivinanza',
+      `Hizo una adivinanza "${opcion}" - ${acierto ? 'Acierto' : 'Fallo'}`
+    );
+
   }
 
   finalizarJuego() {
@@ -159,6 +189,14 @@ export class MayorMenorComponent implements OnInit {
       this.terminar();               // llama a ScoreService.recordScore(...)
       this.scoreGuardado = true;
     }
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que finalizar el juego es un evento exitoso
+      'MayorMenorComponent',
+      'finalizarJuego',
+      `Finalizó la partida - Puntaje: ${this.puntaje}, Nuevo récord: ${this.nuevoRecord ? 'Sí' : 'No'}`
+    );
   }
 
   terminar() {
@@ -170,6 +208,14 @@ export class MayorMenorComponent implements OnInit {
       durationSec: duracionSec,
       metaJson: { rachaMax: this.rachaMax }
     }).catch(console.error);
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que registrar el puntaje es un evento exitoso
+      'MayorMenorComponent',
+      'terminar',
+      `Registró el puntaje - Points: ${pts}, Duración: ${duracionSec}s, Racha Máxima: ${this.rachaMax}`
+    );
   }
 
   construirMazo() {

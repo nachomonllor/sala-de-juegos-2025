@@ -23,6 +23,7 @@ import { ScoreService } from '../services/score.service';
 import { SupabaseService } from '../services/supabase.service';
 import { GameCode, ScoreWithUser } from '../models/resultados';
 import { MatChipsModule } from '@angular/material/chips';
+import { LogsJuegosService } from '../services/logs-juegos.service';
 
 @Component({
   selector: 'app-results-list',
@@ -84,7 +85,8 @@ toggleFondo() {
   constructor(
     private scores: ScoreService,
     private route: ActivatedRoute,
-    private supa: SupabaseService
+    private supa: SupabaseService,
+
   ) {
     // Lee ?me=1|true
     this.route.queryParamMap.subscribe(p => {
@@ -127,6 +129,8 @@ toggleFondo() {
     this.juegoSeleccionado.set(val);
     // Reseteo a primera página cuando cambio filtros
     if (this.paginator) this.paginator.firstPage();
+
+ 
   }
 
   onTextoFiltro(ev: Event) {

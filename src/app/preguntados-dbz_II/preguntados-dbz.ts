@@ -5,6 +5,7 @@ import { finalize } from 'rxjs/operators';
 import { Pregunta } from '../models/preguntados-dbz.model';
 import { ResultadosService } from '../services/resultados.service';
 import { PersonajesDbzService } from '../services/personajes-dbz';
+import { LogsJuegosService } from '../services/logs-juegos.service';
 
 @Component({
   selector: 'app-preguntados-dbz',
@@ -37,7 +38,8 @@ export class PreguntadosDbzComponent {
 
   constructor(
     private servicio: PersonajesDbzService,
-    private resultadosSrv: ResultadosService
+    private resultadosSrv: ResultadosService,
+    private logService: LogsJuegosService
   ) {
     this.inicioMs.set(Date.now());
     this.siguientePregunta();
@@ -66,10 +68,27 @@ export class PreguntadosDbzComponent {
         // alert(`No se pudo guardar el puntaje: ${res.reason || 'Error desconocido'}`);
       } else {
         console.log('[DBZ] Puntaje guardado correctamente');
+
+        this.logService.registrarLog(
+          'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+          true, // Asumimos que guardar el puntaje es un evento exitoso
+          'PreguntadosDbzComponent',
+          'finalizarPartida',
+          `Guardó el puntaje - Puntaje: ${this.puntaje()}, Duración: ${dur}s`
+        );
       }
 
     } catch (error) {
       console.error('[DBZ] Excepción al guardar puntaje:', error);
+
+      this.logService.registrarLog(
+        'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+        false, // El guardado falló
+        'PreguntadosDbzComponent',
+        'finalizarPartida',
+        `Intentó guardar el puntaje pero ocurrió un error: ${error instanceof Error ? error.message : String(error)}`
+      );
+
     } finally {
       this.guardando.set(false);
     }
@@ -89,6 +108,14 @@ export class PreguntadosDbzComponent {
         next: (q) => { this.pregunta.set(q); this.totalPreguntas.update(t => t + 1); },
         error: (err) => { console.error('Error al armar la pregunta:', err); this.pregunta.set(null); }
       });
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que cargar la pregunta es un evento exitoso (aunque falle la carga, el intento fue exitoso)
+      'PreguntadosDbzComponent',
+      'siguientePregunta',
+      `Cargó la siguiente pregunta - Total preguntas: ${this.totalPreguntas() + 1}`
+    );
   }
 
   elegir(id: number): void {
@@ -105,6 +132,15 @@ export class PreguntadosDbzComponent {
     this.idSeleccionado.set(null);
     this.inicioMs.set(Date.now());  // reinicia CRONOMETRO
     this.siguientePregunta();
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que iniciar una nueva partida es un evento exitoso
+      'PreguntadosDbzComponent',
+      'nuevaPartida',
+      'Inició una nueva partida de Preguntados DBZ'
+    );
+
   }
 }
 
