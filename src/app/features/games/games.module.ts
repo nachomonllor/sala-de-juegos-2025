@@ -8,6 +8,7 @@ import { MayorMenorComponent } from '../../mayor-menor/mayor-menor.component';
 import { ResultsListComponent } from '../../results-list/results-list.component';
 import { PreguntadosDbzComponent } from '../../preguntados-dbz_II/preguntados-dbz';
 import { AhorcadoComponent } from '../../ahorcado_pista/ahorcado';
+import { GenGameComponent } from '../../gen-game/gen-game.component';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { AhorcadoComponent } from '../../ahorcado_pista/ahorcado';
     FlowFreeComponent,
     ResultsListComponent,
 
-    PreguntadosDbzComponent
+    PreguntadosDbzComponent,
+    GenGameComponent
   ]
 })
 export class GamesModule {}

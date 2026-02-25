@@ -1,0 +1,143 @@
+.game-container {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  font-family: 'Inter', sans-serif;
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  h1 { color: #2c3e50; margin-bottom: 5px; font-weight: 700; }
+  p { color: #666; font-size: 1.1rem; }
+}
+
+.board {
+  display: flex;
+  gap: 30px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.concepts-column {
+  flex: 1;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px dashed #cbd5e1;
+
+  h3 { color: #34495e; margin-bottom: 15px; text-align: center; }
+}
+
+.concept-list {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.concept-card {
+  background: #3498db;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: grab;
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+
+  .drag-handle { margin-right: 10px; opacity: 0.7; }
+  
+  &:active { cursor: grabbing; box-shadow: 0 8px 15px rgba(52, 152, 219, 0.4); }
+  
+  &.matched {
+    background: #2ecc71; /* Verde cuando está anclado */
+    box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+    cursor: default;
+    justify-content: center;
+  }
+}
+
+/* Efectos de Angular CDK */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background: #2980b9;
+  color: white;
+  padding: 12px 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+.cdk-drag-animating { transition: transform 250ms cubic-bezier(0, 0, 0.2, 1); }
+.drag-placeholder {
+  background: #e2e8f0;
+  border: 2px dashed #94a3b8;
+  min-height: 48px;
+  border-radius: 8px;
+}
+.concept-list.cdk-drop-list-dragging .concept-card:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.definitions-column {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  h3 { color: #34495e; margin-bottom: 15px; text-align: center; }
+}
+
+.def-row {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  align-items: center;
+  gap: 15px;
+}
+
+.def-text-box {
+  flex: 1;
+  p { margin: 0; color: #475569; font-size: 0.95rem; line-height: 1.4; }
+}
+
+.drop-slot {
+  width: 200px;
+  min-height: 50px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  transition: all 0.2s;
+
+  &.filled { border: 2px solid #2ecc71; background: #f0fdf4; }
+
+  .slot-hint { color: #94a3b8; font-size: 0.85rem; font-weight: 500; }
+}
+
+.empty-message {
+  text-align: center;
+  color: #2ecc71;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.actions {
+  text-align: center;
+  margin-top: 30px;
+}
+

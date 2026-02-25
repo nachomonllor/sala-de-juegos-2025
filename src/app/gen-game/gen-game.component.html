@@ -1,0 +1,72 @@
+<p>gen-game works!</p>
+
+<div class="game-container" cdkDropListGroup>
+  
+  <header class="game-header">
+    <h1>BioMatch: Genética y Evolución</h1>
+    <p>Arrastrá cada concepto a su definición correcta.</p>
+  </header>
+
+  <div class="board">
+    <div class="concepts-column">
+      <h3>Conceptos</h3>
+      
+      <div 
+        id="lista-conceptos"
+        class="concept-list"
+        cdkDropList
+        [cdkDropListData]="conceptosDisponibles"
+        [cdkDropListConnectedTo]="dropListIds"
+        (cdkDropListDropped)="drop($event)">
+        
+        <div class="concept-card" *ngFor="let concepto of conceptosDisponibles" cdkDrag>
+          <div class="card-content">
+            <i class="fas fa-grip-lines drag-handle"></i>
+            {{ concepto.texto }}
+          </div>
+          <div *cdkDragPlaceholder class="drag-placeholder"></div>
+        </div>
+
+        <div class="empty-message" *ngIf="conceptosDisponibles.length === 0">
+          ¡Todos los conceptos ubicados!
+        </div>
+      </div>
+    </div>
+
+    <div class="definitions-column">
+      <h3>Definiciones</h3>
+      
+      <div class="def-row" *ngFor="let def of definiciones">
+        
+        <div class="def-text-box">
+          <p>{{ def.definicion }}</p>
+        </div>
+
+        <div 
+          id="slot-{{def.id}}"
+          class="drop-slot"
+          [class.filled]="def.conceptoAnclado.length > 0"
+          cdkDropList
+          [cdkDropListData]="def.conceptoAnclado"
+          [cdkDropListConnectedTo]="['lista-conceptos']"
+          (cdkDropListDropped)="drop($event, def.id)">
+          
+          <div class="concept-card matched" *ngFor="let c of def.conceptoAnclado" cdkDrag>
+             {{ c.texto }}
+          </div>
+
+          <span class="slot-hint" *ngIf="def.conceptoAnclado.length === 0">
+            Soltá aquí
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button mat-stroked-button color="primary" (click)="iniciarJuego()">
+      <i class="fas fa-redo"></i> Reiniciar
+    </button>
+  </div>
+</div>

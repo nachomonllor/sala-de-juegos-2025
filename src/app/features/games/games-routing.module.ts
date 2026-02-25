@@ -6,6 +6,7 @@ import { MayorMenorComponent } from '../../mayor-menor/mayor-menor.component';
 import { ResultsListComponent } from '../../results-list/results-list.component';
 import { PreguntadosDbzComponent } from '../../preguntados-dbz_II/preguntados-dbz';
 import { AhorcadoComponent } from '../../ahorcado_pista/ahorcado';
+import { GenGameComponent } from '../../gen-game/gen-game.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'ahorcado', pathMatch: 'full' },
@@ -14,7 +15,8 @@ const routes: Routes = [
   { path: 'preguntados', component: DuelComponent },
   { path: 'flowfree', component: FlowFreeComponent },
   { path: 'resultados', component: ResultsListComponent },
-  { path: 'preguntados-dbz', component: PreguntadosDbzComponent }
+  { path: 'preguntados-dbz', component: PreguntadosDbzComponent },
+  { path: 'gen-game', component: GenGameComponent }
 ];
 
 @NgModule({
