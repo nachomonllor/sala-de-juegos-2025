@@ -131,7 +131,7 @@ export class HomeComponent implements OnInit {
     {
       title: 'BioMatch',
       route: '/games/gen-game', // Asegurate de que esta ruta coincida con la que pongas en tu app.routes.ts
-      thumb: 'assets/games/gen-game.jpg', // ¡No te olvides de guardar una imagen con este nombre en tu carpeta assets!
+      thumb: 'assets/games/biomatch.jpg', // ¡No te olvides de guardar una imagen con este nombre en tu carpeta assets!
       category: 'Ciencia',
       description: 'Uní conceptos de biología y genética evolutiva.',
       tags: ['biología', 'genética', 'unq', 'ciencia', 'drag-drop'],
