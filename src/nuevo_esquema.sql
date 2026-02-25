@@ -159,3 +159,48 @@ create table if not exists esquema_juegos.ping_keep_alive (
 insert into esquema_juegos.ping_keep_alive (id, ultimo_ping, origen) 
 values (1, now(), 'Inicialización Sala de Juegos')
 on conflict (id) do nothing;
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------- Tabla de conceptos de biología para el juego de preguntas (opcional,
+---------- pero puede ser útil para el juego de preguntados_dbz o uno propio) --------------------------
+------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Creamos la tabla
+create table if not exists esquema_juegos.conceptos_biologia (
+  id bigserial primary key,
+  codigo text unique not null,
+  concepto text not null,
+  definicion text not null,
+  unidad text
+);
+
+-- Insertamos los 25 conceptos iniciales
+insert into esquema_juegos.conceptos_biologia (codigo, concepto, definicion, unidad) values
+('metodo_cientifico', 'Método Científico', 'Procedimiento riguroso y lógico utilizado para construir conocimiento, basado en la observación, formulación de hipótesis y experimentación.', 'Unidad 1'),
+('teo_endosimbiotica', 'Teoría Endosimbiótica', 'Explica el origen evolutivo de mitocondrias y cloroplastos a partir de bacterias procariontes fagocitadas.', 'Unidad 1'),
+('carbohidratos', 'Carbohidratos', 'Macromoléculas orgánicas que actúan como la principal fuente de energía inmediata y estructura celular.', 'Unidad 1'),
+('celula_eucarionte', 'Célula Eucarionte', 'Tipo de célula que posee un núcleo verdadero delimitado por una envoltura y organelas membranosas.', 'Unidad 2'),
+('transporte_activo', 'Transporte Activo', 'Movimiento de sustancias a través de la membrana celular en contra de su gradiente de concentración, con gasto de energía.', 'Unidad 2'),
+('enzimas', 'Enzimas', 'Proteínas que actúan como catalizadores biológicos, acelerando la velocidad de las reacciones metabólicas.', 'Unidad 2'),
+('fotosintesis', 'Fotosíntesis', 'Proceso anabólico donde la energía lumínica se convierte en energía química, fijando el carbono inorgánico.', 'Unidad 2'),
+('dogma_central', 'Dogma Central', 'Flujo de la información genética: el ADN se transcribe a ARN, y este se traduce a proteínas.', 'Unidad 3'),
+('alelo', 'Alelo', 'Cada una de las formas alternativas que puede tener un gen y que ocupan el mismo locus en cromosomas homólogos.', 'Unidad 3'),
+('meiosis', 'Meiosis', 'División celular reductiva que genera cuatro células hijas haploides, fundamental para la reproducción sexual.', 'Unidad 3'),
+('pleiotropismo', 'Pleiotropismo', 'Fenómeno genético donde la expresión de un solo gen afecta múltiples rasgos fenotípicos aparentemente no relacionados.', 'Unidad 3'),
+('leyes_mendel', 'Leyes de Mendel', 'Principios básicos de la herencia que describen la segregación y distribución independiente de los factores hereditarios.', 'Unidad 3'),
+('deriva_genica', 'Deriva Génica', 'Fuerza evolutiva que produce cambios aleatorios en las frecuencias alélicas de una población, especialmente si es pequeña.', 'Unidad 4'),
+('especiacion', 'Especiación', 'Proceso macroevolutivo mediante el cual una población original se divide y da lugar a nuevas especies reproductivamente aisladas.', 'Unidad 4'),
+('mutacion', 'Mutación', 'Cambio permanente y heredable en la secuencia del ADN, siendo la fuente primaria de variabilidad genética.', 'Unidad 4'),
+('seleccion_natural', 'Selección Natural', 'Mecanismo evolutivo donde los individuos con características más favorables tienen mayor éxito reproductivo y supervivencia.', 'Unidad 4'),
+('sistema_binomial', 'Sistema Binomial', 'Nomenclatura taxonómica que designa a cada especie con dos nombres en latín: género y epíteto específico.', 'Unidad 5'),
+('dominio_archaea', 'Dominio Archaea', 'Grupo de microorganismos procariontes, muchos de ellos extremófilos, con diferencias bioquímicas profundas respecto a las bacterias.', 'Unidad 5'),
+('reino_fungi', 'Reino Fungi', 'Organismos eucariontes heterótrofos con pared celular de quitina, que se alimentan por absorción.', 'Unidad 5'),
+('nicho_ecologico', 'Nicho Ecológico', 'El papel funcional que desempeña una especie dentro de su comunidad, incluyendo uso de recursos y tolerancias.', 'Unidad 6'),
+('sucesion_ecologica', 'Sucesión Ecológica', 'Proceso de cambio direccional y gradual en la estructura de la comunidad a lo largo del tiempo temporal tras una perturbación.', 'Unidad 6'),
+('red_trofica', 'Red Trófica', 'Conjunto interconectado de cadenas alimentarias que muestra cómo fluye la energía en un ecosistema.', 'Unidad 6'),
+('bioma', 'Bioma', 'Gran región ecológica caracterizada por su clima, flora y fauna dominantes.', 'Unidad 6'),
+('efecto_invernadero', 'Efecto Invernadero', 'Retención del calor en la atmósfera debido a gases que absorben radiación infrarroja, exacerbado por la actividad humana.', 'Unidad 6'),
+('ciclos_biogeoquimicos', 'Ciclos Biogeoquímicos', 'Rutas circulares a través de las cuales elementos como el carbono o el nitrógeno se mueven entre los componentes bióticos y abióticos.', 'Unidad 6')
+on conflict (codigo) do nothing;
+
