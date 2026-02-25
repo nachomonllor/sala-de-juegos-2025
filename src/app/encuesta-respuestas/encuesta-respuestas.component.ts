@@ -8,6 +8,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { EncuestaRespuestasService, EncuestaRespuestaAdmin } from '../services/encuesta-respuestas.service';
+import { LogsJuegosService } from '../services/logs-juegos.service';
 
 @Component({
   selector: 'app-encuesta-respuestas',
@@ -305,7 +306,7 @@ export class EncuestaRespuestasComponent implements OnInit {
     });
   });
 
-  constructor(private readonly encuestaSrv: EncuestaRespuestasService) {}
+  constructor( private logService: LogsJuegosService, private readonly encuestaSrv: EncuestaRespuestasService) {}
 
   ngOnInit(): void {
     this.cargar();
@@ -331,9 +332,29 @@ export class EncuestaRespuestasComponent implements OnInit {
     try {
       const data = await this.encuestaSrv.listRespuestas(200);
       this.respuestas.set(data);
+
+      this.logService.registrarLog(
+        'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+        true, // Asumimos que cargar las respuestas es un evento exitoso
+        'EncuestaRespuestasComponent',
+        'cargar',
+        'Cargó las respuestas de la encuesta para administración'
+      );  
+
     } catch (err: any) {
       console.error('[EncuestaRespuestasComponent] Error cargando respuestas', err);
+
       this.error.set(err?.message ?? 'Error al cargar respuestas');
+
+      this.logService.registrarLog(
+        'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+        false, // Indicamos que hubo un error
+        'EncuestaRespuestasComponent',
+        'cargar',
+        `Error al cargar respuestas: ${err?.message || 'Error desconocido'}`
+      );
+
+
     } finally {
       this.cargando.set(false);
     }

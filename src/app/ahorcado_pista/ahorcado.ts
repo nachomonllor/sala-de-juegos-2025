@@ -5,6 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { WordEntry, WordService } from '../services_pista/word';
+import { SupabaseService } from '../services/supabase.service';
+import { LogsJuegosService } from '../services/logs-juegos.service';
 
 @Component({
   selector: 'app-ahorcado',
@@ -36,7 +38,7 @@ export class AhorcadoComponent implements OnInit {
     'hangman_5k.png', 'hangman_6k.png', 'hangman_7k.png'
   ];
 
-  constructor(private wordService: WordService) { }
+  constructor(private wordService: WordService, private logService: LogsJuegosService ) { }
 
   ngOnInit(): void { this.resetGame(); }
 
@@ -62,6 +64,15 @@ export class AhorcadoComponent implements OnInit {
       this.selectedHint = w.hint;
       this.selectedCategory = w.category;
     });
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que iniciar el juego es un evento exitoso
+      'AhorcadoComponent',
+      'resetGame',
+      'Inició una nueva partida de Ahorcado'
+    );
+    
   }
 
   confirmGuess(letter: string): void {
@@ -85,6 +96,14 @@ export class AhorcadoComponent implements OnInit {
         this.gameStatus = 'lose';
       }
     }
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que cada intento es un evento exitoso (aunque falle la letra)
+      'AhorcadoComponent',
+      'confirmGuess',
+      `Intentó la letra "${letter.toUpperCase()}" - ${this.gameStatus === 'lose' ? 'Falló' : 'Acierto'}`
+    );
   }
 
   getHangmanImage(): string {

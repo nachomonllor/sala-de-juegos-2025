@@ -4,6 +4,7 @@ import { HttpClientModule } from '@angular/common/http';      // IMPORTAR
 import { Component, OnInit } from '@angular/core';
 import { QuestionService } from '../services/question.service';
 import { RouterLink } from '@angular/router';
+import { LogsJuegosService } from '../services/logs-juegos.service';
 
 @Component({
   standalone: true,                                         //AGREGAR 
@@ -30,7 +31,7 @@ export class DuelComponent implements OnInit {
   // ← NUEVO: almacena aquí la respuesta correcta
   correctAnswer = '';
 
-  constructor(private qs: QuestionService) { }
+  constructor(private qs: QuestionService, private logService: LogsJuegosService  ) { }
 
   ngOnInit(): void {
     this.loadQuestion();
@@ -50,6 +51,15 @@ export class DuelComponent implements OnInit {
         ...q.incorrectAnswers
       ]);
     });
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que iniciar el juego es un evento exitoso
+      'DuelComponent',
+      'loadQuestion',
+      'Cargó una nueva pregunta en el duelo'
+    );
+
   }
 
   selectAnswer(opt: string): void {
@@ -66,6 +76,15 @@ export class DuelComponent implements OnInit {
         this.message += ' — Game Over.';
       }
     }
+
+    this.logService.registrarLog( 
+      'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+      true, // Asumimos que cada intento es un evento exitoso (aunque falle la respuesta)
+
+      'DuelComponent',
+      'selectAnswer',
+      `Seleccionó la respuesta "${opt}" - ${opt === this.correctAnswer ? 'Correcta' : 'Incorrecta'}`
+    );
   }
 
   nextQuestion(): void {
@@ -89,91 +108,3 @@ export class DuelComponent implements OnInit {
   }
 }
 
-
-// import { CommonModule } from '@angular/common';
-// import { FormsModule } from '@angular/forms';
-// import { Component, OnInit } from '@angular/core';
-// import { QuestionService } from '../question.service';
-// import { Question } from '../models/question.model';
-
-// @Component({
-//   selector: 'app-duel',
-//   imports: [CommonModule, FormsModule],
-//   templateUrl: './duel.component.html',
-//   styleUrl: './duel.component.css'
-// })
-
-// export class DuelComponent implements OnInit {
-//   selectedTheme = 'historia';            // O el tema que elijas
-//   currentQuestion = '';
-//   currentImage = '';
-//   options: string[] = [];
-//   message = '';
-//   answered = false;
-//   lives = 3;
-//   gameOver = false;
-
-//   constructor(private qs: QuestionService) { }
-
-//   ngOnInit(): void {
-//     this.loadQuestion();
-//   }
-
-//   loadQuestion(): void {
-//     this.message = '';
-//     this.answered = false;
-//     if (this.gameOver) { return; }
-
-//     this.qs.getQuestion(this.selectedTheme).subscribe((q: Question) => {
-//       this.currentQuestion = q.questionText;
-//       this.currentImage    = q.imageUrl;
-//       const answers = [q.correctAnswer, ...q.incorrectAnswers];
-//       this.options = this.shuffle(answers);
-//     });
-//   }
-
-//   selectAnswer(opt: string): void {
-//     if (this.answered) { return; }
-//     this.answered = true;
-//     if (opt === this.getCorrect()) {
-//       this.message = '¡Correcto!';
-//     } else {
-//       this.message = `Incorrecto. La respuesta era: ${this.getCorrect()}`;
-//       this.lives--;
-//       if (this.lives === 0) {
-//         this.gameOver = true;
-//         this.message += ' — Game Over.';
-//       }
-//     }
-//   }
-
-//   nextQuestion(): void {
-//     if (!this.gameOver) {
-//       this.loadQuestion();
-//     }
-//   }
-
-//   private getCorrect(): string {
-//     // La opción correcta queda guardada en `message` o en la comparación previa
-//     // Pero puedes extraerla de `options` y `message` si quieres.
-//     return this.message.startsWith('¡Correcto!') 
-//       ? this.options.find(o => this.message.includes(o))! 
-//       : this.options.find(o => !this.options.includes(o) || true)!; 
-//     // Mejor: guarda `correctAnswer` en una propiedad separada al cargar.
-//   }
-
-//   private shuffle(arr: any[]): any[] {
-//     for (let i = arr.length - 1; i > 0; i--) {
-//       const j = Math.floor(Math.random() * (i + 1));
-//       [arr[i], arr[j]] = [arr[j], arr[i]];
-//     }
-//     return arr;
-//   }
-
-//   reset(): void {
-//     this.lives = 3;
-//     this.gameOver = false;
-//     this.loadQuestion();
-//   }
-
-// }

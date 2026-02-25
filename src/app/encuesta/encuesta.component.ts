@@ -19,6 +19,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 // Ajustá la ruta real de tu servicio
 import { SupabaseService } from '../services/supabase.service';
 import { MatDividerModule } from '@angular/material/divider';
+import { LogsJuegosService } from '../services/logs-juegos.service';
 
 // Interfaces para preguntas dinámicas
 export interface OpcionPregunta {
@@ -66,6 +67,8 @@ export class EncuestaComponent implements OnInit {
   // Preguntas cargadas desde BD
   preguntas = signal<PreguntaEncuesta[]>([]);
   encuestaId: number | null = null;
+
+  constructor(private logService: LogsJuegosService) { }
 
   ngOnInit(): void {
     this.cargarEncuesta();
@@ -142,6 +145,16 @@ export class EncuestaComponent implements OnInit {
 
       // 4) Construir formulario dinámicamente
       this.construirFormulario(preguntasConOpciones);
+
+
+      this.logService.registrarLog(
+        'supa-uid-placeholder', // Aquí deberías pasar el UID real del usuario
+        true, // Asumimos que cargar la encuesta es un evento exitoso
+        'EncuestaComponent',
+        'cargarEncuesta',
+        'Cargó la encuesta activa con sus preguntas'
+      );
+
     } catch (err: any) {
       console.error('[Encuesta] Error cargando encuesta:', err);
       this.error.set(err?.message || 'Error al cargar la encuesta.');
