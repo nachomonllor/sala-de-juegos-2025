@@ -9,6 +9,7 @@ import { ResultsListComponent } from '../../results-list/results-list.component'
 import { PreguntadosDbzComponent } from '../../preguntados-dbz_II/preguntados-dbz';
 import { AhorcadoComponent } from '../../ahorcado_pista/ahorcado';
 import { GenGameComponent } from '../../gen-game/gen-game.component';
+import { MathGameComponent } from '../../math-game/math-game.component';
 
 @NgModule({
   imports: [
@@ -22,7 +23,8 @@ import { GenGameComponent } from '../../gen-game/gen-game.component';
     ResultsListComponent,
 
     PreguntadosDbzComponent,
-    GenGameComponent
+    GenGameComponent,
+    MathGameComponent 
   ]
 })
 export class GamesModule {}

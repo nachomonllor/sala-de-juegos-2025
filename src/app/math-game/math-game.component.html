@@ -1,0 +1,45 @@
+<p>math-game works!</p>
+
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Cálculo Rápido</h1>
+    <p>Resolvé la mayor cantidad de operaciones en 60 segundos.</p>
+  </header>
+
+  <div class="start-screen" *ngIf="!jugando">
+    <div class="score-display" *ngIf="puntaje > 0">
+      Último puntaje: <strong>{{ puntaje }}</strong>
+    </div>
+    <button mat-flat-button color="primary" class="btn-jugar" (click)="iniciarJuego()">
+      <i class="fas fa-play"></i> ¡Comenzar!
+    </button>
+  </div>
+
+  <div class="play-screen" *ngIf="jugando">
+    
+    <div class="stats-bar">
+      <div class="score">Puntos: <span>{{ puntaje }}</span></div>
+      <div class="time" [class.danger]="tiempoRestante <= 10">
+        <i class="fas fa-clock"></i> {{ tiempoRestante }}s
+      </div>
+    </div>
+
+    <mat-progress-bar mode="determinate" [value]="(tiempoRestante / 60) * 100" [color]="tiempoRestante <= 10 ? 'warn' : 'primary'"></mat-progress-bar>
+
+    <div class="equation-board">
+      <h2 class="equation">{{ preguntaActual.texto }}</h2>
+    </div>
+
+    <div class="options-grid">
+      <button 
+        *ngFor="let opcion of preguntaActual.opciones" 
+        mat-flat-button 
+        class="option-btn"
+        (click)="responder(opcion)">
+        {{ opcion }}
+      </button>
+    </div>
+
+  </div>
+</div>
