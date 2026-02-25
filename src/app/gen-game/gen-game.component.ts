@@ -26,67 +26,135 @@ interface DefinicionSlot {
 })
 export class GenGameComponent implements OnInit {
   
-  // Lista de conceptos que el usuario va a arrastrar (se mezclan al inicio)
+  private todosLosConceptos: any[] = []; 
+
   conceptosDisponibles: Concepto[] = [];
-
-  // Los "huecos" con las definiciones donde hay que soltar los conceptos
-  definiciones: DefinicionSlot[] = [
-    {
-      id: 'endosimbiosis',
-      definicion: 'Explica el origen evolutivo de las organelas celulares.',
-      conceptoAnclado: []
-    },
-    {
-      id: 'dogma',
-      definicion: 'Postula que el ADN actúa como portador de la información para luego expresarse en ARN.',
-      conceptoAnclado: []
-    },
-    {
-      id: 'meiosis',
-      definicion: 'Proceso de división celular clave para la reproducción y las bases de la herencia.',
-      conceptoAnclado: []
-    },
-    {
-      id: 'deriva',
-      definicion: 'Fuerza evolutiva que actúa junto a las mutaciones, migración y selección natural.',
-      conceptoAnclado: []
-    },
-    {
-      id: 'nicho',
-      definicion: 'Concepto de ecología que se divide en sus variantes fundamental y real.',
-      conceptoAnclado: []
-    }
-
-  ];
-
-  // IDs para conectar todas las zonas de drop
+  definiciones: DefinicionSlot[] = [];
   dropListIds: string[] = [];
 
   constructor(private sb: SupabaseService) {}
 
-  ngOnInit(): void {
-    this.iniciarJuego();
+  // Convertimos el ngOnInit a async para poder esperar la respuesta de Supabase
+  async ngOnInit() {
+    await this.cargarConceptosDesdeBD();
+  }
+
+  async cargarConceptosDesdeBD() {
+    try {
+      // Hacemos el select directamente a la nueva tabla
+      const { data, error } = await this.sb.client
+        .schema('esquema_juegos')
+        .from('conceptos_biologia')
+        .select('*');
+
+      if (error) throw error;
+
+      this.todosLosConceptos = data || [];
+      
+      // Una vez que tenemos los datos, iniciamos la partida
+      this.iniciarJuego();
+
+    } catch (error) {
+      console.error('Error al cargar conceptos desde Supabase:', error);
+      Swal.fire('Error', 'No se pudieron cargar los conceptos del juego.', 'error');
+    }
   }
 
   iniciarJuego() {
-    // Conceptos originales
-    const conceptos: Concepto[] = [
-      { id: 'endosimbiosis', texto: 'Teoría Endosimbiótica' },
-      { id: 'dogma', texto: 'Dogma Central' },
-      { id: 'meiosis', texto: 'Meiosis' },
-      { id: 'deriva', texto: 'Deriva Génica' },
-      { id: 'nicho', texto: 'Nicho Ecológico' }
-    ];
+    if (this.todosLosConceptos.length === 0) return;
 
-    // Mezclar conceptos aleatoriamente
-    this.conceptosDisponibles = conceptos.sort(() => Math.random() - 0.5);
-    
-    // Limpiar slots si se está reiniciando
-    this.definiciones.forEach(def => def.conceptoAnclado = []);
+    // 1. Elegir 5 conceptos AL AZAR de la base de datos
+    const conceptosMezclados = [...this.todosLosConceptos].sort(() => Math.random() - 0.5);
+    const conceptosSeleccionados = conceptosMezclados.slice(0, 5);
 
-    // Conectar la lista principal con los huecos
+    // 2. Llenar los "conceptosDisponibles" (Izquierda) mezclándolos de nuevo
+    this.conceptosDisponibles = [...conceptosSeleccionados]
+      .sort(() => Math.random() - 0.5)
+      // Mapeamos a los nombres de columna que creamos en SQL (codigo y concepto)
+      .map(c => ({ id: c.codigo, texto: c.concepto }));
+
+    // 3. Preparar los huecos de "definiciones" (Derecha)
+    this.definiciones = conceptosSeleccionados.map(c => ({
+      id: c.codigo, 
+      definicion: c.definicion,
+      conceptoAnclado: []
+    }));
+
+    // 4. Conectar listas para el Drag & Drop
     this.dropListIds = ['lista-conceptos', ...this.definiciones.map(d => 'slot-' + d.id)];
   }
+
+
+
+
+
+
+
+
+
+  // -------------------------------------------------------------------------------------------------
+
+  // Lista de conceptos que el usuario va a arrastrar (se mezclan al inicio)
+ //conceptosDisponibles: Concepto[] = [];
+
+  // // Los "huecos" con las definiciones donde hay que soltar los conceptos
+  // definiciones: DefinicionSlot[] = [
+  //   {
+  //     id: 'endosimbiosis',
+  //     definicion: 'Explica el origen evolutivo de las organelas celulares.',
+  //     conceptoAnclado: []
+  //   },
+  //   {
+  //     id: 'dogma',
+  //     definicion: 'Postula que el ADN actúa como portador de la información para luego expresarse en ARN.',
+  //     conceptoAnclado: []
+  //   },
+  //   {
+  //     id: 'meiosis',
+  //     definicion: 'Proceso de división celular clave para la reproducción y las bases de la herencia.',
+  //     conceptoAnclado: []
+  //   },
+  //   {
+  //     id: 'deriva',
+  //     definicion: 'Fuerza evolutiva que actúa junto a las mutaciones, migración y selección natural.',
+  //     conceptoAnclado: []
+  //   },
+  //   {
+  //     id: 'nicho',
+  //     definicion: 'Concepto de ecología que se divide en sus variantes fundamental y real.',
+  //     conceptoAnclado: []
+  //   }
+
+  // ];
+
+  // // IDs para conectar todas las zonas de drop
+  // dropListIds: string[] = [];
+
+  // constructor(private sb: SupabaseService) {}
+
+  // ngOnInit(): void {
+  //   this.iniciarJuego();
+  // }
+
+  // iniciarJuego() {
+  //   // Conceptos originales
+  //   const conceptos: Concepto[] = [
+  //     { id: 'endosimbiosis', texto: 'Teoría Endosimbiótica' },
+  //     { id: 'dogma', texto: 'Dogma Central' },
+  //     { id: 'meiosis', texto: 'Meiosis' },
+  //     { id: 'deriva', texto: 'Deriva Génica' },
+  //     { id: 'nicho', texto: 'Nicho Ecológico' }
+  //   ];
+
+  //   // Mezclar conceptos aleatoriamente
+  //   this.conceptosDisponibles = conceptos.sort(() => Math.random() - 0.5);
+    
+  //   // Limpiar slots si se está reiniciando
+  //   this.definiciones.forEach(def => def.conceptoAnclado = []);
+
+  //   // Conectar la lista principal con los huecos
+  //   this.dropListIds = ['lista-conceptos', ...this.definiciones.map(d => 'slot-' + d.id)];
+  // }
 
   // Lógica principal de Drag & Drop
   drop(event: CdkDragDrop<Concepto[]>, slotEsperadoId?: string) {
