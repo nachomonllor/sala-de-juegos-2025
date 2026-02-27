@@ -167,6 +167,16 @@ export class HomeComponent implements OnInit {
       description: 'El clásico comecocos rediseñado desde cero con estética cyber-neon.',
       tags: ['arcade', 'clásico', 'laberinto', 'fantasmas'],
       badge: 'Propio'
+    },
+    // --- ACÁ AGREGAMOS SNAKE NEON ---
+    {
+      title: 'Snake Neon',
+      route: '/games/snake', // Asegurate de que coincida con tu app.routes.ts
+      thumb: 'assets/games/snake.jpg', 
+      category: 'Arcade',
+      description: 'El clásico juego de la viborita rediseñado con un estilo retro-futurista.',
+      tags: ['arcade', 'clásico', 'serpiente', 'retro'],
+      badge: 'Propio'
     }
 
   ];
