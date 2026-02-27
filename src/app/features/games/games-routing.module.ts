@@ -13,6 +13,7 @@ import { PacmanComponent } from '../../pacman/pacman.component';
 import { SnakeComponent } from '../../snake/snake.component';
 import { HanoiComponent } from '../../hanoi/hanoi.component';
 import { NatureParkComponent } from '../../nature-park/nature-park.component';
+import { MastermindComponent } from '../../mastermind/mastermind.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'ahorcado', pathMatch: 'full' },
@@ -28,7 +29,8 @@ const routes: Routes = [
   { path: 'pacman', component: PacmanComponent },
   { path: 'snake', component: SnakeComponent },
   { path: 'hanoi', component: HanoiComponent },
-  { path: 'nature-park', component: NatureParkComponent }
+  { path: 'nature-park', component: NatureParkComponent },
+  { path: 'mastermind', component: MastermindComponent }
 ];
 
 @NgModule({

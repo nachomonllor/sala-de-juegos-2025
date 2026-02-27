@@ -1,0 +1,58 @@
+<p>mastermind works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Hack-O-Matic <small>(Mastermind)</small></h1>
+    <p>Intentos: {{ historialIntentos.length }} / {{ intentosMaximos }}</p>
+  </header>
+
+  <div class="board">
+    <div class="row" *ngFor="let intento of historialIntentos; let i = index">
+      <div class="turn-number">{{ i + 1 }}</div>
+      
+      <div class="pegs-container">
+        <div class="peg" *ngFor="let color of intento.adivinanza" [ngClass]="color"></div>
+      </div>
+
+      <div class="hints-grid">
+        <div class="hint-dot" 
+             *ngFor="let tipo of obtenerArrayPistas(intento.pistas.exactos, intento.pistas.parciales)"
+             [ngClass]="tipo">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="current-turn-panel" *ngIf="!juegoTerminado">
+    <h3>Secuencia Actual:</h3>
+    <div class="current-pegs">
+      <div class="peg" 
+           *ngFor="let item of [0,1,2,3]" 
+           [ngClass]="intentoActual[item] || 'empty'"
+           (click)="removerColor(item)">
+      </div>
+    </div>
+    
+    <button mat-flat-button color="primary" 
+            class="btn-check" 
+            [disabled]="intentoActual.length < 4"
+            (click)="comprobarIntento()">
+      <i class="fas fa-microchip"></i> Hackear
+    </button>
+  </div>
+
+  <div class="color-picker" *ngIf="!juegoTerminado">
+    <div class="peg clickable" 
+         *ngFor="let color of coloresDisponibles" 
+         [ngClass]="color"
+         (click)="agregarColor(color)">
+    </div>
+  </div>
+
+  <div class="actions" *ngIf="juegoTerminado">
+    <button mat-stroked-button color="primary" (click)="iniciarJuego()">
+      <i class="fas fa-redo"></i> Nueva Partida
+    </button>
+  </div>
+</div>
+

@@ -187,15 +187,6 @@ export class HomeComponent implements OnInit {
       tags: ['puzzle', 'lógica', 'matemática', 'clásico'],
       badge: 'Propio'
     },
-    {
-      title: 'Nature Park',
-      route: '/games/nature-park', 
-      thumb: 'assets/games/nature-park.jpg', 
-      category: 'Puzzles',
-      description: '.',
-      tags: ['puzzle', 'lógica', 'matemática', 'clásico'],
-      badge: 'Propio'
-    },
     // --- ACÁ AGREGAMOS NATURE PARK ---
     {
       title: 'Nature Park',
@@ -205,6 +196,16 @@ export class HomeComponent implements OnInit {
       description: 'Clásico juego Match-3 de caída libre. ¡Agrupa los bloques por colores para sumar puntos!',
       tags: ['match-3', 'puzzle', 'clásico', 'retro'],
       badge: 'Prototipo'
+    },
+    // --- ACÁ AGREGAMOS MASTERMIND (HACK-O-MATIC) ---
+    {
+      title: 'Hack-O-Matic',
+      route: '/games/mastermind', // Asegurate de que coincida con tu app.routes.ts
+      thumb: 'assets/games/mastermind.jpg', 
+      category: 'Puzzles',
+      description: 'Descifrá el código de seguridad deduciendo los colores y sus posiciones correctas.',
+      tags: ['lógica', 'mastermind', 'deducción', 'cyber'],
+      badge: 'Propio'
     }
     
 

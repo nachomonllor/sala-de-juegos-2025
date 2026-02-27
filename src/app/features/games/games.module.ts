@@ -15,6 +15,7 @@ import { PacmanComponent } from '../../pacman/pacman.component';
 import { SnakeComponent } from '../../snake/snake.component';
 import { HanoiComponent } from '../../hanoi/hanoi.component';
 import { NatureParkComponent } from '../../nature-park/nature-park.component';
+import { MastermindComponent } from '../../mastermind/mastermind.component';
 
 @NgModule({
   imports: [
@@ -34,7 +35,8 @@ import { NatureParkComponent } from '../../nature-park/nature-park.component';
     PacmanComponent,
     SnakeComponent,
     HanoiComponent,
-    NatureParkComponent
+    NatureParkComponent,
+    MastermindComponent
   ]
 })
 export class GamesModule {}
