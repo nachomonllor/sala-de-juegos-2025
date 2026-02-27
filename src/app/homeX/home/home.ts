@@ -177,7 +177,17 @@ export class HomeComponent implements OnInit {
       description: 'El clásico juego de la viborita rediseñado con un estilo retro-futurista.',
       tags: ['arcade', 'clásico', 'serpiente', 'retro'],
       badge: 'Propio'
+    },
+    {
+      title: 'Hanói Neon',
+      route: '/games/hanoi', 
+      thumb: 'assets/games/hanoi.jpg', 
+      category: 'Puzzles',
+      description: 'El clásico rompecabezas matemático de la Torre de Hanói con anillos holográficos.',
+      tags: ['puzzle', 'lógica', 'matemática', 'clásico'],
+      badge: 'Propio'
     }
+    
 
   ];
 

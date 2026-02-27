@@ -1,0 +1,114 @@
+
+
+$bg-dark: #09121c;
+
+.game-container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 30px;
+  background: $bg-dark;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(0, 210, 255, 0.1);
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  color: white;
+}
+
+.game-header {
+  margin-bottom: 20px;
+  h1 { 
+    color: #00d2ff; 
+    text-transform: uppercase; 
+    letter-spacing: 2px; 
+    text-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+    margin-bottom: 5px;
+  }
+  .stats { font-size: 1.2rem; span { color: #39ff14; font-weight: bold; } }
+}
+
+.difficulty-selector {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.hanoi-board {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  min-height: 250px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.tower-container {
+  position: relative;
+  width: 30%;
+  height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover .pillar { background: rgba(255, 255, 255, 0.1); }
+  
+  &.selected .pillar {
+    background: rgba(0, 210, 255, 0.15);
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+  }
+}
+
+.pillar {
+  position: absolute;
+  bottom: 10px; // Sube sobre la base
+  width: 12px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  z-index: 1;
+  transition: all 0.3s;
+}
+
+.base {
+  width: 80%;
+  height: 10px;
+  background: #1a2a3a;
+  border-radius: 5px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+  z-index: 2;
+}
+
+.disks-container {
+  position: absolute;
+  bottom: 10px; // Apoyados sobre la base
+  width: 100%;
+  display: flex;
+  flex-direction: column-reverse; // Mantiene el más grande abajo
+  align-items: center;
+  z-index: 3;
+}
+
+.disk {
+  height: 24px;
+  border-radius: 12px;
+  margin-bottom: 4px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  // Animación cuando el disco está por ser movido
+  &.top-selected {
+    transform: translateY(-30px) scale(1.05);
+  }
+}
+
+// Colores Neón para los discos
+.neon-blue { background: #00d2ff; box-shadow: 0 0 10px #00d2ff; }
+.neon-pink { background: #ff00ff; box-shadow: 0 0 10px #ff00ff; }
+.neon-green { background: #39ff14; box-shadow: 0 0 10px #39ff14; }
+.neon-yellow { background: #ffff00; box-shadow: 0 0 10px #ffff00; }
+.neon-orange { background: #ff8c00; box-shadow: 0 0 10px #ff8c00; }
+.neon-purple { background: #8a2be2; box-shadow: 0 0 10px #8a2be2; }
+
+.actions { margin-top: 30px; }

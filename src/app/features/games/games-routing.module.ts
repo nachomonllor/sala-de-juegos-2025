@@ -11,6 +11,7 @@ import { MathGameComponent } from '../../math-game/math-game.component';
 import { WaterSortComponent } from '../../water-sort/water-sort.component';
 import { PacmanComponent } from '../../pacman/pacman.component';
 import { SnakeComponent } from '../../snake/snake.component';
+import { HanoiComponent } from '../../hanoi/hanoi.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'ahorcado', pathMatch: 'full' },
@@ -24,7 +25,8 @@ const routes: Routes = [
   { path: 'math-game', component: MathGameComponent },
   { path: 'water-sort', component: WaterSortComponent },
   { path: 'pacman', component: PacmanComponent },
-  { path: 'snake', component: SnakeComponent }
+  { path: 'snake', component: SnakeComponent },
+  {path: 'hanoi', component: HanoiComponent}
 ];
 
 @NgModule({

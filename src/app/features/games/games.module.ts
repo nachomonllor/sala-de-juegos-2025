@@ -13,6 +13,7 @@ import { MathGameComponent } from '../../math-game/math-game.component';
 import { WaterSortComponent } from '../../water-sort/water-sort.component';
 import { PacmanComponent } from '../../pacman/pacman.component';
 import { SnakeComponent } from '../../snake/snake.component';
+import { HanoiComponent } from '../../hanoi/hanoi.component';
 
 @NgModule({
   imports: [
@@ -30,7 +31,8 @@ import { SnakeComponent } from '../../snake/snake.component';
     MathGameComponent ,
     WaterSortComponent,
     PacmanComponent,
-    SnakeComponent
+    SnakeComponent,
+    HanoiComponent
   ]
 })
 export class GamesModule {}

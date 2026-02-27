@@ -1,0 +1,44 @@
+<p>hanoi works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Torre de Hanói</h1>
+    <div class="stats">Movimientos: <span>{{ movimientos }}</span></div>
+  </header>
+
+  <div class="difficulty-selector">
+    <button mat-stroked-button [color]="discosTotal === 3 ? 'primary' : ''" (click)="iniciarJuego(3)">3 Anillos</button>
+    <button mat-stroked-button [color]="discosTotal === 4 ? 'primary' : ''" (click)="iniciarJuego(4)">4 Anillos</button>
+    <button mat-stroked-button [color]="discosTotal === 5 ? 'primary' : ''" (click)="iniciarJuego(5)">5 Anillos</button>
+    <button mat-stroked-button [color]="discosTotal === 6 ? 'warn' : ''" (click)="iniciarJuego(6)">6 Anillos (Difícil)</button>
+  </div>
+
+  <div class="hanoi-board">
+    
+    <div class="tower-container" 
+         *ngFor="let torre of torres; let i = index" 
+         (click)="seleccionarTorre(i)"
+         [class.selected]="torreSeleccionada === i">
+      
+      <div class="pillar"></div>
+      
+      <div class="disks-container">
+        <div class="disk" 
+             *ngFor="let disco of torre; let last = last"
+             [ngClass]="getColorClase(disco)"
+             [class.top-selected]="last && torreSeleccionada === i"
+             [style.width.%]="(disco / discosTotal) * 90 + 10">
+        </div>
+      </div>
+
+      <div class="base"></div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button mat-flat-button color="primary" (click)="iniciarJuego(discosTotal)">
+      <i class="fas fa-redo"></i> Reiniciar Nivel
+    </button>
+  </div>
+</div>
