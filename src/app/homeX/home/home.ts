@@ -157,6 +157,16 @@ export class HomeComponent implements OnInit {
       description: 'Ordená los líquidos fluorescentes por color en los tubos de ensayo.',
       tags: ['puzzle', 'lógica', 'colores', 'laboratorio'],
       badge: 'Propio'
+    },
+    // --- ACÁ AGREGAMOS PAC-MAN NEON ---
+    {
+      title: 'Pac-Man Neon',
+      route: '/games/pacman', // Asegurate de que coincida con tu app.routes.ts
+      thumb: 'assets/games/pacman.jpg', 
+      category: 'Arcade',
+      description: 'El clásico comecocos rediseñado desde cero con estética cyber-neon.',
+      tags: ['arcade', 'clásico', 'laberinto', 'fantasmas'],
+      badge: 'Propio'
     }
 
   ];
