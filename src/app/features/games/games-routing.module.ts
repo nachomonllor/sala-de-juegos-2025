@@ -10,6 +10,7 @@ import { GenGameComponent } from '../../gen-game/gen-game.component';
 import { MathGameComponent } from '../../math-game/math-game.component';
 import { WaterSortComponent } from '../../water-sort/water-sort.component';
 import { PacmanComponent } from '../../pacman/pacman.component';
+import { SnakeComponent } from '../../snake/snake.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'ahorcado', pathMatch: 'full' },
@@ -22,7 +23,8 @@ const routes: Routes = [
   { path: 'gen-game', component: GenGameComponent },
   { path: 'math-game', component: MathGameComponent },
   { path: 'water-sort', component: WaterSortComponent },
-  { path: 'pacman', component: PacmanComponent }
+  { path: 'pacman', component: PacmanComponent },
+  { path: 'snake', component: SnakeComponent }
 ];
 
 @NgModule({

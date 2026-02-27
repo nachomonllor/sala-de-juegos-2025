@@ -1,0 +1,36 @@
+<p>snake works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Snake Neon</h1>
+    <div class="score-board">
+      Puntos: <span>{{ puntaje }}</span>
+    </div>
+  </header>
+
+  <div class="board-container">
+    <div class="board" [style.grid-template-columns]="'repeat(' + gridSize + ', 1fr)'" [style.grid-template-rows]="'repeat(' + gridSize + ', 1fr)'">
+      
+      <div class="food" 
+           [style.grid-column]="comida.x + 1" 
+           [style.grid-row]="comida.y + 1">
+      </div>
+      
+      <div *ngFor="let segmento of snake; let isHead = first"
+           class="snake-segment"
+           [class.head]="isHead"
+           [style.grid-column]="segmento.x + 1" 
+           [style.grid-row]="segmento.y + 1">
+      </div>
+
+    </div>
+
+    <div class="overlay" *ngIf="!jugando">
+      <h2 *ngIf="juegoTerminado" class="game-over-text">CRASH!</h2>
+      <button mat-flat-button color="primary" class="btn-start" (click)="comenzar()">
+        <i class="fas" [ngClass]="juegoTerminado ? 'fa-redo' : 'fa-play'"></i> 
+        {{ juegoTerminado ? 'Reintentar' : 'Jugar' }}
+      </button>
+    </div>
+  </div>
+</div>

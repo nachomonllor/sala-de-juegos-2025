@@ -1,0 +1,117 @@
+$bg-dark: #09121c;
+$neon-green: #39ff14;
+$neon-green-glow: rgba(57, 255, 20, 0.6);
+$neon-pink: #ff007f;
+$neon-pink-glow: rgba(255, 0, 127, 0.8);
+$board-bg: #050a10;
+
+.game-container {
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 20px;
+  background: $bg-dark;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(57, 255, 20, 0.1); // Brillo verde tenue general
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.game-header {
+  margin-bottom: 20px;
+  h1 { 
+    color: $neon-green; 
+    text-transform: uppercase; 
+    letter-spacing: 3px; 
+    text-shadow: 0 0 15px $neon-green-glow;
+    margin-bottom: 5px;
+  }
+  .score-board {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    span { color: $neon-green; text-shadow: 0 0 10px $neon-green-glow; }
+  }
+}
+
+.board-container {
+  position: relative;
+  display: inline-block;
+  border: 3px solid rgba(57, 255, 20, 0.4);
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  background: $board-bg;
+}
+
+.board {
+  display: grid;
+  width: 400px;
+  height: 400px;
+  /* Dibuja una grilla tenue de fondo para darle onda retro */
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 20px 20px; // Coincide con el 400px / 20 gridSize
+}
+
+.snake-segment {
+  background: $neon-green;
+  box-shadow: 0 0 10px $neon-green-glow;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.5); // Separador sutil entre los segmentos
+  transform: scale(0.9); // Deja un milímetro de aire entre los bloques
+  
+  &.head {
+    background: #ffffff;
+    box-shadow: 0 0 15px $neon-green, 0 0 5px white;
+    border-radius: 6px; // La cabeza un poco más redondeada
+  }
+}
+
+.food {
+  background: $neon-pink;
+  border-radius: 50%;
+  box-shadow: 0 0 15px $neon-pink-glow;
+  transform: scale(0.8);
+  animation: pulse 0.8s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.7); box-shadow: 0 0 10px $neon-pink-glow; }
+  100% { transform: scale(0.9); box-shadow: 0 0 20px $neon-pink-glow; }
+}
+
+.overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+
+  .game-over-text {
+    color: #ff073a;
+    font-size: 3rem;
+    text-shadow: 0 0 20px rgba(255, 7, 58, 0.8);
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+
+  .btn-start {
+    font-size: 1.2rem;
+    padding: 10px 30px;
+    background: rgba(57, 255, 20, 0.1) !important;
+    color: $neon-green !important;
+    border: 2px solid $neon-green;
+    box-shadow: inset 0 0 10px $neon-green-glow, 0 0 10px $neon-green-glow;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(57, 255, 20, 0.3) !important;
+      transform: scale(1.05);
+    }
+  }
+}
