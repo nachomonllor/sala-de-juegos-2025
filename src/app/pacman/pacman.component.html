@@ -1,0 +1,41 @@
+<p>pacman works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Pac-Man</h1>
+    <div class="score-board">
+      Puntos: <span>{{ puntaje }}</span>
+    </div>
+  </header>
+
+  <div class="board" *ngIf="mapa.length > 0">
+    <div class="row" *ngFor="let row of mapa; let y = index">
+      
+      <div class="cell" *ngFor="let cell of row; let x = index"
+           [class.wall]="esMuro(y, x)"
+           [class.pellet]="esPunto(y, x)">
+        
+        <div *ngIf="esPacman(y, x)" 
+             class="pacman" 
+             [style.transform]="getRotacionPacman()">
+        </div>
+        
+        <div *ngIf="obtenerFantasma(y, x) as fantasma" 
+             class="ghost" 
+             [ngClass]="fantasma.color">
+        </div>
+        
+      </div>
+
+    </div>
+  </div>
+
+  <div class="actions">
+    <button *ngIf="!jugando && !juegoTerminado" mat-flat-button color="primary" (click)="comenzar()">
+      <i class="fas fa-play"></i> Iniciar
+    </button>
+    <button *ngIf="juegoTerminado" mat-stroked-button color="primary" (click)="iniciarNivel()">
+      <i class="fas fa-redo"></i> Jugar de nuevo
+    </button>
+  </div>
+</div>

@@ -9,6 +9,7 @@ import { AhorcadoComponent } from '../../ahorcado_pista/ahorcado';
 import { GenGameComponent } from '../../gen-game/gen-game.component';
 import { MathGameComponent } from '../../math-game/math-game.component';
 import { WaterSortComponent } from '../../water-sort/water-sort.component';
+import { PacmanComponent } from '../../pacman/pacman.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'ahorcado', pathMatch: 'full' },
@@ -20,14 +21,15 @@ const routes: Routes = [
   { path: 'preguntados-dbz', component: PreguntadosDbzComponent },
   { path: 'gen-game', component: GenGameComponent },
   { path: 'math-game', component: MathGameComponent },
-  { path: 'water-sort', component: WaterSortComponent}
+  { path: 'water-sort', component: WaterSortComponent },
+  { path: 'pacman', component: PacmanComponent }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class GamesRoutingModule {}
+export class GamesRoutingModule { }
 
 
 // import { NgModule } from '@angular/core';

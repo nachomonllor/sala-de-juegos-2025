@@ -11,6 +11,7 @@ import { AhorcadoComponent } from '../../ahorcado_pista/ahorcado';
 import { GenGameComponent } from '../../gen-game/gen-game.component';
 import { MathGameComponent } from '../../math-game/math-game.component';
 import { WaterSortComponent } from '../../water-sort/water-sort.component';
+import { PacmanComponent } from '../../pacman/pacman.component';
 
 @NgModule({
   imports: [
@@ -26,7 +27,8 @@ import { WaterSortComponent } from '../../water-sort/water-sort.component';
     PreguntadosDbzComponent,
     GenGameComponent,
     MathGameComponent ,
-    WaterSortComponent
+    WaterSortComponent,
+    PacmanComponent
   ]
 })
 export class GamesModule {}
