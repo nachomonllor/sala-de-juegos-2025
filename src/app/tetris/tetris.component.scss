@@ -1,0 +1,97 @@
+$bg-dark: #09121c;
+$neon-blue: #00d2ff;
+
+.game-container {
+  max-width: 450px;
+  margin: 30px auto;
+  padding: 25px;
+  background: $bg-dark;
+  border-radius: 16px;
+  border: 2px solid #1a2a3a;
+  box-shadow: 0 0 30px rgba(0, 210, 255, 0.1);
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  color: #e2e8f0;
+}
+
+.game-header {
+  margin-bottom: 25px;
+  
+  h1 { 
+    color: $neon-blue; 
+    text-transform: uppercase; 
+    letter-spacing: 2px; 
+    margin-bottom: 5px;
+    text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  p {
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+
+  .badge {
+    background: #ff073a;
+    color: white;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255, 7, 58, 0.6);
+  }
+}
+
+.canvas-wrapper {
+  display: inline-block;
+  background: black;
+  padding: 5px;
+  border: 3px solid $neon-blue;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 210, 255, 0.2), inset 0 0 15px rgba(0, 210, 255, 0.2);
+
+  canvas {
+    display: block; // Evita el margen fantasma debajo del canvas
+    border-radius: 4px;
+  }
+}
+
+.timer-panel {
+  background: rgba(0, 210, 255, 0.05);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  border-radius: 8px;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+  display: inline-block;
+  font-size: 1.1rem;
+  color: #94a3b8;
+
+  i {
+    color: #00d2ff;
+    margin-right: 8px;
+  }
+
+  .time-display {
+    color: #39ff14; // Verde neón
+    font-family: 'Courier New', monospace; // Fuente tipo reloj digital
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-left: 10px;
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
+
+    // Cambia a rojo intenso si pasa los 5 minutos (indicando riesgo crítico)
+    &.danger {
+      color: #ff073a;
+      text-shadow: 0 0 10px rgba(255, 7, 58, 0.6);
+      animation: pulse 1s infinite;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}

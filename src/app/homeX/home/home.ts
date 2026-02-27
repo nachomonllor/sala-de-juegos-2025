@@ -206,6 +206,16 @@ export class HomeComponent implements OnInit {
       description: 'Descifrá el código de seguridad deduciendo los colores y sus posiciones correctas.',
       tags: ['lógica', 'mastermind', 'deducción', 'cyber'],
       badge: 'Propio'
+    },
+    // --- ACÁ AGREGAMOS AUTO-TETRIS ---
+    {
+      title: 'Auto-Tetris IA',
+      route: '/games/tetris', // Asegurate de registrar esta ruta en app.routes.ts
+      thumb: 'assets/games/tetris.jpg', 
+      category: 'Arcade',
+      description: 'Observá a un algoritmo heurístico jugar al Tetris de forma autónoma calculando la mejor jugada.',
+      tags: ['tetris', 'ia', 'algoritmo', 'arcade'],
+      badge: 'Bot'
     }
     
 

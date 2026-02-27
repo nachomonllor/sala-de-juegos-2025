@@ -1,0 +1,17 @@
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Auto-Tetris <span class="badge">IA</span></h1>
+    <p>Algoritmo heurístico jugando en tiempo real.</p>
+  </header>
+
+  <div class="timer-panel">
+    <i class="fas fa-stopwatch"></i> Tiempo de supervivencia: 
+    <span class="time-display" [class.danger]="tiempoJugado > '05:00'">{{ tiempoJugado }}</span>
+  </div>
+
+  <div class="canvas-wrapper">
+    <canvas #tetrisCanvas></canvas>
+  </div>
+</div>
+
