@@ -8,6 +8,7 @@ import { PreguntadosDbzComponent } from '../../preguntados-dbz_II/preguntados-db
 import { AhorcadoComponent } from '../../ahorcado_pista/ahorcado';
 import { GenGameComponent } from '../../gen-game/gen-game.component';
 import { MathGameComponent } from '../../math-game/math-game.component';
+import { WaterSortComponent } from '../../water-sort/water-sort.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'ahorcado', pathMatch: 'full' },
@@ -18,7 +19,8 @@ const routes: Routes = [
   { path: 'resultados', component: ResultsListComponent },
   { path: 'preguntados-dbz', component: PreguntadosDbzComponent },
   { path: 'gen-game', component: GenGameComponent },
-  { path: 'math-game', component: MathGameComponent }
+  { path: 'math-game', component: MathGameComponent },
+  { path: 'water-sort', component: WaterSortComponent}
 ];
 
 @NgModule({

@@ -1,0 +1,29 @@
+<p>water-sort works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Water Color Sort</h1>
+    <p>Ordená los líquidos de los tubos de ensayo. Movimientos: <span class="badge">{{ movimientos }}</span></p>
+  </header>
+
+  <div class="lab-bench">
+    <div class="tube-container" 
+         *ngFor="let tubo of tubos; let i = index" 
+         (click)="seleccionarTubo(i)"
+         [class.selected]="tuboSeleccionado === i">
+      
+      <div class="test-tube">
+        <div class="liquid-segment" 
+             *ngFor="let color of tubo" 
+             [ngClass]="color">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button mat-stroked-button color="primary" (click)="iniciarNivel()">
+      <i class="fas fa-redo"></i> Reiniciar Nivel
+    </button>
+  </div>
+</div>

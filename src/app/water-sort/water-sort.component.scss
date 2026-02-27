@@ -1,0 +1,109 @@
+
+// Paleta Dark Neon
+$bg-dark: #09121c;
+$glass: rgba(255, 255, 255, 0.05);
+$glass-border: rgba(0, 210, 255, 0.4);
+
+.game-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background: $bg-dark;
+  border: 2px solid #1a2a3a;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(0, 210, 255, 0.1);
+  text-align: center;
+  color: #e2e8f0;
+  font-family: 'Inter', sans-serif;
+}
+
+.game-header {
+  margin-bottom: 40px;
+  
+  h1 {
+    color: #00d2ff;
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+    margin-bottom: 10px;
+  }
+  
+  .badge {
+    color: #39ff14;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+}
+
+.lab-bench {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
+  margin-bottom: 40px;
+  min-height: 250px;
+  align-items: flex-end; // Para que todos los tubos queden alineados a la mesa
+}
+
+.tube-container {
+  padding-top: 20px; // Espacio para la animación de salto
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  // Efecto cuando el tubo está seleccionado para verter
+  &.selected {
+    transform: translateY(-25px);
+    .test-tube {
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), inset 0 0 15px rgba(0, 210, 255, 0.5);
+      border-color: #00d2ff;
+    }
+  }
+}
+
+// El tubo de ensayo de vidrio
+.test-tube {
+  width: 50px;
+  height: 200px;
+  background: $glass;
+  border: 3px solid $glass-border;
+  border-top: 0; // Abierto por arriba
+  border-bottom-left-radius: 25px;
+  border-bottom-right-radius: 25px;
+  display: flex;
+  flex-direction: column-reverse; // Llenamos el array de índice 0 (abajo) hacia arriba
+  overflow: hidden; // Para que el líquido no salga por los bordes redondos del fondo
+  position: relative;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+
+  // El borde brillante superior del tubo
+  &::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -5px;
+    right: -5px;
+    height: 6px;
+    background: $glass-border;
+    border-radius: 3px;
+    z-index: 10;
+  }
+}
+
+// Los líquidos
+.liquid-segment {
+  width: 100%;
+  height: 25%; // Como la capacidad es 4, cada segmento ocupa un 25%
+  transition: height 0.3s ease; // Transición fluida al verter
+  border-top: 1px solid rgba(255, 255, 255, 0.2); // Reflejo en el líquido
+}
+
+// Colores Neón (Tienen color sólido + box shadow para el resplandor)
+.neon-blue { background: #00d2ff; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); }
+.neon-green { background: #39ff14; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); }
+.neon-pink { background: #ff00ff; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); }
+.neon-yellow { background: #ffff00; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); }
+
+.actions {
+  margin-top: 20px;
+}

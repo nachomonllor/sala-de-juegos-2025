@@ -147,6 +147,16 @@ export class HomeComponent implements OnInit {
       tags: ['matemáticas', 'mental', 'cálculo'],
 
       badge: 'Propio'
+    },
+    // --- ACÁ AGREGAMOS WATER COLOR SORT ---
+    {
+      title: 'Water Sort',
+      route: '/games/water-sort',
+      thumb: 'assets/games/water-sort.jpg',
+      category: 'Puzzles',
+      description: 'Ordená los líquidos fluorescentes por color en los tubos de ensayo.',
+      tags: ['puzzle', 'lógica', 'colores', 'laboratorio'],
+      badge: 'Propio'
     }
 
   ];

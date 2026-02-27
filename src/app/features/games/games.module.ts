@@ -10,6 +10,7 @@ import { PreguntadosDbzComponent } from '../../preguntados-dbz_II/preguntados-db
 import { AhorcadoComponent } from '../../ahorcado_pista/ahorcado';
 import { GenGameComponent } from '../../gen-game/gen-game.component';
 import { MathGameComponent } from '../../math-game/math-game.component';
+import { WaterSortComponent } from '../../water-sort/water-sort.component';
 
 @NgModule({
   imports: [
@@ -24,7 +25,8 @@ import { MathGameComponent } from '../../math-game/math-game.component';
 
     PreguntadosDbzComponent,
     GenGameComponent,
-    MathGameComponent 
+    MathGameComponent ,
+    WaterSortComponent
   ]
 })
 export class GamesModule {}
