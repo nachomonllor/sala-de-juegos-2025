@@ -186,6 +186,25 @@ export class HomeComponent implements OnInit {
       description: 'El clásico rompecabezas matemático de la Torre de Hanói con anillos holográficos.',
       tags: ['puzzle', 'lógica', 'matemática', 'clásico'],
       badge: 'Propio'
+    },
+    {
+      title: 'Nature Park',
+      route: '/games/nature-park', 
+      thumb: 'assets/games/nature-park.jpg', 
+      category: 'Puzzles',
+      description: '.',
+      tags: ['puzzle', 'lógica', 'matemática', 'clásico'],
+      badge: 'Propio'
+    },
+    // --- ACÁ AGREGAMOS NATURE PARK ---
+    {
+      title: 'Nature Park',
+      route: '/games/nature-park', // Asegurate de que coincida con tu app.routes.ts
+      thumb: 'assets/games/nature-park.jpg', 
+      category: 'Puzzles',
+      description: 'Clásico juego Match-3 de caída libre. ¡Agrupa los bloques por colores para sumar puntos!',
+      tags: ['match-3', 'puzzle', 'clásico', 'retro'],
+      badge: 'Prototipo'
     }
     
 

@@ -1,0 +1,28 @@
+<p>nature-park works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Prototipo: Match-3</h1>
+    <div class="score">Puntos: <span>{{ puntaje }}</span></div>
+  </header>
+
+  <div class="board">
+    <div class="row" *ngFor="let fila of tablero; let y = index">
+      
+      <div class="cell" *ngFor="let celda of fila; let x = index">
+        
+        <div class="block" *ngIf="celda !== 0" [ngClass]="getClaseColor(celda)"></div>
+        
+        <div class="block active-block" *ngIf="esPiezaActiva(x, y) !== 0" [ngClass]="getClaseColor(esPiezaActiva(x, y))"></div>
+        
+      </div>
+
+    </div>
+  </div>
+
+  <div class="actions">
+    <button *ngIf="!jugando" mat-flat-button color="primary" (click)="iniciarJuego()">
+      <i class="fas fa-play"></i> Iniciar Prototipo
+    </button>
+  </div>
+</div>

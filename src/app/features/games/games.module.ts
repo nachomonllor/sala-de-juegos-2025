@@ -14,6 +14,7 @@ import { WaterSortComponent } from '../../water-sort/water-sort.component';
 import { PacmanComponent } from '../../pacman/pacman.component';
 import { SnakeComponent } from '../../snake/snake.component';
 import { HanoiComponent } from '../../hanoi/hanoi.component';
+import { NatureParkComponent } from '../../nature-park/nature-park.component';
 
 @NgModule({
   imports: [
@@ -32,7 +33,8 @@ import { HanoiComponent } from '../../hanoi/hanoi.component';
     WaterSortComponent,
     PacmanComponent,
     SnakeComponent,
-    HanoiComponent
+    HanoiComponent,
+    NatureParkComponent
   ]
 })
 export class GamesModule {}
