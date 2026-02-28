@@ -204,3 +204,48 @@ insert into esquema_juegos.conceptos_biologia (codigo, concepto, definicion, uni
 ('ciclos_biogeoquimicos', 'Ciclos Biogeoquímicos', 'Rutas circulares a través de las cuales elementos como el carbono o el nitrógeno se mueven entre los componentes bióticos y abióticos.', 'Unidad 6')
 on conflict (codigo) do nothing;
 
+
+
+----------------------------------------------------------------
+----------------------------------------------------------------
+----------------------------------------------------------------
+
+
+insert into esquema_juegos.juegos (codigo, nombre, descripcion) 
+values ('water_sort', 'Water Sort', 'Juego lógico de clasificar líquidos fluorescentes en tubos de ensayo')
+on conflict (codigo) do nothing;
+
+
+select * from esquema_juegos.juegos;
+
+insert into esquema_juegos.juegos (codigo, nombre, descripcion) values ('pacman', 'Pac-Man Neon', 'Clásico juego arcade reconstruido en Angular') on conflict (codigo) do nothing;
+
+commit;
+
+insert into esquema_juegos.juegos (codigo, nombre, descripcion) 
+values ('pacman', 'Pac-Man Neon', 'Clásico juego arcade reconstruido en Angular') 
+on conflict (codigo) do nothing;
+
+
+insert into esquema_juegos.juegos (codigo, nombre, descripcion) 
+values ('snake', 'Snake Neon', 'El clásico juego de la serpiente con un toque retro-futurista.') 
+on conflict (codigo) do nothing;
+
+SELECT * FROM esquema_juegos.juegos;
+
+insert into esquema_juegos.juegos (codigo, nombre, descripcion) 
+values ('hanoi', 'Hanói Neon', 'Rompecabezas lógico de anillos apilables') 
+on conflict (codigo) do nothing;
+
+insert into esquema_juegos.juegos (codigo, nombre, descripcion) 
+values ('nature_park', 'Nature Park', 'Prototipo del clásico Match-3 de bloques cayendo') 
+on conflict (codigo) do nothing;
+
+insert into esquema_juegos.juegos (codigo, nombre, descripcion) 
+values ('mastermind', 'Hack-O-Matic', 'Juego de deducción lógica estilo Mastermind con temática Cyber-Neon') 
+on conflict (codigo) do nothing;
+
+
+insert into esquema_juegos.juegos (codigo, nombre, descripcion) 
+values ('tetris', 'Auto-Tetris IA', 'Simulación de Tetris jugada por un algoritmo heurístico') 
+on conflict (codigo) do nothing;
