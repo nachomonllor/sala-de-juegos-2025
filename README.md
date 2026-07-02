@@ -32,16 +32,16 @@ A full-stack single-page application where registered users play a collection of
      Suggested names: hangman.png, higher-lower.png, trivia.png, custom-game.png -->
 
 ### Hangman
-![Hangman](assets/assets/presentacion/hangman.png)
+![Hangman](assets/presentacion/hangman.png)
 
 ### Higher or Lower
-![Higher or Lower](assets/higher-lower.png)
+![Higher or Lower](assets/presentacion/mayor_menor.png)
 
 ### Trivia
-![Trivia](assets/trivia.png)
+![Trivia](assets/presentacion/dbz.png)
 
 ### FlowFree
-![Flow Free](assets/flowfree.jpg)
+![Flow Free](assets/presentacion/flow_free.png)
 
 ## Tech Stack
 
