@@ -32,7 +32,7 @@ A full-stack single-page application where registered users play a collection of
      Suggested names: hangman.png, higher-lower.png, trivia.png, custom-game.png -->
 
 ### Hangman
-![Hangman](assets/hangman.png)
+![Hangman](assets/assets/games/ahorcado.jpg)
 
 ### Higher or Lower
 ![Higher or Lower](assets/higher-lower.png)
