@@ -40,8 +40,8 @@ A full-stack single-page application where registered users play a collection of
 ### Trivia
 ![Trivia](assets/trivia.png)
 
-### Custom Game
-![Custom game](assets/custom-game.png)
+### FlowFree
+![Flow Free](assets/flowfree.jpg)
 
 ## Tech Stack
 

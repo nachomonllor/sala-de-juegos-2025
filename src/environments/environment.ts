@@ -15,8 +15,9 @@ export const environment = {
     { etiqueta: 'Juana', correo: 'juana@hotmail.com', contrasenia: '123456' },
 
   ],
-  dbzBaseUrl: '/dbz'   //   el proxy local  
+  dbzBaseUrl: '/dbz',   //   el proxy local  
 
+    bypassLogin: true,   // <-- TEMPORAL. Poné false cuando vuelva Supabase / antes de subir.
 
 };
 
