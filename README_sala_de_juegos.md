@@ -79,4 +79,3 @@ Then open `http://localhost:4200/` in your browser.
 ## About
 
 Built as a full-stack learning project to practice Angular architecture, real-time data, authentication flows, and reactive forms. Part of my developer portfolio — see more at [github.com/nachomonllor](https://github.com/nachomonllor).
-
