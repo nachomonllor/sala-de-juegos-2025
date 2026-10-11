@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sokoban · El almacén</title>
+    <style>
+
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .font-mono-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Glassmorphism styling */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* D-Pad Buttons glow and touch feeling */
+        .dpad-btn {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            box-shadow: 3px 3px 6px #090d16, -2px -2px 5px #29374c;
+        }
+        .dpad-btn:active {
+            box-shadow: inset 2px 2px 5px #090d16, inset -2px -2px 5px #29374c;
+            transform: scale(0.96);
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Palette Active Indicator */
+        .palette-active {
+            outline: 3px solid #38bdf8;
+            outline-offset: 2px;
+        }
+    </style>
+<style>*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 40% 0,#2c424b,transparent 65%),#101d24;color:#eaf0ee;font:15px system-ui,sans-serif}button,input,select,textarea{font:inherit;color:inherit}button,select,input{background:#243940;border:1px solid #42545a;border-radius:10px;padding:10px 13px}button{cursor:pointer}button:hover{background:#3b565c}button:disabled{opacity:.45}h1,h2,h3,p{margin:0}h1{font-size:24px}.glass-card{background:#192c33;border:1px solid #354950}header{padding:18px 4vw!important;position:relative!important}main{max-width:1480px!important;padding:24px 3vw!important;width:100%}footer{padding:18px;color:#97abb3;text-align:center}canvas{max-width:100%;height:auto;filter:drop-shadow(0 16px 15px #0005);touch-action:none}#game-canvas{border:0!important;border-radius:8px}#view-play>div:first-child{padding:22px;min-width:0}#view-play>div:nth-child(2){width:295px;flex-shrink:0;justify-content:flex-start;gap:15px}#view-play>div:first-child>div:nth-child(2){min-height:540px}#level-select{max-width:100%;color:#c1efa0}#counter-moves,#counter-pushes,#counter-boxes{font-size:23px;color:#c5efa8}#editor-canvas{max-height:65vh;object-fit:contain}#view-editor:not(.hidden){display:flex}#generator-panel{width:100%;border-top:1px solid #40545b;padding-top:16px}#generator-panel label{display:block;font-size:12px;color:#a5bac0;margin:12px 0 6px}#generator-panel input,#generator-panel select{width:100%;min-width:0}#generator-panel button{margin-top:10px;width:100%}#btn-generate,#btn-next-level{background:#c0efa0;color:#20372b;font-weight:700}.note{font-size:12px;color:#a5bac0;line-height:1.6}.status{color:#c0efa0;font-size:13px;padding-top:12px;min-height:40px;width:100%}#campaign-progress{font-size:12px;color:#c0efa0}.extra-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;width:100%}.extra-tools button{font-size:12px}#win-modal,#ascii-modal{background:#061219df;backdrop-filter:blur(10px)}#win-card,#ascii-modal>div{background:#1b3038;border:1px solid #5c7868;max-height:90vh;overflow:auto}textarea{background:#0b1c24;width:100%;font-family:monospace;border:1px solid #49606a;padding:15px;border-radius:12px}.palette-active{outline:2px solid #c0efa0}.dpad-btn{background:#263e47}.font-mono-code{font-family:monospace}.flex{display:flex}.grid{display:grid}.block{display:block}.hidden{display:none!important}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.flex-1{flex:1}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.justify-around{justify-content:space-around}.justify-end{justify-content:flex-end}.text-center{text-align:center}.w-full{width:100%}.max-w-md{max-width:448px}.max-w-lg{max-width:512px}.mx-auto{margin-left:auto;margin-right:auto}.relative{position:relative}.fixed{position:fixed}.inset-0{inset:0}.z-50{z-index:50}.opacity-0{opacity:0}.pointer-events-none{pointer-events:none}.grid-cols-3{grid-template-columns:repeat(3,1fr)}.w-48{width:192px}.h-48{height:192px}.w-10{width:40px}.h-10{height:40px}.w-20{width:80px}.h-20{height:80px}.w-12{width:60px}.h-44{height:176px}.min-h-screen{min-height:100vh}.text-xs{font-size:12px}.text-sm{font-size:14px}.text-lg{font-size:18px}.text-xl{font-size:20px}.text-2xl{font-size:24px}.text-4xl{font-size:36px}.font-bold,.font-extrabold,.font-black{font-weight:750}.uppercase{text-transform:uppercase}.text-slate-400,.text-slate-500{color:#9bb0b8}.text-emerald-400,.text-cyan-400{color:#c0efa0}.text-amber-400{color:#efbf79}.border{border:1px solid #344c56}.border-b{border-bottom:1px solid #344c56}.rounded-xl{border-radius:12px}.rounded-2xl{border-radius:16px}.rounded-3xl{border-radius:22px}.rounded-lg{border-radius:9px}.gap-1{gap:4px}.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}.gap-5{gap:20px}.p-2{padding:8px}.p-3{padding:12px}.p-4{padding:16px}.p-5{padding:20px}.p-6{padding:24px}.px-2{padding-left:8px;padding-right:8px}.px-3{padding-left:12px;padding-right:12px}.px-4{padding-left:16px;padding-right:16px}.py-1{padding-top:4px;padding-bottom:4px}.py-2{padding-top:8px;padding-bottom:8px}.py-3{padding-top:12px;padding-bottom:12px}.my-2{margin:8px 0}.my-5{margin:20px 0}.mt-2{margin-top:8px}.mb-3{margin-bottom:12px}.mb-4{margin-bottom:16px}.leading-relaxed{line-height:1.65}.bg-slate-900{background:#142830}.bg-slate-800{background:#253d46}
+@media(min-width:1000px){#view-play{flex-direction:row}}@media(max-width:999px){#view-play>div:nth-child(2){width:100%;display:grid;grid-template-columns:1fr 1fr}#generator-panel{grid-column:2;grid-row:1 / span 4;border:0;padding:0}#view-play>div:first-child>div:nth-child(2){min-height:400px}}@media(max-width:600px){main{padding:12px!important}header{padding:12px!important}h1{font-size:18px}#view-play>div:first-child{padding:12px}#view-play>div:nth-child(2){display:flex}#view-play>div:first-child>div:nth-child(2){min-height:300px}#level-select{font-size:12px}button{padding:9px}}
+</style></head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- Top Navigation Header -->
+    <header class="glass-card sticky top-0 z-30 px-4 py-3 border-b border-slate-800 shadow-xl">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                    <span class="text-2xl">📦</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-wide bg-gradient-to-r from-amber-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                        SOKOBAN <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-400 ml-1 font-sans">ARCADE</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Puzzle de Cajas Clásico y Creador de Niveles</p>
+                </div>
+            </div>
+
+            <!-- Header Controls & Mode Switcher -->
+            <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <!-- Tab Switcher -->
+                <div class="bg-slate-900 border border-slate-800 p-1 rounded-xl flex items-center gap-1">
+                    <button id="tab-play" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-md">
+                        🎮 Jugar
+                    </button>
+                    <button id="tab-editor" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800">
+                        🛠️ Editor
+                    </button>
+                </div>
+
+                <!-- Sound Toggle -->
+                <button id="btn-sound" title="Alternar Sonido" class="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors">
+                    <span id="sound-icon" class="text-lg">🔊</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-3 sm:p-5 flex flex-col justify-center">
+
+        <!-- PLAY MODE VIEW -->
+        <div id="view-play" class="flex flex-col lg:flex-row gap-5 items-stretch justify-center">
+            
+            <!-- Game Canvas Container -->
+            <div class="glass-card rounded-3xl p-4 flex flex-col items-center justify-between shadow-2xl flex-1 relative min-h-[400px]">
+                
+                <!-- Level Info Header Bar -->
+                <div class="w-full flex flex-wrap items-center justify-between gap-2 mb-3 px-2">
+                    <div class="flex items-center gap-2">
+                        <label for="level-select" class="text-xs font-bold text-slate-400">Nivel:</label>
+                        <select id="level-select" class="bg-slate-900 text-emerald-400 font-bold text-sm rounded-xl px-3 py-1.5 border border-slate-700 outline-none focus:border-emerald-500 cursor-pointer shadow-inner">
+                            <!-- Filled dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- Counters -->
+                    <div class="flex items-center gap-3">
+                        <div class="bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1 text-center">
+                            <span class="text-[10px] text-slate-400 block font-bold uppercase">Movimientos</span>
+                            <span id="counter-moves" class="text-base font-extrabold text-cyan-400 font-mono-code">0</span>
+                        </div>
+                        <div class="bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1 text-center">
+                            <span class="text-[10px] text-slate-400 block font-bold uppercase">Empujes</span>
+                            <span id="counter-pushes" class="text-base font-extrabold text-amber-400 font-mono-code">0</span>
+                        </div>
+                        <div class="bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1 text-center">
+                            <span class="text-[10px] text-slate-400 block font-bold uppercase">Metas</span>
+                            <span id="counter-boxes" class="text-base font-extrabold text-emerald-400 font-mono-code">0/0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canvas Viewport -->
+                <div class="relative w-full flex-1 flex items-center justify-center my-2 min-h-[320px]">
+                    <canvas id="game-canvas" class="rounded-2xl border border-slate-800 bg-slate-950/80 shadow-2xl"></canvas>
+                </div>
+
+                <!-- Game Toolbar (Undo / Reset) -->
+                <div class="w-full bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 flex items-center justify-between gap-3 shadow-lg mt-2">
+                    <div class="flex items-center gap-2">
+                        <button id="btn-undo" class="flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-cyan-300 font-bold text-xs rounded-xl border border-slate-700 transition-all shadow-md">
+                            <span>↩️</span>
+                            <span>Deshacer (Z)</span>
+                        </button>
+                        <button id="btn-reset" class="flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-red-950/40 hover:text-red-300 active:scale-95 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 hover:border-red-800/50 transition-all shadow-md">
+                            <span>🔄</span>
+                            <span>Reiniciar (R)</span>
+                        </button>
+                    </div>
+
+                    <div class="text-xs text-slate-500 hidden sm:block italic">
+                        Usa Flechas / WASD para moverte
+                    </div>
+                </div>
+            </div>
+
+            <!-- Touch D-Pad Controls Sidebar (Great for Mobile / Tablet) -->
+            <div class="glass-card rounded-3xl p-5 flex flex-col items-center justify-center gap-4 lg:w-72 shadow-2xl">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Controles Táctiles</h3>
+                
+                <!-- D-Pad Grid -->
+                <div class="grid grid-cols-3 gap-2 w-48 h-48">
+                    <div></div>
+                    <button id="btn-up" class="dpad-btn rounded-2xl flex items-center justify-center text-2xl text-slate-200 hover:text-white transition-all active:bg-slate-800">▲</button>
+                    <div></div>
+                    <button id="btn-left" class="dpad-btn rounded-2xl flex items-center justify-center text-2xl text-slate-200 hover:text-white transition-all active:bg-slate-800">◀</button>
+                    <div class="flex items-center justify-center text-slate-600 font-extrabold text-xs">SOKOBAN</div>
+                    <button id="btn-right" class="dpad-btn rounded-2xl flex items-center justify-center text-2xl text-slate-200 hover:text-white transition-all active:bg-slate-800">▶</button>
+                    <div></div>
+                    <button id="btn-down" class="dpad-btn rounded-2xl flex items-center justify-center text-2xl text-slate-200 hover:text-white transition-all active:bg-slate-800">▼</button>
+                    <div></div>
+                </div>
+
+                <p class="text-[11px] text-slate-500 text-center leading-relaxed">
+                    Empujá las cajas de madera hacia las metas. Las cajas colocadas se vuelven verdes ✓.
+                </p>
+            </div>
+        </div>
+
+        <!-- EDITOR MODE VIEW (Hidden by default) -->
+        <div id="view-editor" class="hidden flex-col gap-5">
+            <div class="glass-card rounded-3xl p-5 shadow-2xl flex flex-col gap-4">
+                
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                            <span>🛠️ Editor Interactivo de Niveles</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Pinta elementos en el mapa para diseñar tus propios puzles</p>
+                    </div>
+
+                    <!-- Grid Dimensions & Actions -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <div class="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-xl border border-slate-800 text-xs">
+                            <span class="text-slate-400 font-bold">Ancho:</span>
+                            <input id="editor-w" type="number" min="5" max="18" value="8" class="w-12 bg-slate-800 text-center font-bold text-amber-300 rounded border border-slate-700 outline-none">
+                            <span class="text-slate-400 font-bold ml-2">Alto:</span>
+                            <input id="editor-h" type="number" min="5" max="18" value="8" class="w-12 bg-slate-800 text-center font-bold text-amber-300 rounded border border-slate-700 outline-none">
+                            <button id="btn-resize-grid" class="ml-2 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded font-bold text-xs">Redimensionar</button>
+                        </div>
+
+                        <button id="btn-test-level" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/30 transition-all active:scale-95">
+                            ▶ Probar Nivel
+                        </button>
+                        <button id="btn-export-ascii" class="px-4 py-2 bg-cyan-700 hover:bg-cyan-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all active:scale-95">
+                            📄 Exportar / Importar ASCII
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Palette Selector -->
+                <div class="flex items-center justify-center gap-2 flex-wrap bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+                    <span class="text-xs font-bold text-slate-400 mr-2">Herramienta:</span>
+                    
+                    <button data-tile="#" class="palette-btn palette-active flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-slate-200">
+                        <span>🧱</span> Pared (#)
+                    </button>
+                    <button data-tile=" " class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-slate-200">
+                        <span>⬛</span> Suelo ( )
+                    </button>
+                    <button data-tile="." class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-emerald-400">
+                        <span>🎯</span> Meta (.)
+                    </button>
+                    <button data-tile="$" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-amber-400">
+                        <span>📦</span> Caja ($)
+                    </button>
+                    <button data-tile="@" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-cyan-400">
+                        <span>🤖</span> Jugador (@)
+                    </button>
+                </div>
+
+                <!-- Editor Grid Canvas -->
+                <div class="flex items-center justify-center my-2">
+                    <canvas id="editor-canvas" class="rounded-2xl border border-slate-800 bg-slate-950/90 shadow-2xl cursor-pointer"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Victory Modal -->
+    <div id="win-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-slate-900 border border-emerald-500/40 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col items-center text-center transform scale-90 transition-transform duration-300" id="win-card">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-emerald-400 to-teal-200 text-slate-950 flex items-center justify-center text-4xl mb-4 shadow-xl shadow-emerald-500/30 animate-bounce">
+                🎉
+            </div>
+            <h2 class="text-2xl font-black text-white tracking-tight">¡NIVEL COMPLETADO!</h2>
+            <p class="text-sm text-slate-300 mt-2">¡Excelente estrategia! Has colocado todas las cajas en sus metas.</p>
+            
+            <div class="w-full bg-slate-950 rounded-2xl p-4 border border-slate-800 my-5 flex justify-around text-xs">
+                <div>
+                    <span class="text-slate-500 block">Movimientos</span>
+                    <span id="win-moves" class="text-xl font-extrabold text-cyan-400 font-mono-code">0</span>
+                </div>
+                <div class="border-r border-slate-800"></div>
+                <div>
+                    <span class="text-slate-500 block">Empujes</span>
+                    <span id="win-pushes" class="text-xl font-extrabold text-amber-400 font-mono-code">0</span>
+                </div>
+            </div>
+
+            <button id="btn-next-level" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all active:scale-95">
+                Siguiente Nivel →
+            </button>
+        </div>
+    </div>
+
+    <!-- ASCII Export / Import Modal -->
+    <div id="ascii-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 max-w-lg w-full shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="text-base font-bold text-cyan-400">Formato Estándar ASCII de Nivel</h3>
+                <button id="btn-close-ascii" class="text-slate-400 hover:text-white font-bold text-lg">✕</button>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+                Puedes copiar este mapa para guardarlo o pegar un código ASCII (`#` Pared, ` ` Suelo, `.` Meta, `$` Caja, `@` Jugador) y hacer clic en <b>Importar</b>.
+            </p>
+            <textarea id="ascii-text" class="w-full h-44 bg-slate-950 font-mono-code text-xs text-emerald-400 p-3 rounded-xl border border-slate-800 outline-none focus:border-cyan-500" placeholder="Pega tu mapa ASCII aquí..."></textarea>
+            
+            <div class="flex justify-end gap-2">
+                <button id="btn-copy-ascii" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs rounded-xl border border-slate-700">Copiar</button>
+                <button id="btn-import-ascii" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs rounded-xl shadow-lg">Importar Nivel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-3 text-center text-xs text-slate-600 border-t border-slate-900">
+        Sokoban · El almacén — 40 niveles + generador — Funciona sin conexión
+    </footer>
+
+    <script>
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+            }
+
+            playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.08) {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            }
+
+            step() { this.playTone(180, 'triangle', 0.05, 0.04); }
+            push() { this.playTone(120, 'sawtooth', 0.1, 0.07); }
+            target() { this.playTone(587.33, 'sine', 0.15, 0.08); } // D5 note on target
+            undo() { this.playTone(300, 'sine', 0.08, 0.05); }
+            win() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const arpeggio = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+                arpeggio.forEach((f, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(f, now + idx * 0.07);
+                    gain.gain.setValueAtTime(0.1, now + idx * 0.07);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.07);
+                    osc.stop(now + idx * 0.07 + 0.25);
+                });
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        // ASCII Map Standards:
+        // '#' = Wall, ' ' = Floor, '.' = Target, '$' = Box, '*' = Box on Target, '@' = Player, '+' = Player on Target
+        const DEFAULT_LEVELS = [{"name": "01 · Primeros pasos", "map": ["######", "#  @ #", "# $  #", "# .  #", "######"], "solution": [3, 2], "tier": 0, "seed": "tutorial"}, {"map": ["########", "#      #", "# # .. #", "#  #   #", "# $ $# #", "#   @  #", "########"], "solution": [0, 0, 2, 3, 2, 3, 3, 0, 1, 0, 3, 0, 0, 1, 1, 2, 1, 2, 2, 3, 1, 0, 0, 0, 1, 2, 0, 3, 3, 3, 3, 2, 2, 2, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 0, 0, 3, 1, 2, 2, 3, 3, 0, 0, 2, 3, 1, 0, 1, 0, 0, 3, 3, 2, 1, 0, 3, 3, 3, 2, 2, 2, 1, 2, 1, 1, 0, 0, 0, 0, 1, 2, 3, 2, 2, 3, 2, 3, 3, 0, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 1, 2, 1, 1, 0, 3, 1, 0, 0, 1, 1, 2, 3, 0, 3, 2, 0, 0, 3, 3, 3, 2, 2, 2, 1, 2, 1, 1, 0, 3, 1, 0, 1, 0, 0, 3, 3, 2, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 3, 2, 2, 2, 1, 0, 3, 0, 0, 1, 1, 2, 1, 2, 2, 2, 3, 3, 0, 1, 2, 1, 1, 1, 0, 0, 0, 3, 1, 2, 2, 2, 3, 3, 0, 3, 3, 0, 3, 0, 0, 1, 1, 2, 1, 0, 1, 1, 2, 2, 2, 2, 3, 3, 0, 0, 1, 1, 0, 0, 3, 2, 0, 3, 3, 2, 1, 0, 1, 1, 2, 2, 3, 1, 2, 2, 3, 3, 0, 0, 2, 3, 3], "seed": "ALMACEN-2", "tier": 0, "name": "02 · Primer turno"}, {"map": ["########", "#      #", "# $  # #", "# # .  #", "#@$ .  #", "#      #", "########"], "solution": [1, 3, 0, 0, 1, 3, 2, 2, 1, 1, 0, 1, 1, 2, 3, 3, 1, 0, 0, 0, 3, 3, 2, 1, 0, 1, 2, 2, 1, 2, 2, 3, 0, 3, 0, 1, 2, 1, 1, 0, 3, 3, 0, 3, 2, 1, 2, 2, 3, 0, 2, 3, 3, 0, 1, 1, 3, 3, 0, 0, 1, 1, 2, 1, 1, 2, 2, 3, 0, 2, 3, 0, 3, 3, 0, 0, 1, 1, 1, 2, 1, 2, 2, 3, 3, 0, 0, 1, 1, 2, 3, 2, 3, 3, 0, 1, 1, 0, 0, 3, 1, 2, 1, 1, 2, 3, 0, 3, 3, 2, 1, 2, 1, 0, 3, 3, 3, 3, 0, 0, 1, 0, 1, 2, 2, 1, 2, 3, 1, 1, 1, 0, 3, 1, 0, 0, 3, 3, 2, 2, 3, 2, 1, 3, 2, 3, 3, 0, 1, 2, 1, 0, 0, 1, 0, 0, 3, 3, 2, 1, 0, 1, 2, 0, 1, 1, 2, 2, 2, 3, 0, 3, 1, 2, 2, 3, 3, 0, 0, 1, 0, 3, 1, 2, 1, 2, 3, 2, 3, 0, 0, 1, 0, 0, 3, 2, 0, 3, 3, 2, 1, 1, 3, 3, 2, 2, 1, 1, 0, 1, 1, 1, 0, 0, 3, 3, 2, 3, 2, 2, 1, 0, 3, 0, 0, 1, 2, 2, 1, 2, 3, 3, 2, 3, 3, 0, 1, 3, 0, 0, 1, 0, 1, 1, 2, 2, 2, 3, 1, 0, 0, 0, 3, 3, 2, 1, 3, 3, 2, 2, 1, 1, 0, 0, 0, 1, 2, 3, 2, 2], "seed": "ALMACEN-3", "tier": 0, "name": "03 · Primer turno"}, {"map": ["########", "#      #", "# ..   #", "#   #  #", "# # $$ #", "#    @ #", "########"], "solution": [0, 3, 1, 1, 0, 0, 3, 2, 1, 2, 2, 3, 3, 3, 0, 2, 3, 3, 0, 0, 1, 0, 1, 2, 3, 3, 2, 2, 1, 1, 0, 2, 3, 3, 0, 0, 1, 0, 1, 2, 0, 1, 1, 1, 2, 2, 3, 2, 3, 3, 0, 0, 3, 0, 0, 1, 1, 2, 3, 0, 3, 2, 1, 2, 2, 1, 2, 1, 0, 3, 3, 0, 0, 3, 3, 2, 1, 0, 1, 1, 1, 1, 2, 2, 3, 0, 1, 0, 3, 0, 3, 3, 2, 1, 0, 1, 1, 2, 2, 3, 2, 3, 3, 0, 2, 1, 1, 1, 0, 0, 3, 0, 3, 3, 2, 2, 0, 1, 0, 1, 2, 1, 2, 2, 3, 3, 2, 3, 0, 0, 3, 0, 1, 2, 2, 1, 1, 0, 1, 0, 0, 3, 2, 1, 2, 2, 3, 0, 1, 0, 0, 3, 2, 0, 3, 3, 2, 1, 0, 1, 1, 2, 3, 3, 3, 1, 1, 2, 1, 2, 3, 3, 1, 0, 0, 0, 3, 3, 3, 2, 3, 2, 2, 2, 1, 1, 0, 0, 2, 1, 1, 0, 0, 3, 3, 0, 3, 3, 2, 2, 1, 3, 2, 2, 1, 1, 0, 0, 3, 3, 0, 0, 1, 2, 1, 1, 3, 3, 3, 2, 1, 3, 2, 2, 1, 1, 0, 0, 3, 0, 0, 1, 1, 2, 3, 1, 0, 1, 1, 2, 3, 0, 3, 3, 2, 1, 0, 1, 2, 2, 1, 2, 3, 2, 3, 3, 0, 1, 3, 0, 3, 3, 0, 1, 1, 1, 0, 1, 2, 1, 2, 2, 3, 0, 1, 0, 3, 3, 1, 2, 2, 3, 2, 3, 0, 1, 1, 0, 0, 3, 3, 1, 1, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0], "seed": "ALMACEN-4", "tier": 0, "name": "04 · Primer turno"}, {"map": ["########", "#      #", "# .  $ #", "#  #$  #", "# . @# #", "#      #", "########"], "solution": [0, 1, 1, 0, 0, 3, 2, 3, 3, 0, 3, 2, 2, 3, 2, 1, 0, 0, 1, 1, 1, 1, 2, 3, 1, 2, 2, 3, 3, 0, 0, 1, 0, 0, 3, 3, 2, 1, 2, 2, 3, 2, 3, 0, 1, 1, 0, 1, 1, 0, 3, 0, 3, 3, 2, 1, 2, 2, 3, 3, 0, 3, 0, 1, 0, 1, 1, 1, 1, 2, 3, 0, 3, 2, 2, 0, 3, 1, 1, 1, 2, 2, 2, 3, 3, 0, 0, 1, 0, 3, 0, 3, 3, 2, 2, 0, 0, 1, 1, 2, 3, 0, 3, 3, 2, 2, 2, 1, 0, 3, 0, 0, 1, 2, 3, 2, 2, 1, 0, 3, 0, 0, 1, 2, 1, 1, 2, 2, 3, 2, 3, 3, 0, 1, 3, 0, 0, 1, 2, 3, 2, 2, 1, 0, 0, 2, 2, 1, 1, 0, 3, 1, 0, 0, 0, 3, 3, 2, 3, 2, 2, 1, 1, 3, 3, 0, 0, 1, 2, 3, 2, 1, 2, 1, 1, 0, 0, 1, 0, 0, 3, 3, 2, 1, 2, 2, 3, 1, 0, 1, 1, 0, 3, 0, 3, 2, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 0, 1, 0, 3, 0, 3, 3, 2, 2, 0, 0, 1, 1, 2, 3, 0, 3, 3, 2, 1, 3, 2, 2, 1, 0, 0, 0, 1, 1, 2, 3, 1, 2, 2, 3, 1, 0, 1, 0], "seed": "ALMACEN-5", "tier": 0, "name": "05 · Primer turno"}, {"map": ["########", "#  @   #", "# $$ . #", "# # #  #", "#  .   #", "#      #", "########"], "solution": [2, 0, 3, 3, 2, 1, 1, 1, 3, 3, 3, 2, 2, 1, 1, 0, 2, 3, 3, 0, 0, 1, 0, 1, 2, 3, 3, 2, 2, 1, 1, 0, 2, 3, 3, 0, 0, 1, 1, 0, 1, 1, 2, 3, 1, 1, 2, 2, 3, 0, 1, 0, 0, 3, 3, 3, 2, 1, 0, 1, 2, 1, 2, 2, 3, 3, 3, 0, 2, 1, 1, 1, 0, 0, 3, 3, 3, 2, 2, 1, 1, 0, 1, 0, 3, 0, 3, 3, 3, 3, 2, 1, 0, 1, 2, 2, 0, 0, 1, 1, 2, 3, 0, 3, 2, 3, 3, 2, 2, 1, 1, 1, 3, 3, 3, 0, 0, 1, 1, 2, 0, 1, 1, 1, 2, 2, 2, 3, 3, 0, 3, 1, 2, 1, 1, 0, 3, 3, 2, 3, 0, 0, 2, 1, 1, 0, 0, 3, 3, 0, 3, 3, 2, 2, 2, 1, 1, 1, 3, 3, 3, 0, 0, 1, 1, 1, 0, 1, 1, 2, 2, 2, 3, 3, 1, 1, 0, 0, 0, 3, 2, 1, 2, 2, 3, 0, 1, 0, 0, 3, 3, 3, 2], "seed": "ALMACEN-6", "tier": 0, "name": "06 · Primer turno"}, {"map": ["########", "#      #", "# $##  #", "#@$  . #", "# #  . #", "#      #", "########"], "solution": [1, 1, 1, 2, 1, 0, 1, 0, 0, 3, 2, 2, 1, 2, 3, 0, 0, 0, 3, 3, 3, 2, 3, 2, 2, 2, 1, 1, 0, 1, 3, 2, 3, 3, 0, 0, 1, 1, 1, 2, 2, 1, 1, 0, 3, 0, 2, 3, 1, 1, 0, 0, 0, 3, 2, 2, 1, 2, 3, 2, 3, 3, 0, 2, 3, 3, 0, 0, 1, 1, 1, 3, 3, 0, 0, 1, 1, 1, 2, 2, 1, 2, 2, 3, 0, 0, 3, 3, 2, 1, 0, 1, 1, 2, 3, 0, 3, 3, 2, 1, 0, 1, 1, 2, 3, 0, 3, 3, 2, 1, 0, 1, 1, 2, 3, 1, 0, 0, 0, 3, 2, 0, 3, 3, 3, 2, 2, 1, 2, 1], "seed": "ALMACEN-7", "tier": 0, "name": "07 · Primer turno"}, {"map": ["########", "#      #", "#  . # #", "# .  $@#", "#  ##$ #", "#      #", "########"], "solution": [3, 3, 3, 0, 3, 3, 2, 2, 1, 0, 3, 0, 1, 0, 1, 1, 2, 3, 0, 3, 2, 2, 3, 2, 2, 1, 0, 3, 0, 0, 1, 2, 3, 2, 2, 1, 0, 0, 3, 0, 1, 1, 0, 1, 2, 0, 1, 1, 2, 2, 3, 3, 3, 0, 3, 3, 2, 2, 1, 0, 3, 0, 1, 2, 2, 2, 1, 1, 1, 0, 1, 0, 3, 3, 3, 1, 1, 2, 2, 3, 3, 3, 0, 0, 3, 0, 0, 1, 2, 3, 2, 2, 1, 0, 3, 0, 0, 1, 2, 2, 3, 2, 2, 1, 0, 3, 0, 0, 1, 2, 1, 1, 0, 3, 0, 3, 3, 2, 1, 0, 1, 1, 2, 3, 2, 3, 3, 2, 2, 1, 0, 3, 0, 1, 3, 0, 1, 0, 1, 1, 2, 2, 3, 1, 1, 2, 2, 3, 3, 3, 0, 0, 3, 0, 0, 1, 2], "seed": "ALMACEN-8", "tier": 0, "name": "08 · Primer turno"}, {"map": ["########", "#      #", "#@$  . #", "# #  . #", "# $ #  #", "#      #", "########"], "solution": [1, 1, 1, 0, 1, 1, 2, 3, 3, 0, 3, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0, 1, 2, 1, 2, 2, 3, 0, 1, 0, 0, 3, 2, 1, 2, 2, 3, 0, 1, 0, 0, 3, 2, 1, 2, 2, 3, 0, 1, 0, 0, 3, 2, 1, 2, 2, 3, 0, 1, 0, 0, 3, 2, 1, 2, 2, 3, 0, 1, 0, 3, 3, 1, 2, 2, 3, 3, 0, 0, 1, 0, 0, 3, 2, 1, 1, 2, 2, 2, 3, 3, 0, 0, 1, 0, 0, 3, 3, 2, 1, 1, 0, 1, 2, 1, 2, 3, 3, 0, 3, 2, 1, 1, 2, 2, 3, 3, 0, 0, 1, 0, 3, 0, 3, 3, 2, 1, 3, 2, 2, 1, 3, 0, 0, 1, 1, 2, 1, 1, 2, 2, 3, 3, 0, 3, 3, 0, 0, 1, 1, 1, 0, 1, 2, 1, 2, 2, 3, 2, 3, 3, 0, 0, 1, 0, 0, 3, 3, 2, 1, 0, 1, 1, 1, 2, 2, 3, 0, 0, 3, 3, 2, 2, 1, 3, 0, 0, 1, 2, 1, 2, 3, 0, 3, 2, 1, 1, 1, 2, 2, 3, 0, 1, 0, 3, 2, 2, 3, 3, 0, 0, 2, 2, 1, 1, 0, 0, 0, 3, 3, 2, 1, 0, 1, 1, 2, 2, 3, 0, 1, 0, 3, 0, 3, 3, 2, 1, 0, 3, 3, 3, 2, 1, 0, 1, 1, 1, 2, 3, 3, 1, 1, 2, 0, 0, 3, 3, 3, 3, 2, 1, 1, 1, 2, 1, 1, 2, 2, 3, 0, 1, 0, 0, 3, 1, 2, 2, 3, 0, 1, 0, 0, 3, 3, 2, 3, 2, 1, 0, 3], "seed": "ALMACEN-9", "tier": 0, "name": "09 · Primer turno"}, {"map": ["########", "#    @ #", "#   $$ #", "# # #  #", "#  . . #", "#      #", "########"], "solution": [2, 2, 1, 2, 3, 2, 3, 3, 0, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 1, 2, 1, 0, 1, 0, 0, 3, 3, 0, 3, 2, 1, 1, 2, 0, 3, 3, 2, 0, 1, 1, 1, 2, 2, 2, 3, 3, 0, 3, 1, 2, 1, 0, 1, 0, 0, 3, 2, 1, 2, 3, 2, 3, 3, 0, 1, 3, 2, 3, 3, 0, 1, 2, 1, 1, 0, 3, 1, 2, 1, 1, 0, 3, 3, 2, 3, 0, 2, 3, 3, 0, 1, 1, 1, 3, 3, 3, 0, 0, 1, 1, 2, 0, 3, 3, 2, 2, 1, 1, 2, 1, 1, 0, 3, 1, 1, 0, 0, 3, 2, 1, 2, 2, 3, 3, 0, 3, 1, 2, 1, 1, 0, 3, 2, 3, 3, 3, 3, 0, 1, 2, 1, 0, 0, 2, 3, 3, 0, 0, 1, 1, 0, 1, 1, 2, 2, 2, 3, 1, 0, 0, 3, 3, 1, 1, 2, 2, 3, 3, 0, 0, 0, 3, 3, 2, 1, 1, 1, 3, 3, 3, 2, 2, 1, 1, 1, 2, 1, 0, 1, 0, 0, 3, 3, 0, 3, 2, 1, 1, 1, 2, 2, 3, 0, 2, 3, 3, 0, 2, 1, 1, 1, 0, 0, 0, 3, 2, 3, 3, 2, 2, 1, 1, 0, 1, 0, 3, 3, 0, 3, 2, 2, 0, 0, 3, 3, 2, 2, 2, 1, 1, 1, 3, 3, 3, 0, 0, 1, 0, 1, 2, 2, 0, 1, 1, 1, 2, 2, 2, 3, 0, 3, 3, 0, 0, 1, 1, 2, 1, 2, 3, 2, 3, 3, 0, 1, 3, 2, 3, 3, 0, 1, 3, 0, 0, 1, 1], "seed": "ALMACEN-10", "tier": 0, "name": "10 · Primer turno"}, {"map": ["##########", "#   @    #", "# $$$#   #", "#        #", "# ###  . #", "#    . . #", "#        #", "##########"], "solution": [2, 0, 3, 3, 3, 2, 2, 1, 1, 1, 1, 1, 2, 1, 0, 1, 0, 3, 0, 3, 2, 2, 3, 2, 1, 0, 1, 1, 2, 3, 3, 2, 3, 0, 1, 0, 0, 0, 3, 3, 2, 2, 1, 1, 0, 1, 2, 2, 1, 2, 3, 3, 0, 0, 0, 0, 3, 3, 3, 2, 0, 3, 3, 2, 1, 3, 2, 2, 2, 1, 1, 1, 1, 2, 1, 0, 1, 0, 3, 0, 3, 3, 3, 1, 0, 3, 1, 2, 1, 2, 0, 3, 0, 0, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 2, 3, 3, 0, 3, 3, 0, 0, 1, 1, 3, 3, 2, 2, 1, 1, 1, 3, 3, 3, 0, 0, 1, 1, 1, 1, 3, 0, 3, 2, 3, 3, 2, 2, 1, 1, 1, 1, 0, 0, 1, 3, 3, 3, 3, 3, 0, 1, 0, 1, 1, 1, 1, 1, 2, 2, 2, 0, 3, 3, 3, 0, 3, 1, 2, 1, 2, 2, 2, 1, 1, 0, 2, 3, 3, 0, 1, 0, 0, 1, 1, 2, 3, 3, 0, 3, 2, 0, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3, 0, 0, 3, 3, 3, 0, 3, 1, 2, 1, 1, 1, 2, 2, 2, 3, 0, 2, 3, 3, 0, 1, 0, 0, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 2, 2, 3, 3, 0, 0, 1, 2, 3, 2, 3, 1, 1, 2, 1, 0, 1, 0, 3, 0, 3, 3, 3, 0, 3, 2, 3, 3, 2, 2, 1, 1, 2, 1, 1, 0, 0, 1, 2, 1, 0, 0, 3, 3, 2, 2, 2, 3, 3, 0, 1, 3, 3, 3, 0, 0, 0, 1, 2, 1, 1, 1, 1, 2, 2, 2, 3, 0, 1, 1, 1, 0, 0, 0, 3, 2, 3, 3, 2, 0, 3, 0, 3, 1, 2, 1, 1, 2, 2, 3, 3, 1, 1, 1, 0, 0, 0, 0, 3, 2, 0, 3, 3, 3, 3, 3, 2, 1, 3, 2, 2, 2, 1, 1, 2, 1, 1, 1, 0, 0, 0, 3, 2, 2, 3, 3, 1, 1, 0, 0, 3, 0, 3, 1, 0, 1, 1, 2, 0, 3, 3, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 0, 1, 2, 1, 1, 2, 2, 3, 3, 1, 1, 1, 0, 0, 0, 0, 1, 2, 0, 3, 3, 3, 2, 3, 2, 1, 1, 3, 0, 0, 1, 1, 2, 2, 0, 1, 2, 2, 0, 3, 2, 1, 1, 2, 2, 3, 0, 2, 3, 3, 3, 3, 3, 3, 0, 1, 1, 2, 1, 1, 0, 1, 3, 2, 3, 3, 0, 1, 2, 1, 1, 0, 0, 0], "seed": "ALMACEN-11", "tier": 1, "name": "11 · Entre pasillos"}, {"map": ["##########", "#        #", "# ##  .. #", "#   ## $ #", "#  ##  + #", "# $$     #", "#        #", "##########"], "solution": [0, 3, 2, 3, 2, 3, 2, 3, 3, 0, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 2, 3, 2, 3, 2, 3, 2, 3, 3, 0, 1, 3, 3, 0, 0, 1, 2, 3, 2, 2, 1, 1, 0, 1, 1, 3, 3, 2, 3, 0, 1, 1, 1, 2, 1, 0, 1, 0, 0, 0, 0, 3, 3, 2, 1, 2, 2, 3, 2, 3, 3, 3, 3, 0, 0, 1, 2, 3, 2, 2, 1, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 3, 3, 0, 1, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 3, 3, 0, 0, 1, 2, 0, 3, 0, 0, 1, 1, 1, 1, 1, 1, 2, 3, 2, 2, 3, 2, 2, 3, 3, 3, 0, 1, 2, 1, 1, 1, 0, 0, 0, 0, 1, 2, 2, 3, 3, 2, 2, 3, 3, 0, 1, 3, 3, 3, 0, 0, 1, 2, 3, 2, 1, 2, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 0, 3, 1, 2, 1, 1, 0, 3, 1, 0, 0, 1, 2, 1, 2, 3, 2, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 0, 3, 2, 3, 3, 0, 3, 3, 0, 0, 1, 2, 3, 2, 2, 1, 1, 0, 1, 2, 1, 1, 1, 0, 0, 0, 3, 2, 1, 2, 2, 3, 3, 3, 3, 3, 0, 1, 1, 2, 1, 1, 0, 2, 3, 3, 0, 1, 1, 2, 1, 1, 0, 0, 0, 3, 3, 2, 1, 1, 2, 2, 3, 0, 3, 1, 0, 3, 0, 0, 0, 3, 3, 3, 3, 3, 2, 2, 1, 2, 3, 2, 1, 2, 1, 1, 0, 1, 0, 1, 1, 0, 2, 2, 3, 1, 1, 0, 0, 0, 3, 3, 2, 2, 2, 2, 3, 3, 0, 1, 1, 3, 3, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 0, 1, 0, 3, 0, 3, 2, 0, 0, 0, 3, 3, 2, 1, 0, 1, 1, 2, 2, 3, 2, 3, 2, 3, 1, 1, 3, 3, 3, 1, 1, 1, 0, 1, 0, 0, 0, 3, 2, 1, 1, 2, 2, 2, 2, 3, 0, 3, 3, 3, 3, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 0, 0, 0, 1, 1, 2, 3, 0, 0, 0, 3, 3, 2, 1, 2, 1, 2, 2, 3, 3, 0, 1, 3, 2, 3, 2, 3, 3, 0, 1, 2, 1, 1, 1, 0, 0, 0, 1, 2, 1, 0, 0, 0, 3, 2, 3, 2, 2, 3, 2, 2, 3, 3, 0, 1, 1, 0, 1, 1, 0, 1, 2, 2, 2, 3, 0, 2, 3, 3, 0, 1, 2, 1, 1, 0, 3, 2, 3, 0, 1, 1, 0, 0, 0, 3, 0, 3, 2, 1, 2, 2, 1, 2, 3, 2, 3, 3, 0, 0, 1, 3, 2, 1, 0, 0, 1, 1, 2, 3, 0, 0, 0, 3, 3, 2, 1, 0, 1, 2, 1, 2, 2, 2, 3, 0, 0, 1, 0, 3, 2, 2, 2, 2, 3, 3, 0, 0, 1, 0, 1, 2, 0, 0, 3, 1, 1, 2, 2, 2, 2, 3, 0, 2, 3, 0, 1, 0, 2, 3, 3, 0, 1, 0, 0, 0, 3, 3, 2, 1, 0, 1, 2, 2, 2, 3, 2, 2, 1, 1, 0, 3, 1, 1, 0, 3, 1, 0, 0, 3, 2, 1, 2, 2, 3, 3, 0, 0, 1, 2, 0, 0, 0, 3, 3, 2, 1, 2, 2, 2, 2, 1, 0, 1, 0, 3, 2, 3, 0, 1, 1, 0, 0, 0, 3, 2, 1, 2, 2, 3, 3, 2, 3, 1, 1, 0, 0, 2, 3, 0, 2, 3, 2, 2, 3, 3, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 3, 3, 2, 0, 1, 2, 1, 2, 2, 3, 3, 3, 2, 1, 0, 0, 2, 1, 1, 0, 0, 3, 3, 2, 2, 1, 0, 1, 2, 2, 2, 3, 0, 1, 0, 3, 0, 3, 2, 3, 2, 1, 0, 0, 0, 0, 3, 3, 2, 1, 0, 1, 2, 0, 1, 1, 2, 2, 2, 2, 2, 3, 0, 3, 0, 0, 2, 2, 1, 0, 1, 0, 0, 0, 3, 3, 2, 2, 0, 0, 1, 1, 2, 3, 1, 2, 2, 3, 0, 2, 2, 3, 3, 0, 1, 3, 2, 3, 3, 3], "seed": "ALMACEN-12", "tier": 1, "name": "12 · Entre pasillos"}, {"map": ["##########", "#        #", "# ##   $ #", "#   ## # #", "# $  $@  #", "# ...    #", "#        #", "##########"], "solution": [3, 3, 1, 1, 1, 1, 0, 0, 3, 0, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 2, 0, 3, 3, 0, 0, 1, 1, 1, 1, 2, 1, 2, 2, 3, 3, 2, 2, 3, 3, 0, 1, 3, 3, 0, 1, 2, 1, 1, 3, 3, 0, 0, 1, 2, 1, 2, 3, 1, 0, 1, 1, 1, 1, 0, 0, 3, 1, 2, 2, 3, 3, 3, 3, 3, 2, 2, 3, 0, 1, 1, 0, 1, 1, 2, 3, 1, 1, 1, 0, 0, 0, 0, 3, 3, 2, 1, 1, 2, 2, 3, 3, 3, 3, 3, 2, 1, 2, 1, 0, 1, 0, 3, 1, 0, 2, 1, 1, 0, 0, 3, 3, 2, 2, 3, 2, 3, 3, 0, 1, 2, 1, 1, 0, 0, 0, 0, 3, 3, 2, 1, 0, 3, 3, 3, 3, 2, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 0, 0, 0, 0, 3, 3, 2, 0, 3, 3, 3, 3, 3, 2, 2, 1, 2, 1, 1, 1, 2, 1, 1, 0, 3, 1, 1, 0, 0, 3, 3, 2, 2, 1, 2, 2, 3, 3, 0, 3, 0, 1, 2, 1, 2, 1, 1, 0, 0, 0, 0, 3, 3, 2, 2, 3, 3, 3, 3, 3, 2, 1, 1, 2, 1, 1, 1, 1, 0, 2, 3, 3, 0, 1, 0, 3, 3, 3, 2, 1, 0, 1, 1, 2, 3, 2, 3, 0, 1, 1, 2, 1, 1, 0, 0, 3, 1, 2, 3, 2, 3, 3, 0, 0, 1, 3, 3, 3, 1, 1, 1, 0, 0, 1, 1, 2, 2, 3, 2, 2, 3, 3, 0, 1, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 0, 0, 2, 1, 1, 0, 0, 0, 3, 3, 3, 2, 1, 2, 2, 3, 3, 2, 3, 3, 0, 0, 1, 2, 1, 1, 1, 1, 1, 0, 0, 3, 1, 2, 2, 2, 3, 1, 0, 0, 0, 0, 3, 3, 3, 2, 1, 2, 2, 3, 3, 3, 3, 2, 1, 0, 1, 1, 2, 1, 0, 1, 1, 0, 0, 3, 0, 3, 2, 1, 1, 2, 2, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 0, 0, 3, 3, 2, 0, 1, 1, 2, 2, 2, 2, 3, 3, 0, 3, 3, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 2, 3, 2, 3, 0, 3, 0, 1, 2, 1, 1, 1, 0, 1, 1, 2, 3, 3, 1, 0, 0, 2, 1, 1, 0, 0, 3, 3, 2, 2, 3, 3, 3, 0, 3, 2, 1, 1, 1, 2, 3, 2, 3, 0, 2, 3, 3, 0, 0, 1, 1, 0, 3, 3, 0, 0, 1, 1, 1, 2, 1, 1, 2, 2, 3, 3, 1, 1, 1, 1, 0, 0, 3, 0, 3, 2, 1, 1, 2, 2, 3, 3, 3, 3, 2, 3, 2, 3, 0, 3, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 0, 0, 3, 3, 3, 3, 3, 2, 2, 1, 1, 2, 1, 1, 1, 3, 3, 2, 3, 0, 0, 3, 3, 2, 1, 3, 2, 1, 1, 2, 1, 1, 0, 0, 3, 3, 0, 3, 2, 1, 1, 1, 1, 2, 1, 1, 0, 3, 1, 0, 0, 3, 3, 2, 2, 3, 2, 1, 0, 3, 3, 3, 2, 1, 0, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 2, 3, 2, 3, 3, 0, 2, 1, 1, 0, 3, 3, 1, 0, 3, 1, 1, 1, 1, 1, 2, 3, 2, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 0, 1, 3, 3, 2, 3, 3, 0, 1, 1, 3, 3, 3, 0, 1, 1, 2, 1, 2, 1, 1, 1, 1, 0, 3, 0, 3, 3, 3, 3, 0, 3, 2, 3, 2, 1, 2, 1, 1, 1, 0, 2, 1, 1, 0, 0, 3, 3, 2, 1, 3, 3, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 0, 3, 0, 3, 3, 3, 3, 1, 1, 1, 1, 2, 3, 0, 3, 3, 3, 0, 3, 2, 3, 2, 1, 2, 1, 1, 0, 3, 1, 1, 3, 3, 2, 3, 0, 1, 1, 1, 0, 3, 2, 3, 3, 3, 0, 0, 1, 2, 3, 2, 1, 2, 1, 1, 1, 1, 1, 0, 3, 0, 3, 3, 2, 3, 2, 3, 3, 0, 0, 1, 0, 1, 2, 1, 1, 1, 2, 3, 1], "seed": "ALMACEN-13", "tier": 1, "name": "13 · Entre pasillos"}, {"map": ["##########", "#  @     #", "# #$  #$ #", "#  ...   #", "#        #", "#  ## #$ #", "#        #", "##########"], "solution": [2, 1, 1, 2, 2, 2, 2, 1, 1, 0, 0, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 0, 3, 1, 2, 1, 1, 0, 3, 2, 3, 0, 1, 1, 1, 0, 0, 3, 2, 0, 3, 3, 3, 2, 2, 2, 3, 0, 1, 0, 0, 1, 1, 1, 2, 2, 2, 0, 0, 0, 3, 3, 2, 3, 2, 1, 0, 0, 3, 3, 2, 1, 1, 0, 1, 1, 2, 2, 3, 2, 3, 3, 0, 3, 1, 2, 1, 1, 0, 3, 2, 3, 0, 3, 0, 1, 0, 3, 3, 3, 2, 2, 1, 1, 2, 1, 0, 3, 0, 0, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 3, 0, 0, 3, 0, 3, 0, 0, 3, 2, 1, 2, 1, 2, 1, 2, 2, 3, 3, 0, 0, 1, 1, 1, 0, 3, 0, 0, 3, 3, 2, 2, 0, 3, 3, 2, 2, 1, 1, 0, 1, 3, 2, 2, 2, 1, 1, 0, 0, 0, 3, 3, 2, 3, 0, 1, 2, 1, 0, 1, 2, 1, 0, 0, 0, 3, 2, 1, 2, 2, 2, 2, 3, 0, 1, 0, 0, 3, 3, 1, 0, 0, 3, 3, 2, 2, 1, 2, 3, 1, 0, 1, 1, 2, 3, 0, 3, 3, 2, 3, 1, 1, 0, 1, 2, 3, 3, 3, 3, 0, 0, 0, 1, 2, 3, 2, 3, 2, 1, 1, 1, 2, 2, 1, 1, 0, 0, 1, 0, 3, 2, 3, 3, 0, 3, 1, 1, 3, 3, 2, 3, 0, 1, 1, 1, 2, 1, 0, 3, 3, 0, 0, 3, 3, 2, 1, 2, 2, 3, 3, 0, 1, 2, 1, 0, 1, 2, 2, 2, 3, 3, 3, 0, 2, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 2, 0, 3, 3, 2, 3, 0, 3, 2, 1, 1, 0, 1, 1, 1, 2, 2, 3, 3, 1, 0, 0, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 2, 1, 0, 2, 1, 0, 3, 3, 3, 2, 1, 0, 0, 0, 1, 1, 2, 0, 1, 1, 2, 2, 3, 3, 2, 2, 2, 3, 3, 3, 0, 0, 3, 0, 1, 3, 0, 0, 1, 1, 2, 2, 1, 3, 0, 0, 1, 1, 2, 2, 3, 3, 3, 2, 1, 0, 1, 1, 2, 3, 3, 0, 3, 2, 3, 2, 2, 1, 1, 1, 1, 0, 2, 1, 1, 0, 0, 0, 3, 3, 3, 3, 0, 1, 3, 2, 3, 3, 2, 2, 2, 1, 0, 0, 3, 0, 1, 2, 1, 1, 1, 0, 3, 0, 3, 2, 3, 2, 1, 0, 1, 1, 2, 1, 3, 3, 3, 1, 0, 0, 0, 1, 2, 0, 1, 1, 1, 2, 2, 2, 2, 3, 0, 0, 3, 2, 3, 3, 0, 3, 3, 2, 1, 1, 0, 0, 1, 2, 3, 3, 3, 3, 2, 2, 2, 1, 0, 3, 0, 0, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 0, 0, 1, 1, 2, 1, 2, 3, 0, 0, 3, 3, 2, 2, 2, 1, 3, 3, 3, 1, 1, 2, 2, 1, 1, 1, 0, 0, 3, 0, 0, 0, 3, 3, 2, 2, 1, 3, 2, 2, 2, 1, 1, 0, 0, 3, 3, 1, 1, 0, 3, 3, 2, 3, 1, 0, 0, 0, 1, 1, 2, 1, 2, 3, 2, 3, 3, 2, 2, 3, 3, 3, 0, 0, 2, 2, 1, 1, 1, 0, 0, 0, 1, 3, 3, 2, 3, 1, 1, 1, 1, 0, 3, 3, 0, 0, 3, 3, 3, 3, 2, 2, 1, 1, 0, 1, 1, 0, 1, 1, 2, 1, 2, 3, 2, 3, 3, 2, 2, 3, 3, 3, 0, 0, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 0, 2, 1, 0, 3, 3, 2, 3, 3, 0, 1, 3, 0, 0, 1, 1, 1, 1, 2, 0, 3, 3, 3, 3, 2, 2, 1, 1, 0, 0, 1, 1, 2, 3, 0, 3, 2, 1], "seed": "ALMACEN-14", "tier": 1, "name": "14 · Entre pasillos"}, {"map": ["##########", "#        #", "# @   .  #", "# $###   #", "#  #  .$ #", "#  $  .  #", "#        #", "##########"], "solution": [2, 0, 1, 1, 1, 1, 1, 1, 2, 2, 3, 0, 3, 2, 1, 2, 3, 2, 3, 3, 3, 3, 0, 0, 0, 3, 0, 1, 2, 2, 2, 2, 1, 1, 0, 3, 2, 3, 3, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 2, 2, 2, 3, 3, 2, 1, 0, 1, 0, 0, 0, 3, 3, 3, 2, 1, 0, 1, 1, 2, 2, 2, 3, 2, 1, 3, 3, 3, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 0, 3, 0, 0, 0, 3, 3, 1, 1, 2, 2, 2, 3, 0, 0, 0, 0, 3, 3, 3, 2, 1, 1, 0, 1, 1, 2, 2, 3, 2, 3, 3, 2, 1, 2, 1, 0, 3, 0, 1, 3, 3, 2, 3, 1, 1, 1, 0, 0, 1, 0, 0, 3, 3, 2, 1, 2, 1, 2, 1, 0, 0, 0, 3, 2, 3, 2, 2, 3, 3, 2, 3, 2, 3, 0, 0, 2, 1, 1, 1, 1, 0, 1, 1, 0, 3, 1, 2, 2, 2, 3, 0, 0, 1, 0, 0, 3, 3, 3, 3, 3, 3, 2, 3, 2, 2, 1, 1, 1, 1, 1, 0, 0, 2, 1, 1, 0, 0, 3, 3, 1, 2, 3, 2, 3, 3, 2, 3, 3, 0, 2, 1, 1, 1, 1, 1, 0, 1, 0, 3, 0, 3, 3, 1, 1, 2, 2, 3, 0, 1, 0, 0, 3, 3, 2, 1, 0, 1, 2, 3, 2, 2, 3, 3, 2, 3, 3, 0, 0, 2, 2, 1, 1, 1, 1, 1, 1, 0, 0, 3, 0, 3, 2, 0, 0, 3, 3, 3, 2, 1, 0, 1, 1, 2, 2, 2, 0, 0, 3, 0, 3, 3, 3, 2, 1, 1, 3, 3, 2, 0, 1, 1, 0, 1, 1, 1, 2, 2, 2, 2, 3, 2, 3, 0, 3, 0, 1, 2, 1, 1, 0, 0, 0, 3, 3, 1, 1, 2, 2, 2, 3, 0, 3, 3, 2, 3, 3, 3, 0, 0, 1, 2, 0, 0, 1, 0, 1, 1, 1, 2, 2, 0, 0, 3, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 3, 0, 0, 0, 1, 0, 1, 1, 2, 3, 1, 1, 1, 2, 2, 2, 3, 3, 0, 1, 2, 1, 0, 3, 0, 0, 3, 3, 3, 1, 1, 1, 2, 2, 1, 0, 1, 0, 3, 3, 0, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 2, 1, 0, 3, 3, 3, 2, 2, 2, 2, 1, 1, 0, 1, 1, 1, 0, 0, 0, 3, 3, 2, 1, 0, 1, 2, 3, 3, 3, 3, 1, 1, 1, 2, 2, 1, 0, 1, 0, 3, 0, 3, 3, 3, 3, 3, 2, 3, 2, 2, 1, 2, 1, 1, 1, 1, 0, 1, 0, 0, 0, 3, 3, 2, 1, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 0, 1, 1, 2, 3, 3, 2, 2, 3, 3, 2, 3, 3, 0, 2, 1, 1, 1, 1, 0, 0, 0, 3, 0, 3, 3, 3, 2, 2, 3, 2, 2, 1, 1, 1, 1, 1, 2, 1, 0, 0, 3, 0, 0, 0, 3, 3, 3, 3, 2, 2, 2, 0, 0, 1, 0, 1, 1, 2, 3, 1, 1, 1, 1, 2, 3, 2, 3, 3, 3, 2, 3, 2, 3, 3, 0, 1, 1, 3, 0, 0, 0, 0, 1, 1, 2, 3, 1, 1, 1, 2, 1, 2, 2, 3, 3, 0, 1, 3, 2, 2, 3, 3, 0, 1, 0, 1, 1, 0, 1, 1, 2, 3, 0, 3, 2, 0, 0, 0, 3, 3, 3, 3, 3, 2, 1, 1, 3, 2, 2, 2, 1, 1, 2, 1, 1, 0, 1, 0, 0, 0, 0, 3, 3, 3, 3, 2, 1, 1, 3, 3, 3, 2, 2, 2, 1, 1, 0, 1, 1, 0, 1, 0, 0, 3, 3, 2, 1, 2, 1, 1, 2, 3, 2, 3, 0, 3, 3, 2, 1, 0, 1, 1, 1, 0, 0, 0, 3, 2, 3, 2, 0, 1, 1, 2, 2, 3, 0, 1, 0, 3, 2, 2, 2], "seed": "ALMACEN-15", "tier": 1, "name": "15 · Entre pasillos"}, {"map": ["##########", "#        #", "#   $  . #", "# . # #  #", "#  ##  . #", "# $ $ #  #", "# @      #", "##########"], "solution": [0, 0, 2, 1, 2, 1, 1, 0, 3, 3, 2, 3, 3, 0, 0, 0, 0, 1, 2, 1, 0, 0, 1, 1, 2, 3, 3, 2, 3, 3, 2, 2, 1, 3, 0, 0, 0, 1, 3, 2, 2, 2, 1, 1, 2, 1, 1, 0, 0, 0, 0, 3, 3, 2, 3, 3, 2, 2, 1, 0, 2, 1, 2, 1, 1, 0, 3, 3, 2, 3, 3, 0, 0, 0, 0, 1, 3, 2, 2, 2, 1, 1, 1, 3, 3, 0, 3, 0, 0, 1, 1, 3, 3, 2, 2, 1, 2, 1, 1, 2, 1, 0, 2, 1, 1, 0, 0, 0, 0, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 0, 0, 2, 3, 3, 3, 0, 3, 0, 0, 1, 3, 2, 2, 1, 2, 1, 1, 1, 0, 0, 2, 2, 3, 3, 3, 0, 0, 3, 0, 0, 1, 1, 1, 2, 1, 0, 3, 3, 3, 2, 1, 3, 3, 2, 2, 1, 0, 1, 0, 0, 1, 1, 2, 1, 0, 1, 2, 3, 3, 3, 0, 3, 3, 2, 1, 0, 1, 1, 1, 1, 2, 2, 0, 3, 3, 3, 1, 2, 2, 2, 3, 3, 3, 0, 0, 2, 2, 1, 1, 1, 2, 1, 1, 1, 0, 0, 3, 0, 0, 0, 3, 3, 3, 3, 3, 2, 1, 3, 3, 2, 2, 1, 0, 2, 2, 1, 1, 1, 0, 1, 3, 0, 0, 0, 3, 3, 2, 1, 1, 0, 3, 3, 3, 2, 2, 1, 0, 1, 1, 0, 1, 1, 2, 2, 2, 0, 0, 3, 0, 3, 3, 3, 3, 2, 2, 2, 0, 1, 0, 1, 1, 1, 0, 1, 2, 3, 3, 2, 2, 2, 3, 3, 2, 3, 0, 1, 1, 1, 2, 1, 1, 0, 1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 2, 0, 1, 0, 1, 1, 1, 1, 1, 2, 2, 3, 2, 2, 3, 3, 3, 3, 3, 0, 0, 0, 3, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 1, 2, 2, 3, 3, 3, 0, 0, 1, 3, 2, 3, 3, 3, 0, 0, 1, 0, 1, 1, 1, 0, 1, 2, 1, 2, 2, 3, 0, 1, 2, 2, 2, 3, 0, 1, 0, 0, 0, 3, 1, 2, 2, 2, 3, 0, 0, 2, 2, 2, 3, 3, 0, 0, 1, 3, 0, 0, 0, 1, 1, 1, 2, 2, 3, 2, 1, 0, 0, 0, 3, 2, 0, 3, 3, 2, 1, 0, 1, 1, 2, 3, 3, 3, 3, 3, 0, 3, 2, 1, 1, 1, 1, 1, 2, 0, 3, 3, 3, 3, 3, 2, 2, 3, 2, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 3, 3, 1, 0, 0, 3, 3, 3, 3, 3, 2, 2, 2, 1, 2, 1, 1, 0, 0, 0, 2, 2, 3, 2, 3, 3, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 2, 3, 3, 3, 3, 3, 2, 2, 2, 1, 2, 1, 1, 0, 0, 1, 1, 0, 1, 0, 3, 1, 2, 2, 2, 2, 3, 0, 2, 3, 3, 0, 0, 0, 0, 1, 0, 1, 1, 2, 2, 2, 3, 1, 0, 0, 3, 0, 3, 3, 2, 2, 2, 2, 3, 1, 0, 0, 0, 1, 3, 2, 2, 2, 3, 3, 1, 1, 0, 0, 0, 1, 0, 1, 1, 2, 3, 3, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 0, 0, 0, 1, 0, 1, 0, 1, 2, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 2, 2, 0, 0, 3, 3, 3, 2, 1, 1, 1, 1, 3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 3, 3, 2, 3, 1, 0, 1, 1, 2, 3, 0, 3, 3, 2, 3, 1, 1, 3, 3, 3, 1, 1, 2, 2, 1, 3, 0, 0, 0, 3, 3, 3, 2, 1, 1, 1], "seed": "ALMACEN-16", "tier": 1, "name": "16 · Entre pasillos"}, {"map": ["##########", "#        #", "#  # .@# #", "# $#  $  #", "#    . . #", "# $   #  #", "#        #", "##########"], "solution": [2, 3, 2, 1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 2, 1, 0, 3, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 2, 3, 1, 1, 2, 1, 1, 0, 0, 1, 0, 3, 3, 2, 3, 3, 3, 2, 2, 3, 3, 0, 1, 3, 0, 0, 1, 2, 1, 1, 1, 0, 3, 2, 2, 2, 3, 3, 0, 0, 2, 1, 0, 3, 3, 0, 0, 1, 2, 3, 2, 2, 1, 1, 2, 1, 0, 3, 3, 3, 0, 0, 1, 2, 0, 0, 0, 1, 1, 2, 2, 2, 0, 0, 0, 1, 2, 3, 2, 2, 3, 2, 2, 3, 0, 0, 1, 1, 1, 1, 0, 3, 0, 0, 3, 3, 3, 2, 2, 3, 2, 2, 1, 1, 2, 1, 0, 3, 3, 3, 0, 0, 1, 2, 1, 1, 1, 3, 3, 3, 3, 2, 1, 0, 0, 0, 0, 1, 1, 2, 2, 1, 2, 2, 3, 3, 1, 1, 0, 0, 3, 2, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 3, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0, 1, 0, 1, 2, 3, 3, 3, 3, 2, 3, 3, 0, 0, 1, 2, 1, 1, 1, 2, 2, 1, 1, 0, 2, 3, 3, 0, 3, 2, 3, 0, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 0, 0, 3, 3, 3, 2, 2, 3, 3, 0, 1, 2, 1, 1, 0, 0, 3, 3, 1, 1, 1, 1, 1, 0, 3, 1, 0, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 2, 1, 0, 1, 1, 1, 0, 3, 2, 3, 3, 3, 2, 2, 3, 0, 1, 1, 0, 1, 0, 3, 2, 3, 2, 3, 3, 0, 1, 0, 0, 0, 1, 1, 1, 2, 0, 3, 3, 3, 2, 2, 2, 1, 3, 0, 0, 0, 1, 1, 2, 2, 2, 1, 1, 0, 3, 0, 3, 2, 0, 0, 3, 3, 2, 2, 2, 1, 1, 1, 3, 3, 2, 2, 1, 1, 0, 0, 3, 0, 0, 1, 1, 2, 3, 2, 1, 0, 0, 3, 3, 2, 1, 2, 2, 2, 3, 3, 0, 0, 1, 3, 2, 2, 1, 1, 0, 3, 0, 0, 1, 1, 1, 2, 1, 2, 2, 3, 3, 3, 0, 0, 3, 2, 3, 1, 1, 2, 1, 1, 0, 2, 3, 3, 0, 0, 3, 0, 1, 0, 1, 0, 1, 1, 2, 2, 3, 2, 3, 3, 3, 3, 3, 3, 2, 1, 1, 0, 1, 1, 1, 1, 0, 3, 2, 3, 3, 3, 2, 1, 0, 1, 0, 3, 2, 2, 2, 1, 0, 0, 3, 0, 0, 1, 3, 2, 2, 1, 0, 3, 0, 0, 1, 1, 2, 2, 1, 1, 2, 2, 2, 3, 0, 0, 1, 0, 3, 2, 3, 1, 1, 0, 0, 0, 3, 3, 3, 3, 2, 1, 3, 2, 2, 1, 2, 2, 1, 1, 0, 0, 0, 3, 1, 2, 2, 2, 3, 3, 0, 0, 0, 1, 1, 2, 3, 3, 2, 3, 0, 0, 1, 1, 1, 1, 0, 0, 3, 3, 2, 0, 3, 3, 2, 0, 1, 1, 2, 2, 3, 2, 1, 0, 0, 0, 3, 3, 2, 2, 1, 2, 2, 3, 3, 0, 1], "seed": "ALMACEN-17", "tier": 1, "name": "17 · Entre pasillos"}, {"map": ["##########", "#        #", "# $ ## . #", "# #    . #", "#    #   #", "# $#  .$ #", "#      @ #", "##########"], "solution": [0, 0, 1, 0, 3, 0, 3, 2, 2, 1, 2, 3, 0, 0, 0, 0, 3, 3, 3, 3, 3, 2, 1, 0, 1, 2, 2, 0, 3, 3, 2, 2, 1, 1, 3, 3, 2, 2, 1, 1, 1, 0, 0, 2, 1, 3, 0, 3, 0, 1, 1, 1, 3, 3, 2, 2, 1, 1, 0, 1, 0, 1, 2, 2, 2, 3, 0, 0, 1, 0, 0, 3, 1, 2, 2, 3, 0, 1, 0, 0, 3, 3, 2, 0, 1, 1, 2, 2, 3, 3, 3, 1, 0, 0, 1, 2, 2, 3, 3, 3, 1, 1, 0, 0, 3, 3, 3, 2, 2, 1, 1, 1, 2, 2, 1, 0, 3, 0, 3, 3, 3, 0, 3, 3, 2, 2, 1, 1, 0, 1, 1, 1, 2, 1, 0, 3, 3, 3, 2, 0, 1, 1, 0, 0, 1, 2, 2, 2, 3, 2, 3, 2, 3, 0, 0, 3, 0, 1, 2, 2, 1, 1, 2, 1, 0, 0, 3, 2, 3, 3, 0, 0, 1, 3, 2, 2, 1, 1, 1, 0, 0, 1, 0, 0, 3, 3, 2, 2, 2, 1, 2, 3, 0, 0, 0, 0, 1, 2, 2, 2, 3, 2, 2, 3, 3, 3, 3, 0, 3, 0, 1, 2, 2, 1, 1, 0, 1, 2, 1, 1, 0, 0, 2, 2, 3, 0, 3, 3, 0, 3, 1, 2, 1, 1, 0, 1, 1, 0, 0, 3, 2, 1, 2, 2, 3, 3, 3, 3, 0, 0, 1, 1, 3, 3, 3, 0, 3, 3, 2, 2, 1, 1, 0, 1, 1, 1, 0, 1, 1, 2, 3, 1, 2, 2, 3, 3, 3, 3, 0, 2, 1, 1, 1, 0, 3, 0, 2, 1, 1, 0, 0, 3, 2, 3, 3, 3, 1, 1, 2, 2, 1, 0, 1, 0, 0, 0, 3, 3, 2, 2, 0, 1, 1, 2, 2, 3, 0, 3, 0, 0, 3, 3, 3, 2, 2, 1, 2, 2, 1, 1, 0, 1, 1, 0, 0, 0, 3, 2, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 1, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 2, 1, 1, 0, 0, 3, 2, 3, 3, 3, 2, 0, 1, 1, 1, 2, 0, 0, 0, 3, 2, 0, 3, 3, 3, 2, 2, 1, 1, 1, 2, 2, 3, 2, 3, 0, 0, 2, 1, 1, 0, 1, 1, 0, 3, 0, 0, 3, 3, 3, 3, 2, 2, 1, 2, 2, 1, 1, 2, 1, 0, 0, 3, 0, 2, 2, 3, 3, 0, 0, 1, 3, 2, 2, 1, 1, 1, 0, 0, 3, 3, 1, 1, 1, 0, 0, 3, 3, 2, 2, 2, 0, 0, 0, 1, 2, 2, 1, 2, 2, 3, 3, 0, 0, 1, 2, 0, 0, 0, 3, 3, 3, 3, 2, 2, 1, 1, 1, 2, 1, 0, 1, 2, 2, 2, 3, 0, 1, 0, 0, 0, 3, 1, 2, 2, 2, 3, 0, 0, 3, 3, 3, 2, 2, 1, 2, 1, 1, 1, 0, 0, 0, 0, 0, 3, 2, 1, 2, 2, 3, 2, 2, 3, 3, 0, 1, 0, 1, 0, 1, 2, 2, 2, 3, 0, 1, 0, 0, 0, 0, 3, 3, 2, 0, 1, 1, 2, 2, 3, 3, 2, 2, 1, 0, 3, 2, 3, 3, 0, 0, 1, 3, 3, 0, 0, 1, 1, 1, 2, 2, 2, 1, 2], "seed": "ALMACEN-18", "tier": 1, "name": "18 · Entre pasillos"}, {"map": ["##########", "#        #", "# $#  #  #", "#   .. # #", "# # .  $@#", "#  #  #$ #", "#        #", "##########"], "solution": [3, 3, 0, 3, 3, 2, 1, 2, 2, 1, 1, 1, 0, 0, 3, 3, 0, 3, 3, 2, 2, 1, 0, 0, 3, 0, 0, 1, 2, 3, 2, 2, 1, 0, 3, 0, 0, 1, 2, 3, 2, 2, 1, 0, 3, 0, 0, 1, 2, 2, 1, 2, 3, 0, 3, 3, 2, 1, 0, 1, 2, 3, 2, 2, 1, 0, 3, 0, 1, 1, 3, 2, 2, 1, 1, 1, 0, 0, 3, 3, 0, 3, 3, 2, 2, 1, 0, 0, 3, 0, 0, 1, 2, 3, 2, 2, 1, 1, 0, 3, 2, 3, 0, 1, 0, 0, 3, 2, 1, 2, 3, 3, 1, 0, 0, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 1, 2, 2, 3, 1, 0, 0, 3, 3, 3, 2, 2, 1, 1, 2, 1, 1, 0, 0, 3, 2, 2, 0, 0, 0, 3, 3, 2, 3, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0, 1, 0, 0, 3, 3, 1, 1, 2, 2, 3, 0, 2, 2, 3, 3, 0, 3, 0, 0, 1, 0, 0, 1, 1, 1, 2, 2, 2, 3, 0, 1, 0, 0, 3, 3, 3, 2, 2, 1, 1, 3, 3, 0, 0, 1, 1, 1, 2, 2, 1, 2, 3, 0, 3, 2, 1, 0, 0, 0, 3, 2, 1, 2, 2, 3, 3, 0, 1, 0, 1, 2, 2, 1, 1, 1, 2, 2, 3, 3, 3, 3, 0, 0, 2, 2, 1, 0, 3, 0, 0, 1, 2, 1, 1, 1, 2, 2, 3, 0, 1, 0, 0, 0, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 2, 2, 2, 3, 1, 0, 0, 0, 3, 3, 3, 2, 2, 3, 2, 2, 2, 1, 0, 3, 0, 0, 3, 1, 2, 2, 1, 0, 0, 2, 2, 2, 1, 1, 0, 0, 3, 0, 3, 2, 0, 3, 0, 0, 1, 2, 0, 3, 3, 3, 3, 2, 2, 1, 1, 3, 0, 0, 1, 1, 2, 2, 2, 1, 1, 0, 3, 3, 3, 1, 1, 1, 2, 1, 2, 2, 3, 3, 0, 0, 3, 0, 0, 0, 3, 3, 3, 2, 2, 1, 1, 2, 1, 1, 0, 2, 2, 2, 3, 0, 1, 0, 1, 1, 1, 0, 0, 0, 3, 3, 3, 2, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3], "seed": "ALMACEN-19", "tier": 1, "name": "19 · Entre pasillos"}, {"map": ["##########", "#        #", "# $# .   #", "#@$  ..  #", "# ###    #", "#  # $#  #", "#        #", "##########"], "solution": [1, 1, 1, 1, 0, 1, 2, 3, 2, 1, 0, 1, 2, 1, 2, 2, 3, 3, 3, 0, 2, 1, 1, 0, 2, 3, 3, 0, 0, 1, 0, 1, 2, 0, 0, 3, 3, 3, 2, 1, 1, 2, 1, 0, 1, 2, 2, 2, 3, 0, 1, 0, 0, 0, 0, 3, 2, 1, 2, 3, 1, 2, 3, 0, 0, 3, 3, 2, 1, 0, 1, 1, 2, 2, 3, 0, 1, 0, 3, 2, 2, 3, 1, 0, 0, 3, 2, 3, 2, 0, 3, 0, 0, 3, 3, 2, 3, 2, 1, 0, 0, 1, 1, 2, 1, 0, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 1, 1, 2, 3, 2, 1, 0, 0, 3, 3, 3, 3, 2, 2, 1, 1, 1, 0, 1, 1, 2, 1, 2, 3, 0, 0, 3, 3, 2, 1, 0, 1, 1, 2, 2, 3, 0, 1, 0, 3, 2, 3, 3, 2, 1, 0, 1, 1, 2, 2, 3, 2, 3, 3, 0, 2, 1, 1, 1, 0, 0, 0, 3, 3, 3, 0, 1, 2, 1, 1, 2, 2, 3, 2, 3, 3, 0, 0, 1, 0, 1, 1, 2, 3, 1, 0, 0, 3, 2, 2, 2, 2, 3, 3, 0, 0, 0, 1, 1, 0, 0, 3, 2, 1, 2, 2, 3, 1, 0, 3, 0, 0, 3, 3, 2, 1, 3, 2, 1, 2, 0, 0, 1, 0, 1, 1, 2, 2, 3, 3, 1, 1, 0, 3, 2, 3, 2, 3, 0, 1, 1, 0, 0, 3, 2, 3, 2, 1, 2, 1, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0, 0, 3, 0, 0, 3, 3, 2, 1, 1, 2, 1, 2, 2, 2, 3, 3, 0, 0, 0, 1, 0, 0, 3, 3, 2, 1, 0, 3, 3, 3, 2, 2, 1, 1, 0, 1, 0, 1, 2, 0, 1, 2, 3, 2, 0, 3, 3, 2, 1, 0, 1, 1, 1, 2, 2, 3, 3, 1, 1, 0, 0, 3, 2, 0, 3, 3, 2, 1, 0, 1, 1, 2, 2, 2, 3, 2, 3, 3, 0, 0, 0, 3, 0, 1, 0, 1, 1, 1, 2, 2, 3, 1, 2, 3, 0, 0, 0, 3, 3, 2, 2, 1, 3, 2, 2, 2, 1, 1, 0, 0, 0, 3, 3, 2, 1, 0, 1, 2, 1, 0, 0, 0, 3, 3, 2, 3, 2, 2, 2, 2, 1, 1, 0, 1, 0, 0, 0, 0, 3, 3, 2, 2, 1, 2, 3, 0, 3, 2, 1, 1, 1, 2, 2, 3, 0, 0, 1, 0, 0, 3, 1, 2, 2, 3, 2, 2, 3, 3, 0, 2, 1, 1, 1, 0, 0, 0, 0, 3, 3, 2, 3, 2, 1, 0, 0, 1, 2, 0, 3, 3, 1, 1, 1, 2, 2, 2, 3, 2, 3, 3, 0, 2, 1, 1, 1, 0, 0, 0, 0, 0, 3, 3, 3, 3, 2, 1, 2, 2, 0, 3, 1, 1, 1, 1, 2, 2, 3, 2, 3, 3, 0, 2, 1, 1, 1, 0, 0, 0, 3, 2, 1, 2, 2, 3, 3, 3, 0, 0, 0, 3, 0, 1, 1, 0, 3, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 1, 1, 1, 2, 0, 3, 3, 3, 3, 3, 2, 2, 1, 1, 0, 1, 1, 2, 2, 3, 0, 3, 0, 1, 1, 2, 2, 1, 1, 2, 2, 3, 0, 1, 0, 3, 1, 0, 0, 3, 2, 0, 0, 3, 2, 1, 2, 3, 1, 1, 2, 2, 3, 2, 3, 3, 0, 0, 0, 1, 1, 1, 2, 2, 3, 0, 0, 3, 3, 2, 1, 0, 1, 2, 0, 3, 0, 0, 3, 2, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 2, 2, 1, 0, 0, 1, 1, 2, 3, 0, 3, 2, 1, 1, 1, 2, 2, 2, 2, 3, 0, 2, 3, 3, 0, 0, 0, 2, 1, 0, 1, 0, 0, 3, 3, 2, 0, 1, 1, 1, 2, 2, 2, 2, 3, 0, 1, 0, 3, 0, 3, 1], "seed": "ALMACEN-20", "tier": 1, "name": "20 · Entre pasillos"}, {"map": ["############", "#       @  #", "#  ### #$  #", "#    # $   #", "# .   #    #", "#  #    .. #", "#   $  $.  #", "#          #", "############"], "solution": [2, 2, 1, 2, 2, 3, 3, 0, 1, 3, 2, 3, 2, 1, 2, 1, 0, 3, 3, 3, 2, 3, 3, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 3, 3, 2, 2, 1, 2, 2, 2, 1, 1, 0, 0, 3, 2, 0, 0, 3, 2, 2, 2, 1, 0, 1, 1, 0, 0, 0, 3, 2, 3, 3, 2, 2, 3, 2, 3, 2, 3, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 3, 2, 1, 1, 2, 2, 2, 2, 3, 3, 3, 1, 1, 1, 0, 0, 3, 2, 3, 3, 3, 3, 2, 3, 0, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 3, 3, 2, 3, 3, 0, 0, 1, 0, 1, 2, 1, 2, 1, 1, 0, 2, 3, 3, 2, 3, 0, 1, 1, 1, 1, 1, 0, 0, 0, 3, 2, 1, 2, 2, 3, 3, 0, 1, 3, 2, 2, 3, 0, 3, 0, 3, 1, 2, 1, 1, 1, 1, 0, 3, 3, 2, 3, 3, 3, 2, 1, 0, 1, 1, 1, 0, 0, 0, 1, 2, 2, 2, 1, 2, 3, 0, 3, 3, 3, 3, 0, 3, 3, 1, 2, 2, 3, 3, 0, 0, 1, 1, 1, 2, 1, 1, 2, 1, 0, 3, 3, 3, 2, 1, 0, 3, 0, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 3, 1, 0, 0, 0, 0, 0, 3, 3, 2, 2, 1, 2, 1, 0, 3, 2, 2, 2, 3, 0, 3, 0, 3, 0, 3, 2, 3, 3, 0, 0, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 3, 0, 0, 1, 0, 3, 2, 3, 3, 3, 2, 3, 1, 1, 0, 0, 0, 1, 3, 2, 2, 3, 3, 2, 3, 0, 0, 0, 3, 3, 3, 2, 1, 1, 0, 3, 0, 0, 1, 1, 1, 1, 2, 2, 1, 2, 1, 3, 2, 3, 3, 3, 2, 2, 3, 3, 0, 1, 3, 0, 0, 1, 0, 1, 2, 1, 2, 1, 1, 1, 1, 1, 0, 0, 3, 2, 1, 2, 3, 2, 3, 3, 3, 3, 3, 1, 1, 1, 0, 0, 1, 0, 3, 2, 2, 3, 3, 2, 3, 0, 2, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 0, 0, 0, 1, 2, 1, 0, 0, 0, 0, 3, 2, 2, 1, 2, 2, 2, 3, 1, 0, 0, 3, 2, 3, 0, 2, 3, 3, 2, 2, 3, 3, 0, 1, 2, 1, 1, 1, 0, 3, 3, 1, 1, 1, 0, 0, 0, 0, 0, 3, 3, 2, 2, 1, 2, 1, 2, 2, 3, 3, 0, 1, 3, 3, 2, 2, 3, 3, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 2, 1, 2, 2, 2, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 3, 0, 3, 3, 2, 1, 3, 2, 2, 3, 3, 0, 0, 3, 2, 1, 2, 3, 1, 1, 1, 0, 3, 2, 3, 3, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 2, 0, 3, 0, 0, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 2, 2, 1, 2, 2, 3, 0, 1, 1, 1, 0, 3, 1, 1, 0, 1, 1, 2, 3, 3, 0, 0, 0, 0, 1, 2, 3, 2, 2, 2, 2, 3, 0, 3, 2, 3, 3, 3, 3, 0, 0, 1, 1, 1, 2, 1, 2, 2, 3, 3, 0, 1, 0, 1, 1, 1, 1, 0, 0, 3, 2, 2, 3, 3, 3, 2, 3, 0, 1, 0, 3, 1, 2, 1, 1, 1, 0, 0, 3, 2, 0, 3, 0, 0, 3, 3, 3, 3, 2, 2, 2, 1, 3, 2, 2, 1, 1, 1, 0, 1, 1, 3, 3, 0, 3, 1, 2, 1, 1, 1, 0, 1, 2, 3, 3, 3, 3, 2, 1, 0, 3, 0, 3, 3, 1, 1, 2, 1, 1, 1, 2, 3, 2, 3, 0, 3, 0, 1, 2, 1, 1, 0, 1, 1, 2, 3, 2, 3, 3, 0, 3, 0, 1, 3, 3, 3, 2, 3, 3, 0, 0, 1, 1, 1, 2, 1, 1, 0, 1, 1, 2, 3, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 3, 0, 3, 3, 0, 3, 0, 3, 1, 2, 1, 2, 1, 1, 0, 1, 2, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 0, 0, 3, 3, 3, 3, 0, 3, 0, 3, 3, 3, 2, 1, 2, 2, 1, 1, 1, 1, 1, 2, 1, 0, 1, 0, 3, 2, 3, 0, 3, 3, 0, 3, 3, 1, 1, 2, 1, 1, 1, 0, 0, 3, 2, 0, 3, 0, 0, 3, 3, 3, 3, 2, 2, 2, 2, 0, 1, 1, 1, 2, 1, 2, 1, 0, 1, 0, 0, 1, 2, 1, 2, 3, 0, 3, 2, 3, 3, 3, 3, 2, 3, 2, 3, 0, 1, 1, 1, 1, 1, 2, 1, 0, 1, 1, 0, 0, 0, 0, 0, 3, 2, 1, 2, 2, 3, 2, 2, 3, 3, 0, 0, 2, 2, 1, 0, 1, 1, 0, 0, 0, 0, 3, 3, 3, 3, 2, 2, 1, 2, 2, 1, 1, 0, 0, 3, 2, 0, 0, 0, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 2, 2, 3, 2, 2, 1, 2, 1, 0, 1, 0, 0, 3, 3, 2, 3, 2, 3, 3, 0, 3, 3, 3, 2, 0, 1, 1, 1, 2, 1, 1, 0, 1, 2, 1, 1, 0, 3, 1, 0, 0, 0, 3, 2, 2, 2, 0, 3, 3, 2, 2, 3, 3, 3, 2, 3, 2, 3, 0, 0, 2, 1, 1, 1, 1, 1, 0, 0, 0, 1, 2, 3, 2, 3, 3, 0, 3, 0, 3, 3], "seed": "ALMACEN-21", "tier": 2, "name": "21 · Logística"}, {"map": ["############", "#          #", "# # . $ ## #", "#  ..      #", "#    @$  . #", "#  ## # #  #", "# $## $    #", "#          #", "############"], "solution": [1, 1, 0, 0, 3, 1, 2, 1, 1, 2, 3, 1, 2, 2, 3, 3, 0, 0, 3, 0, 1, 0, 0, 3, 3, 2, 1, 2, 2, 3, 2, 2, 1, 1, 0, 0, 1, 1, 0, 3, 2, 3, 3, 3, 2, 2, 2, 3, 3, 3, 0, 2, 1, 1, 1, 1, 1, 1, 1, 0, 3, 1, 0, 0, 3, 3, 3, 0, 0, 1, 2, 3, 2, 3, 2, 2, 2, 3, 3, 3, 0, 0, 2, 2, 1, 1, 1, 0, 0, 0, 0, 3, 3, 3, 2, 1, 1, 1, 2, 2, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 0, 0, 1, 1, 1, 0, 1, 2, 2, 0, 0, 3, 3, 0, 3, 3, 1, 1, 2, 2, 2, 2, 3, 1, 0, 0, 3, 3, 3, 3, 3, 2, 3, 2, 2, 1, 1, 1, 1, 0, 2, 3, 3, 3, 0, 2, 1, 1, 1, 0, 0, 2, 2, 3, 3, 3, 0, 3, 0, 0, 1, 2, 0, 1, 0, 0, 0, 1, 2, 1, 1, 1, 2, 2, 2, 2, 1, 2, 1, 0, 3, 3, 0, 0, 0, 0, 3, 3, 3, 3, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 0, 3, 3, 3, 2, 1, 3, 3, 3, 3, 0, 1, 0, 1, 1, 1, 2, 1, 1, 2, 3, 0, 3, 2, 3, 3, 0, 2, 2, 2, 2, 3, 3, 3, 0, 2, 1, 1, 1, 0, 0, 0, 1, 1, 2, 0, 3, 3, 2, 2, 1, 1, 0, 0, 0, 3, 3, 3, 0, 1, 2, 1, 1, 2, 2, 2, 2, 1, 1, 0, 1, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 1, 0, 0, 3, 2, 3, 2, 2, 2, 2, 3, 3, 3, 0, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 2, 3, 2, 3, 3, 3, 3, 3, 3, 0, 0, 2, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 3, 2, 2, 2, 3, 3, 0, 0, 0, 0, 3, 3, 2, 3, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 0, 0, 1, 2, 3, 3, 3, 3, 3, 2, 2, 0, 1, 1, 1, 2, 2, 1, 1, 1, 3, 3, 3, 0, 0, 1, 0, 1, 2, 2, 0, 3, 3, 2, 2, 1, 1, 3, 3, 2, 3, 3, 3, 0, 0, 3, 0, 0, 1, 1, 0, 1, 3, 2, 3, 3, 2, 1, 0, 1, 1, 0, 0, 1, 2, 1, 1, 2, 2, 2, 2, 2, 1, 1, 0, 2, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 2, 2, 3, 0, 1, 1, 1, 1, 2, 2, 2, 3, 0, 2, 2, 3, 3, 0, 3, 3, 0, 0, 1, 1, 1, 0, 1, 2, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 2, 2, 3, 3, 1, 1, 0, 0, 0, 3, 3, 3, 0, 3, 3, 3, 0, 3, 2, 1, 1, 2, 2, 2, 2, 1, 2, 1, 1, 0, 3, 0, 0, 0, 3, 1, 2, 2, 2, 1, 1, 0, 2, 3, 3, 0, 0, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 2, 3, 2, 2, 1, 1, 0, 0, 3, 3, 0, 1, 1, 1, 1, 2, 2, 2, 3, 1, 0, 0, 0, 3, 3, 2, 1, 0, 3, 0, 0, 3, 3, 3, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 0, 3, 0, 0, 0, 3, 3, 0, 1, 3, 2, 3, 1, 1, 0, 0, 1, 2, 3, 3, 3, 2, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 0, 1, 2, 3, 3, 0, 3, 3, 3, 1, 2, 2, 2, 1, 3, 0, 0, 3, 3, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 0, 1, 0, 3, 2, 2, 3, 2, 3, 0, 3, 3, 0, 0, 1, 1, 1, 0, 1, 2, 2, 0, 3, 3, 2, 0, 0, 3, 0, 0, 3, 3, 3, 2, 1, 1, 2, 2, 2, 2, 1, 2, 1, 1, 0, 3, 0, 0, 3, 3, 3, 3, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 0, 0, 0, 3, 3, 3, 0, 0, 3, 3, 3, 2, 1, 2, 2, 3, 3, 0, 1, 2, 1, 0, 1, 1, 0, 0, 1, 2, 2, 0, 0, 3, 3, 3, 2, 1, 1, 1, 2, 1, 2, 3, 0, 3, 3, 2, 3, 0, 1, 1, 1, 2, 3, 3, 3, 3, 1, 1, 0, 0, 3, 0, 3, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 3, 0, 0, 0, 0, 3, 3, 3, 3, 2, 1, 1, 1, 1, 2, 2, 2, 1, 2, 1, 0, 0, 2, 3, 3, 2, 3, 3, 3, 3, 3, 0, 0, 0, 3, 0, 1, 3, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 2, 2, 3, 3, 2, 3, 3, 3, 3, 3, 0, 0, 0, 1, 3, 0, 1, 0, 1, 1, 2, 2, 3, 1, 1, 1, 0, 1, 1, 2, 3, 0, 3, 0, 3, 3, 3, 3, 2, 1, 0, 1, 2, 3, 2, 3, 1, 0, 1, 1, 2, 1, 2, 2, 2, 3, 3, 0, 0, 0, 1, 1, 2, 2, 3, 2, 3, 3, 3, 3, 0, 0, 0, 1, 1, 0, 1, 2, 1, 1, 2, 2, 3, 2, 3, 0, 0, 2, 1, 1, 0, 0, 3, 0, 1, 2, 2, 2, 3, 3, 0, 0, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 0, 3, 0, 0, 3, 2, 1, 2, 2, 3, 3, 0, 3, 2, 3, 0, 1, 0, 1, 0, 3, 3, 2, 1, 1, 2, 2, 1, 1, 1, 0, 1, 2, 0, 3, 3, 0, 3, 0, 3, 3, 2, 2, 2, 3, 0, 1, 0, 0, 1, 1, 2, 3, 1, 1, 2, 3, 0, 0, 3, 3, 3, 2, 2, 3, 2, 1, 1, 1, 3, 0, 3, 0, 0, 1, 1, 2, 3, 1, 1, 2, 3, 1, 1, 2, 3, 1, 1, 1, 2, 0, 3, 3, 2, 2, 3, 3, 2, 3, 3, 3, 0, 0, 0, 1, 1, 0, 1, 1, 1, 2, 2, 2, 3, 3, 0, 0, 1, 0, 3, 1, 1, 2, 2, 2, 1, 2, 1, 0, 3, 3, 0, 0, 0, 3, 3, 3, 1, 1, 1, 2, 2, 2, 1, 1, 0, 2, 3, 3, 0, 0, 3, 3, 3, 3, 3, 0, 1, 3, 3, 0, 0, 1, 1, 2, 0, 1, 1, 2, 2, 2], "seed": "ALMACEN-22", "tier": 2, "name": "22 · Logística"}, {"map": ["############", "#          #", "# ..    $$ #", "#  .  #    #", "# # $.     #", "#   @ # ## #", "#   $   #  #", "#          #", "############"], "solution": [0, 3, 2, 2, 1, 0, 1, 0, 0, 3, 1, 2, 1, 1, 2, 2, 3, 3, 0, 0, 0, 0, 3, 3, 2, 1, 1, 0, 1, 1, 0, 1, 2, 3, 3, 3, 3, 2, 2, 2, 3, 2, 1, 0, 1, 0, 1, 1, 0, 0, 1, 2, 3, 2, 1, 3, 3, 3, 3, 2, 3, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 3, 2, 3, 3, 2, 2, 2, 3, 2, 3, 0, 1, 1, 0, 0, 0, 0, 0, 1, 2, 3, 3, 3, 3, 3, 3, 2, 1, 2, 1, 1, 2, 0, 0, 3, 1, 0, 1, 1, 1, 1, 1, 2, 2, 3, 0, 0, 3, 3, 3, 3, 3, 2, 2, 3, 0, 1, 1, 0, 1, 1, 1, 1, 2, 2, 3, 1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 1, 0, 0, 3, 3, 3, 2, 2, 2, 1, 0, 3, 2, 2, 1, 0, 0, 3, 0, 0, 1, 2, 3, 2, 3, 0, 1, 1, 2, 0, 3, 3, 3, 0, 1, 0, 1, 1, 1, 1, 2, 2, 1, 3, 2, 2, 2, 2, 3, 3, 0, 0, 3, 0, 0, 3, 0, 1, 1, 0, 1, 1, 1, 1, 1, 2, 2, 3, 0, 3, 3, 3, 1, 2, 2, 3, 3, 0, 3, 2, 2, 0, 0, 0, 0, 1, 2, 2, 0, 1, 1, 2, 2, 3, 3, 0, 3, 2, 1, 1, 1, 1, 0, 3, 2, 3, 3, 2, 2, 3, 3, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 2, 3, 3, 3, 2, 2, 2, 3, 1, 0, 1, 1, 0, 1, 3, 2, 3, 3, 3, 2, 2, 3, 0, 1, 1, 0, 1, 1, 1, 1, 0, 3, 3, 2, 3, 3, 3, 2, 3, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 3, 2, 3, 3, 2, 3, 3, 3, 3, 0, 1, 1, 0, 1, 1, 1, 0, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 2, 3, 3, 2, 2, 2, 2, 3, 3, 0, 0, 0, 0, 0, 3, 2, 1, 2, 3, 2, 3, 0, 1, 1, 0, 1, 1, 1, 1, 1, 2, 3, 2, 3, 3, 3, 3, 3, 3, 2, 2, 1, 0, 1, 0, 1, 1, 1, 1, 0, 3, 2, 3, 0, 2, 3, 3, 0, 3, 3, 3, 0, 1, 2, 1, 2, 2, 2, 1, 0, 3, 3, 3, 3, 2, 1, 1, 0, 0, 0, 0, 0, 1, 2, 1, 1, 1, 3, 3, 3, 2, 3, 2, 2, 2, 1, 0, 1, 0, 3, 1, 1, 1, 0, 0, 0, 1, 2, 3, 2, 2, 2, 2, 2, 3, 3, 0, 0, 0, 0, 3, 3, 2, 1, 1, 1, 1, 1, 1, 0, 3, 2, 3, 0, 2, 2, 2, 3, 1, 0, 0, 1, 0, 0, 0, 3, 3, 2, 1, 2, 2, 3, 3, 3, 2, 2, 1, 0, 0, 1, 1, 0, 0, 3, 3, 3, 1, 1, 1, 0, 1, 2, 1, 2, 3, 0, 3, 3, 3, 3, 3, 1, 1, 2, 2, 1, 1, 2, 2, 3, 1, 0, 0, 1, 0, 0, 3, 2, 1, 2, 3, 0, 0, 3, 3, 3, 3, 2, 2, 2, 1, 2, 1, 0, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 0, 0, 0, 3, 3, 2, 2, 3, 3, 1, 0, 0, 0, 1, 2, 1, 1, 2, 2, 3, 1, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 2, 1, 1, 2, 2, 2, 2, 2, 1, 0, 3, 0, 0, 0, 0, 1, 2, 2, 2, 0, 0, 0, 1, 3, 3, 3, 3, 3, 2, 2, 2, 2, 1, 0, 1, 1, 2, 1, 3, 3, 0, 3, 3, 0, 0, 1, 3, 2, 2, 2, 1, 0, 3, 0, 0, 1, 1, 2, 1, 2, 2, 2, 3, 0, 3, 0, 1, 0, 1, 0, 1, 2, 2, 2, 3, 0, 1, 0, 1, 1, 2, 2, 3, 1, 0, 0, 3, 3, 0, 0, 1, 1, 3, 3, 2, 2, 2, 3, 2, 1, 0, 0, 1, 1, 0, 0, 1, 3, 3, 3, 2, 3, 2, 2, 1, 0, 0, 0, 0, 3, 2, 1, 1, 1, 1, 0, 1, 2, 2, 1, 2, 3, 0, 0, 3, 3, 3, 3, 3, 2, 1, 2, 2, 2, 2, 3, 0, 1, 0, 3, 1, 0, 0, 3, 3, 2, 2, 1, 2, 3, 1, 1, 2, 1, 1, 0, 3, 3, 2, 3, 3, 3, 0, 1, 2, 1, 0, 1, 0, 0, 3, 1, 1, 1, 0, 1, 1, 2, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 0, 0, 3, 1, 0, 0, 3, 3, 3, 2, 2, 2, 1, 2, 2, 3, 3, 0, 1, 1, 0, 3, 0, 0, 1, 2, 3, 2, 2, 3, 3, 0, 1, 3, 3, 0, 0, 1, 1, 2, 2, 3, 2, 2, 1, 1, 0, 3, 0, 0, 1, 1, 2, 0, 3, 2, 3, 2, 2, 1, 1, 0, 0, 2, 3, 1, 2, 1, 1, 0, 3, 2, 3, 0, 3, 2, 3, 0, 1, 1, 1, 1, 0, 0, 3, 3, 1, 1, 2, 2, 3, 3, 0, 3, 2, 3, 2, 3, 3, 0, 1, 0, 3, 0, 0, 1, 1, 1, 1, 2, 2, 3, 2, 3, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 0, 0, 2, 2, 1, 0, 1, 0, 0, 3, 3, 2, 2, 3, 3, 2, 1, 1, 0, 1, 0, 0, 3, 2, 2, 2, 2, 1, 0, 3, 0, 0, 1, 1, 0, 0, 3, 2, 3, 2, 2, 2, 1, 0, 1, 0, 0, 0, 0, 3, 3, 2, 1, 1, 2, 2, 2, 3, 0, 3, 0, 2, 2, 3, 3, 0, 0, 1, 3, 2, 2, 1, 1, 1, 2, 2, 1, 0, 3, 0, 0, 1, 0, 0, 3, 2, 3, 1, 1, 2, 3, 1, 2, 0, 1, 1, 2, 2, 3, 3, 0, 3, 3, 0, 1, 0, 0, 3, 1, 2, 2, 3, 2, 2, 1, 1, 0, 0, 3, 3, 0, 1, 1, 2, 1, 1, 2, 2, 3, 3, 2, 3, 0, 3, 0, 3, 3, 0, 0, 1, 3, 2, 2, 1, 1, 2, 1, 0, 3, 0, 1, 0], "seed": "ALMACEN-23", "tier": 2, "name": "23 · Logística"}, {"map": ["############", "#          #", "#  .    .. #", "#    # #   #", "#    # $ # #", "#  ###$$ # #", "# .    #$  #", "#       @  #", "############"], "solution": [0, 2, 3, 3, 0, 0, 0, 2, 2, 2, 1, 1, 0, 0, 2, 1, 1, 0, 0, 0, 0, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 0, 0, 2, 2, 1, 1, 0, 0, 0, 0, 3, 3, 3, 3, 2, 2, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 0, 0, 0, 2, 2, 2, 2, 3, 3, 0, 0, 2, 2, 1, 1, 0, 0, 0, 0, 1, 0, 0, 3, 3, 2, 1, 3, 3, 2, 2, 0, 0, 1, 1, 0, 1, 2, 3, 2, 2, 2, 2, 2, 3, 3, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 3, 1, 2, 2, 2, 3, 3, 2, 3, 3, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 0, 0, 0, 0, 1, 0, 0, 3, 3, 2, 1, 3, 3, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 2, 3, 3, 0, 3, 2, 1, 1, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 3, 2, 2, 3, 2, 3, 0, 1, 1, 0, 1, 1, 0, 1, 1, 2, 3, 0, 3, 2, 0, 3, 3, 3, 3, 3, 2, 1, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 2, 2, 2, 3, 3, 3, 3, 0, 0, 0, 0, 0, 1, 2, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 2, 2, 2, 3, 0, 1, 0, 3, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 3, 2, 1, 0, 1, 2, 0, 1, 1, 2, 3, 3, 0, 3, 2, 1, 1, 2, 2, 3, 0, 1, 0, 0, 3, 3, 2, 1, 1, 3, 3, 2, 1, 1, 0, 0, 1, 1, 2, 3, 3, 2, 3, 3, 2, 2, 3, 2, 1, 0, 0, 0, 0, 0, 1, 2, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 1, 1, 1, 0, 0, 0, 0, 3, 3, 3, 2, 3, 3, 2, 2, 2, 1, 1, 1, 3, 3, 0, 0, 0, 1, 1, 2, 3, 0, 3, 2, 2, 3, 2, 1, 2, 1, 1, 0, 3, 1, 2, 1, 1, 0, 3, 2, 3, 3, 3, 0, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 0, 2, 1, 1, 3, 3, 0, 0, 3, 0, 1, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 1, 0, 1, 3, 0, 0, 0, 3, 3, 2, 3, 2, 3, 2, 2, 1, 1, 3, 3, 0, 0, 3, 0, 1, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 0, 0, 3, 3, 0, 0, 0, 3, 3, 2, 2, 3, 0, 1, 0, 1, 1, 2, 2, 2, 2, 3, 1, 0, 0, 0, 0, 0, 3, 3, 3, 2, 3, 2, 1, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 2, 3, 3, 0, 0, 0, 1, 1, 0, 3, 3, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 3, 3, 3, 3, 2, 3, 1, 1, 1, 1, 0, 3, 3, 3, 3, 3, 2, 1, 2, 3, 1, 0, 1, 1, 1, 1, 0, 1, 1, 2, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 0, 1, 1, 1, 1, 1, 3, 3, 3, 3, 2, 1, 0, 1, 1, 2, 2, 2, 2, 3, 1, 0, 1, 1, 0, 0, 1, 0, 3, 0, 3, 3, 3, 3, 2, 2, 2, 3, 1, 0, 0, 1, 1, 0, 1, 1, 2, 3, 1, 2, 2, 2, 3, 3, 2, 3, 2, 3, 3, 0, 1, 3, 3, 0, 3, 0, 1, 2, 2, 1, 1, 2, 1, 1, 0, 3, 1, 0, 1, 1, 0, 3, 2, 3, 2, 3, 3, 1, 1, 0, 1, 1, 0, 0, 0, 3, 3, 1, 1, 2, 2, 3, 2, 3, 0, 1, 1, 0, 0, 0, 3, 3, 3, 3, 2, 1, 3, 2, 2, 3, 0, 3, 3, 2, 2, 1, 0, 2, 2, 2, 1, 1, 0, 3, 2, 3, 3, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 2, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 0, 1, 0, 1, 2, 1, 1, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 3, 2, 2, 2, 1, 0, 1, 1, 1, 1, 0, 0, 0, 2, 2, 2, 3, 3, 3, 3, 3, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 2, 3, 3, 3, 3, 3, 2, 2, 2, 2, 1, 0, 2, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 2, 1, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 0, 1, 1, 0, 0, 1, 1, 2, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 0, 0, 0, 1, 0, 0, 3, 3, 3, 3, 3, 2, 2, 3, 2, 3, 3, 2, 2, 2, 1, 0, 1, 1, 1, 1, 0, 0, 0, 2, 2, 2, 3, 3, 3, 3, 3, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 2, 0, 3, 3, 3, 3, 3, 2, 2, 3, 2, 2, 0, 1, 1, 0, 0, 1, 0, 1, 1, 2, 3, 2, 2, 1, 1, 0, 1, 0, 0, 3, 3, 3, 3, 3, 2, 1, 0, 3, 3, 3, 2, 2, 1, 1, 0, 1, 0, 1, 1, 2, 3, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 1, 0, 3, 2, 2, 1, 0, 0, 0, 2, 2, 2, 2, 1, 1, 0, 3, 2, 3, 3, 0, 0, 0, 0, 0, 1, 3, 2, 2, 2, 2, 1, 1, 1, 2, 1, 1, 0, 0, 0, 0, 0, 1, 1, 3, 3, 2, 2, 2, 2, 3, 1, 0, 0, 0, 0, 0, 3, 3, 2, 1, 0, 1, 1, 1, 2, 2, 2, 3, 3, 2, 2, 3, 3, 2, 3, 3, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 1, 1, 1, 0, 0, 0, 0, 1, 3, 3, 3, 2, 2, 3, 0, 3], "seed": "ALMACEN-24", "tier": 2, "name": "24 · Logística"}, {"map": ["############", "#    @     #", "#    $# #  #", "# #     #  #", "# $$#  .   #", "#   # ..   #", "#  . $  #  #", "#          #", "############"], "solution": [2, 3, 3, 3, 3, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 0, 3, 3, 0, 0, 0, 1, 1, 2, 2, 0, 1, 1, 3, 3, 2, 2, 3, 2, 2, 1, 1, 0, 3, 1, 1, 2, 1, 0, 3, 0, 0, 0, 1, 3, 0, 0, 1, 1, 2, 2, 3, 2, 2, 1, 0, 3, 0, 3, 3, 3, 2, 2, 3, 3, 2, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 2, 2, 3, 3, 0, 3, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 1, 1, 2, 1, 2, 1, 3, 3, 2, 2, 3, 3, 1, 1, 0, 1, 1, 1, 1, 0, 3, 2, 3, 2, 2, 3, 0, 0, 3, 2, 3, 3, 0, 0, 2, 2, 2, 3, 0, 1, 1, 1, 0, 0, 0, 1, 2, 3, 2, 2, 1, 1, 0, 1, 0, 3, 0, 3, 3, 2, 2, 1, 3, 2, 3, 3, 0, 0, 3, 2, 1, 0, 0, 2, 3, 3, 2, 2, 1, 0, 1, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3, 2, 3, 3, 1, 1, 0, 0, 0, 1, 2, 3, 2, 2, 3, 3, 2, 3, 0, 3, 0, 1, 0, 1, 2, 3, 2, 1, 0, 0, 0, 1, 1, 1, 2, 2, 3, 2, 2, 3, 3, 0, 1, 2, 1, 1, 0, 0, 3, 0, 0, 0, 0, 3, 3, 3, 2, 1, 2, 1, 1, 2, 2, 1, 2, 2, 1, 0, 3, 3, 1, 0, 0, 2, 2, 1, 0, 3, 0, 1, 1, 2, 1, 0, 3, 3, 3, 3, 2, 2, 3, 1, 0, 0, 0, 1, 3, 0, 3, 3, 1, 1, 0, 1, 1, 2, 2, 2, 1, 2, 3, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 2, 2, 1, 2, 2, 0, 0, 3, 0, 3, 3, 2, 2, 3, 2, 2, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 2, 2, 1, 2, 2, 3, 3, 3, 3, 3, 2, 3, 1, 0, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 3, 3, 2, 1, 2, 1, 0, 2, 1, 1, 0, 0, 3, 3, 2, 3, 0, 1, 0, 1, 2, 1, 1, 0, 0, 3, 2, 3, 3, 2, 3, 3, 2, 3, 3, 1, 1, 0, 0, 0, 1, 2, 0, 3, 0, 0, 3, 3, 3, 3, 2, 1, 3, 2, 2, 2, 2, 2, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 2, 3, 0, 3, 3, 0, 3, 3, 0, 3, 3, 1, 1, 2, 1, 2, 2, 1, 2, 3, 1, 0, 1, 0, 1, 1, 2, 2, 3, 0, 0, 3, 3, 0, 3, 3, 3, 3, 2, 3, 2, 3, 2, 1, 2, 1, 1, 1, 0, 3, 3, 0, 0, 3, 3, 0, 0, 1, 0, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 0, 1, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 2, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 1, 1, 2, 0, 3, 3, 2, 2, 3, 2, 2, 2, 2, 3, 0, 3, 3, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 2, 2, 0, 0, 3, 3, 3, 3, 2, 3, 2, 1, 2, 2, 1, 2, 2, 3, 3, 3, 3, 0, 1, 1, 2, 1, 1, 0, 3, 1, 1, 0, 0, 0, 3, 3, 0, 3, 3, 2, 2, 3, 2, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 3, 2, 3, 3, 0, 0, 3, 0, 3, 3, 2, 1, 0, 1, 2, 1, 1, 2, 3, 2, 3, 0, 1, 1, 1, 2, 3, 2, 3, 3, 3, 2, 3, 3, 3, 0, 0, 1, 1, 0, 0, 1, 1, 2, 1, 2, 3, 2, 3, 2, 3, 3, 0, 1, 2, 1, 1, 0, 1, 3, 3, 2, 3, 0, 1, 1, 1, 2, 1, 0, 3, 0, 0, 3, 0, 1, 2, 1, 0, 3, 3, 2, 2, 2, 3, 3, 3, 0, 3, 0, 0, 0, 1, 1, 2, 2, 2, 0, 0, 1, 1, 1, 1, 2, 1, 2, 3, 2, 3, 0, 3, 2, 3, 2, 3, 3, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 2, 0, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 0, 1, 1, 0, 0, 3, 3, 2, 1, 0, 3, 0, 3, 3, 3, 3, 2, 2, 1, 2, 1, 2, 1, 1, 0, 1, 1, 1, 0, 3, 0, 3, 3, 3, 3, 2, 2, 0, 0, 1, 1, 2, 1, 0, 1, 2, 1, 1, 2, 2, 2, 3, 3, 0, 3, 0, 0, 0, 3, 0, 0, 1, 1, 2, 0, 3, 3, 2, 2, 1, 2, 2, 2, 2, 3, 3, 0, 3, 1, 2, 1, 1, 0, 3, 1, 0, 0, 1, 1, 2, 3, 0, 0, 3, 3, 3, 3, 2, 2, 2, 2, 3, 0, 1, 0, 0, 0, 1, 1, 1, 2, 2, 0, 0, 3, 0, 0, 1, 1, 2, 2, 3, 2, 2, 1, 1, 0, 3, 0, 3, 3, 3, 3, 2, 3, 2, 1, 2, 1, 3, 2, 3, 0, 3, 0, 1, 0, 1, 0, 1, 1, 2, 1, 0, 3, 3, 3, 2, 2, 0, 0, 1, 1, 1, 2, 1, 2, 2, 2, 3, 3, 3, 0, 3, 0, 0, 0, 1, 1, 1, 1, 2, 1, 2, 1, 1, 0, 0, 3, 2, 3, 3, 0, 3, 3, 3, 3, 2, 3, 3, 2, 2, 1, 2, 1, 1, 1, 1, 0, 1, 0, 0, 3, 3, 2, 1, 0, 1, 1, 1, 1, 2, 3, 2, 2, 3, 3, 3, 3, 3, 0, 3, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 2, 2, 3, 0, 1, 0, 1, 0, 1, 1, 2, 3, 3, 0, 0, 3, 3, 3, 3, 2, 2, 2, 2, 3, 0, 0, 1, 0, 0, 1, 1, 2, 2, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 3, 0, 0, 1, 2, 3, 2, 3, 3, 1, 1, 2, 1, 1, 0, 2, 3, 3, 3, 3, 3, 0, 1, 1, 1, 1, 0, 0, 1, 1, 2, 3, 0, 3, 3, 2, 2, 3, 3, 3, 3, 0, 1, 3, 0, 0, 0, 1, 1, 2, 2, 2, 3, 2, 2, 1, 1, 1, 1, 0, 0, 3, 0, 0, 0, 3, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 2, 2, 0, 1, 1, 2, 2, 2, 3, 3, 1, 1, 1, 2, 1, 0, 3, 0, 3, 0, 0, 3, 3, 2, 2, 3, 3, 2, 2, 1, 0, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 3, 3, 2, 3, 3, 3, 2, 3, 3, 0, 1, 2, 1, 1, 0, 0, 1, 3, 2, 2, 3, 3, 0, 1, 1, 0, 0, 0, 1, 1, 2, 1, 2, 3, 2, 2, 3, 3, 0, 1, 3, 3, 3, 0, 0, 3, 2, 1, 0, 0, 1, 1, 1, 1, 2, 2, 3, 2, 2, 1, 0, 3, 3, 3, 3, 0, 0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 2, 1, 2, 3, 2, 3, 2, 3, 3, 0, 1, 0, 1, 3, 2, 2, 1, 0, 3, 3, 3, 2, 3, 0, 1, 1, 1, 0, 0, 1, 0, 3, 3, 3, 2, 3, 2, 3, 2, 1, 0, 1, 0, 0, 1, 0], "seed": "ALMACEN-25", "tier": 2, "name": "25 · Logística"}, {"map": ["############", "#          #", "#  .  ## # #", "#  . .   # #", "# $ #      #", "#@$ #  # $ #", "# #  .  $# #", "#          #", "############"], "solution": [1, 3, 2, 2, 1, 1, 0, 0, 2, 1, 1, 1, 1, 2, 1, 0, 0, 2, 3, 3, 0, 0, 0, 3, 3, 3, 2, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 2, 2, 2, 3, 3, 2, 2, 3, 3, 3, 3, 3, 0, 2, 1, 1, 1, 1, 1, 0, 0, 3, 0, 3, 3, 2, 2, 2, 3, 3, 0, 0, 2, 3, 0, 1, 0, 1, 0, 0, 3, 3, 2, 2, 1, 1, 0, 3, 1, 1, 2, 1, 2, 0, 3, 3, 3, 2, 2, 3, 0, 3, 0, 0, 1, 1, 3, 2, 1, 1, 1, 1, 2, 2, 3, 2, 3, 3, 0, 3, 0, 1, 2, 2, 1, 1, 1, 3, 3, 3, 0, 0, 3, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 2, 2, 2, 1, 0, 0, 0, 3, 0, 0, 3, 2, 3, 1, 1, 2, 3, 1, 2, 2, 2, 3, 3, 0, 0, 0, 1, 0, 0, 3, 3, 2, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 2, 3, 3, 0, 3, 3, 0, 0, 3, 3, 0, 1, 0, 1, 0, 1, 1, 2, 2, 2, 2, 2, 1, 0, 0, 0, 3, 3, 3, 0, 3, 2, 1, 1, 1, 1, 2, 2, 2, 1, 3, 3, 3, 3, 0, 3, 0, 1, 0, 0, 0, 1, 2, 3, 2, 2, 3, 0, 1, 0, 1, 1, 2, 3, 1, 1, 2, 2, 2, 1, 2, 1, 0, 0, 2, 3, 3, 3, 3, 3, 0, 0, 0, 1, 1, 1, 1, 1, 2, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 1, 2, 2, 3, 0, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 2, 2, 2, 1, 2, 1, 0, 3, 3, 0, 0, 0, 3, 0, 0, 3, 3, 2, 0, 1, 1, 2, 3, 1, 2, 1, 2, 2, 2, 1, 1, 0, 2, 2, 1, 1, 0, 0, 0, 3, 3, 3, 1, 2, 2, 3, 3, 0, 0, 3, 0, 0, 0, 3, 3, 3, 2, 1, 0, 1, 1, 2, 2, 3, 3, 2, 3, 0, 1, 1, 1, 1, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 3, 3, 0, 0, 3, 3, 2, 2, 1, 1, 0, 0, 1, 1, 1, 2, 2, 3, 3, 3, 2, 2, 2, 3, 3, 0, 0, 2, 2, 1, 1, 1, 1, 1, 2, 1, 1, 0, 0, 3, 0, 3, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 2, 1, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 1, 1, 2, 2, 2, 3, 3, 0, 0, 1, 0, 3, 0, 3, 3, 3, 3, 1, 0, 0, 3, 2, 1, 2, 2, 2, 1, 0, 1, 3, 3, 2, 2, 3, 3, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 0, 1, 0, 3, 0, 0, 0, 3, 3, 3, 3, 2, 3, 1, 1, 0, 1, 1, 1, 2, 2, 3, 3, 1, 1, 0, 0, 3, 3, 3, 2, 2, 2, 0, 0, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 2, 2, 3, 1, 1, 2, 2, 2, 3, 0, 1, 0, 1, 3, 2, 2, 1, 1, 0, 0, 3, 0, 3, 3, 2, 0, 3, 3, 1, 1, 2, 2, 0, 0, 0, 0, 3, 3, 2, 1, 1, 2, 1, 2, 2, 2, 3, 2, 3, 3, 0, 0, 0, 0, 1, 0, 0, 3, 3, 2, 1, 3, 3, 2, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 0, 3, 1, 2, 1, 1, 1, 2, 0, 3, 3, 3, 0, 3, 3, 2, 1, 1, 2, 1, 2, 2, 1, 1, 0, 0, 3, 3, 3, 0, 1, 3, 0, 0, 1, 1, 1, 2, 2, 0, 0, 3, 3, 3, 2, 2, 1, 2, 1, 1, 3, 3, 0, 3, 3, 3, 2, 2, 2, 1, 3, 0, 0, 0, 0, 0, 3, 2, 1, 1, 1, 0, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 3, 1, 2, 2, 3, 3, 3, 0, 0, 0, 3, 3, 1, 1, 1, 2, 0, 3, 0, 3, 3, 3, 2, 1, 1, 1, 1, 2, 1, 1, 0, 3, 3, 3, 3, 1, 2, 2, 2, 2, 3, 3, 0, 1, 3, 0, 3, 3, 0, 0, 1, 0, 1, 1, 2, 3, 2, 2, 2, 1, 2, 1, 1, 0, 0, 2, 3, 0, 0, 1, 0, 3, 0, 3, 3, 3, 3, 2, 1, 3, 2, 2, 1, 1, 0, 0, 2, 2, 2, 1, 3, 0, 0, 0, 1, 0, 3, 1, 1, 2, 1, 1, 1, 2, 3, 1, 2, 2, 3, 3, 2, 3, 3, 0, 1, 0, 0, 0, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 1, 0, 0, 1, 0, 3, 3, 3, 3, 2, 2, 3, 0, 1, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 1, 0, 3, 3, 0, 3, 3, 3, 3, 2, 2, 2, 1, 3, 0, 0, 0, 1, 1, 0, 3, 1, 2, 2, 2, 1, 0, 3, 0, 3, 3, 2, 3, 3, 0, 1, 2, 1, 2, 2, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 0, 0, 3, 0, 1, 3, 0, 1, 0, 1, 1, 1, 1, 1, 2, 2, 3, 3, 1, 1, 0, 0, 3, 3, 3, 2, 3, 1, 2, 3, 1, 1, 2, 2, 3, 0, 2, 2, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 0, 0, 0], "seed": "ALMACEN-26", "tier": 2, "name": "26 · Logística"}, {"map": ["############", "#          #", "# $# $#  . #", "#          #", "# ## # .   #", "#     .  # #", "#@$. # # $ #", "#          #", "############"], "solution": [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 3, 3, 3, 0, 3, 1, 2, 1, 1, 1, 1, 0, 2, 3, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 3, 0, 1, 3, 3, 2, 3, 3, 2, 3, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 2, 3, 3, 2, 3, 0, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 2, 2, 3, 3, 0, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 2, 2, 2, 3, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 2, 1, 2, 3, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 3, 0, 0, 0, 0, 1, 2, 0, 1, 1, 1, 1, 1, 1, 2, 3, 2, 3, 3, 3, 2, 2, 2, 3, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 3, 0, 0, 1, 1, 2, 2, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 3, 0, 3, 3, 2, 3, 3, 3, 2, 0, 1, 1, 1, 2, 1, 0, 3, 3, 2, 2, 2, 2, 3, 3, 0, 0, 1, 1, 1, 0, 0, 0, 1, 3, 2, 3, 2, 2, 3, 3, 0, 0, 2, 2, 2, 3, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 2, 3, 2, 3, 3, 3, 2, 2, 2, 3, 1, 0, 1, 1, 1, 1, 0, 1, 0, 3, 0, 0, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 0, 1, 3, 2, 2, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 3, 3, 3, 3, 2, 2, 2, 3, 0, 3, 3, 0, 0, 1, 1, 3, 0, 0, 1, 1, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 1, 2, 1, 2, 3, 0, 3, 2, 3, 2, 2, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0, 0, 1, 3, 2, 3, 3, 1, 1, 1, 0, 0, 1, 1, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 2, 1, 1, 1, 1, 0, 0, 0, 1, 2, 1, 0, 3, 0, 1, 3, 3, 3, 3, 2, 2, 3, 1, 1, 1, 1, 1, 0, 1, 1, 0, 3, 2, 3, 0, 3, 3, 3, 3, 2, 2, 2, 3, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 2, 1, 2, 3, 0, 3, 3, 2, 3, 3, 3, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 3, 3, 0, 0, 1, 1, 1, 2, 2, 3, 3, 3, 2, 1, 2, 1, 1, 0, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 2, 3, 3, 2, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 1, 0, 0, 1, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 2, 2, 1, 3, 2, 3, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 2, 3, 3, 2, 2, 2, 3, 1, 1, 0, 0, 0, 1, 2, 3, 3, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 1, 1, 2, 3, 1, 2, 2, 3, 3, 0, 0, 1, 0, 3, 2, 3, 3, 2, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 0, 0, 3, 3, 3, 2, 2, 2, 3, 1, 2, 1, 1, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 3, 2, 0, 3, 3, 3, 2, 2, 2, 2, 1, 1, 0, 0, 1, 3, 2, 2, 1, 0, 1, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 1, 1, 1, 0, 1, 2, 3, 3, 3, 3, 2, 3, 1, 0, 1, 1, 1, 0, 0, 0, 1, 3, 2, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 2, 1, 2, 3, 1, 2, 2, 2, 3, 2, 3, 0, 0, 3, 0, 0, 1, 0, 1, 1, 2, 2, 3, 0, 2, 3, 2, 3, 3, 3, 3, 2, 3, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 3, 2, 3, 2, 2, 3, 0, 1, 1, 0, 0, 0, 3, 3, 2, 1, 0, 1, 2, 3, 2, 2, 3, 0, 1, 0, 1, 1, 2, 3, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 0, 0, 1, 3, 2, 3, 2, 2, 1, 3, 3, 3, 2, 3, 1, 2, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 3, 2, 1, 2, 2, 3, 3, 0, 2, 1, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 2, 0, 3, 2, 1, 1, 2, 2, 3, 0, 3, 2, 3, 0, 1, 0, 0, 1, 2, 0, 3, 3, 2, 1, 1, 1, 2, 3, 0, 3, 3, 2, 1, 0, 0, 3, 3, 3, 2, 0, 1, 1, 1, 2, 2, 2, 1, 0, 3, 0, 0, 3, 3, 3, 3, 2, 2, 1, 3, 2, 2, 2, 3, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 3, 2, 3, 3, 2, 3, 2, 1, 3, 3, 3, 0, 0, 1, 1, 1, 1, 3, 0, 0, 1, 2, 1, 1, 2, 2, 3, 0, 1, 2, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0, 0, 0, 3, 2, 3, 1, 1, 2, 2, 2, 3, 3, 0, 3, 0, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 2, 0, 3, 3, 3, 2, 2, 1, 1, 1, 0, 1, 1, 2, 2, 3, 3, 1, 0, 3, 3, 3, 3, 3, 2, 2, 2, 3, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 2, 3, 2, 2, 2, 3, 0, 3, 0, 1, 2, 1, 1, 0, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 2, 0, 1, 1, 2, 0, 3, 3, 2, 1, 2, 2, 3, 0, 3, 3, 3, 2, 2, 2, 3, 1, 0, 0, 0, 1, 0, 0, 1, 1, 2, 2, 1, 0, 0, 1, 1, 2, 3, 1, 2, 2, 3, 3, 3, 0, 0, 0, 1, 2, 1, 1, 2, 2, 3, 0, 2, 3, 3, 0, 3, 2, 0, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 2, 1, 1, 0, 3, 2, 3, 3, 3, 2, 2, 1, 0, 0, 0, 0, 1, 2, 1, 2, 2, 3, 1, 0, 3, 2, 2, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0, 3, 3, 0, 0, 1, 0, 1, 1, 2, 2, 3, 0, 3, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 1, 0, 1, 2], "seed": "ALMACEN-27", "tier": 2, "name": "27 · Logística"}, {"map": ["############", "#          #", "#  .   $.  #", "#      . $ #", "#  # .  #  #", "# $#  #### #", "# @##    $ #", "#          #", "############"], "solution": [0, 3, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 3, 1, 1, 1, 2, 2, 3, 0, 1, 2, 2, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 3, 0, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 0, 3, 1, 1, 0, 0, 0, 0, 0, 3, 2, 3, 3, 2, 3, 3, 2, 2, 2, 1, 1, 3, 3, 0, 0, 0, 0, 3, 3, 3, 2, 1, 0, 1, 1, 2, 2, 2, 2, 1, 1, 1, 2, 1, 1, 0, 0, 0, 3, 0, 3, 3, 3, 3, 2, 3, 0, 1, 0, 3, 1, 0, 1, 1, 1, 1, 1, 2, 3, 1, 2, 2, 2, 2, 3, 1, 0, 0, 0, 0, 3, 3, 0, 3, 2, 0, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 3, 3, 3, 0, 0, 0, 0, 0, 1, 2, 3, 2, 2, 1, 1, 0, 1, 0, 0, 3, 3, 2, 1, 2, 1, 1, 1, 2, 2, 2, 3, 1, 0, 0, 0, 3, 3, 3, 3, 0, 0, 3, 3, 3, 2, 1, 2, 3, 1, 0, 1, 1, 1, 1, 3, 3, 2, 2, 3, 2, 2, 1, 1, 1, 3, 3, 3, 2, 3, 3, 3, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 3, 2, 3, 3, 0, 3, 3, 0, 0, 3, 0, 3, 3, 3, 0, 1, 0, 1, 1, 1, 1, 2, 2, 3, 0, 0, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 2, 2, 2, 2, 3, 2, 3, 3, 0, 1, 3, 3, 3, 0, 0, 0, 3, 1, 0, 3, 2, 3, 1, 1, 1, 1, 0, 1, 3, 3, 3, 3, 3, 0, 3, 3, 2, 2, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 2, 1, 2, 3, 1, 1, 2, 2, 2, 3, 3, 2, 3, 3, 0, 3, 0, 0, 0, 0, 0, 3, 3, 2, 1, 1, 2, 2, 2, 2, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 0, 0, 3, 0, 1, 2, 2, 2, 2, 1, 1, 0, 3, 1, 1, 1, 1, 0, 0, 0, 3, 3, 3, 2, 3, 0, 3, 0, 1, 0, 3, 3, 3, 3, 2, 2, 1, 0, 0, 1, 1, 2, 3, 3, 2, 1, 3, 3, 3, 0, 1, 2, 2, 2, 2, 2, 1, 1, 1, 0, 2, 3, 3, 3, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 3, 3, 3, 3, 2, 1, 1, 1, 1, 2, 3, 1, 0, 0, 1, 2, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 0, 3, 0, 0, 0, 3, 3, 2, 1, 3, 2, 2, 2, 2, 1, 1, 1, 0, 0, 3, 0, 0, 3, 0, 1, 0, 1, 1, 1, 1, 1, 2, 2, 3, 0, 3, 3, 2, 2, 3, 1, 1, 0, 3, 0, 3, 1, 1, 1, 3, 3, 2, 3, 0, 3, 3, 1, 1, 1, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 2, 3, 2, 1, 0, 0, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 0, 3, 3, 3, 3, 2, 3, 3, 0, 3, 3, 2, 2, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 2, 2, 3, 0, 1, 0, 3, 2, 3, 3, 3, 3, 2, 2, 3, 0, 1, 0, 3, 1, 0, 0, 3, 3, 2, 1, 0, 1, 2, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 3, 2, 2, 3, 1, 2, 1, 0, 3, 0, 0, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 3, 2, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 1, 3, 3, 3, 0, 1, 2, 1, 1, 1, 3, 3, 3, 3, 3, 3, 2, 2, 0, 0, 1, 1, 0, 3, 1, 1, 0, 1, 1, 2, 3, 2, 3, 2, 2, 2, 2, 3, 3, 3, 0, 2, 1, 1, 1, 0, 0, 0, 1, 0, 0, 3, 2, 3, 3, 3, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 2, 3, 3, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 1, 3, 2, 2, 2, 2, 2, 1, 0, 3, 0, 0, 1, 0, 0, 0, 1, 2, 1, 2, 1, 1, 2, 1, 0, 3, 0, 1, 0, 3, 3, 2, 3, 3, 3, 2, 1, 3, 3, 2, 2, 2, 1, 0, 3, 0, 0, 1, 1, 0, 1, 2, 3, 3, 2, 0, 1, 1, 0, 1, 1, 1, 0, 1, 2, 3, 3, 2, 2, 3, 2, 3, 0, 1, 2, 2, 2, 3, 3, 3, 0, 0, 0, 2, 2, 2, 1, 1, 1, 0, 0, 0, 3, 0, 3, 0, 3, 2, 1, 0, 0, 1, 1, 2, 3, 1, 1, 1, 1, 1, 2, 3, 0, 3, 3, 3, 3, 2, 3, 3, 2, 0, 0, 1, 0, 1, 1, 2, 2, 3, 3, 0, 1, 2, 1, 1, 2, 1, 0, 3, 0, 0, 3, 2, 3, 3, 3, 2, 2, 2, 0, 0, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 0, 0, 0, 3, 0, 0, 1, 1, 1, 2, 1, 1, 1, 1, 0, 3, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 0, 3, 0, 2, 1, 2, 1, 1, 1, 1, 1, 0, 0, 0, 3, 3, 3, 3, 2, 3, 0, 0, 3, 3, 2, 1, 0, 1, 1, 2, 2, 3, 0, 3, 0, 3, 3, 3, 2, 1, 1, 0, 1, 0, 1, 1, 1, 1, 2, 3, 2, 3, 3, 3, 0, 0, 1, 1, 2, 0, 3, 3, 2, 2, 3, 1, 1, 2, 2, 3, 0, 1, 1, 1, 0, 0, 0, 3, 3, 3, 3, 3, 2, 2, 2, 3, 2, 2, 1, 2, 1, 1, 1, 0, 0, 0, 3, 0, 1, 1, 0, 0, 3, 3, 2, 3, 2, 1, 3, 3, 3, 2, 2, 2, 1, 0, 2, 2, 1, 1, 1, 0, 0, 0, 1, 0, 3, 1, 0, 0, 3, 3, 2, 1, 3, 3, 3, 3, 2, 2, 2, 1, 0, 0, 1, 1, 2, 1, 1, 1, 0, 3, 3, 0, 3, 2, 1, 0, 0, 1, 2, 3, 2, 2, 2, 3, 0, 0, 1, 0, 1, 1, 0, 3, 3, 3, 2, 0, 3, 3, 3, 2, 1, 0, 1, 1, 1, 2, 2, 2, 1, 0, 3, 0, 0, 3, 3, 2, 1, 1, 2, 2, 3, 0, 1, 0, 0, 1, 2, 3, 3, 1, 2, 1, 1, 0, 3, 3, 3, 3, 1, 1, 1, 1, 0, 1, 1, 2, 2, 3, 1, 0, 0, 3, 3, 3, 3, 3, 2, 2, 3, 1, 1, 1, 0, 1, 0, 1, 1, 2, 2, 3, 3, 2, 3, 0, 3, 0, 0, 3, 3, 3, 3, 2, 2, 1, 1, 1, 3, 3, 3, 0, 1, 0, 1, 1, 1, 2, 1, 3, 2, 1, 0, 0, 1, 2, 0, 3, 3, 3, 3, 3, 2], "seed": "ALMACEN-28", "tier": 2, "name": "28 · Logística"}, {"map": ["############", "#       @  #", "#    #$#$$ #", "#  #     # #", "# .  ## .  #", "#  .    .  #", "#    #$    #", "#          #", "############"], "solution": [2, 0, 1, 1, 2, 2, 2, 3, 3, 3, 2, 2, 2, 3, 0, 1, 0, 3, 1, 1, 1, 1, 0, 0, 0, 0, 3, 3, 2, 2, 2, 1, 1, 0, 0, 3, 0, 3, 2, 1, 1, 2, 2, 3, 3, 3, 2, 1, 2, 1, 0, 3, 0, 0, 2, 2, 1, 1, 0, 3, 2, 3, 3, 0, 0, 3, 3, 3, 2, 2, 1, 1, 3, 3, 0, 0, 1, 1, 1, 2, 2, 3, 2, 1, 1, 0, 3, 0, 0, 1, 2, 3, 2, 1, 0, 1, 1, 0, 0, 0, 3, 3, 2, 1, 1, 2, 2, 2, 2, 3, 1, 0, 0, 3, 3, 0, 2, 1, 1, 2, 2, 3, 3, 1, 1, 0, 0, 0, 0, 0, 3, 3, 2, 2, 2, 1, 1, 2, 2, 3, 0, 1, 0, 0, 0, 3, 3, 2, 2, 2, 1, 1, 0, 3, 3, 1, 2, 2, 2, 3, 0, 0, 3, 3, 2, 1, 0, 1, 1, 1, 0, 0, 0, 3, 3, 2, 2, 1, 2, 2, 2, 3, 3, 0, 0, 1, 3, 2, 1, 0, 3, 0, 1, 1, 1, 2, 2, 3, 1, 0, 3, 2, 3, 1, 0, 0, 3, 3, 2, 1, 0, 0, 3, 1, 2, 2, 2, 2, 3, 0, 3, 0, 3, 3, 0, 0, 1, 1, 3, 3, 2, 2, 1, 1, 2, 1, 1, 1, 1, 0, 3, 2, 3, 3, 3, 0, 3, 3, 0, 0, 1, 1, 1, 2, 1, 1, 2, 2, 3, 0, 1, 0, 3, 2, 2, 3, 3, 0, 1, 2, 1, 1, 0, 0, 3, 0, 3, 2, 2, 3, 2, 1, 0, 0, 1, 1, 2, 3, 1, 2, 2, 3, 3, 0, 1, 0, 0, 3, 2, 1, 1, 1, 0, 0, 0, 0, 3, 3, 2, 1, 1, 2, 2, 3, 3, 3, 2, 3, 2, 1, 0, 1, 1, 1, 0, 0, 0, 3, 3, 2, 3, 2, 1, 3, 2, 2, 2, 1, 0, 0, 1, 1, 2, 3, 0, 3, 3, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 3, 2, 2, 3, 2, 3, 0, 3, 0, 3, 3, 0, 0, 1, 1, 1, 2, 1, 2, 1, 2, 2, 3, 3, 0, 0, 2, 1, 0, 0, 0, 3, 2, 2, 1, 1, 1, 0, 3, 3, 2, 2, 2, 1, 0, 3, 0, 0, 0, 3, 2, 1, 2, 3, 1, 2, 1, 0, 3, 0, 0, 3, 3, 3, 3, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 0, 0, 0, 3, 2, 3, 2, 2, 3, 3, 0, 1, 2, 1, 1, 0, 0, 3, 3, 1, 1, 0, 3, 2, 3, 3, 1, 1, 1, 2, 3, 0, 3, 3, 3, 3, 3, 1, 1, 1, 2, 1, 0, 3, 3, 3, 0, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 0, 0, 1, 1, 1, 2, 1, 2, 2, 2, 3, 3, 0, 0, 1, 3, 2, 1, 0, 3, 3, 3, 2, 3, 2, 3, 0, 1, 1, 2, 1, 1, 1, 1, 1, 0, 3, 0, 3, 3, 3, 3, 3, 2, 3, 0, 0, 1, 1, 2, 1, 1, 1, 1, 1, 0, 3, 0, 3, 3, 3, 3, 2, 3, 3, 0, 3, 0, 1, 0, 1, 1, 2, 2, 1, 1, 1, 2, 1, 2, 2, 2, 3, 3, 0, 1, 0, 2, 1, 0, 0, 0, 3, 2, 0, 3, 3, 3, 0, 3, 1, 2, 1, 1, 1, 2, 2, 0, 0, 3, 3, 3, 0, 0, 3, 3, 2, 1, 1, 2, 2, 2, 1, 1, 2, 2, 1, 0, 3, 0, 1, 1, 3, 3, 3, 3, 0, 3, 3, 0, 2, 1, 1, 0, 1, 1, 1, 1, 2, 1, 1, 2, 3, 1, 2, 2, 3, 3, 0, 0, 2, 2, 1, 0, 3, 0, 3, 3, 3, 3, 0, 3, 3, 0, 3, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 2, 1, 0, 0, 0, 0, 3, 3, 3, 3, 2, 0, 3, 3, 2, 3, 1, 2, 2, 2, 1, 1, 1, 1, 1, 0, 3, 2, 2, 2, 1, 0, 3, 0, 0, 0, 3, 2, 1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 1, 1, 0, 1, 1, 1, 1, 2, 2, 3, 2, 2, 3, 3, 3, 0, 0, 1, 1, 3, 3, 2, 2, 1, 1, 2, 2, 1, 0, 3, 0, 3, 3, 0, 0, 1, 1, 1, 3, 3, 3, 2, 3, 3, 0, 2, 1, 1, 0, 1, 1, 1, 2, 2, 1, 2, 3, 1, 1, 1, 0, 3, 2, 3, 3, 2, 3, 0, 1, 0, 3, 1, 0, 0, 3, 0, 0, 3, 3, 3, 3, 2, 1, 1, 0, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 2, 3, 3, 0, 2, 1, 1, 0, 1, 1, 1, 2, 2, 1, 3, 0, 0, 1, 2, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 0, 1, 2, 1, 2, 2, 3, 3, 0, 3, 0, 0, 1, 1, 2, 3, 0, 3, 2, 3, 3, 3, 2, 3, 0, 1, 1, 1, 1, 1, 1, 1, 2, 3, 0, 3, 3, 3, 3, 3, 0, 3, 1, 0, 0, 3, 1, 2, 2, 2, 1, 1, 2, 2, 1, 0, 1, 3, 3, 0, 3, 3, 3, 3, 3, 0, 0, 1, 2, 0, 3, 0, 1, 0, 1, 1, 1, 1, 2, 2, 1, 2, 2, 3, 3, 3, 0, 3, 3, 2, 1, 1, 0, 0, 0, 3, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 0, 3, 2, 3, 3, 3, 3, 3, 3, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 2, 3, 3, 3, 3, 3, 0, 3, 3, 3, 2, 1, 0, 0, 3, 0, 0, 1, 2, 1, 1, 2, 2, 2, 3, 1, 1, 1, 2, 1, 2, 1, 1, 0, 1, 0, 0, 3, 3, 0, 3, 3, 3, 3, 0, 3, 3, 2, 0, 1, 1, 2, 1, 1, 1, 2, 2, 2, 2, 1, 0, 3, 0, 3, 3, 3, 3, 2, 3, 3, 0, 1, 3, 0, 1, 0, 0, 1, 1, 2, 1, 1, 1, 1, 2, 1, 2, 0, 3, 3, 2, 3, 3, 3, 3, 1, 1, 1, 1, 2, 1, 0, 2, 2, 1, 0, 3, 0, 3, 0, 0, 3, 3, 3, 0, 3, 3, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 0, 0, 3, 2, 3, 3, 0, 0, 1, 2, 3, 2, 3, 3, 3, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0, 3, 0, 3, 3, 3, 3, 2, 2, 3, 0, 1, 0, 0, 3, 1, 2, 1, 1, 1, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0], "seed": "ALMACEN-29", "tier": 2, "name": "29 · Logística"}, {"map": ["############", "#          #", "# $  ##$#  #", "#    # @$  #", "# $      . #", "#   # # .  #", "#  . # . # #", "#          #", "############"], "solution": [1, 3, 3, 2, 3, 3, 0, 3, 3, 2, 1, 1, 0, 0, 0, 1, 1, 1, 2, 0, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 2, 1, 0, 3, 0, 0, 1, 1, 0, 0, 1, 1, 1, 2, 2, 0, 0, 3, 3, 3, 3, 2, 1, 2, 2, 3, 1, 0, 0, 3, 2, 3, 3, 2, 2, 1, 0, 0, 1, 1, 2, 1, 1, 1, 2, 1, 1, 0, 2, 3, 0, 3, 3, 3, 3, 0, 3, 3, 2, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 2, 2, 0, 0, 3, 3, 2, 2, 3, 2, 3, 3, 3, 0, 3, 2, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 2, 2, 3, 2, 3, 3, 3, 3, 3, 2, 2, 3, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 2, 3, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 3, 2, 2, 1, 0, 1, 1, 2, 1, 1, 0, 1, 2, 1, 2, 1, 1, 0, 0, 3, 2, 1, 2, 3, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 1, 2, 2, 1, 1, 1, 1, 1, 2, 3, 0, 3, 2, 1, 1, 0, 0, 3, 2, 3, 3, 3, 3, 0, 0, 3, 3, 2, 1, 0, 1, 0, 1, 1, 1, 2, 2, 1, 2, 2, 2, 2, 3, 3, 3, 3, 0, 3, 0, 0, 1, 1, 1, 1, 0, 0, 0, 3, 3, 3, 2, 2, 0, 3, 3, 2, 2, 1, 0, 1, 0, 0, 1, 1, 1, 2, 2, 2, 1, 0, 3, 0, 0, 3, 3, 3, 2, 2, 3, 2, 1, 0, 0, 0, 3, 2, 1, 0, 1, 1, 1, 2, 2, 3, 2, 3, 1, 1, 0, 0, 0, 3, 3, 3, 2, 2, 3, 2, 2, 2, 1, 2, 1, 1, 0, 1, 2, 1, 0, 2, 1, 1, 0, 0, 3, 3, 0, 0, 3, 0, 0, 3, 3, 3, 3, 3, 2, 2, 1, 2, 1, 0, 3, 3, 2, 1, 2, 2, 1, 2, 1, 1, 1, 0, 0, 2, 3, 2, 3, 3, 0, 3, 3, 3, 0, 1, 2, 1, 0, 2, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 2, 3, 3, 2, 3, 2, 3, 3, 0, 3, 0, 0, 0, 1, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 1, 1, 1, 0, 3, 0, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 0, 3, 3, 3, 2, 3, 3, 3, 2, 3, 0, 0, 2, 1, 1, 1, 1, 1, 2, 0, 3, 3, 3, 0, 0, 3, 2, 1, 2, 1, 1, 1, 2, 1, 2, 2, 3, 0, 1, 0, 1, 0, 0, 3, 3, 3, 2, 3, 3, 3, 1, 1, 1, 1, 2, 0, 3, 3, 3, 0, 3, 3, 3, 0, 1, 3, 2, 2, 1, 2, 1, 2, 1, 2, 1, 1, 0, 1, 2, 1, 0, 3, 0, 0, 3, 3, 3, 0, 0, 3, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 2, 2, 1, 3, 0, 1, 3, 3, 3, 3, 0, 3, 3, 2, 1, 0, 0, 0, 3, 2, 1, 1, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 1, 0, 0, 3, 3, 2, 2, 0, 3, 3, 3, 3, 3, 3, 0, 1, 2, 2, 2, 3, 0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 0, 0, 3, 3, 0, 0, 3, 3, 3, 3, 3, 3, 2, 1, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 2, 0, 3, 3, 3, 3, 3, 2, 3, 0, 3, 2, 2, 3, 2, 1, 2, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2, 2, 1, 2, 3, 1, 2, 2, 2, 3, 3, 0, 3, 0, 1, 3, 0, 3, 3, 3, 3, 1, 1, 1, 1, 0, 1, 1, 1, 2, 2, 3, 0, 0, 3, 3, 2, 1, 3, 3, 3, 3, 0, 3, 3, 3, 2, 1, 2, 1, 0, 1, 1, 1, 1, 1, 2, 0, 3, 3, 3, 3, 0, 3, 1, 2, 1, 1, 1, 2, 2, 2, 1, 0, 2, 1, 1, 0, 0, 0, 3, 0, 3, 3, 3, 2, 3, 3, 3, 3, 3, 0, 1, 1, 2, 1, 0, 2, 1, 1, 1, 1, 2, 1, 1, 0, 3, 2, 3, 3, 2, 3, 2, 3, 3, 3, 3, 0, 1, 0, 0, 0, 0, 0, 1, 2, 2, 3, 2, 1, 0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 1, 0, 3, 0, 0, 0, 3, 3, 3, 2, 2, 2, 1, 3, 3, 2, 2, 1, 2, 1, 1, 1, 1, 0, 3, 0, 1, 3, 2, 3, 2, 3, 3, 0, 3, 0, 0, 3, 2, 1, 0, 1, 0, 0, 0, 1, 1, 1, 2, 2, 1, 3, 0, 0, 3, 3, 3, 2, 2, 2, 1, 1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 2, 2, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 2, 2, 1, 2, 2, 3, 1, 0, 0, 3, 3, 3, 2, 2, 0, 1, 0, 1], "seed": "ALMACEN-30", "tier": 2, "name": "30 · Logística"}, {"map": ["##############", "#            #", "# #   .   #  #", "#   $     $@ #", "#       .  # #", "# $# ##      #", "#  # $   ..  #", "# ## $ # .   #", "#            #", "##############"], "solution": [3, 3, 2, 3, 0, 3, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 3, 3, 3, 3, 2, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 3, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 3, 0, 3, 2, 3, 3, 3, 2, 3, 3, 2, 2, 1, 0, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 2, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 2, 3, 3, 2, 2, 2, 3, 3, 1, 1, 0, 0, 3, 3, 3, 3, 0, 1, 1, 0, 1, 1, 2, 3, 2, 3, 3, 2, 2, 0, 0, 1, 0, 3, 0, 1, 2, 1, 1, 1, 1, 2, 0, 0, 0, 3, 3, 3, 2, 1, 2, 2, 2, 2, 3, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0, 1, 0, 0, 0, 3, 1, 2, 2, 2, 3, 2, 2, 3, 3, 0, 0, 1, 1, 1, 0, 0, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 2, 3, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 1, 2, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 2, 3, 0, 3, 3, 3, 3, 3, 0, 1, 2, 1, 0, 2, 1, 1, 1, 2, 2, 3, 0, 0, 0, 2, 2, 2, 3, 3, 3, 0, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 3, 3, 3, 2, 1, 0, 1, 1, 2, 2, 3, 2, 3, 3, 3, 0, 0, 1, 1, 1, 3, 3, 3, 3, 2, 3, 2, 1, 1, 0, 0, 1, 1, 1, 2, 2, 3, 0, 2, 3, 1, 1, 0, 0, 0, 3, 3, 3, 2, 2, 1, 2, 1, 1, 2, 2, 3, 3, 3, 0, 0, 1, 1, 1, 0, 0, 0, 1, 2, 0, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 2, 3, 0, 3, 2, 1, 2, 2, 3, 3, 0, 2, 1, 1, 1, 0, 3, 0, 3, 3, 0, 3, 2, 1, 1, 1, 1, 0, 1, 1, 2, 2, 3, 1, 0, 3, 2, 2, 3, 3, 3, 0, 1, 1, 1, 3, 3, 0, 3, 0, 3, 2, 1, 1, 0, 1, 2, 3, 3, 2, 2, 3, 0, 3, 1, 1, 1, 1, 0, 1, 1, 2, 0, 3, 2, 3, 3, 3, 3, 3, 2, 3, 3, 0, 1, 3, 0, 0, 1, 1, 2, 1, 2, 3, 1, 1, 1, 1, 2, 2, 1, 0, 3, 0, 0, 0, 3, 3, 2, 0, 3, 3, 3, 3, 2, 2, 1, 2, 1, 1, 0, 1, 2, 1, 1, 1, 0, 3, 0, 1, 3, 3, 3, 3, 2, 2, 3, 3, 0, 1, 2, 1, 0, 1, 0, 1, 1, 1, 2, 1, 2, 2, 0, 0, 3, 0, 0, 1, 2, 0, 1, 1, 2, 2, 3, 3, 2, 3, 2, 2, 1, 0, 0, 3, 0, 3, 0, 3, 3, 2, 1, 0, 0, 3, 3, 2, 1, 1, 1, 0, 1, 1, 2, 3, 2, 3, 1, 0, 0, 3, 3, 2, 1, 0, 1, 2, 1, 2, 3, 0, 3, 2, 1, 2, 3, 1, 1, 2, 2, 1, 3, 3, 3, 3, 3, 3, 0, 0, 0, 3, 0, 1, 2, 1, 2, 1, 3, 0, 3, 0, 0, 1, 1, 2, 3, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 3, 0, 3, 0, 0, 3, 3, 2, 1, 1, 2, 2, 0, 0, 3, 3, 3, 3, 3, 0, 1, 2, 1, 0, 1, 1, 2, 2, 2, 2, 1, 0, 0, 0, 0, 3, 0, 0, 3, 3, 2, 1, 2, 2, 3, 2, 1, 2, 1, 1, 2, 2, 1, 0, 3, 0, 0, 0, 3, 2, 0, 0, 3, 3, 1, 2, 2, 2, 1, 2, 1, 0, 2, 1, 1, 0, 0, 3, 3, 3, 0, 3, 2, 0, 0, 0, 0, 3, 3, 3, 3, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 0, 1, 1, 2, 1, 0, 1, 0, 3, 2, 3, 3, 0, 0, 3, 3, 3, 3, 0, 1, 2, 1, 0, 1, 1, 2, 2, 3, 1, 0, 1, 2, 0, 3, 3, 3, 2, 0, 0, 3, 0, 1, 2, 1, 1, 1, 2, 2, 2, 0, 0, 0, 3, 0, 3, 3, 2, 3, 3, 2, 3, 0, 3, 0, 1, 2, 2, 2, 2, 1, 1, 1, 0, 1, 1, 1, 1, 2, 2, 3, 0, 0, 0, 0, 3, 0, 0, 3, 3, 3, 3, 2, 0, 1, 2, 1, 2, 2, 3, 3, 0, 3, 0, 0, 1, 1, 2, 3, 1, 1, 2, 3, 2, 3, 0, 1, 1, 2, 2, 2, 1, 0, 0, 0, 0, 0, 3, 3, 3, 2, 1, 1, 1, 2, 2, 2, 2, 2, 1, 0, 2, 2, 1, 0, 3, 0, 3, 0, 0, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 2, 0, 3, 3, 3, 3, 0, 3, 3, 0, 1, 2, 1, 1, 0, 1, 2, 1, 2, 2, 2, 2, 1, 0, 3, 0, 0, 0, 3, 2, 1, 2, 2, 1, 0, 3, 0, 0, 0, 0, 3, 3, 3, 2, 1, 1, 1, 1, 2, 1, 2, 2, 2, 0, 0, 0, 3, 3, 3, 3, 3, 2, 3, 0, 2, 2, 2, 1, 1, 1, 0, 1, 0, 0, 0, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 1, 2, 1, 1, 2, 2, 3, 0, 0, 3, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 0, 3, 3, 3, 3, 3, 3, 2, 3, 3, 0, 1, 2, 1, 0, 1, 1, 1, 2, 1, 1, 1, 2, 3, 3, 2, 3, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 1, 0, 0, 0, 3, 3, 2, 3, 0, 1, 0, 0, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 2, 1, 0, 1, 0, 3, 0, 3, 0, 0, 3, 3, 2, 1, 1, 2, 2, 3, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0, 3, 0, 1, 0, 0, 3, 3, 2, 1, 0, 0, 3, 3, 1, 1, 2, 2, 2, 1, 0, 1, 0, 1, 2, 0, 3, 0, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 2, 3, 3, 2, 3, 3, 2, 2, 3, 3, 0, 3, 0, 1, 2, 2, 1, 1, 0, 0, 0, 1, 0, 1, 2, 3, 3, 2, 2, 2, 3, 3, 0, 0, 1, 0, 1, 1, 1, 1, 2, 2, 3, 0, 3, 0, 1, 2, 2, 2, 3, 3, 0, 1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 0, 3, 0, 0, 0, 0, 0, 3, 2, 3, 3, 3, 3, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 2, 1, 0, 2, 2, 1, 0, 0, 0, 3, 1, 1, 1, 1, 2, 2, 3, 2, 2, 3, 3, 2, 3, 0, 1, 1, 1, 0, 0, 3, 0, 3, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0, 3, 3, 2, 1, 3, 3, 2, 1, 2, 1, 0, 1, 1, 2, 3, 0, 3, 3, 0, 0, 1, 2, 0, 1, 2, 0, 3, 3, 3, 3, 0, 1, 0, 1, 2, 0, 3, 3, 3, 3, 2, 1, 2, 1, 0, 1], "seed": "ALMACEN-31", "tier": 3, "name": "31 · Turno nocturno"}, {"map": ["##############", "#            #", "# . ##     # #", "#     # #  # #", "#          $@#", "# $ # $ #    #", "# $.         #", "# ... # $ #  #", "#            #", "##############"], "solution": [3, 2, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 2, 2, 3, 3, 0, 1, 2, 2, 1, 0, 0, 0, 1, 0, 3, 1, 1, 2, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 0, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 0, 3, 3, 2, 3, 2, 3, 3, 3, 3, 2, 3, 1, 0, 1, 1, 1, 1, 1, 0, 0, 3, 2, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 1, 0, 1, 1, 1, 0, 0, 1, 3, 2, 2, 1, 1, 0, 0, 3, 3, 0, 0, 0, 3, 3, 3, 3, 3, 2, 2, 1, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 0, 3, 3, 2, 2, 3, 3, 3, 3, 2, 3, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 2, 2, 3, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 0, 0, 0, 2, 3, 3, 0, 0, 1, 0, 3, 1, 1, 2, 1, 1, 0, 0, 1, 1, 2, 2, 3, 3, 2, 2, 3, 3, 3, 3, 0, 0, 1, 1, 2, 0, 3, 3, 2, 2, 1, 2, 1, 2, 1, 1, 0, 0, 3, 3, 0, 0, 1, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 2, 2, 0, 0, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 2, 2, 1, 1, 0, 0, 3, 3, 3, 3, 3, 0, 0, 1, 2, 1, 1, 2, 2, 2, 3, 2, 2, 1, 0, 3, 0, 1, 0, 0, 0, 3, 3, 2, 1, 1, 1, 1, 2, 2, 3, 1, 2, 2, 3, 3, 0, 0, 1, 1, 0, 0, 0, 2, 1, 1, 0, 0, 0, 3, 3, 3, 2, 1, 2, 2, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0, 3, 3, 1, 1, 0, 0, 1, 0, 1, 2, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 0, 3, 3, 2, 2, 1, 1, 3, 3, 3, 3, 0, 3, 3, 3, 2, 2, 2, 1, 0, 0, 0, 1, 1, 2, 3, 1, 2, 2, 3, 1, 1, 1, 1, 1, 1, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 3, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 0, 3, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 2, 3, 3, 3, 3, 3, 2, 2, 3, 2, 3, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 3, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 2, 1, 1, 2, 1, 1, 2, 2, 1, 1, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 0, 0, 3, 3, 3, 3, 3, 0, 3, 3, 2, 2, 2, 2, 2, 3, 0, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 3, 0, 0, 3, 3, 3, 3, 3, 0, 3, 3, 0, 3, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 3, 0, 3, 0, 3, 3, 3, 3, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 2, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 0, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 2, 3, 3, 3, 3, 3, 2, 2, 3, 3, 0, 3, 0, 1, 3, 3, 2, 2, 2, 1, 0, 1, 1, 1, 0, 0, 3, 3, 2, 2, 1, 2, 3, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 3, 0, 3, 2, 1, 2, 3, 2, 2, 3, 3, 3, 3, 3, 3, 3, 0, 0, 3, 0, 1, 3, 0, 0, 1, 2, 1, 2, 0, 1, 1, 1, 1, 2, 2, 1, 3, 0, 0, 3, 3, 3, 3, 2, 2, 3, 3, 0, 1, 0, 1, 2, 0, 1, 1, 2, 2, 3, 3, 1, 1, 1, 1, 0, 0, 1, 1, 1, 2, 2, 3, 3, 1, 0, 0, 3, 3, 2, 2, 3, 3, 3, 2, 3, 0, 0, 3, 3, 2, 1, 3, 2, 2, 1, 0, 0, 3, 0, 0, 1, 1, 2, 2, 3, 3, 0, 1, 2, 1, 1, 2, 3, 1, 1, 2, 1, 1, 0, 2, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 3, 3, 0, 0, 3, 3, 3, 3, 2, 3, 2, 2, 1, 0, 0, 3, 0, 0, 1, 1, 2, 3, 2, 3, 0, 1, 1, 1, 2, 2, 2, 3, 1, 2, 1, 1, 0, 0, 3, 3, 3, 1, 0, 0, 3, 3, 3, 3, 0, 1, 2, 1, 0, 3, 2, 2, 2, 2, 1, 2, 1, 1, 0, 0, 3, 3, 0, 3, 2, 0, 0, 0, 0, 0, 1, 2, 3, 2, 2, 1, 1, 0, 3, 2, 2, 2, 2, 2, 3, 0, 1, 0, 0, 0, 3, 0, 2, 2, 2, 1, 1, 1, 2, 3, 0, 3, 0, 0, 0, 3, 3, 0, 1, 0, 1, 2, 3, 2, 2, 1, 2, 2, 1, 2, 2, 3, 0, 2, 3, 0, 3, 0, 0, 1, 1, 0, 0, 3, 3, 2, 2, 2, 2, 1, 0, 3, 0, 0, 1, 0, 0, 0, 1, 2, 3, 2, 1, 3, 2, 2, 3, 2, 2, 1, 1, 0, 2, 3, 3, 0, 0, 1, 2, 3, 2, 1, 2, 1, 1, 1, 1, 1, 1, 0, 3, 0, 3, 3, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 3, 3, 0, 0, 3, 3, 0, 3, 1, 2, 1, 1, 2, 2, 3, 1, 0, 0, 3, 3, 3, 3, 3, 0, 1, 3, 2, 2, 2, 1, 0, 2, 1, 1, 0, 0, 3, 3, 2, 3, 0, 0, 1, 2, 1, 1, 0, 3, 1, 2, 2, 2, 2, 2, 3, 0, 3, 0, 0, 0, 0, 1, 1, 2, 2, 2, 3, 1, 0, 0, 3, 3, 2, 2, 3, 2, 1, 2, 1, 1, 1, 1, 0, 0, 3, 1, 0, 0, 0, 0, 0, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 0, 0, 3, 3, 3, 0, 1, 2, 1, 1, 2, 2, 3, 3, 0, 3, 2, 1, 1, 1, 2, 3, 1, 0, 0, 0, 0, 3, 2, 3, 3, 0, 3, 0, 0, 1, 1, 2, 2, 3, 3, 2, 2, 2, 2, 2, 1, 0, 0, 3, 0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 1, 2, 2, 2, 3, 2, 3, 0, 3, 3, 0, 0, 1, 1, 3, 2, 0, 0, 1, 1, 1, 2, 3, 3, 2, 3, 3, 2, 2, 1, 1, 0, 0, 3, 2, 1, 0, 0, 0, 3, 2, 2, 3, 2, 1, 3, 2, 2, 1, 0, 1, 0, 0, 3, 2, 0, 0, 0, 1, 1, 2, 3, 0, 0, 0, 3, 2, 1, 2, 2, 2, 2, 2, 2, 3, 0, 3, 0, 0, 0, 0, 1, 3, 2, 2, 1, 2, 0, 3, 0, 0, 1, 2, 1, 1, 0, 3, 0, 3, 2, 3, 2, 1, 0, 1, 2, 1, 1, 2, 1, 2, 1, 0, 3, 3, 2, 3, 3, 0, 2, 1, 1, 1, 1, 1, 1, 0, 0, 3, 3, 3, 1, 0, 0, 0, 3, 3, 3, 3, 2, 2, 2, 2, 0, 1, 0, 1, 2, 1, 2, 2, 3, 3, 3, 0, 0, 1, 1, 2, 1, 2, 3, 0, 0, 3, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 2, 2, 3, 1, 0, 0, 3, 3, 3, 3, 2, 2, 1, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 0, 3, 3, 2, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1], "seed": "ALMACEN-32", "tier": 3, "name": "32 · Turno nocturno"}, {"map": ["##############", "#            #", "# .   ##     #", "#      ##  . #", "#  # # ##$   #", "# .  ##  @## #", "#    $       #", "# $$ $  .  . #", "#            #", "##############"], "solution": [0, 2, 3, 3, 2, 3, 2, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 2, 2, 3, 3, 2, 2, 2, 3, 3, 0, 3, 0, 1, 3, 2, 2, 3, 3, 0, 2, 1, 1, 1, 0, 0, 1, 3, 3, 2, 2, 3, 3, 0, 1, 0, 1, 1, 1, 1, 3, 3, 2, 2, 3, 0, 3, 3, 3, 0, 1, 0, 1, 2, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 2, 1, 2, 2, 2, 3, 3, 2, 3, 3, 2, 3, 3, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 3, 3, 3, 2, 1, 2, 1, 0, 2, 1, 1, 1, 1, 1, 0, 0, 0, 1, 2, 1, 1, 1, 0, 0, 0, 0, 3, 2, 3, 3, 2, 2, 3, 3, 2, 3, 3, 2, 3, 1, 0, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0, 1, 3, 2, 2, 2, 3, 3, 2, 3, 3, 3, 3, 1, 2, 2, 3, 3, 0, 1, 0, 1, 1, 2, 1, 0, 3, 3, 0, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 2, 3, 3, 2, 2, 3, 3, 2, 3, 3, 2, 3, 1, 1, 0, 1, 1, 1, 1, 1, 2, 3, 0, 3, 3, 2, 3, 1, 0, 1, 0, 0, 0, 0, 0, 1, 2, 3, 2, 2, 2, 3, 2, 2, 1, 3, 3, 2, 3, 0, 3, 0, 1, 2, 1, 1, 1, 1, 0, 3, 0, 3, 3, 2, 1, 1, 0, 0, 0, 1, 2, 1, 1, 2, 2, 2, 3, 0, 3, 3, 3, 3, 3, 2, 1, 3, 3, 3, 2, 3, 0, 1, 1, 1, 1, 0, 1, 1, 2, 1, 0, 1, 1, 0, 0, 0, 3, 2, 3, 0, 3, 2, 2, 3, 3, 2, 3, 3, 3, 2, 3, 2, 3, 0, 0, 2, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 3, 2, 2, 2, 3, 3, 2, 3, 3, 3, 2, 3, 3, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 2, 3, 3, 2, 2, 2, 3, 3, 2, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 1, 0, 0, 3, 3, 3, 3, 0, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 2, 3, 3, 2, 2, 3, 3, 3, 3, 3, 0, 3, 3, 0, 2, 1, 2, 2, 2, 3, 0, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 3, 2, 2, 2, 3, 3, 3, 3, 3, 2, 3, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 1, 2, 2, 2, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 3, 0, 1, 0, 1, 1, 2, 2, 2, 3, 1, 2, 1, 1, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 3, 1, 1, 0, 0, 1, 1, 1, 1, 2, 2, 2, 1, 0, 3, 0, 1, 2, 1, 1, 2, 2, 2, 2, 2, 3, 0, 1, 0, 0, 0, 0, 0, 0, 3, 2, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 3, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 2, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 2, 1, 0, 3, 0, 0, 0, 2, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 3, 2, 3, 3, 2, 2, 2, 1, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 3, 3, 2, 1, 1, 2, 2, 2, 2, 2, 3, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 3, 2, 3, 2, 2, 2, 3, 3, 0, 1, 2, 1, 1, 2, 1, 1, 0, 0, 0, 3, 3, 3, 2, 3, 3, 2, 3, 3, 3, 3, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 1, 0, 3, 1, 0, 0, 0, 0, 0, 3, 3, 2, 3, 2, 1, 3, 2, 2, 3, 3, 2, 3, 3, 3, 0, 3, 3, 0, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1, 0, 1, 3, 3, 3, 3, 3, 3, 0, 3, 3, 0, 0, 1, 1, 2, 2, 2, 3, 1, 0, 0, 0, 0, 0, 3, 3, 2, 2, 3, 2, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 2, 2, 3, 2, 2, 3, 3, 0, 1, 3, 0, 1, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 3, 2, 3, 3, 2, 3, 3, 2, 3, 3, 3, 0, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 2, 2, 2, 2, 3, 1, 0, 0, 0, 0, 0, 0, 3, 3, 2, 3, 2, 2, 2, 3, 3, 2, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 2, 2, 2, 3, 3, 1, 1, 0, 0, 0, 0, 0, 3, 3, 2, 3, 2, 2, 2, 3, 2, 2, 1, 1, 3, 3, 0, 0, 1, 2, 3, 3, 3, 3, 3, 0, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 3, 0, 1, 3, 2, 2, 2, 3, 3, 2, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 0, 1, 1, 0, 0, 0, 0, 3, 2, 3, 3, 2, 2, 3, 3, 2, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 3, 0, 2, 1, 1, 2, 1, 1, 1, 2, 2, 1, 0, 3, 0, 3, 3, 3, 0, 3, 3, 0, 3, 0, 1, 2, 2, 1, 1, 2, 1, 1, 1, 0, 1, 2, 1, 1, 1, 1, 2, 3, 1, 0, 0, 0, 0, 0, 0, 3, 2, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 3, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 3, 1, 0, 1, 1, 1, 0, 0, 0, 3, 2, 3, 3, 2, 3, 3, 2, 3, 3, 3, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 2, 1, 3, 3, 3, 0, 0, 0, 0, 1, 0, 3, 2, 2, 2, 2, 1, 1, 1, 2, 2, 1, 0, 3, 0, 1, 3, 3, 3, 3, 0, 0, 0, 3, 3, 0, 1, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 3, 3, 3, 3, 2, 3, 3, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 1, 0, 3, 0, 0, 1, 0, 1, 0, 3, 2, 2, 3, 3, 2, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 0, 1, 2, 3, 3, 3, 3, 2, 2, 3, 0, 3, 0, 0, 3, 0, 0, 3, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 1, 3, 2, 2, 2, 1, 2, 3, 3, 0, 3, 3, 3, 2, 3, 2, 3, 0, 1, 0, 3, 1, 1, 1, 2, 1, 0, 3, 3, 3, 0, 0, 0, 0, 3, 1, 2, 2, 2, 3, 2, 2, 3, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 2, 3, 0, 3, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1, 2, 2, 1, 0, 3, 0, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 3, 2, 2, 2, 3, 3, 2, 1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 1, 1, 2, 2, 3, 1, 0, 0, 0, 0, 3, 3, 2, 3, 2, 2, 2, 2, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 2, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 2, 2, 2, 1, 0, 1, 2, 2, 2, 3, 3, 2, 2, 3, 0, 3, 0, 3, 3, 3, 3, 0, 0, 0, 0, 3, 3, 2, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 2, 3, 3, 2, 2, 2, 2, 3, 3, 3, 3, 3, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 3, 3, 0, 3, 3, 3, 3, 0, 3, 3, 0, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 0, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 0, 0, 1, 0, 3, 0, 1, 3, 2, 2, 2, 2, 2, 2, 3, 0, 1, 0, 3, 1, 0, 0, 0, 0, 0, 3, 3, 3, 3, 2, 3, 3, 2, 3, 2, 0, 1, 1, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 3, 3, 3, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 2, 3, 3, 2, 2, 2, 3, 2, 1, 0, 0, 1, 0], "seed": "ALMACEN-33", "tier": 3, "name": "33 · Turno nocturno"}, {"map": ["##############", "#            #", "# #  $  # .  #", "#   # ##  .$ #", "# . ##   # . #", "#      # $   #", "#    ##    . #", "#   @$  $#   #", "#            #", "##############"], "solution": [1, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 1, 3, 3, 2, 2, 2, 1, 2, 2, 1, 2, 1, 1, 1, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 2, 3, 1, 0, 1, 1, 2, 2, 3, 2, 2, 1, 3, 0, 0, 1, 1, 1, 2, 1, 2, 2, 3, 3, 0, 2, 1, 0, 1, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 2, 2, 3, 2, 2, 2, 3, 2, 3, 3, 1, 1, 2, 1, 0, 2, 1, 1, 0, 0, 0, 0, 2, 2, 2, 2, 3, 3, 0, 3, 0, 1, 0, 0, 0, 1, 0, 1, 1, 2, 2, 3, 2, 3, 3, 2, 3, 2, 3, 3, 3, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 2, 3, 2, 3, 2, 2, 3, 3, 0, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 0, 0, 1, 1, 3, 3, 2, 3, 2, 3, 3, 3, 3, 2, 3, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 3, 0, 0, 3, 3, 2, 3, 1, 0, 1, 1, 2, 2, 1, 2, 2, 2, 1, 0, 1, 0, 3, 2, 3, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 0, 3, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 2, 2, 3, 2, 2, 2, 1, 0, 3, 0, 0, 1, 0, 0, 3, 3, 2, 3, 1, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 0, 1, 0, 0, 0, 3, 3, 3, 3, 3, 2, 3, 0, 3, 3, 2, 2, 2, 2, 1, 1, 1, 0, 1, 1, 2, 1, 2, 1, 0, 1, 0, 0, 0, 3, 0, 3, 3, 3, 3, 3, 2, 3, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 3, 2, 2, 2, 1, 1, 0, 3, 1, 0, 3, 1, 1, 1, 0, 1, 1, 2, 1, 1, 1, 2, 1, 2, 3, 0, 0, 0, 0, 0, 0, 3, 3, 2, 1, 2, 2, 1, 2, 2, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 0, 1, 0, 2, 2, 1, 0, 1, 2, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 3, 2, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 1, 2, 3, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 2, 2, 3, 0, 2, 2, 3, 2, 1, 0, 3, 3, 0, 3, 3, 2, 3, 3, 3, 0, 0, 3, 2, 1, 2, 1, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1, 0, 0, 2, 2, 3, 0, 2, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 1, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0, 0, 0, 3, 3, 2, 1, 0, 3, 3, 0, 3, 3, 2, 3, 3, 3, 1, 1, 1, 0, 1, 1, 2, 1, 1, 1, 2, 0, 3, 0, 0, 3, 0, 1, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 2, 0, 3, 3, 3, 2, 3, 3, 2, 3, 3, 3, 0, 3, 2, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 2, 3, 3, 2, 3, 2, 3, 3, 2, 3, 3, 2, 2, 3, 3, 0, 2, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 3, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 2, 2, 1, 1, 1, 1, 0, 1, 1, 2, 1, 1, 2, 1, 0, 3, 0, 0, 3, 3, 2, 3, 3, 2, 3, 3, 2, 2, 3, 3, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 2, 2, 3, 3, 3, 0, 3, 3, 2, 3, 3, 3, 3, 3, 0, 1, 2, 2, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 2, 1, 1, 2, 2, 2, 3, 1, 2, 2, 3, 3, 0, 0, 2, 2, 1, 0, 1, 0, 0, 0, 0, 0, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 0, 0, 0, 0, 3, 2, 1, 2, 2, 2, 2, 3, 3, 0, 0, 3, 3, 2, 3, 3, 2, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 2, 2, 3, 0, 1, 0, 3, 2, 3, 3, 2, 2, 2, 3, 2, 3, 3, 3, 1, 1, 1, 1, 2, 1, 1, 1, 0, 0, 3, 3, 3, 0, 0, 3, 3, 2, 3, 3, 3, 1, 1, 1, 0, 1, 1, 2, 2, 1, 1, 1, 0, 3, 2, 3, 3, 3, 2, 3, 3, 3, 0, 3, 3, 3, 0, 1, 2, 1, 1, 2, 3, 1, 1, 1, 1, 1, 0, 0, 1, 3, 0, 0, 1, 1, 2, 2, 1, 0, 3, 0, 3, 3, 2, 3, 3, 2, 3, 3, 3, 2, 3, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 2, 3, 2, 2, 2, 1, 0, 0, 3, 0, 0, 0, 3, 2, 1, 2, 2, 1, 2, 2, 2, 2, 3, 0, 0, 3, 0, 3, 0, 3, 3, 2, 3, 3, 3, 0, 0, 3, 2, 2, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 2, 1, 2, 2, 3, 2, 3, 3, 0, 3, 0, 0, 1, 3, 2, 2, 1, 1, 0, 0, 1, 1, 2, 2, 3, 2, 3, 3, 0, 3, 0, 3, 3, 2, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 2, 2, 0, 0, 1, 2, 3, 2, 2, 3, 3, 3, 2, 3, 3, 3, 3, 2, 3, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 3, 2, 2, 2, 3, 0, 2, 3, 3, 0, 0, 1, 0, 1, 0, 1, 1, 2, 2, 3, 0, 3, 3, 2, 1, 0, 3, 3, 0, 3, 3, 2, 3, 3, 3, 2, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 3, 2, 3, 2, 3, 3, 2, 3, 3, 2, 2, 2, 3, 3, 0, 0, 2, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 2, 3, 3, 2, 3, 2, 2, 2, 3, 2, 3, 3, 2, 3, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 2, 0, 3, 3, 3, 0, 3, 3, 2, 3, 3, 2, 3, 2, 2, 1, 1, 0, 3, 3, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0, 1, 0, 0, 0, 3, 2, 3, 0, 0, 3, 0, 0, 1, 1, 2, 3, 2, 2, 1, 0, 3, 3, 3, 2, 3, 3, 2, 3, 3, 3, 2, 3, 0, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1, 0, 0, 3, 3, 3, 3, 2, 3, 3, 3, 0, 3, 3, 3, 2, 1, 0, 1, 0, 0, 0, 3, 2, 1, 2, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 2, 3, 2, 3, 3, 3, 3, 2, 3, 3, 3, 0, 3, 3, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 2, 2, 3, 0, 0, 3, 3, 2, 3, 3, 2, 3, 3, 3, 3, 3, 0, 1, 0, 1, 2, 3, 2, 2, 1, 1, 0, 1, 1, 0, 1, 1, 2, 1, 1, 2, 1, 0, 3, 3, 3, 0, 3, 3, 2, 3, 3, 2, 3, 0, 3, 2, 2, 1, 0, 0, 3, 0, 0, 1, 2, 3, 2, 1, 1, 3, 2, 2, 1, 1, 1, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 2, 0, 3, 3, 3, 2, 3, 3, 2, 3, 1, 0, 1, 1, 2, 1, 1, 2, 1, 0, 3, 3, 3, 0, 3, 3, 2, 3, 3, 2, 3, 3, 0, 0, 1, 2, 1, 2, 2, 1, 1, 1, 3, 3, 3, 0, 3, 0, 3, 2, 1, 1, 2, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 3, 0, 3, 3, 2, 3, 3, 2, 3, 3, 3, 3, 3, 2, 2, 1, 2, 1, 0, 1, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 0, 3, 1, 2, 1, 1, 1, 0, 1, 1, 0, 1, 2, 3, 3, 3, 2, 3, 3, 3, 3, 3, 0, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 0, 2, 3, 3, 0, 3, 3, 3, 3, 0, 3, 3, 0, 1, 1, 1, 1, 0, 1, 1, 2, 1, 2, 1, 0, 0, 0, 0, 0, 3, 2, 1, 0, 1, 1, 2, 3, 2, 3, 2, 2, 3, 3, 0, 0, 1, 3, 2, 2, 1, 1, 1], "seed": "ALMACEN-34", "tier": 3, "name": "34 · Turno nocturno"}, {"map": ["##############", "#            #", "# # # #   $  #", "# #  # #$ $  #", "#            #", "# # #   # #  #", "#   $.     . #", "# ..   ##$ . #", "#        @   #", "##############"], "solution": [0, 2, 3, 3, 3, 0, 0, 1, 1, 1, 1, 3, 3, 3, 3, 3, 2, 3, 3, 0, 1, 2, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 3, 2, 3, 3, 0, 2, 3, 3, 2, 2, 3, 1, 1, 1, 1, 0, 0, 1, 1, 2, 2, 0, 0, 0, 0, 0, 3, 3, 2, 1, 0, 1, 2, 0, 3, 3, 3, 2, 1, 1, 2, 2, 3, 3, 3, 3, 3, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 2, 3, 0, 1, 0, 0, 3, 3, 2, 2, 0, 0, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 2, 2, 3, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 2, 3, 3, 3, 3, 2, 2, 3, 2, 3, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 2, 1, 2, 2, 3, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0, 0, 1, 0, 0, 3, 3, 2, 0, 1, 1, 2, 2, 2, 2, 2, 2, 3, 1, 0, 0, 0, 0, 0, 3, 0, 3, 3, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 3, 0, 1, 2, 2, 1, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0, 3, 3, 3, 3, 3, 2, 3, 2, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 0, 3, 3, 3, 2, 2, 2, 3, 3, 2, 3, 2, 2, 3, 1, 1, 0, 0, 0, 3, 1, 1, 1, 1, 0, 0, 0, 1, 1, 2, 3, 2, 2, 1, 2, 2, 2, 2, 3, 0, 3, 0, 1, 3, 0, 0, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 1, 2, 1, 0, 1, 0, 0, 0, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 2, 0, 0, 3, 3, 2, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 3, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 0, 0, 1, 1, 2, 2, 2, 1, 0, 1, 0, 0, 3, 0, 3, 2, 1, 1, 1, 1, 1, 0, 1, 2, 1, 1, 1, 2, 2, 2, 3, 0, 3, 3, 0, 0, 0, 1, 2, 1, 0, 3, 3, 3, 2, 3, 3, 2, 2, 2, 3, 3, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 2, 1, 2, 2, 2, 2, 3, 2, 2, 3, 0, 1, 1, 0, 0, 0, 3, 2, 2, 1, 2, 3, 1, 0, 0, 0, 0, 3, 2, 2, 2, 3, 1, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0, 0, 1, 3, 3, 2, 3, 3, 3, 2, 2, 3, 2, 3, 1, 1, 1, 2, 1, 1, 1, 0, 2, 3, 3, 3, 0, 3, 3, 3, 0, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 0, 1, 0, 0, 3, 3, 2, 2, 1, 1, 1, 0, 0, 0, 3, 0, 3, 2, 3, 3, 2, 3, 3, 3, 3, 3, 2, 0, 3, 3, 2, 2, 2, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 2, 3, 3, 3, 3, 3, 2, 2, 3, 2, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 2, 2, 2, 2, 3, 1, 0, 0, 0, 0, 3, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 1, 2, 3, 3, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 2, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 2, 1, 1, 0, 0, 3, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 2, 2, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 3, 2, 2, 1, 1, 0, 3, 0, 1, 3, 3, 3, 2, 1, 0, 1, 1, 1, 2, 1, 0, 3, 3, 2, 3, 1, 1, 1, 2, 1, 1, 1, 0, 2, 3, 3, 3, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 0, 2, 3, 3, 0, 0, 3, 3, 0, 0, 3, 3, 1, 1, 2, 2, 1, 1, 0, 0, 0, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 3, 3, 2, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 3, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 0, 2, 3, 3, 0, 1, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 0, 0, 1, 1, 2, 1, 1, 0, 1, 0, 1, 3, 2, 3, 3, 2, 3, 2, 3, 2, 3, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 2, 1, 1, 2, 2, 2, 3, 1, 0, 0, 0, 0, 3, 1, 2, 2, 2, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 1, 1, 2, 1, 1, 0, 1, 1, 0, 1, 3, 3, 2, 3, 2, 3, 3, 2, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 0, 0, 3, 1, 1, 1, 2, 2, 2, 1, 0, 3, 0, 0, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 0, 3, 3, 3, 2, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 3, 2, 3, 3, 3, 2, 3, 3, 3, 3, 3, 2, 2, 3, 2, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 3, 3, 2, 2, 3, 3, 2, 2, 2, 2, 3, 0, 1, 0, 3, 2, 3, 3, 0, 3, 3, 0, 0, 1, 3, 2, 2, 1, 1, 1, 2, 1, 1, 0, 1, 1, 1, 1, 1, 0, 2, 3, 3, 3, 3, 0, 3, 3, 2, 1, 2, 3, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 2, 1, 2, 2, 3, 2, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 3, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 0, 3, 1, 0, 0, 0, 3, 0, 1, 0, 3, 2, 3, 3, 3, 2, 3, 3, 3, 3, 3, 2, 0, 1, 1, 2, 2, 2, 3, 1, 1, 0, 1, 1, 1, 2, 1, 2, 1, 1, 0, 0, 3, 0, 0, 0, 0, 0, 3, 2, 3, 3, 2, 2, 3, 3, 3, 2, 2, 3, 2, 3, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 3, 0, 0, 0, 0, 3, 2, 3, 3, 3, 3, 3, 2, 2, 3, 3, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 2, 2, 3, 1, 0, 0, 3, 3, 0, 1, 1, 2, 2, 2, 3, 3, 0, 0, 1, 0, 0, 0, 3, 2, 3, 2, 2, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 3, 2, 2, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 2, 2, 3, 1, 2, 2, 1, 0, 3, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 1, 0, 1, 0, 1, 1, 2, 2, 1, 3, 3, 3, 3, 0, 3, 2, 1, 1, 0, 0, 1, 0, 1, 3, 2, 3, 3, 3, 2, 2, 3, 2, 1, 2, 1, 0, 3, 3, 2, 3, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 0, 3, 3, 2, 3, 2, 3, 0, 1, 1, 0, 1, 1, 2, 3, 3, 1, 1, 1, 1, 0, 0, 0, 1, 2, 1, 1, 2, 2, 2, 2, 3, 0, 1, 0, 0, 0, 0, 0, 3, 2, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 2, 1, 1, 1, 0, 0, 3, 3, 1, 1, 0, 0, 3, 3, 2, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 2, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 2, 3, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 2, 1, 2, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 0, 1, 0, 0, 0, 3, 3, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 0, 3, 3, 3, 3, 3, 2, 3, 3, 0, 1, 3, 0, 0, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0], "seed": "ALMACEN-35", "tier": 3, "name": "35 · Turno nocturno"}, {"map": ["##############", "#            #", "# ## $#      #", "#  ##    #   #", "# .   #   #$ #", "#    $# #    #", "#  $     . $ #", "#  @..  .    #", "#            #", "##############"], "solution": [0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 0, 3, 0, 0, 0, 3, 3, 3, 2, 0, 1, 1, 1, 2, 2, 2, 1, 2, 1, 2, 1, 1, 0, 0, 0, 3, 2, 1, 2, 2, 3, 3, 3, 2, 1, 0, 3, 3, 3, 3, 3, 3, 0, 0, 1, 0, 2, 3, 3, 2, 3, 2, 1, 0, 1, 0, 1, 2, 2, 3, 1, 1, 1, 1, 1, 1, 2, 2, 1, 0, 3, 0, 3, 3, 3, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 2, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 2, 1, 0, 1, 1, 2, 1, 1, 1, 1, 0, 1, 3, 2, 3, 3, 3, 3, 0, 3, 2, 1, 1, 1, 1, 1, 1, 1, 0, 3, 3, 2, 3, 3, 3, 3, 2, 3, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 2, 2, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 3, 3, 2, 0, 1, 1, 1, 2, 2, 2, 1, 2, 1, 2, 1, 0, 3, 3, 2, 3, 3, 3, 3, 0, 0, 0, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1, 0, 3, 0, 3, 3, 3, 3, 3, 3, 3, 0, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 2, 3, 3, 2, 3, 3, 3, 2, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 2, 0, 0, 3, 3, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 2, 2, 2, 3, 3, 3, 3, 2, 2, 3, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 3, 2, 2, 3, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 0, 0, 0, 3, 1, 2, 2, 3, 3, 0, 3, 3, 2, 1, 3, 3, 3, 3, 3, 0, 0, 1, 2, 1, 2, 3, 2, 3, 0, 1, 1, 1, 1, 1, 2, 1, 0, 1, 1, 0, 0, 3, 3, 2, 3, 3, 3, 3, 3, 0, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 2, 3, 0, 1, 0, 3, 2, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3, 0, 3, 3, 3, 3, 3, 3, 3, 0, 1, 0, 1, 2, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 2, 3, 3, 0, 0, 0, 1, 1, 2, 0, 3, 3, 2, 2, 3, 3, 2, 3, 3, 1, 1, 1, 1, 0, 0, 0, 1, 1, 2, 2, 3, 1, 0, 0, 3, 3, 2, 2, 3, 3, 2, 3, 3, 2, 3, 0, 1, 0, 0, 1, 2, 1, 1, 1, 1, 2, 2, 1, 0, 3, 0, 3, 3, 3, 3, 3, 2, 3, 0, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 2, 1, 2, 1, 0, 1, 2, 1, 0, 3, 3, 3, 0, 3, 3, 0, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 0, 3, 0, 0, 3, 3, 2, 1, 3, 3, 2, 3, 3, 3, 3, 0, 0, 1, 0, 3, 2, 2, 2, 1, 1, 0, 1, 0, 0, 0, 3, 3, 2, 3, 3, 1, 1, 2, 2, 1, 1, 2, 1, 1, 0, 1, 0, 1, 2, 1, 2, 2, 3, 3, 0, 3, 3, 3, 0, 1, 3, 0, 0, 1, 1, 2, 2, 3, 2, 2, 1, 1, 0, 0, 2, 3, 3, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 0, 0, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 0, 1, 0, 3, 2, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 0, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 3, 1, 0, 3, 2, 2, 3, 2, 3, 3, 0, 1, 0, 1, 3, 2, 2, 1, 1, 0, 3, 1, 1, 0, 0, 3, 2, 3, 3, 3, 2, 2, 3, 0, 1, 0, 3, 1, 0, 0, 1, 1, 2, 1, 1, 2, 2, 2, 3, 3, 0, 3, 0, 3, 3, 3, 1, 2, 1, 3, 3, 3, 3, 3, 0, 1, 2, 1, 0, 1, 1, 1, 1, 1, 2, 3, 0, 3, 3, 3, 0, 0, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 1, 2, 3, 0, 3, 3, 3, 3, 0, 3, 2, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 2, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 0, 1, 1, 1, 2, 1, 1, 1, 1, 0, 3, 0, 3, 3, 3, 3, 3, 2, 3, 0, 1, 1, 1, 1, 1, 2, 3, 1, 0, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3, 0, 0, 3, 3, 3, 2, 1, 0, 1, 1, 2, 3, 3, 1, 1, 2, 1, 1, 1, 2, 2, 1, 1, 0, 3, 0, 3, 3, 3, 3, 3, 3, 2, 3, 3, 0, 1, 3, 0, 1, 2, 2, 1, 1, 2, 1, 0, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 2, 3, 3, 0, 3, 1, 2, 1, 0, 3, 0, 0, 3, 2, 3, 2, 0, 1, 1, 0, 1, 2, 3, 2, 2, 3, 2, 3, 0, 1, 1, 1, 1, 0, 3, 2, 3, 3, 0, 2, 1, 1, 0, 0, 3, 3, 2, 1, 3, 2, 3, 3, 0, 1, 3, 0, 0, 1, 1, 2, 2, 1, 2, 1, 1, 0, 1, 1, 1, 1, 3, 3, 2, 3, 2, 3, 3, 0, 3, 0, 3, 3, 0, 3, 0, 1, 2, 1, 1, 1, 0, 0, 1, 1, 1, 2, 1, 2, 1, 1, 2, 3, 3, 3, 3, 2, 3, 2, 3, 3, 0, 3, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 1, 0, 0, 0, 1, 2, 1, 2, 2, 2, 3, 0, 1, 2, 1, 1, 0, 0, 3, 1, 1, 1, 1, 1, 1, 2, 3, 2, 3, 3, 3, 3, 3, 0, 3, 0, 2, 1, 0, 3, 3, 1, 1, 1, 1, 0, 0, 0, 3, 3, 2, 3, 1, 0, 1, 1, 2, 2, 2, 1, 2, 1, 0, 0, 0, 3, 0, 3, 3, 3, 2, 3, 2, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 0, 1, 0, 3, 0, 3, 3, 0, 3, 0, 3, 3, 3, 2, 3, 3, 2, 3, 3, 0, 0, 1, 2, 1, 2, 2, 2, 1, 1, 0, 3, 2, 3, 0, 0, 2, 2, 3, 3, 0, 0, 1, 3, 2, 1, 2, 1, 1, 0, 0, 0, 3, 1, 2, 2, 1, 1, 1, 1, 1, 1, 0, 3, 0, 3, 0, 3, 3, 3, 2, 2, 3, 2, 2, 3, 3, 0, 0, 1, 3, 2, 1, 0, 0, 1, 1, 2, 2, 1, 2, 2, 3, 3, 0, 1, 0, 0, 3, 1, 0, 0, 0, 0, 3, 3, 3, 3, 2, 2, 1, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 0, 0, 3, 3, 3, 2, 0, 1, 1, 1, 2, 2, 3, 1, 1, 1, 2, 3, 3, 0, 0, 0, 3, 3, 3, 2, 1, 3, 3, 2, 2, 1, 1, 0, 2, 3, 3, 0, 1, 2, 1, 2, 1, 1, 0, 3, 0, 3, 1, 1, 0, 0, 3, 3, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 0, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 0, 0, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 0, 0, 3, 3, 2, 0, 1, 1, 2, 2, 2, 3, 2, 3, 3, 0, 0, 0, 2, 1, 0, 3, 3, 0, 0, 1, 2, 1, 1, 1, 2, 3, 1, 2, 1, 1, 1, 1, 1, 2, 2, 1, 0, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 0, 0, 3, 2, 0, 0, 3, 3, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 0, 1, 0, 3, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 0, 1, 1, 1, 1, 1, 0, 0, 1, 2, 1, 1, 0, 0, 3, 2, 3, 3, 2, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 3, 0, 0, 3, 2, 1, 2, 2, 3, 3, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 3, 3, 2, 3, 3, 3, 3, 2, 3, 3, 2, 3, 3, 0, 1, 1, 0, 1, 0, 0, 3, 3, 2, 2, 1, 1, 0, 3, 2, 2, 2, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 2, 2, 1, 2, 3, 0, 0, 0, 3, 3, 3, 3, 2, 3, 3, 2, 3, 2, 2, 3, 3, 0, 1, 2, 2, 2, 3, 0, 1, 0, 1, 1, 0, 3, 3, 3, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 0, 0, 3, 2, 3, 2, 3, 3, 0, 3, 3, 0, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 0, 0, 1, 1, 1, 2, 1, 2, 0, 3, 0, 3, 3, 3, 2, 3, 3, 1, 1, 0, 1, 1, 1, 2, 1, 2, 2, 0, 0, 3, 3, 2, 2, 3, 3, 3, 3, 2, 1, 1, 3, 3, 2, 3, 0, 1, 1, 1, 0, 1, 1, 1, 1, 3, 3, 2, 3, 1, 1, 2, 1, 1, 0, 0, 3, 3, 3, 3, 3, 0, 3, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3, 2, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 2, 0, 3, 3, 2, 2, 3, 3, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0], "seed": "ALMACEN-36", "tier": 3, "name": "36 · Turno nocturno"}, {"map": ["##############", "#            #", "# #  .  $ $  #", "# @#   ## .. #", "# $ # # #  . #", "#  .  #      #", "#   #        #", "#   $ # $    #", "#            #", "##############"], "solution": [2, 1, 2, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 2, 3, 3, 1, 2, 1, 3, 2, 2, 3, 3, 2, 3, 3, 0, 3, 3, 2, 3, 0, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 3, 2, 2, 3, 3, 2, 2, 1, 0, 3, 3, 3, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 0, 3, 3, 3, 3, 2, 3, 3, 2, 3, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 2, 3, 3, 2, 2, 3, 3, 2, 2, 1, 2, 1, 0, 3, 0, 3, 3, 3, 0, 3, 3, 3, 2, 1, 0, 1, 1, 2, 1, 1, 1, 0, 1, 1, 2, 3, 0, 0, 0, 0, 0, 1, 2, 3, 2, 2, 2, 2, 3, 1, 1, 0, 0, 0, 3, 2, 2, 3, 2, 2, 3, 2, 3, 3, 3, 3, 3, 0, 1, 1, 1, 2, 1, 1, 1, 0, 0, 3, 2, 2, 3, 3, 0, 0, 0, 3, 3, 3, 2, 3, 2, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 2, 1, 2, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 2, 2, 1, 2, 3, 2, 3, 3, 3, 3, 2, 2, 2, 3, 3, 0, 0, 1, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 3, 2, 3, 2, 2, 3, 2, 3, 3, 0, 3, 3, 1, 1, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 2, 3, 3, 3, 2, 2, 3, 2, 3, 3, 0, 0, 1, 1, 3, 3, 0, 3, 3, 2, 3, 0, 1, 2, 2, 2, 3, 0, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 3, 2, 2, 3, 0, 1, 1, 1, 0, 0, 1, 0, 3, 2, 3, 3, 2, 2, 3, 3, 0, 1, 2, 1, 1, 0, 0, 0, 2, 2, 2, 3, 3, 0, 1, 3, 3, 2, 3, 3, 0, 3, 3, 3, 2, 3, 2, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 2, 3, 2, 2, 2, 3, 3, 2, 3, 3, 2, 3, 3, 1, 1, 0, 1, 1, 1, 1, 0, 1, 3, 3, 3, 2, 3, 3, 2, 3, 3, 2, 3, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 3, 0, 0, 0, 0, 3, 3, 3, 3, 2, 1, 0, 1, 2, 1, 1, 2, 2, 3, 3, 2, 1, 0, 1, 0, 0, 3, 3, 2, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 2, 1, 2, 1, 1, 0, 0, 1, 0, 1, 1, 1, 2, 2, 1, 2, 2, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 3, 2, 3, 3, 2, 3, 3, 0, 3, 3, 2, 3, 0, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 0, 0, 3, 3, 3, 3, 2, 3, 3, 0, 3, 3, 3, 3, 0, 0, 1, 2, 1, 2, 1, 1, 2, 2, 3, 3, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 2, 2, 2, 2, 3, 0, 1, 1, 1, 0, 0, 0, 3, 1, 2, 3, 2, 3, 2, 3, 3, 3, 3, 3, 0, 3, 3, 2, 3, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 2, 2, 2, 1, 1, 0, 3, 1, 0, 0, 3, 3, 2, 1, 0, 1, 2, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 2, 3, 2, 1, 2, 1, 2, 2, 3, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 2, 0, 3, 3, 2, 1, 2, 2, 1, 0, 3, 2, 2, 3, 3, 0, 1, 2, 1, 1, 0, 0, 0, 2, 2, 2, 3, 3, 0, 3, 0, 1, 1, 3, 3, 3, 2, 3, 3, 2, 3, 3, 3, 3, 0, 0, 1, 1, 2, 2, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 3, 3, 2, 2, 3, 3, 2, 3, 3, 2, 3, 3, 3, 3, 0, 1, 0, 1, 2, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 2, 3, 3, 2, 3, 3, 0, 3, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 2, 2, 1, 2, 2, 2, 1, 0, 1, 0, 0, 3, 0, 3, 1, 1, 2, 2, 2, 3, 0, 3, 3, 2, 3, 3, 2, 3, 3, 0, 3, 3, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 2, 2, 3, 2, 2, 3, 3, 2, 3, 3, 0, 3, 3, 0, 3, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 3, 2, 2, 3, 3, 2, 3, 3, 2, 3, 2, 3, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 2, 3, 2, 3, 3, 2, 3, 3, 2, 3, 3, 0, 2, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 2, 3, 2, 1, 0, 0, 0, 0, 3, 1, 2, 1, 1, 2, 2, 2, 3, 3, 0, 0, 0, 0, 0, 1, 2, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 2, 2, 1, 2, 2, 1, 1, 0, 1, 1, 1, 0, 1, 2, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 0, 3, 0, 3, 3, 3, 0, 3, 1, 2, 1, 1, 1, 0, 1, 2, 1, 0, 0, 0, 0, 1, 2, 0, 0, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 2, 3, 3, 2, 3, 3, 0, 3, 3, 1, 1, 0, 0, 1, 0, 1, 1, 3, 3, 3, 2, 2, 2, 2, 2, 3, 3, 0, 2, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 3, 0, 0, 0, 3, 1, 2, 2, 2, 2, 2, 2, 3, 0, 3, 0, 3, 3, 3, 2, 3, 3, 0, 3, 3, 0, 0, 1, 1, 2, 1, 1, 2, 1, 1, 1, 0, 1, 1, 1, 1, 0, 3, 0, 3, 2, 3, 2, 3, 3, 2, 3, 3, 0, 3, 3, 2, 0, 1, 1, 2, 1, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 2, 3, 3, 0, 3, 3, 2, 3, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 2, 2, 2, 2, 2, 1, 0, 3, 3, 3, 3, 2, 3, 3, 2, 3, 3, 1, 1, 0, 1, 1, 0, 1, 2, 3, 2, 1, 0, 3, 3, 3, 0, 3, 3, 3, 3, 0, 0, 1, 2, 1, 2, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 2, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 1, 2, 1, 2, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 2, 0, 0, 3, 3, 3, 0, 3, 3, 3, 2, 2, 2, 2, 3, 3, 0, 3, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 3, 2, 2, 2, 3, 0, 1, 1, 0, 0, 0, 3, 2, 2, 3, 1, 1, 0, 0, 0, 3, 3, 2, 2, 3, 3, 2, 3, 3, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 3, 3, 2, 2, 2, 2, 2, 3, 3, 0, 2, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 3, 3, 2, 1, 1, 0, 1, 2, 0, 1, 2, 1, 2, 2, 3, 3, 2, 2, 3, 1, 1, 0, 0, 0, 2, 3, 3, 2, 3, 2, 3, 2, 1, 0, 1, 1, 1, 0, 0, 0, 3, 2, 3, 2, 3, 3, 2, 3, 3, 2, 3, 3, 2, 3, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 2, 2, 2, 2, 3, 0, 3, 3, 3, 3, 2, 3, 3, 3, 3, 0, 0, 1, 1, 2, 2, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 2, 0, 3, 3, 2, 3, 3, 3, 3, 2, 2, 2, 3, 1, 2, 2, 3, 3, 3, 3, 0, 0, 1, 2, 1, 2, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 2, 1, 2, 3, 2, 3, 3, 3, 3, 2, 3, 3, 0, 3, 3, 2, 3, 0, 1, 1, 1, 2, 1, 1, 1, 1, 0, 0, 0, 1, 2, 0, 0, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 1, 0, 1, 1, 0, 3, 3, 2, 2, 1, 0, 0, 0, 1, 2, 1, 0, 0, 2, 2, 2, 2, 3, 1, 1, 0, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 1, 2, 1, 2, 2, 3, 0, 1, 1, 1, 2, 1, 1, 1, 1, 0, 1, 0, 3, 0, 3, 3, 2, 3, 3, 2, 3, 3, 3, 3, 0, 0, 1, 1, 2, 2, 1, 1, 0, 1, 1, 0, 1, 2, 1, 0, 0, 0, 0, 1, 0, 1, 2, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 1, 2, 1, 1, 2, 2, 1, 0, 1, 0, 0, 0, 0, 0, 0, 3, 3, 2, 1, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 2, 1, 0, 1, 0, 0, 3, 0, 0, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 2, 2, 1, 2, 2, 3, 0, 1, 2, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 3, 0, 3, 3, 3, 2, 2, 2, 2, 2, 2, 3, 3, 0, 3, 0, 1, 2, 2, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 2, 0, 0, 0, 1, 2, 1, 2, 2, 3, 2, 3, 1, 1, 0, 0, 3, 2, 3, 0, 3, 0, 1, 0, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 2, 2, 2, 2, 2, 3, 2, 1, 0, 3, 3, 3, 3, 2, 3, 3, 0, 0, 3, 3, 0, 0, 1, 2, 1, 2, 2, 2, 1, 1, 0, 1, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 2, 1, 1, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 2, 2, 1, 1, 3, 3, 3, 2, 1, 2, 1, 1, 1, 0, 0, 0, 0, 2, 2, 2, 2, 3, 3, 0, 2, 1, 1, 0, 0, 0, 0, 1, 0, 3, 1, 1, 1, 1, 0, 1, 1, 2, 2, 3, 3, 0, 1, 2, 1, 1, 2, 2, 2, 2, 3, 0, 3, 3, 3, 3, 3, 3, 2, 3, 3, 0, 3, 0, 1, 2, 2, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 2, 2, 2, 2, 3, 0, 3, 0, 1, 2, 1, 0, 1, 0, 0, 0, 0, 3, 0, 3, 2, 1, 1, 2, 2, 3, 0, 1, 2, 2, 2, 3, 0, 1, 0, 0, 0, 0, 3, 2, 3, 3, 3, 3, 3, 3, 2, 2, 2, 3, 1, 0, 0, 0, 0, 3, 3, 2, 1, 2, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 0], "seed": "ALMACEN-37", "tier": 3, "name": "37 · Turno nocturno"}, {"map": ["##############", "#            #", "# # #$ #     #", "# $ #     ## #", "# #   . #    #", "# #@$   #  $ #", "# #  .     # #", "# $. ..      #", "#            #", "##############"], "solution": [1, 3, 2, 2, 2, 3, 3, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 2, 3, 0, 3, 3, 0, 0, 0, 3, 3, 3, 3, 2, 1, 2, 2, 2, 3, 2, 2, 2, 3, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 2, 0, 3, 0, 3, 3, 3, 0, 3, 2, 1, 2, 3, 1, 1, 2, 2, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 2, 3, 3, 0, 0, 0, 1, 3, 2, 2, 2, 1, 1, 1, 1, 1, 1, 0, 0, 1, 3, 2, 3, 3, 3, 3, 2, 3, 3, 0, 0, 0, 1, 1, 0, 1, 2, 3, 3, 3, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 3, 0, 3, 2, 2, 3, 3, 3, 2, 3, 3, 0, 1, 0, 1, 2, 3, 3, 3, 3, 0, 1, 2, 1, 1, 2, 1, 0, 0, 0, 3, 2, 2, 3, 3, 0, 1, 2, 1, 1, 0, 0, 3, 2, 3, 3, 0, 1, 0, 1, 2, 3, 2, 1, 3, 2, 2, 1, 0, 3, 0, 0, 1, 1, 2, 0, 0, 1, 1, 2, 2, 2, 2, 1, 3, 2, 3, 3, 0, 3, 0, 3, 0, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 0, 3, 2, 3, 3, 0, 1, 3, 3, 0, 3, 2, 3, 3, 0, 0, 1, 0, 1, 2, 2, 0, 0, 0, 1, 1, 2, 2, 2, 3, 2, 2, 3, 3, 0, 0, 0, 3, 0, 0, 0, 0, 3, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 1, 1, 1, 2, 2, 1, 2, 3, 0, 3, 2, 3, 2, 1, 2, 1, 1, 1, 2, 2, 1, 0, 3, 0, 3, 3, 3, 0, 1, 0, 3, 3, 3, 0, 2, 1, 1, 1, 2, 2, 1, 1, 1, 0, 0, 0, 3, 3, 2, 2, 0, 0, 1, 1, 2, 2, 2, 3, 3, 1, 2, 2, 3, 3, 0, 1, 0, 0, 3, 2, 1, 1, 1, 2, 1, 0, 3, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 0, 1, 1, 1, 2, 2, 1, 2, 2, 2, 2, 1, 3, 3, 0, 0, 0, 0, 0, 0, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 2, 3, 2, 3, 2, 2, 1, 0, 3, 3, 3, 0, 0, 0, 0, 0, 0, 3, 3, 3, 2, 2, 2, 1, 2, 2, 2, 1, 0, 0, 0, 3, 3, 2, 1, 1, 1, 1, 2, 1, 2, 1, 1, 0, 3, 0, 1, 0, 3, 0, 3, 3, 3, 3, 2, 3, 3, 2, 2, 1, 2, 2, 3, 3, 0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 0, 0, 0, 1, 1, 2, 3, 0, 3, 3, 2, 2, 3, 3, 2, 3, 2, 3, 0, 1, 1, 1, 0, 1, 0, 0, 1, 2, 3, 2, 3, 3, 0, 3, 3, 3, 2, 1, 2, 2, 3, 0, 1, 1, 0, 3, 2, 3, 0, 1, 1, 1, 1, 2, 2, 1, 1, 0, 3, 1, 0, 2, 2, 1, 1, 0, 3, 2, 3, 3, 0, 3, 2, 3, 0, 0, 1, 1, 2, 2, 1, 1, 0, 3, 0, 3, 0, 0, 0, 3, 3, 3, 2, 2, 0, 1, 0, 1, 1, 2, 2, 1, 0, 3, 0, 3, 3, 2, 2, 3, 3, 2, 2, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 0, 0, 1, 1, 2, 1, 1, 2, 1, 0, 3, 3, 3, 3, 0, 3, 2, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 3, 2, 3, 3, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 3, 1, 1, 0, 0, 3, 3, 3, 2, 2, 0, 3, 3, 3, 3, 2, 2, 2, 3, 2, 2, 3, 3, 0, 1, 0, 1, 1, 1, 1, 1, 2, 3, 0, 0, 0, 0, 1, 1, 2, 2, 1, 2, 3, 2, 3, 3, 0, 3, 3, 2, 3, 0, 3, 0, 1, 2, 2, 2, 3, 3, 0, 1, 0, 1, 0, 0, 1, 2, 1, 1, 2, 2, 1, 1, 0, 3, 1, 0, 0, 0, 3, 3, 3, 2, 2, 2, 3, 2, 1, 2, 1, 1, 0, 0, 3, 1, 2, 2, 3, 3, 0, 1, 0, 0, 3, 2, 3, 2, 1, 2, 1, 0, 1, 3, 3, 3, 3, 1, 1, 1, 1, 0, 3, 1, 2, 2, 1, 0, 3, 0, 3, 3, 1, 0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 2, 3, 3, 0, 1, 2, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 2, 3, 0, 3, 3, 0, 3, 3, 3, 3, 2, 2, 2, 3, 0, 1, 1, 1, 2, 1, 1, 1, 2, 3, 0, 3, 3, 0, 3, 2, 0, 3, 3, 3, 0, 1, 2, 1, 1, 0, 0, 3, 2, 1, 1, 0, 1, 1, 2, 1, 2, 3, 2, 3, 3, 2, 3, 0, 3, 3, 0, 1, 2, 1, 1, 1, 1, 2, 3, 0, 3, 0, 3, 2, 3, 3, 2, 3, 1, 0, 0, 1, 2, 1, 2, 3, 1, 2, 1, 1, 1, 1, 0, 0, 3, 3, 3, 3, 0, 1, 2, 1, 2, 3, 1, 1, 0, 0, 0, 1, 1, 2, 3, 2, 3, 3, 3, 3, 3, 2, 1, 0, 1, 0, 0, 0, 3, 2, 1, 2, 3, 2, 2, 1, 1, 0, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 0, 2, 3, 3, 3, 3, 0, 1, 2, 1, 1, 2, 2, 1, 0, 3, 0, 3, 0, 3, 0, 0, 1, 1, 1, 2, 0, 3, 3, 3, 3, 2, 3, 3, 0, 3, 3, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 2, 2, 3, 3, 2, 2, 2, 3, 0, 1, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 3, 3, 3, 0, 2, 3, 1, 1, 1, 0, 0, 1, 2, 3, 3, 3, 3, 2, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 2, 2, 1, 2, 2, 3, 3, 2, 3, 3, 3, 3, 3, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 2, 2, 2, 0, 0, 0, 3, 3, 3, 3, 2, 3, 3, 2, 2, 1, 1, 1, 1, 1, 3, 3, 3, 3, 2, 2, 3, 3, 0, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 0, 3, 0, 0, 0, 3, 3, 3, 3, 2, 2, 2, 3, 0, 3, 0, 1, 2, 1, 1, 1, 2, 1, 3, 0, 0, 0, 3, 3, 2, 3, 2, 1, 2, 2, 2, 1, 0, 1, 2, 1, 1, 1, 0, 0, 3, 0, 0, 0, 3, 3, 2, 2, 2, 3, 1, 1, 3, 3, 3, 1, 1, 1, 1, 3, 3, 3, 0, 3, 2, 2, 3, 0, 1, 1, 0, 0, 1, 2, 2, 2, 2, 1, 1, 1, 0, 0, 3, 0, 0, 0, 0, 0, 3, 3, 3, 2, 2, 3, 2, 3, 2, 1, 1, 1, 2, 2, 2, 1, 0, 3, 3, 3, 3, 3, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 2, 2, 2, 3, 3, 0, 3, 2, 1, 2, 3, 1, 0, 0, 0, 3, 3, 1, 2, 2, 2, 3, 1, 1, 1, 0, 1, 0, 0, 1, 1, 2, 3, 2, 3, 3, 3, 0, 3, 3, 3, 3, 2, 2, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 2, 2, 1, 2, 2, 3, 1, 0, 3, 2, 2, 3, 3, 0, 0, 3, 3, 1, 2, 2, 3, 3, 0, 0, 1, 1, 2, 3, 3, 1, 1, 1, 2, 1, 1, 0, 0, 3, 1, 2, 2, 3, 3, 0, 3, 0, 3, 3, 3, 0, 0, 1, 3, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 0, 0, 1, 1, 0, 1, 2, 3, 2, 2, 3, 2, 2, 3, 3, 0, 1, 0, 1, 1, 0, 1, 0, 3, 3, 2, 1, 1, 2, 1, 2, 1, 3, 3, 3, 3, 1, 1, 1, 1, 2, 1, 1, 0, 3, 2, 3, 3, 3, 3, 3, 3, 0, 1, 1, 1, 1, 0, 0, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 2, 2, 2, 1, 1, 0, 3, 3, 0, 0, 3, 0, 0, 1, 2, 2, 3, 3, 2, 2, 2, 1, 0, 3, 3, 2, 3, 3, 0, 1, 2, 1, 1, 1, 1, 0, 0, 2, 3, 3, 0, 0, 1, 2, 1, 0, 0, 2, 2, 2, 3, 1, 1, 1, 0, 0, 0, 0, 3, 3, 1, 1, 2, 2, 2, 3, 1, 0, 0, 0, 0, 0, 3, 3, 3, 2, 2, 1, 2, 2, 2, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 0, 2, 2, 2, 2, 3, 3, 0, 0, 3, 0, 0, 1, 1, 0, 0, 1, 2, 1, 2, 2, 3, 2, 3, 0, 0, 3, 3, 2, 1, 1, 2, 1, 2, 3, 1, 2, 1, 0, 3, 3, 2, 3, 3, 0, 1, 3, 0, 0, 1, 1, 0, 0, 1, 1, 2, 2, 3, 2, 2, 1, 1, 0, 3, 2, 3, 3, 1, 1, 0, 0, 3, 3, 0, 3, 3, 2, 2, 2, 1, 3, 0, 1, 3, 0, 0, 1, 1, 2, 3, 0, 3, 2, 1, 1, 1, 2, 0, 3, 3, 3, 2, 1, 0], "seed": "ALMACEN-38", "tier": 3, "name": "38 · Turno nocturno"}, {"map": ["##############", "#            #", "#   $# ##  $ #", "#         .  #", "#  ##   .    #", "# #   ## . # #", "#  @$   .    #", "#  ## $.  $  #", "#            #", "##############"], "solution": [1, 0, 1, 0, 1, 1, 1, 1, 2, 2, 2, 1, 0, 0, 0, 3, 3, 3, 3, 3, 2, 3, 2, 1, 1, 3, 2, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 3, 3, 3, 3, 3, 2, 2, 2, 1, 1, 3, 2, 2, 1, 1, 0, 3, 0, 3, 3, 0, 0, 0, 3, 1, 1, 0, 0, 1, 1, 1, 2, 1, 2, 2, 3, 2, 2, 2, 3, 3, 0, 1, 0, 1, 2, 1, 2, 3, 0, 0, 0, 3, 0, 3, 3, 3, 3, 3, 1, 1, 2, 2, 2, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 1, 0, 1, 0, 3, 3, 2, 3, 3, 3, 2, 2, 2, 1, 0, 1, 1, 0, 0, 0, 3, 1, 2, 2, 2, 2, 3, 1, 0, 1, 0, 0, 0, 0, 0, 3, 3, 3, 2, 2, 3, 2, 1, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 0, 3, 2, 3, 0, 0, 1, 2, 1, 1, 0, 3, 3, 3, 1, 0, 0, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 2, 2, 2, 3, 3, 1, 1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 2, 2, 2, 1, 1, 3, 3, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 3, 3, 0, 0, 3, 0, 1, 3, 3, 2, 2, 2, 1, 1, 0, 3, 2, 3, 3, 2, 1, 0, 1, 1, 1, 1, 0, 0, 0, 3, 2, 3, 3, 3, 2, 0, 3, 3, 3, 2, 2, 1, 1, 1, 0, 1, 1, 2, 2, 3, 3, 0, 0, 1, 0, 0, 1, 3, 2, 2, 2, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 0, 3, 3, 3, 2, 2, 2, 2, 1, 2, 1, 0, 1, 1, 0, 0, 0, 0, 0, 3, 2, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 3, 3, 2, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 2, 3, 2, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 0, 1, 1, 2, 3, 0, 3, 2, 1, 1, 2, 2, 2, 3, 2, 3, 0, 0, 3, 0, 0, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 0, 1, 0, 0, 3, 0, 1, 2, 2, 2, 1, 2, 3, 0, 0, 0, 1, 0, 3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 2, 2, 1, 0, 3, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 2, 3, 2, 2, 2, 2, 1, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 2, 3, 3, 2, 2, 2, 1, 0, 0, 0, 3, 0, 1, 3, 3, 2, 2, 2, 2, 2, 3, 0, 2, 3, 3, 0, 1, 1, 3, 0, 1, 2, 1, 2, 1, 1, 0, 0, 0, 0, 1, 0, 3, 2, 2, 2, 2, 2, 3, 3, 0, 0, 1, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 2, 0, 1, 1, 2, 2, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3, 2, 3, 2, 2, 2, 2, 3, 0, 3, 0, 1, 0, 0, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 0, 3, 3, 3, 3, 2, 1, 2, 1, 1, 0, 3, 0, 0, 0, 3, 1, 2, 2, 1, 3, 3, 3, 2, 1, 2, 1, 1, 1, 1, 0, 0, 3, 1, 0, 0, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 1, 0, 1, 1, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 1, 1, 0, 2, 3, 3, 0, 1, 2, 1, 1, 0, 0, 3, 1, 2, 2, 3, 3, 0, 0, 3, 0, 0, 1, 3, 2, 2, 1, 1, 0, 3, 1, 2, 1, 2, 3, 3, 0, 0, 0, 0, 1, 2, 0, 3, 3, 3, 3, 3, 3, 0, 3, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3, 2, 2, 3, 3, 0, 3, 3, 0, 0, 0, 3, 0, 0, 3, 3, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 2, 3, 3, 0, 0, 1, 2, 3, 3, 3, 3, 2, 1, 0, 3, 0, 0, 1, 1, 1, 2, 2, 2, 3, 1, 0, 0, 0, 0, 1, 2, 1, 2, 2, 2, 2, 3, 0, 3, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 1, 0, 1, 1, 1, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 0, 0, 3, 2, 3, 0, 1, 1, 0, 0, 0, 3, 0, 1, 2, 2, 2, 2, 3, 3, 2, 3, 1, 1, 1, 0, 0, 0, 3, 3, 2, 2, 1, 1, 0, 0, 0, 0, 0, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 2, 2, 3, 3, 3, 2, 3, 0, 0, 0, 0, 3, 3, 3, 3, 0, 3, 1, 2, 1, 1, 1, 1, 2, 2, 2, 1, 1, 0, 0, 3, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 1, 1, 2, 1, 1, 1, 1, 2, 2, 1, 3, 2, 3, 3, 3, 3, 3, 3, 3, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 3, 2, 1, 0, 0, 1, 0, 3, 2, 3, 3, 2, 2, 2, 2, 3, 0, 1, 0, 3, 1, 0, 0, 0, 1, 2, 1, 1, 1, 2, 2, 3, 2, 3, 3, 3, 3, 2, 3, 3, 0, 1, 2, 1, 1, 1, 0, 0, 0, 1, 0, 0, 3, 3, 3, 3, 3, 2, 2, 2, 1, 2, 2, 1, 1, 1, 1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 1, 1, 2, 1, 2, 2, 2, 1, 1, 3, 2, 2, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 3, 1, 0, 0, 3, 3, 2, 2, 0, 1, 2, 2, 2, 3, 0, 1, 0, 0, 0, 1, 2, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 0, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 0, 3, 2, 3, 2, 2, 3, 3, 3, 2, 1, 0, 3, 3, 0, 0, 0, 3, 3, 1, 1, 2, 2, 2, 1, 1, 2, 1, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 2, 2, 1, 2, 2, 3, 2, 3, 0, 1, 1, 0, 1, 1, 0, 0, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 1, 2, 1, 2, 2, 2, 1, 1, 1, 2, 2, 1, 0, 3, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 1, 0, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 2, 2, 3, 1, 0, 0, 3, 3, 2, 2, 0, 0, 1, 0, 0, 0, 1, 2, 1, 2, 3, 2, 3, 2, 0, 3, 0, 3, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 1, 0, 1, 2, 0, 0, 3, 0, 3, 3, 3, 2, 1, 0, 1, 1, 2, 2, 2, 2, 3, 1, 0, 0, 0, 0, 3, 3, 2, 1, 0, 1, 1, 0, 0, 3, 2, 1, 2, 2, 3, 1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 2, 0, 1, 1, 2, 2, 1, 1, 1, 2, 2, 3, 2, 3, 3, 2, 1, 2, 1, 1, 1, 0, 3, 0, 0, 1, 0, 0, 3, 2, 2, 2, 1, 0, 0, 0, 3, 3, 3, 2, 1, 1, 2, 2, 2, 3, 3, 0, 3, 3, 3, 3, 3, 3, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 2, 2, 3, 1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 0, 3, 2, 3, 3, 2, 2, 1, 0, 1, 0, 3, 1, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 0, 0, 1, 1, 2, 2, 1, 1, 2, 1, 2, 2, 2, 1, 0, 3, 0, 0, 3, 0, 3, 3, 0, 0, 3, 3, 2, 2, 1, 2, 1, 1, 1, 1, 1, 2, 0, 3, 3, 0, 1, 2, 1, 1, 1, 2, 2, 3, 3, 0, 0, 1, 0, 3, 2, 3, 2, 2, 1, 2, 3, 2, 3, 0, 1, 1, 0, 0, 0, 0, 3, 2, 2, 2, 2, 3, 0, 1, 0, 0, 3, 3, 3, 0, 1, 2, 1, 2, 0, 3, 0, 1, 2, 1, 1, 1, 0, 0, 0, 3, 3, 2, 2, 3, 2, 1, 0, 0, 0, 3, 3, 3, 2, 0, 1, 1, 1, 2, 1, 3, 2, 2, 2, 1, 0, 3, 2, 2, 2, 3, 3, 0, 1, 0, 1, 0, 0, 0, 1, 2, 3, 2, 2, 1, 2, 2, 3, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 0, 1, 0, 2, 3, 3, 0, 0, 1, 2, 2, 0, 0, 0, 0, 3, 3, 3, 2, 2, 3, 2, 2, 2, 1, 2, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 3, 0, 3, 3, 3, 3, 3, 2, 2, 3, 2, 1, 1, 0, 1, 1, 1, 3, 2, 3, 1, 0, 0, 0, 1, 1, 2, 3, 2, 2, 2, 2, 2, 3, 3, 1, 0, 1, 0, 0, 1, 0, 3, 0, 0, 3, 2, 1, 2, 2, 3, 3, 0, 1, 2, 2, 1, 0, 1, 0, 3, 0, 3, 2, 1, 2, 2, 2, 3, 1, 1, 1, 0, 0, 0, 0, 3, 2, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 2, 0, 0, 0, 1, 2, 3, 2, 3, 3, 3], "seed": "ALMACEN-39", "tier": 3, "name": "39 · Turno nocturno"}, {"map": ["##############", "#            #", "# $###  # .$@#", "#      #   # #", "#     .  . $ #", "# #    # .   #", "#    #       #", "# $#  . #  $ #", "#            #", "##############"], "solution": [3, 1, 2, 2, 2, 2, 2, 2, 3, 0, 3, 0, 0, 0, 0, 3, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 2, 2, 2, 1, 0, 1, 0, 0, 3, 1, 0, 0, 0, 3, 3, 3, 2, 1, 0, 1, 1, 2, 2, 2, 3, 3, 2, 3, 0, 0, 1, 2, 2, 2, 1, 0, 3, 0, 0, 0, 0, 3, 2, 2, 1, 0, 0, 1, 1, 2, 3, 1, 2, 2, 3, 2, 3, 3, 3, 0, 0, 1, 2, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 1, 1, 2, 1, 1, 2, 2, 1, 1, 0, 3, 0, 3, 3, 3, 0, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 2, 1, 1, 2, 1, 2, 3, 1, 0, 0, 0, 1, 2, 3, 3, 3, 3, 0, 3, 3, 3, 3, 2, 1, 1, 0, 1, 1, 2, 1, 1, 1, 1, 1, 2, 3, 0, 0, 3, 0, 1, 3, 2, 3, 2, 2, 1, 0, 3, 3, 3, 2, 2, 1, 3, 0, 0, 1, 1, 1, 2, 1, 0, 1, 1, 0, 0, 3, 0, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 0, 1, 0, 0, 0, 1, 2, 2, 2, 2, 1, 0, 3, 3, 3, 2, 1, 0, 1, 1, 1, 0, 3, 1, 0, 0, 3, 1, 2, 2, 3, 2, 2, 2, 3, 0, 1, 0, 3, 3, 0, 0, 1, 2, 0, 3, 0, 1, 3, 2, 2, 2, 1, 3, 2, 3, 0, 1, 0, 3, 2, 2, 3, 3, 0, 0, 0, 3, 2, 1, 2, 2, 1, 1, 0, 0, 3, 1, 1, 1, 1, 1, 2, 3, 0, 3, 0, 0, 0, 3, 3, 3, 3, 2, 2, 3, 2, 1, 3, 3, 2, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0, 3, 3, 3, 3, 2, 2, 2, 1, 3, 0, 0, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 3, 3, 3, 3, 2, 2, 2, 1, 1, 3, 3, 2, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 2, 3, 0, 3, 3, 2, 2, 3, 2, 1, 3, 3, 3, 2, 2, 1, 1, 1, 2, 1, 0, 1, 0, 0, 3, 2, 3, 3, 2, 3, 2, 2, 3, 0, 1, 0, 1, 1, 1, 0, 0, 3, 0, 0, 0, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 1, 3, 2, 2, 2, 3, 2, 3, 2, 3, 1, 0, 1, 1, 0, 0, 3, 1, 1, 1, 1, 2, 2, 2, 3, 1, 0, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3, 3, 2, 2, 2, 1, 3, 0, 0, 1, 0, 1, 1, 2, 1, 2, 2, 1, 2, 2, 2, 2, 3, 0, 3, 2, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 3, 2, 1, 2, 2, 1, 3, 3, 3, 2, 2, 3, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 3, 0, 3, 3, 2, 2, 2, 2, 2, 3, 0, 1, 0, 0, 0, 0, 3, 3, 3, 2, 2, 2, 1, 1, 1, 3, 3, 3, 2, 2, 1, 2, 3, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 2, 2, 2, 3, 3, 0, 3, 2, 1, 1, 1, 0, 0, 3, 1, 2, 2, 3, 2, 2, 3, 3, 3, 0, 1, 0, 1, 2, 0, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 2, 1, 1, 1, 1, 0, 0, 0, 1, 2, 0, 0, 0, 3, 0, 0, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 3, 0, 0, 1, 0, 3, 0, 3, 0, 3, 0, 1, 3, 2, 3, 2, 2, 2, 3, 2, 3, 1, 0, 1, 1, 1, 1, 0, 3, 0, 3, 2, 1, 1, 2, 2, 2, 3, 3, 0, 1, 3, 2, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 0, 0, 1, 1, 0, 1, 2, 1, 1, 2, 2, 3, 0, 0, 3, 3, 2, 1, 3, 2, 3, 3, 3, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 1, 2, 2, 2, 2, 2, 3, 0, 3, 3, 3, 3, 2, 3, 0, 1, 1, 1, 2, 2, 1, 0, 3, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 2, 2, 3, 2, 2, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 0, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 3, 3, 2, 2, 2, 3, 3, 0, 0, 1, 1, 1, 0, 0, 1, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 2, 3, 3, 3, 3, 2, 3, 3, 2, 3, 3, 0, 0, 1, 3, 2, 2, 1, 1, 0, 0, 0, 1, 1, 0, 0, 3, 3, 3, 2, 1, 2, 1, 1, 2, 1, 1, 1, 2, 2, 1, 0, 3, 0, 0, 0, 3, 3, 3, 0, 3, 2, 1, 1, 1, 1, 1, 2, 1, 1, 0, 3, 2, 3, 3, 0, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 2, 1, 2, 3, 3, 3, 3, 0, 2, 1, 1, 0, 0, 3, 3, 0, 3, 2, 1, 1, 1, 1, 0, 1, 2, 3, 2, 2, 2, 1, 0, 3, 0, 0, 0, 0, 0, 3, 3, 3, 2, 1, 0, 1, 1, 1, 2, 2, 2, 1, 2, 3, 0, 3, 3, 3, 3, 0, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 1, 0, 0, 0, 3, 3, 3, 2, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 3, 0, 3, 0, 3, 3, 0, 2, 2, 0, 1, 1, 2, 1, 1, 1, 2, 2, 3, 0, 0, 3, 3, 0, 3, 3, 2, 2, 1, 2, 3, 1, 2, 1, 1, 0, 2, 3, 3, 3, 3, 3, 0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 2, 2, 3, 2, 1, 2, 1, 2, 2, 3, 0, 3, 0, 0, 1, 0, 0, 1, 3, 2, 3, 2, 2, 2, 3, 2, 3, 1, 0, 1, 0, 0, 1, 0, 0, 0, 3, 3, 3, 2, 2, 0, 1, 0, 1, 1, 1, 1, 1, 2, 3, 0, 3, 3, 2, 2, 3, 2, 3, 3, 1, 1, 2, 1, 1, 0, 1, 1, 0, 0, 3, 3, 1, 1, 2, 2, 3, 3, 0, 3, 3, 2, 3, 3, 3, 3, 2, 2, 2, 1, 3, 0, 0, 0, 0, 3, 3, 2, 1, 0, 1, 2, 1, 1, 2, 2, 1, 2, 3, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 3, 3, 3, 2, 0, 1, 1, 1, 2, 2, 2, 3, 1, 0, 0, 0, 3, 3, 3, 2, 1, 0, 3, 3, 3, 3, 2, 2, 3, 3, 3, 2, 2, 2, 1, 2, 1, 2, 1, 1, 0, 0, 3, 0, 0, 0, 0, 1, 0, 1, 1, 1, 2, 2, 2, 1, 2, 3, 1, 1, 0, 0, 0, 3, 3, 2, 2, 3, 3, 2, 2, 3, 2, 3, 1, 0, 1, 0, 0, 0, 1, 3, 2, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 2, 1, 2, 2, 2, 1, 2, 2, 3, 3, 0, 1, 3, 3, 3, 3, 0, 3, 0, 3, 3, 2, 2, 1, 2, 1, 2, 1, 1, 0, 0, 1, 0, 0, 0, 1, 2, 1, 0, 3, 3, 2, 2, 1, 3, 2, 3, 2, 2, 3, 0, 0, 1, 1, 1, 0, 0, 1, 1, 2, 3, 0, 0, 3, 0, 1, 2, 2, 2, 2, 3, 0, 3, 0, 3, 3, 3, 3, 3, 2, 1, 0, 1, 1, 2, 2, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 3, 0, 3, 2, 1, 1, 2, 2, 2, 2, 3, 0, 0, 3, 0, 2, 1, 2, 2, 2, 3, 0, 1, 1, 0, 0, 0, 0, 0, 3, 3, 2, 1, 1, 2, 2, 3, 2, 3, 2, 3, 3, 0, 0, 3, 3, 3, 3, 2, 1, 0, 1, 1, 1, 2, 2, 1, 1, 0, 0, 0, 3, 3, 2, 2, 2, 3, 3, 0, 3, 0, 3], "seed": "ALMACEN-40", "tier": 3, "name": "40 · Turno nocturno"}];
+
+        class SokobanGame {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+
+                this.levelIdx = 0;
+                this.grid = []; // 2D array of static grid: ' ' or '#' or '.'
+                this.player = { x: 0, y: 0, dir: 'down' };
+                this.boxes = []; // Array of {x, y}
+                this.targets = []; // Array of {x, y}
+
+                this.moves = 0;
+                this.pushes = 0;
+                this.history = []; // Unlimited Undo stack
+
+                this.tileSize = 48;
+                this.cols = 0;
+                this.rows = 0;
+
+                this.isCompleted = false;
+            }
+
+            loadLevel(levelData) {
+                const mapStrings = typeof levelData === 'string' 
+                    ? levelData.trim().split('\n') 
+                    : levelData.map;
+
+                this.rows = mapStrings.length;
+                this.cols = Math.max(...mapStrings.map(s => s.length));
+
+                this.grid = [];
+                this.boxes = [];
+                this.targets = [];
+                this.history = [];
+                this.moves = 0;
+                this.pushes = 0;
+                this.isCompleted = false;
+
+                for (let r = 0; r < this.rows; r++) {
+                    const row = [];
+                    const line = mapStrings[r] || "";
+                    for (let c = 0; c < this.cols; c++) {
+                        const char = line[c] || ' ';
+                        
+                        if (char === '#') {
+                            row.push('#');
+                        } else if (char === '.') {
+                            row.push('.');
+                            this.targets.push({ x: c, y: r });
+                        } else if (char === '$') {
+                            row.push(' ');
+                            this.boxes.push({ x: c, y: r });
+                        } else if (char === '*') {
+                            row.push('.');
+                            this.targets.push({ x: c, y: r });
+                            this.boxes.push({ x: c, y: r });
+                        } else if (char === '@') {
+                            row.push(' ');
+                            this.player = { x: c, y: r, dir: 'down' };
+                        } else if (char === '+') {
+                            row.push('.');
+                            this.targets.push({ x: c, y: r });
+                            this.player = { x: c, y: r, dir: 'down' };
+                        } else {
+                            row.push(' ');
+                        }
+                    }
+                    this.grid.push(row);
+                }
+
+                this.updateCanvasDimensions();
+                this.updateCounters();
+                this.render();
+            }
+
+            updateCanvasDimensions() {
+                // Calculate crisp tile size based on max viewport space
+                const maxW = Math.min(650, window.innerWidth - 60);
+                const maxH = 460;
+
+                const tileW = Math.floor(maxW / this.cols);
+                const tileH = Math.floor(maxH / this.rows);
+                this.tileSize = Math.max(28, Math.min(56, Math.min(tileW, tileH)));
+
+                this.canvas.width = this.cols * this.tileSize;
+                this.canvas.height = this.rows * this.tileSize;
+            }
+
+            saveSnapshot() {
+                this.history.push({
+                    player: { ...this.player },
+                    boxes: this.boxes.map(b => ({ ...b })),
+                    moves: this.moves,
+                    pushes: this.pushes
+                });
+            }
+
+            undo() {
+                if (this.history.length === 0 || this.isCompleted) return;
+                const last = this.history.pop();
+                this.player = last.player;
+                this.boxes = last.boxes;
+                this.moves = last.moves;
+                this.pushes = last.pushes;
+                
+                sound.undo();
+                this.updateCounters();
+                this.render();
+            }
+
+            move(dx, dy, dirName) {
+                if (this.isCompleted) return;
+
+                const targetX = this.player.x + dx;
+                const targetY = this.player.y + dy;
+
+                this.player.dir = dirName;
+
+                // Wall collision check
+                if (this.isWall(targetX, targetY)) return;
+
+                // Box check at target
+                const boxIndex = this.boxes.findIndex(b => b.x === targetX && b.y === targetY);
+
+                if (boxIndex !== -1) {
+                    // Box push check
+                    const boxTargetX = targetX + dx;
+                    const boxTargetY = targetY + dy;
+
+                    // Cannot push box if wall or another box behind it
+                    if (this.isWall(boxTargetX, boxTargetY) || this.hasBox(boxTargetX, boxTargetY)) {
+                        return;
+                    }
+
+                    // Save state for undo before modifying
+                    this.saveSnapshot();
+
+                    // Push box
+                    this.boxes[boxIndex].x = boxTargetX;
+                    this.boxes[boxIndex].y = boxTargetY;
+
+                    this.player.x = targetX;
+                    this.player.y = targetY;
+
+                    this.moves++;
+                    this.pushes++;
+
+                    // Sound check: on target sound vs push sound
+                    if (this.isTarget(boxTargetX, boxTargetY)) {
+                        sound.target();
+                    } else {
+                        sound.push();
+                    }
+
+                } else {
+                    // Normal player step
+                    this.saveSnapshot();
+                    this.player.x = targetX;
+                    this.player.y = targetY;
+                    this.moves++;
+                    sound.step();
+                }
+
+                this.updateCounters();
+                this.render();
+                this.checkWin();
+            }
+
+            isWall(x, y) {
+                if (x < 0 || x >= this.cols || y < 0 || y >= this.rows) return true;
+                return this.grid[y][x] === '#';
+            }
+
+            hasBox(x, y) {
+                return this.boxes.some(b => b.x === x && b.y === y);
+            }
+
+            isTarget(x, y) {
+                return this.targets.some(t => t.x === x && t.y === y);
+            }
+
+            updateCounters() {
+                document.getElementById('counter-moves').innerText = this.moves;
+                document.getElementById('counter-pushes').innerText = this.pushes;
+
+                const litBoxes = this.boxes.filter(b => this.isTarget(b.x, b.y)).length;
+                document.getElementById('counter-boxes').innerText = `${litBoxes}/${this.targets.length}`;
+            }
+
+            checkWin() {
+                if (this.targets.length === 0) return;
+                const win = this.boxes.every(b => this.isTarget(b.x, b.y));
+                if (win) {
+                    this.isCompleted = true;
+                    sound.win();
+                    showWinModal(this.moves, this.pushes);
+                }
+            }
+
+            render() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                const ts = this.tileSize;
+
+                // Draw Base Floor & Walls
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        const tile = this.grid[r][c];
+                        const x = c * ts;
+                        const y = r * ts;
+
+                        if (tile === '#') {
+                            this.drawWall(x, y, ts);
+                        } else {
+                            this.drawFloor(x, y, ts, (r + c) % 2 === 0);
+                        }
+                    }
+                }
+
+                // Draw Targets
+                this.targets.forEach(t => {
+                    this.drawTarget(t.x * ts, t.y * ts, ts);
+                });
+
+                // Draw Boxes
+                this.boxes.forEach(b => {
+                    const isOnTarget = this.isTarget(b.x, b.y);
+                    this.drawBox(b.x * ts, b.y * ts, ts, isOnTarget);
+                });
+
+                // Draw Player Character
+                this.drawPlayer(this.player.x * ts, this.player.y * ts, ts, this.player.dir);
+            }
+
+            drawFloor(x, y, ts, alt) {
+                this.ctx.fillStyle = alt ? '#0f172a' : '#1e293b';
+                this.ctx.fillRect(x, y, ts, ts);
+                this.ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+                this.ctx.strokeRect(x, y, ts, ts);
+            }
+
+            drawWall(x, y, ts) {
+                // 3D Stone Block Effect
+                this.ctx.fillStyle = '#334155';
+                this.ctx.fillRect(x, y, ts, ts);
+
+                // Top Specular Highlight
+                this.ctx.fillStyle = '#475569';
+                this.ctx.fillRect(x, y, ts, 4);
+
+                // Side Shadow
+                this.ctx.fillStyle = '#1e293b';
+                this.ctx.fillRect(x, y + ts - 4, ts, 4);
+                this.ctx.fillRect(x + ts - 4, y, 4, ts);
+
+                // Inner Brick Line Accent
+                this.ctx.strokeStyle = '#0f172a';
+                this.ctx.lineWidth = 1;
+                this.ctx.strokeRect(x + 2, y + 2, ts - 4, ts - 4);
+            }
+
+            drawTarget(x, y, ts) {
+                const cx = x + ts / 2;
+                const cy = y + ts / 2;
+                const r = ts * 0.22;
+
+                // Glowing emerald circle
+                this.ctx.beginPath();
+                this.ctx.arc(cx, cy, r + 2, 0, Math.PI * 2);
+                this.ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
+                this.ctx.fill();
+
+                this.ctx.beginPath();
+                this.ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                this.ctx.fillStyle = '#10b981';
+                this.ctx.fill();
+
+                this.ctx.beginPath();
+                this.ctx.arc(cx, cy, r * 0.4, 0, Math.PI * 2);
+                this.ctx.fillStyle = '#a7f3d0';
+                this.ctx.fill();
+            }
+
+            drawBox(x, y, ts, isOnTarget) {
+                const p = 4;
+                const size = ts - p * 2;
+                const bx = x + p;
+                const by = y + p;
+
+                if (isOnTarget) {
+                    // Golden Active Box
+                    this.ctx.fillStyle = '#f59e0b';
+                    this.ctx.fillRect(bx, by, size, size);
+
+                    this.ctx.fillStyle = '#fef08a';
+                    this.ctx.fillRect(bx, by, size, 4);
+
+                    this.ctx.strokeStyle = '#b45309';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(bx, by, size, size);
+
+                    // Glowing Checkmark / Cross Frame
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(bx + 6, by + 6);
+                    this.ctx.lineTo(bx + size - 6, by + size - 6);
+                    this.ctx.moveTo(bx + size - 6, by + 6);
+                    this.ctx.lineTo(bx + 6, by + size - 6);
+                    this.ctx.strokeStyle = '#78350f';
+                    this.ctx.stroke();
+                } else {
+                    // Standard Wooden Box
+                    this.ctx.fillStyle = '#d97706';
+                    this.ctx.fillRect(bx, by, size, size);
+
+                    this.ctx.fillStyle = '#fbbf24';
+                    this.ctx.fillRect(bx, by, size, 3);
+
+                    this.ctx.strokeStyle = '#78350f';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(bx, by, size, size);
+
+                    // Wooden X-Frame
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(bx + 5, by + 5);
+                    this.ctx.lineTo(bx + size - 5, by + size - 5);
+                    this.ctx.moveTo(bx + size - 5, by + 5);
+                    this.ctx.lineTo(bx + 5, by + size - 5);
+                    this.ctx.strokeStyle = '#92400e';
+                    this.ctx.lineWidth = 1.5;
+                    this.ctx.stroke();
+                }
+            }
+
+            drawPlayer(x, y, ts, dir) {
+                const cx = x + ts / 2;
+                const cy = y + ts / 2;
+                const r = ts * 0.35;
+
+                // Player Outer Shadow
+                this.ctx.beginPath();
+                this.ctx.ellipse(cx, cy + r * 0.7, r * 0.8, r * 0.3, 0, 0, Math.PI * 2);
+                this.ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                this.ctx.fill();
+
+                // Player Body (Cyan/Blue Robot Cap)
+                this.ctx.beginPath();
+                this.ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                this.ctx.fillStyle = '#0284c7';
+                this.ctx.fill();
+                this.ctx.lineWidth = 2;
+                this.ctx.strokeStyle = '#38bdf8';
+                this.ctx.stroke();
+
+                // Visor / Face direction indicator
+                let eyeDx = 0, eyeDy = 0;
+                if (dir === 'left') eyeDx = -r * 0.4;
+                if (dir === 'right') eyeDx = r * 0.4;
+                if (dir === 'up') eyeDy = -r * 0.4;
+                if (dir === 'down') eyeDy = r * 0.4;
+
+                this.ctx.beginPath();
+                this.ctx.arc(cx + eyeDx, cy + eyeDy, r * 0.4, 0, Math.PI * 2);
+                this.ctx.fillStyle = '#0f172a';
+                this.ctx.fill();
+
+                // Glowing Cyan Eyes
+                this.ctx.beginPath();
+                this.ctx.arc(cx + eyeDx, cy + eyeDy, r * 0.2, 0, Math.PI * 2);
+                this.ctx.fillStyle = '#38bdf8';
+                this.ctx.fill();
+            }
+        }
+
+        class LevelEditor {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+
+                this.cols = 8;
+                this.rows = 8;
+                this.tileSize = 40;
+                this.activeTile = '#'; // Wall by default
+
+                this.grid = []; // ASCII strings array or 2D array
+                this.isDrawing = false;
+
+                this.initGrid(8, 8);
+                this.setupEvents();
+            }
+
+            initGrid(cols, rows) {
+                this.cols = cols;
+                this.rows = rows;
+                this.grid = [];
+
+                for (let r = 0; r < rows; r++) {
+                    const row = [];
+                    for (let c = 0; c < cols; c++) {
+                        // Outer wall perimeter default
+                        if (r === 0 || r === rows - 1 || c === 0 || c === cols - 1) {
+                            row.push('#');
+                        } else {
+                            row.push(' ');
+                        }
+                    }
+                    this.grid.push(row);
+                }
+
+                this.updateCanvasDimensions();
+                this.render();
+            }
+
+            updateCanvasDimensions() {
+                this.canvas.width = this.cols * this.tileSize;
+                this.canvas.height = this.rows * this.tileSize;
+            }
+
+            setupEvents() {
+                const getTileCoords = (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const mx = e.clientX - rect.left;
+                    const my = e.clientY - rect.top;
+                    const c = Math.floor(mx / this.tileSize);
+                    const r = Math.floor(my / this.tileSize);
+                    return { c, r };
+                };
+
+                this.canvas.addEventListener('mousedown', (e) => {
+                    this.isDrawing = true;
+                    const { c, r } = getTileCoords(e);
+                    this.setTile(c, r);
+                });
+
+                this.canvas.addEventListener('mousemove', (e) => {
+                    if (this.isDrawing) {
+                        const { c, r } = getTileCoords(e);
+                        this.setTile(c, r);
+                    }
+                });
+
+                window.addEventListener('mouseup', () => {
+                    this.isDrawing = false;
+                });
+            }
+
+            setTile(c, r) {
+                if (c < 0 || c >= this.cols || r < 0 || r >= this.rows) return;
+
+                // Ensure single player enforcement
+                if (this.activeTile === '@') {
+                    for (let row = 0; row < this.rows; row++) {
+                        for (let col = 0; col < this.cols; col++) {
+                            if (this.grid[row][col] === '@') this.grid[row][col] = ' ';
+                        }
+                    }
+                }
+
+                this.grid[r][c] = this.activeTile;
+                this.render();
+            }
+
+            exportASCII() {
+                return this.grid.map(row => row.join('')).join('\n');
+            }
+
+            importASCII(asciiStr) {
+                const lines = asciiStr.trim().split('\n').map(l => l.replace(/\r/g, ''));
+                if (lines.length === 0) return;
+
+                this.rows = lines.length;
+                this.cols = Math.max(...lines.map(l => l.length));
+                this.grid = [];
+
+                for (let r = 0; r < this.rows; r++) {
+                    const row = [];
+                    const line = lines[r] || "";
+                    for (let c = 0; c < this.cols; c++) {
+                        row.push(line[c] || ' ');
+                    }
+                    this.grid.push(row);
+                }
+
+                this.updateCanvasDimensions();
+                this.render();
+            }
+
+            render() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                const ts = this.tileSize;
+
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        const tile = this.grid[r][c];
+                        const x = c * ts;
+                        const y = r * ts;
+
+                        // Floor background
+                        this.ctx.fillStyle = (r + c) % 2 === 0 ? '#0f172a' : '#1e293b';
+                        this.ctx.fillRect(x, y, ts, ts);
+                        this.ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                        this.ctx.strokeRect(x, y, ts, ts);
+
+                        if (tile === '#') {
+                            this.ctx.fillStyle = '#334155';
+                            this.ctx.fillRect(x + 2, y + 2, ts - 4, ts - 4);
+                        } else if (tile === '.') {
+                            this.ctx.fillStyle = '#10b981';
+                            this.ctx.beginPath();
+                            this.ctx.arc(x + ts / 2, y + ts / 2, ts * 0.2, 0, Math.PI * 2);
+                            this.ctx.fill();
+                        } else if (tile === '$') {
+                            this.ctx.fillStyle = '#d97706';
+                            this.ctx.fillRect(x + 4, y + 4, ts - 8, ts - 8);
+                        } else if (tile === '@') {
+                            this.ctx.fillStyle = '#0284c7';
+                            this.ctx.beginPath();
+                            this.ctx.arc(x + ts / 2, y + ts / 2, ts * 0.3, 0, Math.PI * 2);
+                            this.ctx.fill();
+                        }
+                    }
+                }
+            }
+        }
+
+        let game = null;
+        let editor = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new SokobanGame('game-canvas');
+            editor = new LevelEditor('editor-canvas');
+
+            // Populate Level Select
+            const levelSelect = document.getElementById('level-select');
+            DEFAULT_LEVELS.forEach((lvl, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.innerText = lvl.name;
+                levelSelect.appendChild(opt);
+            });
+
+            levelSelect.addEventListener('change', (e) => {
+                game.loadLevel(DEFAULT_LEVELS[parseInt(e.target.value)]);
+            });
+
+            // Initial level load
+            game.loadLevel(DEFAULT_LEVELS[0]);
+
+            // Keyboard Navigation Listeners
+            window.addEventListener('keydown', (e) => {
+                if (document.getElementById('view-play').classList.contains('hidden')) return;
+
+                switch (e.key) {
+                    case 'ArrowUp':
+                    case 'w':
+                    case 'W':
+                        e.preventDefault();
+                        game.move(0, -1, 'up');
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                    case 'S':
+                        e.preventDefault();
+                        game.move(0, 1, 'down');
+                        break;
+                    case 'ArrowLeft':
+                    case 'a':
+                    case 'A':
+                        e.preventDefault();
+                        game.move(-1, 0, 'left');
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                    case 'D':
+                        e.preventDefault();
+                        game.move(1, 0, 'right');
+                        break;
+                    case 'z':
+                    case 'Z':
+                    case 'u':
+                    case 'U':
+                        game.undo();
+                        break;
+                    case 'r':
+                    case 'R':
+                        game.loadLevel(DEFAULT_LEVELS[game.levelIdx]);
+                        break;
+                }
+            });
+
+            // Touch D-Pad Events
+            document.getElementById('btn-up').addEventListener('click', () => game.move(0, -1, 'up'));
+            document.getElementById('btn-down').addEventListener('click', () => game.move(0, 1, 'down'));
+            document.getElementById('btn-left').addEventListener('click', () => game.move(-1, 0, 'left'));
+            document.getElementById('btn-right').addEventListener('click', () => game.move(1, 0, 'right'));
+
+            document.getElementById('btn-undo').addEventListener('click', () => game.undo());
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                const selectedIdx = parseInt(document.getElementById('level-select').value);
+                game.loadLevel(DEFAULT_LEVELS[selectedIdx]);
+            });
+
+            // Tab Switching (Play vs Editor)
+            const tabPlay = document.getElementById('tab-play');
+            const tabEditor = document.getElementById('tab-editor');
+            const viewPlay = document.getElementById('view-play');
+            const viewEditor = document.getElementById('view-editor');
+
+            tabPlay.addEventListener('click', () => {
+                tabPlay.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-md";
+                tabEditor.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800";
+                viewPlay.classList.remove('hidden');
+                viewEditor.classList.add('hidden');
+                game.updateCanvasDimensions();
+                game.render();
+            });
+
+            tabEditor.addEventListener('click', () => {
+                tabEditor.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-amber-600 text-white shadow-md";
+                tabPlay.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800";
+                viewEditor.classList.remove('hidden');
+                viewPlay.classList.add('hidden');
+                editor.render();
+            });
+
+            // Sound Toggle
+            document.getElementById('btn-sound').addEventListener('click', () => {
+                sound.enabled = !sound.enabled;
+                document.getElementById('sound-icon').innerText = sound.enabled ? '🔊' : '🔇';
+            });
+
+            // Level Editor Palette Selection
+            document.querySelectorAll('.palette-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('palette-active'));
+                    btn.classList.add('palette-active');
+                    editor.activeTile = btn.dataset.tile;
+                });
+            });
+
+            // Resize Grid Button
+            document.getElementById('btn-resize-grid').addEventListener('click', () => {
+                const w = parseInt(document.getElementById('editor-w').value) || 8;
+                const h = parseInt(document.getElementById('editor-h').value) || 8;
+                editor.initGrid(w, h);
+            });
+
+            // Test Custom Level
+            document.getElementById('btn-test-level').addEventListener('click', () => {
+                const customASCII = editor.exportASCII();
+                tabPlay.click();
+                
+                // Add or update temporary level option
+                let customOpt = document.getElementById('opt-custom');
+                if (!customOpt) {
+                    customOpt = document.createElement('option');
+                    customOpt.id = 'opt-custom';
+                    customOpt.value = 'custom';
+                    customOpt.innerText = '⚙️ Nivel Personalizado';
+                    levelSelect.appendChild(customOpt);
+                }
+                levelSelect.value = 'custom';
+                game.loadLevel(customASCII);
+            });
+
+            // ASCII Export / Import Modal Wiring
+            const asciiModal = document.getElementById('ascii-modal');
+            const asciiText = document.getElementById('ascii-text');
+
+            document.getElementById('btn-export-ascii').addEventListener('click', () => {
+                asciiText.value = editor.exportASCII();
+                asciiModal.classList.remove('opacity-0', 'pointer-events-none');
+            });
+
+            document.getElementById('btn-close-ascii').addEventListener('click', () => {
+                asciiModal.classList.add('opacity-0', 'pointer-events-none');
+            });
+
+            document.getElementById('btn-copy-ascii').addEventListener('click', () => {
+                asciiText.select();
+                document.execCommand('copy');
+            });
+
+            document.getElementById('btn-import-ascii').addEventListener('click', () => {
+                if (asciiText.value.trim().length > 0) {
+                    editor.importASCII(asciiText.value);
+                    asciiModal.classList.add('opacity-0', 'pointer-events-none');
+                }
+            });
+
+            // Next Level Button inside Victory Modal
+            document.getElementById('btn-next-level').addEventListener('click', () => {
+                hideWinModal();
+                const currentVal = parseInt(levelSelect.value);
+                if (!isNaN(currentVal) && currentVal + 1 < DEFAULT_LEVELS.length) {
+                    levelSelect.value = currentVal + 1;
+                    game.loadLevel(DEFAULT_LEVELS[currentVal + 1]);
+                } else {
+                    levelSelect.value = 0;
+                    game.loadLevel(DEFAULT_LEVELS[0]);
+                }
+            });
+
+            // Handle Resize
+            window.addEventListener('resize', () => {
+                game.updateCanvasDimensions();
+                game.render();
+            });
+        });
+
+        function showWinModal(moves, pushes) {
+            document.getElementById('win-moves').innerText = moves;
+            document.getElementById('win-pushes').innerText = pushes;
+
+            const modal = document.getElementById('win-modal');
+            const card = document.getElementById('win-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-90');
+            card.classList.add('scale-100');
+        }
+
+        function hideWinModal() {
+            const modal = document.getElementById('win-modal');
+            const card = document.getElementById('win-card');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+        }
+    </script>
+<script>const DIRS=[[0,-1,'↑'],[1,0,'→'],[0,1,'↓'],[-1,0,'←']];
+function random(seed){let a=2166136261;for(const c of String(seed))a=Math.imul(a^c.charCodeAt(0),16777619);return()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function generate(seed,tier=0){
+ const rnd=random(seed),w=8+tier*2,h=7+tier,n=2+tier;
+ let best=null,bestScore=-1;
+ for(let attempt=0;attempt<12;attempt++){
+ const floor=new Set();for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)floor.add(y*w+x);
+ // Sparse pillars retain room to circle crates; every selected pull is reachable.
+ for(let k=0;k<3+tier*3;k++){let x=2+Math.floor(rnd()*(w-4)),y=2+Math.floor(rnd()*(h-4));floor.delete(y*w+x)}
+ const cells=[...floor].filter(p=>[1,-1,w,-w].every(d=>floor.has(p+d)));
+ if(cells.length<n+1)continue;
+ let pool=cells.slice(),goals=[];for(let k=0;k<n;k++)goals.push(pool.splice(Math.floor(rnd()*pool.length),1)[0]);
+ let boxes=goals.slice(),p=pool[Math.floor(rnd()*pool.length)],trace=[],seen=new Set(),saved=null,score=-1;
+ for(let step=0;step<70+tier*65;step++){
+ const occupied=new Set(boxes),paths=new Map([[p,[]]]),queue=[p];
+ for(let j=0;j<queue.length;j++){let pos=queue[j];DIRS.forEach(([dx,dy],d)=>{let q=pos+dx+dy*w;if(floor.has(q)&&!occupied.has(q)&&!paths.has(q)){paths.set(q,[...paths.get(pos),d]);queue.push(q)}})}
+ let candidates=[];
+ boxes.forEach((b,i)=>DIRS.forEach(([dx,dy],d)=>{let delta=dx+dy*w,a=b+delta,z=a+delta;if(paths.has(a)&&floor.has(z)&&!occupied.has(z)){let next=boxes.slice();next[i]=a;let key=next.slice().sort((a,b)=>a-b).join(',');candidates.push({i,a,z,d,path:paths.get(a),key,weight:(seen.has(key)?0:12)+rnd()*5})}}));
+ if(!candidates.length)break;
+ candidates.sort((a,b)=>b.weight-a.weight);let c=candidates[0];trace.push(...c.path,c.d);boxes[c.i]=c.a;p=c.z;seen.add(c.key);
+ const off=boxes.filter(b=>!goals.includes(b)).length;
+ const distance=boxes.reduce((sum,b)=>sum+Math.min(...goals.map(g=>Math.abs(g%w-b%w)+Math.abs(Math.floor(g/w)-Math.floor(b/w)))),0);
+ let s=off*12+distance*3+seen.size*.12;
+ if(off===n&&s>score){score=s;saved={boxes:boxes.slice(),p,trace:trace.slice()}}
+ }
+ if(saved&&score>bestScore){bestScore=score;let map=Array.from({length:h},(_,y)=>Array.from({length:w},(_,x)=>floor.has(y*w+x)?' ':'#'));for(let g of goals)map[Math.floor(g/w)][g%w]='.';for(let b of saved.boxes)map[Math.floor(b/w)][b%w]=goals.includes(b)?'*':'$';map[Math.floor(saved.p/w)][saved.p%w]=goals.includes(saved.p)?'+':'@';best={map:map.map(r=>r.join('')),solution:saved.trace.reverse().map(d=>(d+2)%4),seed:String(seed),tier}}
+ }
+ if(!best)throw Error('No se pudo generar. Probá otra semilla.');return best;
+}
+if(typeof module!=='undefined')module.exports={generate,DIRS};
+
+const $=id=>document.getElementById(id);
+let generatedLevel=null,currentLevel=null,autoTimer=null,autoPlaying=false,completed={};
+try{completed=JSON.parse(localStorage.getItem('sokoban-almacen-v1')||'{}')}catch{}
+function notify(t){$('status').textContent=t}
+function stopAuto(){clearInterval(autoTimer);autoTimer=null;autoPlaying=false;if($('btn-solution'))$('btn-solution').textContent='▷ Ver solución'}
+const baseLoad=SokobanGame.prototype.loadLevel;
+SokobanGame.prototype.loadLevel=function(data){stopAuto();hideWinModal();currentLevel=typeof data==='string'?{name:'Nivel personalizado',map:data.replace(/\r/g,'').split('\n')}:data;this.levelIdx=DEFAULT_LEVELS.indexOf(data);baseLoad.call(this,currentLevel);if($('status'))notify(currentLevel.solution?'Nivel verificado · '+this.boxes.length+' cajas. ¡Encontrá tu propia ruta!':'Nivel del editor: solución no verificada.');if($('btn-solution'))$('btn-solution').disabled=!currentLevel.solution;};
+SokobanGame.prototype.updateCanvasDimensions=function(){const maxW=Math.max(200,this.canvas.parentElement.clientWidth-12),maxH=Math.max(310,Math.min(760,window.innerHeight*.66));this.tileSize=Math.max(9,Math.min(100,Math.floor(Math.min(maxW/this.cols,maxH/this.rows))));this.canvas.width=this.cols*this.tileSize;this.canvas.height=this.rows*this.tileSize;};
+function rounded(c,x,y,w,h,r,fill,stroke){c.beginPath();c.roundRect(x,y,w,h,r);c.fillStyle=fill;c.fill();if(stroke){c.strokeStyle=stroke;c.lineWidth=1;c.stroke()}}
+SokobanGame.prototype.drawFloor=function(x,y,s,alt){const c=this.ctx;c.fillStyle=alt?'#273d43':'#2b4147';c.fillRect(x,y,s,s);c.strokeStyle='#42585c55';c.lineWidth=1;c.strokeRect(x+1,y+1,s-2,s-2);c.fillStyle='#aec0b21a';c.fillRect(x+s*.12,y+s*.12,s*.035,s*.035)};
+SokobanGame.prototype.drawWall=function(x,y,s){const c=this.ctx;c.fillStyle='#11252c';c.fillRect(x,y,s,s);const g=c.createLinearGradient(x,y,x,y+s);g.addColorStop(0,'#6d8b8d');g.addColorStop(1,'#3a555e');rounded(c,x+1,y+1,s-2,s-5,s*.06,g);c.fillStyle='#9fb6ad88';c.fillRect(x+3,y+3,s-6,s*.06);c.strokeStyle='#203d46';c.lineWidth=s*.035;c.beginPath();c.moveTo(x+2,y+s*.49);c.lineTo(x+s-2,y+s*.49);c.moveTo(x+s*.45,y+4);c.lineTo(x+s*.45,y+s*.48);c.moveTo(x+s*.7,y+s*.5);c.lineTo(x+s*.7,y+s-6);c.stroke()};
+SokobanGame.prototype.drawTarget=function(x,y,s){const c=this.ctx;c.save();c.translate(x+s/2,y+s/2);c.shadowColor='#b3ee86';c.shadowBlur=s*.15;c.strokeStyle='#b3ee86';c.lineWidth=s*.035;c.beginPath();c.arc(0,0,s*.26,0,Math.PI*2);c.stroke();c.shadowBlur=0;c.setLineDash([s*.05,s*.06]);c.beginPath();c.arc(0,0,s*.35,0,Math.PI*2);c.stroke();c.fillStyle='#b3ee8677';c.fillRect(-s*.065,-s*.065,s*.13,s*.13);c.restore()};
+SokobanGame.prototype.drawBox=function(x,y,s,on){const c=this.ctx;c.save();c.shadowColor='#0008';c.shadowBlur=s*.09;c.shadowOffsetY=s*.07;const g=c.createLinearGradient(x,y,x+s,y+s);g.addColorStop(0,on?'#b3de89':'#e9b775');g.addColorStop(1,on?'#609258':'#aa6a39');rounded(c,x+s*.09,y+s*.08,s*.82,s*.79,s*.06,g,on?'#d8f8bd':'#ffdb9a');c.shadowBlur=0;c.shadowOffsetY=0;c.strokeStyle=on?'#416d45':'#89552f';c.lineWidth=s*.028;for(let k=1;k<4;k++){c.beginPath();c.moveTo(x+s*.15,y+s*(.1+k*.18));c.lineTo(x+s*.85,y+s*(.1+k*.18));c.stroke()}c.lineWidth=s*.085;c.beginPath();c.moveTo(x+s*.2,y+s*.2);c.lineTo(x+s*.8,y+s*.75);c.moveTo(x+s*.8,y+s*.2);c.lineTo(x+s*.2,y+s*.75);c.stroke();for(let a of [.18,.81])for(let b of [.17,.77]){c.fillStyle='#473e32';c.beginPath();c.arc(x+s*a,y+s*b,s*.023,0,7);c.fill()}if(on){rounded(c,x+s*.32,y+s*.31,s*.36,s*.32,s*.05,'#254b36');c.strokeStyle='#dcf5bb';c.lineWidth=s*.045;c.beginPath();c.moveTo(x+s*.4,y+s*.46);c.lineTo(x+s*.47,y+s*.53);c.lineTo(x+s*.61,y+s*.39);c.stroke()}c.restore()};
+SokobanGame.prototype.drawPlayer=function(x,y,s,dir){const c=this.ctx;c.save();c.fillStyle='#0005';c.beginPath();c.ellipse(x+s*.5,y+s*.81,s*.3,s*.12,0,0,7);c.fill();rounded(c,x+s*.25,y+s*.59,s*.18,s*.24,s*.05,'#122d3b');rounded(c,x+s*.58,y+s*.59,s*.18,s*.24,s*.05,'#122d3b');const g=c.createLinearGradient(x,y,x,y+s);g.addColorStop(0,'#eef0de');g.addColorStop(1,'#749eaa');rounded(c,x+s*.18,y+s*.18,s*.64,s*.55,s*.15,g,'#f5f6db');let dx=dir==='left'?-.04:dir==='right'?.04:0,dy=dir==='up'?-.035:dir==='down'?.035:0;rounded(c,x+s*(.26+dx),y+s*(.3+dy),s*.48,s*.23,s*.07,'#183946');c.fillStyle='#a7eff2';c.shadowColor='#5bdae3';c.shadowBlur=s*.08;c.fillRect(x+s*(.34+dx),y+s*(.37+dy),s*.065,s*.065);c.fillRect(x+s*(.59+dx),y+s*(.37+dy),s*.065,s*.065);c.shadowBlur=0;c.strokeStyle='#c3ddd0';c.lineWidth=s*.04;c.beginPath();c.moveTo(x+s*.5,y+s*.18);c.lineTo(x+s*.5,y+s*.08);c.stroke();c.fillStyle='#e8b76a';c.beginPath();c.arc(x+s*.5,y+s*.07,s*.045,0,7);c.fill();c.restore()};
+const baseMove=SokobanGame.prototype.move;
+SokobanGame.prototype.move=function(dx,dy,name){baseMove.call(this,dx,dy,name);if(!this.isCompleted){const stuck=this.boxes.some(b=>!this.isTarget(b.x,b.y)&&(this.isWall(b.x-1,b.y)||this.isWall(b.x+1,b.y))&&(this.isWall(b.x,b.y-1)||this.isWall(b.x,b.y+1)));if(stuck)notify('Caja atrapada en una esquina. Podés deshacer con Z.');else if(!autoPlaying)notify('Empujá cada caja hasta una meta.')}};
+const baseWin=SokobanGame.prototype.checkWin;
+SokobanGame.prototype.checkWin=function(){baseWin.call(this);if(this.isCompleted){if(!autoPlaying&&this.levelIdx>=0){completed[this.levelIdx]=true;try{localStorage.setItem('sokoban-almacen-v1',JSON.stringify(completed))}catch{}updateProgress()}stopAuto()}};
+function updateProgress(){if($('campaign-progress'))$('campaign-progress').textContent=Object.keys(completed).length+' / 40 niveles completados';[...$('level-select').options].forEach(o=>{if(DEFAULT_LEVELS[o.value])o.textContent=(completed[o.value]?'✓ ':'')+DEFAULT_LEVELS[o.value].name})}
+function validateMap(map){if(map.length<3||map.length>30||Math.max(...map.map(r=>r.length))>30)throw Error('Usá un mapa de 3 a 30 filas y hasta 30 columnas.');const text=map.join('');if(/[^# .@$*+]/.test(text))throw Error('El mapa contiene símbolos desconocidos.');if((text.match(/[@+]/g)||[]).length!==1)throw Error('Debe haber exactamente un jugador.');const b=(text.match(/[$*]/g)||[]).length,t=(text.match(/[.*+]/g)||[]).length;if(!b||b!==t)throw Error('Necesitás igual cantidad de cajas y metas, al menos una.');return true}
+const importBase=LevelEditor.prototype.importASCII;
+LevelEditor.prototype.importASCII=function(text){const lines=text.replace(/\r/g,'').replace(/^\n+|\n+$/g,'').split('\n');if(lines.length>30||Math.max(...lines.map(l=>l.length))>30||/[^# .@$*+\n]/.test(lines.join('\n'))){alert('Mapa inválido: máximo 30 × 30 y símbolos ASCII de Sokoban.');return}importBase.call(this,lines.join('\n'));$('editor-w').value=this.cols;$('editor-h').value=this.rows;};
+LevelEditor.prototype.render=function(){this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);for(let y=0;y<this.rows;y++)for(let x=0;x<this.cols;x++){let t=this.grid[y][x],s=this.tileSize;SokobanGame.prototype[t==='#'?'drawWall':'drawFloor'].call(this,x*s,y*s,s,(x+y)%2===0);if('.+*'.includes(t))SokobanGame.prototype.drawTarget.call(this,x*s,y*s,s);if('$*'.includes(t))SokobanGame.prototype.drawBox.call(this,x*s,y*s,s,t==='*');if('@+'.includes(t))SokobanGame.prototype.drawPlayer.call(this,x*s,y*s,s,'down')}};
+LevelEditor.prototype.setupEvents=function(){const paint=e=>{let r=this.canvas.getBoundingClientRect();this.setTile(Math.floor((e.clientX-r.left)*this.cols/r.width),Math.floor((e.clientY-r.top)*this.rows/r.height))};this.canvas.addEventListener('pointerdown',e=>{e.preventDefault();this.isDrawing=true;this.canvas.setPointerCapture(e.pointerId);paint(e)});this.canvas.addEventListener('pointermove',e=>{if(this.isDrawing)paint(e)});this.canvas.addEventListener('pointerup',()=>this.isDrawing=false);this.canvas.addEventListener('pointercancel',()=>this.isDrawing=false)};
+const setBase=LevelEditor.prototype.setTile;
+LevelEditor.prototype.setTile=function(c,r){if('@+'.includes(this.activeTile)){for(let row of this.grid)for(let i=0;i<row.length;i++){if(row[i]==='@')row[i]=' ';else if(row[i]==='+')row[i]='.'}}setBase.call(this,c,r)};
+document.addEventListener('DOMContentLoaded',()=>{
+ const side=$('view-play').children[1];$('win-card').insertAdjacentHTML('beforeend','<button id="close-win" style="margin-top:12px">Volver al tablero</button>');$('close-win').onclick=hideWinModal;side.insertAdjacentHTML('afterbegin','<div style="width:100%"><div class="note">SOKOBAN / EL ALMACÉN</div><h2>Un destino para cada caja</h2><p id="campaign-progress"></p></div>');
+ side.insertAdjacentHTML('beforeend','<div id="generator-panel"><h3>Generador de niveles</h3><label for="difficulty">Complejidad orientativa</label><select id="difficulty"><option value="0">Suave · 2 cajas · 8 × 7</option><option value="1">Media · 3 cajas · 10 × 8</option><option value="2">Alta · 4 cajas · 12 × 9</option><option value="3">Amplia · 5 cajas · 14 × 10</option></select><label for="seed">Semilla (repetí el mismo tablero)</label><input id="seed" maxlength="80" value="mi-almacen"><button id="btn-generate">Generar nivel resoluble</button><button id="btn-random">⚄ Nueva semilla y nivel</button><p class="note" style="margin-top:12px">Se parte de las cajas en sus metas y se realizan movimientos inversos válidos. La solución guardada no necesariamente es la más corta.</p></div>');
+ $('game-canvas').parentElement.insertAdjacentHTML('afterend','<div class="extra-tools"><button id="btn-prev">← Anterior</button><button id="btn-next">Siguiente →</button><button id="btn-solution">▷ Ver solución</button><button id="btn-save">↓ Guardar mapa</button><button id="btn-edit-map">✎ Editar mapa</button></div><div id="status" class="status" role="status" aria-live="polite"></div>');
+ notify('40 niveles y un generador con solución garantizada.');updateProgress();
+ function selectExtra(level){generatedLevel=level;let opt=$('opt-generated');if(!opt){opt=document.createElement('option');opt.id='opt-generated';opt.value='generated';$('level-select').appendChild(opt)}opt.textContent='⚄ '+level.seed;$('level-select').value='generated';game.loadLevel(level)}
+ async function newLevel(){stopAuto();$('btn-generate').disabled=true;$('btn-random').disabled=true;notify('Preparando un tablero resoluble…');await new Promise(r=>setTimeout(r,30));try{selectExtra(generate($('seed').value||'almacen',+$('difficulty').value))}catch(e){notify(e.message)}finally{$('btn-generate').disabled=false;$('btn-random').disabled=false}}
+ $('btn-generate').onclick=newLevel;$('btn-random').onclick=()=>{$('seed').value=String(Math.floor(Math.random()*1000000000));newLevel()};
+ const go=delta=>{const i=Math.max(0,Math.min(DEFAULT_LEVELS.length-1,game.levelIdx+delta));$('level-select').value=i;game.loadLevel(DEFAULT_LEVELS[i])};
+ $('btn-prev').onclick=()=>go(-1);$('btn-next').onclick=()=>go(1);
+ $('btn-solution').onclick=()=>{if(autoPlaying){stopAuto();notify('Reproducción detenida. Podés continuar jugando.');return}if(!currentLevel.solution)return;const level=currentLevel;game.loadLevel(level);autoPlaying=true;$('btn-solution').textContent='■ Detener solución';notify('Reproduciendo desde el inicio. Esto no cuenta como logro.');let i=0;autoTimer=setInterval(()=>{if(i>=level.solution.length){stopAuto();return}const d=level.solution[i++];game.move(DIRS[d][0],DIRS[d][1],['up','right','down','left'][d])},110)};
+ $('btn-save').onclick=()=>{const blob=new Blob([currentLevel.map.join('\n')+'\n'],{type:'text/plain'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='sokoban-'+(currentLevel.seed||'nivel').replace(/[^a-z0-9-]/gi,'_')+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+ $('btn-edit-map').onclick=()=>{editor.importASCII(currentLevel.map.join('\n'));$('tab-editor').click()};
+ const palette=document.querySelector('.palette-btn').parentElement;
+ for(const [tile,title]of [['*','✓ Caja en meta'],['+','◎ Jugador en meta']]){let btn=document.createElement('button');btn.textContent=title;btn.className='palette-btn';btn.dataset.tile=tile;btn.onclick=()=>{document.querySelectorAll('.palette-btn').forEach(b=>b.classList.remove('palette-active'));btn.classList.add('palette-active');editor.activeTile=tile};palette.appendChild(btn)}
+ $('btn-reset').addEventListener('click',e=>{e.stopImmediatePropagation();game.loadLevel(currentLevel)},true);
+ $('btn-test-level').addEventListener('click',e=>{try{validateMap(editor.exportASCII().split('\n'))}catch(err){e.stopImmediatePropagation();alert(err.message)}},true);
+ $('btn-resize-grid').addEventListener('click',()=>{for(const id of ['editor-w','editor-h'])$(id).value=Math.max(5,Math.min(24,parseInt($(id).value)||8))},true);
+ $('btn-next-level').addEventListener('click',e=>{if(game.levelIdx<0){e.stopImmediatePropagation();hideWinModal();newLevel()}},true);
+ $('level-select').addEventListener('change',e=>{if(e.target.value==='generated'||e.target.value==='custom'){e.stopImmediatePropagation();if(e.target.value==='generated'&&generatedLevel)game.loadLevel(generatedLevel);if(e.target.value==='custom'){try{validateMap(editor.exportASCII().split('\n'));game.loadLevel(editor.exportASCII())}catch(err){alert(err.message)}}}},true);
+ $('btn-undo').addEventListener('click',()=>{stopAuto();game.isCompleted=false;hideWinModal()},true);
+ document.addEventListener('click',e=>{if(e.target.closest('#btn-up,#btn-down,#btn-left,#btn-right,#tab-editor'))stopAuto()},true);
+ window.addEventListener('keydown',e=>{if(['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)||!$('ascii-modal').classList.contains('pointer-events-none')){e.stopImmediatePropagation();return}if($('view-play').classList.contains('hidden'))return;if(e.key.toLowerCase()==='r'){e.preventDefault();e.stopImmediatePropagation();game.loadLevel(currentLevel);return}if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','z','u'].includes(e.key)){stopAuto();if(['z','u'].includes(e.key)){game.isCompleted=false;hideWinModal()}}},true);
+ let touch=null;$('game-canvas').addEventListener('pointerdown',e=>{touch=[e.clientX,e.clientY];$('game-canvas').setPointerCapture(e.pointerId)});$('game-canvas').addEventListener('pointerup',e=>{if(!touch)return;let dx=e.clientX-touch[0],dy=e.clientY-touch[1];touch=null;if(Math.max(Math.abs(dx),Math.abs(dy))<18)return;stopAuto();let d=Math.abs(dx)>Math.abs(dy)?(dx>0?1:3):(dy>0?2:0);game.move(DIRS[d][0],DIRS[d][1],['up','right','down','left'][d])});
+ game.updateCanvasDimensions();game.render();
+});
+</script></body>
+</html>

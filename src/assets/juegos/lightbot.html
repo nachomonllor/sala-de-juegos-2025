@@ -1,0 +1,2096 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightbot 3D - Edición Bucles Anidados</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        accent: '#facc15'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        /* Drag and Drop visual dropzone target styles */
+        .drop-target {
+            outline: 2px dashed #38bdf8 !important;
+            background-color: rgba(56, 189, 248, 0.1) !important;
+        }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Active step glow */
+        .executing-node {
+            box-shadow: 0 0 12px #38bdf8, inset 0 0 8px rgba(56, 189, 248, 0.4);
+            border-color: #38bdf8 !important;
+            transform: scale(1.02);
+            transition: all 0.15s ease-in-out;
+        }
+
+        /* Glassmorphism panel styling */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        #game-canvas { height: clamp(320px, 48vh, 460px); max-height: none; }
+        #execution-status { min-height: 2.5em; }
+        #algorithm-text { white-space: pre; tab-size: 4; user-select: text; -webkit-user-select: text; }
+        .program-editor[aria-disabled="true"] { pointer-events: none; opacity: .75; }
+        .cmd-btn:disabled { opacity: .45; cursor: not-allowed; }
+        #designer-dialog { width: min(1120px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; margin: auto; padding: 0; border: 1px solid #334155; border-radius: 18px; color: #e2e8f0; background: #0f172a; }
+        #designer-dialog::backdrop { background: rgba(2,6,23,.85); backdrop-filter: blur(6px); }
+        .designer-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .designer-controls button, .designer-controls input, .designer-controls select { border: 1px solid #475569; border-radius: 7px; padding: 7px 10px; background: #1e293b; color: #e2e8f0; font-size: 12px; }
+        .designer-controls button[aria-pressed="true"] { border-color: #22d3ee; box-shadow: 0 0 0 2px #0891b2; color: #67e8f9; }
+        .designer-controls button:disabled { opacity: .4; }
+        #designer-grid { display: grid; gap: 4px; width: max-content; margin: 8px auto; }
+        .designer-cell { width: 54px; height: 54px; position: relative; border: 1px solid #64748b; border-radius: 6px; background: #334155; color: white; font: 700 12px ui-monospace, monospace; cursor: pointer; }
+        .designer-cell:hover, .designer-cell:focus-visible { outline: 2px solid #67e8f9; outline-offset: 1px; z-index: 1; }
+        .designer-cell.is-hole { background: #020617; border: 1px dashed #334155; color: #64748b; }
+        .designer-cell.is-light { background: #0369a1; border-color: #38bdf8; }
+        .designer-cell.is-start { outline: 2px solid #4ade80; outline-offset: -3px; }
+        .designer-cell .cell-height { position: absolute; bottom: 3px; right: 5px; }
+        .designer-cell .cell-icons { position: absolute; top: 3px; left: 4px; font-size: 14px; }
+        .designer-axis { display: grid; place-items: center; font: 11px ui-monospace,monospace; color: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
+
+    <header class="glass-panel sticky top-0 z-30 px-4 py-3 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
+                    LIGHTBOT <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-800 text-cyan-300 ml-1 font-mono">3D LOOPS</span>
+                </h1>
+                <p class="text-xs text-slate-400">Aprende programación con bucles anidados</p>
+            </div>
+        </div>
+
+        <!-- Level Selector and Sound Controls -->
+        <div class="flex flex-wrap items-center gap-3">
+            <button id="btn-designer" type="button" class="px-3 py-2 text-xs font-bold rounded-lg border border-cyan-800 bg-cyan-950 text-cyan-300">＋ Crear escenario</button>
+            <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-lg p-1">
+                <label for="level-select" class="text-xs font-medium text-slate-400 pl-2">Nivel:</label>
+                <select id="level-select" class="bg-slate-800 text-xs text-slate-200 font-semibold rounded px-2 py-1 border border-slate-700 outline-none focus:border-cyan-500 cursor-pointer">
+                    <!-- Loaded dynamically -->
+                </select>
+            </div>
+
+            <button id="btn-audio" title="Alternar Sonido" class="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors">
+                <svg id="icon-audio-on" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z"/>
+                </svg>
+                <svg id="icon-audio-off" class="w-5 h-5 hidden text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Left Column: Isometric Canvas Viewport & Controls -->
+        <section class="lg:col-span-7 flex flex-col gap-4">
+            <div class="glass-panel rounded-2xl p-4 flex flex-col items-center justify-between shadow-2xl relative overflow-hidden group min-h-[380px] sm:min-h-[460px]">
+                
+                <!-- Level Banner Info -->
+                <div class="w-full flex justify-between items-start mb-2 z-10">
+                    <div>
+                        <h2 id="level-title" class="text-lg font-bold text-slate-100">Cargando Nivel...</h2>
+                        <p id="level-desc" class="text-xs text-slate-400 mt-0.5">Descripción del nivel...</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-900/80 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-xs font-semibold text-slate-400">Luces:</span>
+                        <span id="light-counter" class="text-sm font-extrabold text-cyan-400">0/0</span>
+                    </div>
+                </div>
+
+                <!-- 3D Canvas -->
+                <div class="relative w-full flex-1 flex items-center justify-center my-2">
+                    <canvas id="game-canvas" class="w-full h-full max-h-[420px] rounded-xl cursor-grab active:cursor-grabbing border border-slate-800/50 bg-slate-900/40 shadow-inner"></canvas>
+                </div>
+
+                <p id="execution-status" role="status" aria-live="polite" class="w-full text-xs text-slate-400 mb-2">Listo para ejecutar.</p>
+                <!-- Playback & Speed Control Toolbar -->
+                <div class="w-full bg-slate-900/90 border border-slate-800/80 rounded-xl p-2.5 flex flex-wrap items-center justify-between gap-3 z-10 shadow-lg">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button id="btn-play" class="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs rounded-lg transition-all shadow-lg shadow-cyan-600/30 active:scale-95">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                            </svg>
+                            <span id="play-text">EJECUTAR</span>
+                        </button>
+
+                        <button id="btn-stop" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg border border-slate-700 transition-all active:scale-95" title="Detener / Reiniciar Posición">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
+
+                        <button id="btn-clear" class="flex items-center gap-2 p-2 bg-slate-800 hover:bg-red-900/40 text-slate-400 hover:text-red-400 rounded-lg border border-slate-700 hover:border-red-800/50 transition-all active:scale-95" title="Borrar todas las instrucciones de Principal y las funciones">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        <span class="text-xs font-semibold">Limpiar instrucciones</span>
+                        </button>
+                        <button id="btn-export" type="button" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg border border-slate-700 text-xs font-semibold" title="Descargar Principal y todas las funciones">↓ Descargar JSON</button>
+                        <button id="btn-import" type="button" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded-lg border border-slate-700 text-xs font-semibold">↑ Cargar JSON</button>
+                        <input id="import-file" type="file" accept=".json,application/json" hidden>
+                    </div>
+
+                    <!-- Speed Slider -->
+                    <div class="flex items-center gap-2 bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800/60">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        <span class="text-[11px] font-semibold text-slate-400">Velocidad:</span>
+                        <input id="speed-slider" type="range" min="1" max="5" value="3" class="w-20 accent-cyan-500 cursor-pointer">
+                    </div>
+                </div>
+                <p id="level-rules" class="text-[11px] text-slate-500 mt-2">Avanzar: misma altura · Saltar: casilla vecina, hasta un peldaño arriba o abajo (también en llano) · Luz: encender/apagar · ■: reiniciar</p>
+            </div>
+        </section>
+
+        <!-- Right Column: Program Editor & Instructions Palette -->
+        <section class="lg:col-span-5 min-w-0 flex flex-col gap-4">
+            
+            <!-- Instructions Palette -->
+            <div class="glass-panel rounded-2xl p-4 flex flex-col gap-3 shadow-xl">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                    <span>Instrucciones Disponibles</span>
+                    <span class="text-[10px] text-slate-500 normal-case font-normal">(Haz clic o arrastra al programa)</span>
+                </h3>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="toolbox">
+                    
+                    <button data-cmd="walk" class="cmd-btn flex items-center gap-2 p-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 rounded-xl text-xs font-semibold text-slate-200 transition-all hover:border-cyan-500/50 active:scale-95 text-left group" draggable="true">
+                        <span class="w-7 h-7 rounded-lg bg-cyan-950 text-cyan-400 flex items-center justify-center border border-cyan-800/50 group-hover:scale-105 transition-transform">
+                            ↑
+                        </span>
+                        <span>Avanzar</span>
+                    </button>
+
+                    <button data-cmd="right" class="cmd-btn flex items-center gap-2 p-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 rounded-xl text-xs font-semibold text-slate-200 transition-all hover:border-cyan-500/50 active:scale-95 text-left group" draggable="true">
+                        <span class="w-7 h-7 rounded-lg bg-indigo-950 text-indigo-400 flex items-center justify-center border border-indigo-800/50 group-hover:scale-105 transition-transform">
+                            ↷
+                        </span>
+                        <span>Girar Der.</span>
+                    </button>
+
+                    <button data-cmd="left" class="cmd-btn flex items-center gap-2 p-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 rounded-xl text-xs font-semibold text-slate-200 transition-all hover:border-cyan-500/50 active:scale-95 text-left group" draggable="true">
+                        <span class="w-7 h-7 rounded-lg bg-indigo-950 text-indigo-400 flex items-center justify-center border border-indigo-800/50 group-hover:scale-105 transition-transform">
+                            ↶
+                        </span>
+                        <span>Girar Izq.</span>
+                    </button>
+
+                    <button data-cmd="jump" class="cmd-btn flex items-center gap-2 p-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 rounded-xl text-xs font-semibold text-slate-200 transition-all hover:border-cyan-500/50 active:scale-95 text-left group" draggable="true">
+                        <span class="w-7 h-7 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center border border-emerald-800/50 group-hover:scale-105 transition-transform">
+                            ⤊
+                        </span>
+                        <span>Saltar</span>
+                    </button>
+
+                    <button data-cmd="light" class="cmd-btn flex items-center gap-2 p-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 rounded-xl text-xs font-semibold text-slate-200 transition-all hover:border-cyan-500/50 active:scale-95 text-left group" draggable="true">
+                        <span class="w-7 h-7 rounded-lg bg-amber-950 text-amber-400 flex items-center justify-center border border-amber-800/50 group-hover:scale-105 transition-transform">
+                            💡
+                        </span>
+                        <span>Luz</span>
+                    </button>
+
+                    <button data-cmd="repeat" class="cmd-btn flex items-center gap-2 p-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 rounded-xl text-xs font-semibold text-purple-300 transition-all hover:border-purple-500/50 active:scale-95 text-left group" draggable="true">
+                        <span class="w-7 h-7 rounded-lg bg-purple-950 text-purple-400 flex items-center justify-center border border-purple-800/50 group-hover:scale-105 transition-transform">
+                            🔁
+                        </span>
+                        <span>Repetir N</span>
+                    </button>
+
+                    <button data-cmd="callF" class="cmd-btn flex items-center gap-2 p-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 rounded-xl text-xs font-semibold text-pink-300 transition-all text-left" draggable="true">
+                        <span class="w-7 h-7 rounded-lg bg-pink-950 text-pink-300 flex items-center justify-center border border-pink-800/50 font-bold">F</span>
+                        <span id="call-function-label">Llamar F1</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Program Workspace Tree Structure -->
+            <div class="glass-panel rounded-2xl p-4 flex-1 flex flex-col gap-3 shadow-xl min-h-[320px]">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex flex-wrap items-center gap-2">
+                        <button id="target-main" type="button" onclick="selectInsertionTarget('main')" class="px-2 py-1 rounded border border-cyan-700 text-cyan-300" aria-pressed="true">Principal · agregar aquí</button>
+                        <span id="cmd-count-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-mono">0 bloques</span>
+                    </h3>
+                    <span class="text-[11px] text-slate-500 italic">Anidación ilimitada</span>
+                </div>
+
+                <!-- Root Dropzone & Tree Container -->
+                <div id="program-tree" class="program-editor flex-1 bg-slate-950/70 border-2 border-dashed border-slate-800 rounded-xl p-3 overflow-y-auto max-h-[460px] flex flex-col gap-2 transition-all">
+                    <!-- Tree elements rendered dynamically -->
+                </div>
+            </div>
+            <div class="glass-panel rounded-2xl p-4 flex flex-col gap-3 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="text-xs font-bold text-pink-300">FUNCIONES</h3>
+                    <button id="btn-add-function" type="button" onclick="addFunction()" class="px-3 py-2 rounded-lg bg-pink-950 border border-pink-800 text-pink-200 text-xs font-bold">+ Crear función</button>
+                </div>
+                <p class="text-xs text-slate-400">Marcá una función para elegir a cuál llamar. «Agregar aquí» elige dónde escribir. Las llamadas ya insertadas conservan su destino.</p>
+                <div id="functions-list" class="flex flex-col gap-3 max-h-[520px] overflow-y-auto p-1"></div>
+                <p id="insertion-target" role="status" class="text-xs text-cyan-300">Agregando a: Principal</p>
+                <p class="text-[11px] text-slate-500">Al cambiar de nivel se limpian Principal y las funciones. Para repetir un intento, usá Ejecutar.</p>
+            </div>
+            <div class="glass-panel rounded-2xl p-4 flex flex-col gap-3 shadow-xl min-w-0">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-300">Tu algoritmo escrito</h3>
+                <p class="text-xs text-slate-400">Se actualiza al editar. Las sangrías muestran qué instrucciones están dentro de cada bucle o función. Para recuperar un programa: Cargar JSON → Ejecutar.</p>
+                <pre id="algorithm-text" tabindex="0" aria-label="Algoritmo en lenguaje natural" class="bg-slate-950/70 border border-slate-800 rounded-xl p-3 text-xs leading-6 text-slate-200 overflow-auto max-h-[520px]"></pre>
+            </div>
+        </section>
+    </main>
+
+    <dialog id="designer-dialog" aria-labelledby="designer-title">
+        <div class="p-4 sm:p-6 flex flex-col gap-4">
+            <div class="flex items-center justify-between gap-3">
+                <div><h2 id="designer-title" class="text-xl font-bold text-cyan-300">Diseñador de escenarios</h2>
+                <p class="text-xs text-slate-400 mt-1">Vista desde arriba · x aumenta hacia la derecha, y hacia abajo · cada número es la altura.</p></div>
+                <button id="designer-close" type="button" class="px-3 py-2 border border-slate-700 rounded-lg" aria-label="Cerrar diseñador">✕</button>
+            </div>
+            <div class="designer-controls">
+                <label>Nombre <input id="designer-name" maxlength="100" value="Mi escenario" class="max-w-[200px]"></label>
+                <label>Columnas <input id="designer-width" type="number" min="1" max="20" value="8" style="width:65px"></label>
+                <label>Filas <input id="designer-height" type="number" min="1" max="20" value="8" style="width:65px"></label>
+                <button id="designer-resize" type="button">Aplicar tamaño</button>
+                <button id="designer-new" type="button">Tablero nuevo</button>
+                <button id="designer-copy" type="button">Copiar nivel actual</button>
+                <button id="designer-undo" type="button" disabled>↶ Deshacer</button>
+            </div>
+            <div class="designer-controls" role="group" aria-label="Herramientas del tablero">
+                <button type="button" data-design-tool="raise" aria-pressed="true">＋ Subir piso</button>
+                <button type="button" data-design-tool="lower" aria-pressed="false">− Bajar piso</button>
+                <button type="button" data-design-tool="ground" aria-pressed="false">▦ Suelo 0</button>
+                <button type="button" data-design-tool="light" aria-pressed="false">💡 Lámpara</button>
+                <button type="button" data-design-tool="start" aria-pressed="false">🤖 Salida</button>
+                <button type="button" data-design-tool="erase" aria-pressed="false">✕ Hueco</button>
+                <button type="button" data-design-tool="portal" aria-pressed="false">◉ Portal</button>
+                <label>Portal <input id="designer-portal" value="A" maxlength="3" style="width:54px" aria-label="Letra del par de portales"></label>
+                <label>Robot mira <select id="designer-direction"><option value="0">→ +x</option><option value="1">↓ +y</option><option value="2">← −x</option><option value="3">↑ −y</option></select></label>
+            </div>
+            <p id="designer-tool-help" class="text-xs text-cyan-200"></p>
+            <div class="rounded-xl bg-slate-950/70 p-3 overflow-auto max-h-[55vh]" aria-label="Área de edición del tablero">
+                <div id="designer-grid" role="group" aria-label="Casillas del escenario"></div>
+            </div>
+            <p id="designer-summary" class="text-xs text-slate-400"></p>
+            <p id="designer-status" role="status" aria-live="polite" class="text-sm text-amber-200 min-h-[24px]"></p>
+            <p class="text-xs text-slate-400">La lámpara está en la superficie y pinta toda la columna en la vista 3D, incluso con altura 0. Un hueco no tiene suelo. Podés deshacer cambios; reducir el tamaño recorta las casillas exteriores.</p>
+            <div class="designer-controls">
+                <button id="designer-play" type="button" style="background:#0e7490;border-color:#22d3ee;font-weight:700">Crear y jugar</button>
+                <button id="designer-download" type="button">↓ Descargar escenario JSON</button>
+                <span class="text-xs text-slate-400">Guardá el JSON para recuperarlo con «Cargar JSON». Crear y jugar abre un nivel nuevo y limpia sus instrucciones.</span>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Victory Modal -->
+    <div id="win-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col items-center text-center transform scale-90 transition-transform duration-300" id="win-card">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-200 text-slate-950 flex items-center justify-center text-4xl mb-4 shadow-xl shadow-amber-500/30 animate-bounce">
+                🏆
+            </div>
+            <h2 class="text-2xl font-black text-white tracking-tight">¡NIVEL COMPLETADO!</h2>
+            <p class="text-sm text-slate-300 mt-2">¡Excelente lógica de programación! Has encendido todas las luces del nivel.</p>
+            
+            <div class="w-full bg-slate-950 rounded-xl p-3 border border-slate-800 my-5 flex justify-around text-xs">
+                <div>
+                    <span class="text-slate-500 block">Comandos Usados</span>
+                    <span id="win-cmd-count" class="text-lg font-bold text-cyan-400">0</span>
+                </div>
+                <div class="border-r border-slate-800"></div>
+                <div>
+                    <span class="text-slate-500 block">Estructura</span>
+                    <span id="win-nest-info" class="text-lg font-bold text-purple-400">Bucles Eficientes</span>
+                </div>
+            </div>
+
+            <button id="btn-export-win" type="button" class="w-full py-3 mb-3 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-800 rounded-xl font-bold text-sm">↓ Descargar solución (JSON)</button>
+            <p id="export-status" role="status" class="text-xs text-slate-400 mb-3"></p>
+            <button id="btn-next-level" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/30 transition-all active:scale-95">
+                Siguiente Nivel →
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Web Audio API Sound Synthesizer
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+            }
+
+            playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.1) {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            }
+
+            walk() { this.playTone(220, 'triangle', 0.08, 0.08); }
+            turn() { this.playTone(440, 'sine', 0.05, 0.05); }
+            jump() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+            light() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99, 1046.50].forEach((f, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(f, now + idx * 0.04);
+                    gain.gain.setValueAtTime(0.08, now + idx * 0.04);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.04 + 0.2);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.04);
+                    osc.stop(now + idx * 0.04 + 0.2);
+                });
+            }
+            win() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+                notes.forEach((f, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(f, now + idx * 0.08);
+                    gain.gain.setValueAtTime(0.12, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.3);
+                });
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        /**
+         * NIVELES DESDE IMÁGENES
+         * heights[y][x]: altura de la superficie. 0 = suelo transitable;
+         * null = hueco sin casilla. El borde superior de la matriz es y=0.
+         * En pantalla: +x va abajo-derecha; +y, abajo-izquierda; +z, arriba.
+         * lights: pares [x,y], tanto las azules como las amarillas de la foto.
+         * start: {x,y,dir}; z se obtiene de heights para evitar inconsistencias.
+         * dir: 0 = +x, 1 = +y, 2 = -x, 3 = -y.
+         * Todas las luces empiezan apagadas, aunque la captura sea de una partida.
+         */
+        function createLevelFromGrid({id, title, desc, heights, lights, start,
+                                      sourceImage, reconstructionNotes = '', portals = [],
+                                      rules = {maxJumpUp: 1, maxJumpDown: 1}}) {
+            const fail = message => { throw new Error(`Nivel ${id}: ${message}`); };
+            if (!heights.length || !heights[0].length) fail('matriz vacía');
+            const width = heights[0].length;
+            if (heights.some(row => row.length !== width)) fail('filas de distinta longitud');
+            if (!Number.isInteger(start.x) || !Number.isInteger(start.y) ||
+                !Number.isInteger(start.dir) || start.dir < 0 || start.dir > 3) fail('salida inválida');
+            for (const key of ['maxJumpUp', 'maxJumpDown']) {
+                if (!Number.isInteger(rules[key]) || rules[key] < 0) fail('reglas de salto inválidas');
+            }
+            const lightKeys = new Set();
+            for (const [x, y] of lights) {
+                if (!Number.isInteger(x) || !Number.isInteger(y) || heights[y]?.[x] == null)
+                    fail(`luz fuera del tablero: ${x},${y}`);
+                const key = `${x},${y}`;
+                if (lightKeys.has(key)) fail(`luz duplicada: ${key}`);
+                lightKeys.add(key);
+            }
+            const tiles = [];
+            heights.forEach((row, y) => row.forEach((z, x) => {
+                if (z === null) return;
+                if (!Number.isInteger(z) || z < 0) fail(`altura inválida: ${x},${y}`);
+                tiles.push({x, y, z, isLight: lightKeys.has(`${x},${y}`)});
+            }));
+            const initialTile = tiles.find(t => t.x === start.x && t.y === start.y);
+            if (!initialTile) fail('robot fuera del tablero');
+            if (!lights.length) fail('falta al menos una luz');
+            const portalIds = new Set();
+            for (const portal of portals) {
+                if (!/^[A-Z0-9]{1,3}$/.test(portal.id) || portalIds.has(portal.id)) fail('identificador de portal inválido o duplicado');
+                portalIds.add(portal.id);
+                if (!Array.isArray(portal.ends) || portal.ends.length !== 2) fail('cada portal necesita dos extremos');
+                for (const [x,y] of portal.ends) {
+                    const tile = tiles.find(t => t.x === x && t.y === y);
+                    if (!tile || tile.portalId) fail('extremo de portal inválido o repetido');
+                    tile.portalId = portal.id;
+                }
+            }
+            return {id, title, desc, start: {...start, z: initialTile.z}, tiles,
+                    sourceImage, reconstructionNotes, portals, rules: {...rules}, solidColumns: true};
+        }
+
+        const LEVELS = [
+            {
+                id: 1,
+                title: "Nivel 1: Bucle Básico",
+                desc: "Usa 'Avanzar' y 'Luz' dentro de un bucle 'Repetir' para encender las casillas.",
+                start: { x: 0, y: 2, z: 0, dir: 0 }, // dir: 0:East, 1:South, 2:West, 3:North
+                tiles: [
+                    { x: 0, y: 2, z: 0, isLight: false },
+                    { x: 1, y: 2, z: 0, isLight: true },
+                    { x: 2, y: 2, z: 0, isLight: true },
+                    { x: 3, y: 2, z: 0, isLight: true },
+                    { x: 4, y: 2, z: 0, isLight: true }
+                ]
+            },
+            {
+                id: 2,
+                title: "Nivel 2: Escalera y Saltos",
+                desc: "Usa 'Saltar' y 'Luz' repetidamente para subir los peldaños.",
+                start: { x: 1, y: 1, z: 0, dir: 0 },
+                tiles: [
+                    { x: 1, y: 1, z: 0, isLight: false },
+                    { x: 2, y: 1, z: 1, isLight: true },
+                    { x: 3, y: 1, z: 2, isLight: true },
+                    { x: 4, y: 1, z: 3, isLight: true },
+                    { x: 5, y: 1, z: 4, isLight: true }
+                ]
+            },
+            {
+                id: 3,
+                title: "Nivel 3: Bucles Anidados (Matriz)",
+                desc: "Desafío avanzado: Coloca un bucle 'Repetir' DENTRO de otro bucle para cubrir la cuadrícula.",
+                start: { x: 1, y: 1, z: 0, dir: 0 },
+                tiles: [
+                    { x: 1, y: 1, z: 0, isLight: false },
+                    { x: 2, y: 1, z: 0, isLight: true },
+                    { x: 3, y: 1, z: 0, isLight: true },
+                    
+                    { x: 1, y: 2, z: 0, isLight: false },
+                    { x: 2, y: 2, z: 0, isLight: true },
+                    { x: 3, y: 2, z: 0, isLight: true },
+
+                    { x: 1, y: 3, z: 0, isLight: false },
+                    { x: 2, y: 3, z: 0, isLight: true },
+                    { x: 3, y: 3, z: 0, isLight: true }
+                ]
+            }
+        ];
+
+        // Editable level data: one tile per (x,y), z is its height.
+        LEVELS.push(
+            { id: 4, title: "Nivel 4: Subida y bajada", desc: "Saltar sube o baja un peldaño. Enciende cada luz del recorrido.",
+              start: {x:0,y:0,z:0,dir:0},
+              tiles: [0,1,2,3,2,1,0].map((z,x)=>({x,y:0,z,isLight:x>0})) },
+            { id: 5, title: "Nivel 5: Escalera en esquina", desc: "Sube, gira a la derecha y continúa subiendo.",
+              start: {x:0,y:0,z:0,dir:0},
+              tiles: [[0,0,0],[1,0,1],[2,0,2],[2,1,3],[2,2,4]].map(([x,y,z],i)=>({x,y,z,isLight:i>0})) },
+            { id: 6, title: "Nivel 6: Terrazas", desc: "Alterna Avanzar en terreno llano y Saltar para cambiar de altura.",
+              start: {x:0,y:0,z:0,dir:0},
+              tiles: [0,0,1,1,2,2,1,1].map((z,x)=>({x,y:0,z,isLight:x>0})) },
+            { id: 7, title: "Nivel 7: La vuelta elevada", desc: "Recorre el borde de la plataforma y enciende sus ocho luces.",
+              start: {x:0,y:0,z:0,dir:0},
+              tiles: [[0,0,0],[1,0,1],[2,0,2],[2,1,2],[2,2,2],[1,2,1],[0,2,0],[0,1,0]].map(([x,y,z])=>({x,y,z,isLight:true})) }
+        );
+
+        // Reconstrucciones de las cuatro capturas. Estas matrices son editables.
+        // Las zonas de cuadrícula gris se interpretan como suelo z=0, no como huecos.
+        LEVELS.push(
+            createLevelFromGrid({
+                id: 8,
+                title: 'Nivel 8: Patio y columna',
+                desc: 'Rodea la columna central para llegar a la única luz.',
+                sourceImage: 'LIGHT_BOT.png',
+                reconstructionNotes: 'Suelo 8×8; robot y luz tomados de sus posiciones visibles.',
+                start: {x: 2, y: 3, dir: 0},
+                heights: [
+                    [3,2,1,1,1,1,2,3], // y=0: muro del fondo
+                    [0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0],
+                    [0,0,0,0,2,0,0,0], // columna en x=4
+                    [0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0],
+                    [3,2,1,1,1,1,2,3]  // y=7: muro delantero
+                ],
+                lights: [[6,3]]
+            }),
+            createLevelFromGrid({
+                id: 9,
+                title: 'Nivel 9: Plataforma de ocho luces',
+                desc: 'La captura estaba en ejecución: empiezas en la posición visible, con todas las luces apagadas.',
+                sourceImage: 'LIGHTBOT.png',
+                reconstructionNotes: 'Salida visible, no salida original confirmada. Orientación -y inferida del recorrido. La luz amarilla también es un objetivo. Las cuatro depresiones son suelo z=0.',
+                start: {x: 2, y: 3, dir: 3},
+                heights: [
+                    [0,0,0,0,0,0,0,0],
+                    [0,0,1,1,1,1,1,0],
+                    [0,0,1,0,1,0,1,0],
+                    [0,0,1,1,1,1,1,0],
+                    [0,0,1,0,1,0,1,0],
+                    [0,0,0,0,1,1,1,0],
+                    [0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0]
+                ],
+                lights: [[2,1],[4,1],[6,1],[2,3],[4,3],[6,3],[4,5],[6,5]]
+            }),
+            createLevelFromGrid({
+                id: 10,
+                title: 'Nivel 10: Gradas de 47 luces',
+                desc: 'Recorre seis filas de luces alternando suelo y escalones. Aprovecha los bucles.',
+                sourceImage: 'LIGHTBOTnivel_11_.png',
+                reconstructionNotes: 'Las franjas azules parcialmente tapadas se interpretan como filas completas a altura 0. Ocho columnas y ocho filas.',
+                start: {x: 0, y: 7, dir: 0},
+                heights: [
+                    [3,3,3,3,3,3,3,3],
+                    [2,2,2,2,2,2,2,2],
+                    [1,1,1,1,1,1,1,1],
+                    [0,0,0,0,0,0,0,0],
+                    [1,1,1,1,1,1,1,1],
+                    [0,0,0,0,0,0,0,0],
+                    [1,1,1,1,1,1,1,1],
+                    [0,0,0,0,0,0,0,0]
+                ],
+                lights: Array.from({length: 6}, (_, row) =>
+                    Array.from({length: 8}, (_, x) => [x, row + 2])
+                ).flat().filter(([x,y]) => !(x === 0 && y === 7))
+            }),
+            createLevelFromGrid({
+                id: 11,
+                title: 'Nivel 11: Torres y dos destinos',
+                desc: 'Sube con Saltar. Avanzar desde una torre te deja caer a la plataforma inferior; en el vacío, perdés el intento.',
+                sourceImage: 'nivel_a_pasar.png',
+                reconstructionNotes: 'Alturas reconstruidas contando bloques. El descenso de 4 a 2 exige maxJumpDown:2; es una adaptación explícita a nuestro motor, no una regla original verificada.',
+                // Regla local: los otros diez niveles conservan sus límites de salto.
+                rules: {maxJumpUp: 1, maxJumpDown: 2},
+                start: {x: 0, y: 6, dir: 0},
+                heights: [
+                    [0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0],
+                    [0,0,0,4,3,4,2,2],
+                    [2,2,2,4,2,3,2,0],
+                    [0,0,0,0,1,0,0,0],
+                    [0,0,0,0,0,0,0,0]
+                ],
+                lights: [[0,5],[7,4]]
+            })
+        );
+
+        // Portals activate on arrival, not on turning or appearing at the destination.
+        LEVELS.push(createLevelFromGrid({
+            id: 12, title: 'Nivel 12: Portal a las alturas',
+            desc: 'Entrá al portal A para alcanzar la plataforma de cuatro peldaños. Los portales conservan tu orientación y funcionan en ambos sentidos.',
+            start: {x: 0, y: 1, dir: 0},
+            heights: [
+                [0,0,0,null,null,4,4,4],
+                [0,0,0,null,null,4,4,4],
+                [0,0,0,null,null,4,4,4]
+            ],
+            lights: [[6,1],[7,1],[7,2]],
+            portals: [{id: 'A', ends: [[2,1],[5,1]]}]
+        }));
+
+        let currentLevelIdx = 0;
+        let activeLevel = LEVELS[0];
+        let tilesMap = []; // Stores state of lights
+        let robot = { x: 0, y: 0, z: 0, dir: 0 };
+        let nodeCounter = 1;
+
+        // Root Program Tree
+        let programTree = [];
+        let functions = [{id: 'F1', nodes: []}];
+        let selectedFunctionId = 'F1';
+        let nextFunctionNumber = 2;
+        let executionFunctions = new Map();
+        let pendingFall = null;
+        let pendingTeleport = null;
+        let teleportGlow = 0;
+        let runExport = null;
+        let victoryExport = null;
+        let activeActionRecord = null;
+        let visualRobot = null;
+
+        // Execution Engine state
+        let isExecuting = false;
+        let isPaused = false;
+        let executionTimer = null;
+        let executionStack = [];
+        let speedDelay = 370; // ms per step
+
+        // Target insertion block selection (null = root)
+        let selectedTargetId = 'main';
+
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Isometric Constants
+        const TILE_W = 54;
+        const TILE_H = 28;
+        const HEIGHT_STEP = 18;
+
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            renderScene();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // Convert Grid (x,y,z) to Canvas Screen (px,py)
+        function gridToIso(x, y, z) {
+            return { x: (x-y)*TILE_W/2, y: (x+y)*TILE_H/2-z*HEIGHT_STEP };
+        }
+
+        // Scale the original artwork as a whole; reserve room for the robot on every tile.
+        function sceneBounds() {
+            const points = tilesMap.map(t => ({...gridToIso(t.x,t.y,t.z), z:t.z}));
+            return {
+                left: Math.min(...points.map(p=>p.x-TILE_W/2))-8,
+                right: Math.max(...points.map(p=>p.x+TILE_W/2))+8,
+                top: Math.min(...points.map(p=>p.y-42))-8,
+                bottom: Math.max(...points.map(p=>p.y+TILE_H+14+p.z*(activeLevel.solidColumns ? HEIGHT_STEP : 2)))+8
+            };
+        }
+
+        function renderScene() {
+            const rect = canvas.getBoundingClientRect();
+            ctx.clearRect(0, 0, rect.width, rect.height);
+
+            if (!activeLevel || !tilesMap.length) return;
+            const bounds = sceneBounds();
+            const scale = Math.min(2.4, (rect.width-32)/(bounds.right-bounds.left), (rect.height-32)/(bounds.bottom-bounds.top));
+            ctx.save();
+            ctx.translate(rect.width/2, rect.height/2);
+            ctx.scale(scale, scale);
+            ctx.translate(-(bounds.left+bounds.right)/2, -(bounds.top+bounds.bottom)/2);
+
+            // Sort tiles back-to-front (depth ordering: x+y ascending, z ascending)
+            const sortedTiles = [...tilesMap].sort((a, b) => {
+                if ((a.x + a.y) !== (b.x + b.y)) return (a.x + a.y) - (b.x + b.y);
+                return a.z - b.z;
+            });
+
+            // In the reconstructed maps, solid columns can occlude the robot.
+            sortedTiles.forEach(tile => {
+                drawTile(tile);
+                if (tile.portalId) drawPortal(tile);
+                if (activeLevel.solidColumns && !pendingFall && !robot.fallen && tile.x === robot.x && tile.y === robot.y) drawRobot();
+            });
+            if ((!activeLevel.solidColumns || pendingFall) && !robot.fallen) drawRobot();
+            ctx.restore();
+        }
+
+        function drawTile(tile) {
+            const pt = gridToIso(tile.x, tile.y, tile.z);
+            const w = TILE_W;
+            const h = TILE_H;
+            const wallH = 14 + tile.z * (activeLevel.solidColumns ? HEIGHT_STEP : 2);
+
+            // Colors
+            let topColor = '#334155';
+            let leftColor = '#1e293b';
+            let rightColor = '#0f172a';
+
+            if (tile.isLight) {
+                if (tile.lit) {
+                    // Bright glowing yellow
+                    topColor = '#facc15';
+                    leftColor = '#ca8a04';
+                    rightColor = '#a16207';
+                } else {
+                    // Off blue light tile
+                    topColor = '#0284c7';
+                    leftColor = '#0369a1';
+                    rightColor = '#075985';
+                }
+            }
+
+            // Top Diamond Face
+            ctx.beginPath();
+            ctx.moveTo(pt.x, pt.y);
+            ctx.lineTo(pt.x + w / 2, pt.y + h / 2);
+            ctx.lineTo(pt.x, pt.y + h);
+            ctx.lineTo(pt.x - w / 2, pt.y + h / 2);
+            ctx.closePath();
+            ctx.fillStyle = topColor;
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Glow Effect for Active Lit Tile
+            if (tile.isLight && tile.lit) {
+                ctx.save();
+                ctx.shadowColor = '#facc15';
+                ctx.shadowBlur = 15;
+                ctx.fillStyle = '#fef08a';
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // Left Wall
+            ctx.beginPath();
+            ctx.moveTo(pt.x - w / 2, pt.y + h / 2);
+            ctx.lineTo(pt.x, pt.y + h);
+            ctx.lineTo(pt.x, pt.y + h + wallH);
+            ctx.lineTo(pt.x - w / 2, pt.y + h / 2 + wallH);
+            ctx.closePath();
+            ctx.fillStyle = leftColor;
+            ctx.fill();
+
+            // Right Wall
+            ctx.beginPath();
+            ctx.moveTo(pt.x, pt.y + h);
+            ctx.lineTo(pt.x + w / 2, pt.y + h / 2);
+            ctx.lineTo(pt.x + w / 2, pt.y + h / 2 + wallH);
+            ctx.lineTo(pt.x, pt.y + h + wallH);
+            ctx.closePath();
+            ctx.fillStyle = rightColor;
+            ctx.fill();
+
+            // Height markers on reconstructed columns; same palette and geometry.
+            if (activeLevel.solidColumns && tile.z > 0) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                ctx.lineWidth = 1;
+                for (let step = 1; step <= tile.z; step++) {
+                    const offset = step * HEIGHT_STEP;
+                    ctx.beginPath();
+                    ctx.moveTo(pt.x-w/2, pt.y+h/2+offset);
+                    ctx.lineTo(pt.x, pt.y+h+offset);
+                    ctx.lineTo(pt.x+w/2, pt.y+h/2+offset);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function drawPortal(tile) {
+            const pt = gridToIso(tile.x, tile.y, tile.z);
+            ctx.save();
+            ctx.strokeStyle = '#e879f9';
+            ctx.fillStyle = 'rgba(192,38,211,0.32)';
+            ctx.lineWidth = 2;
+            ctx.shadowColor = '#d946ef';
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.ellipse(pt.x, pt.y + TILE_H/2, TILE_W*0.34, TILE_H*0.34, 0, 0, Math.PI*2);
+            ctx.fill(); ctx.stroke();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#fae8ff';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(tile.portalId, pt.x, pt.y+TILE_H/2);
+            ctx.restore();
+        }
+
+        function drawRobot() {
+            const pose = visualRobot || robot;
+            const pt = gridToIso(pose.x, pose.y, pose.z);
+            
+            // Robot Shadow
+            ctx.beginPath();
+            ctx.ellipse(pt.x, pt.y + TILE_H / 2, 14, 7, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,0,0,0.35)';
+            ctx.fill();
+
+            // Robot Base Center
+            const rx = pt.x;
+            const ry = pt.y + TILE_H / 2 - 12;
+
+            // Body (Metallic Cylinder)
+            ctx.beginPath();
+            ctx.ellipse(rx, ry, 10, 6, 0, 0, Math.PI * 2);
+            ctx.fillStyle = '#38bdf8';
+            ctx.fill();
+
+            ctx.fillStyle = '#0284c7';
+            ctx.fillRect(rx - 10, ry - 14, 20, 14);
+
+            ctx.beginPath();
+            ctx.ellipse(rx, ry - 14, 10, 6, 0, 0, Math.PI * 2);
+            ctx.fillStyle = '#7dd3fc';
+            ctx.fill();
+
+            // Head Sphere
+            const headY = ry - 22;
+            ctx.beginPath();
+            ctx.arc(rx, headY, 8, 0, Math.PI * 2);
+            ctx.fillStyle = '#e0f2fe';
+            ctx.fill();
+
+            // Visor & Direction Indicator
+            // Directions: 0: East (+x, +y right), 1: South (+y, -x left), 2: West (-x, -y), 3: North (-y, +x)
+            let eyeOffsetX = 0;
+            let eyeOffsetY = 0;
+
+            if (robot.dir === 0) { eyeOffsetX = 4; eyeOffsetY = 2; }
+            else if (robot.dir === 1) { eyeOffsetX = -4; eyeOffsetY = 2; }
+            else if (robot.dir === 2) { eyeOffsetX = -4; eyeOffsetY = -2; }
+            else if (robot.dir === 3) { eyeOffsetX = 4; eyeOffsetY = -2; }
+
+            ctx.beginPath();
+            ctx.arc(rx + eyeOffsetX, headY + eyeOffsetY, 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#0f172a';
+            ctx.fill();
+
+            // Eye Glow Dot
+            ctx.beginPath();
+            ctx.arc(rx + eyeOffsetX + (eyeOffsetX > 0 ? 1 : -1), headY + eyeOffsetY, 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#38bdf8';
+            ctx.fill();
+
+            // Antenna
+            ctx.beginPath();
+            ctx.moveTo(rx, headY - 8);
+            ctx.lineTo(rx, headY - 14);
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Antenna Light Bulb
+            ctx.beginPath();
+            ctx.arc(rx, headY - 15, 3, 0, Math.PI * 2);
+            ctx.fillStyle = '#facc15';
+            ctx.fill();
+
+            // A blue energy core inside the torso, fading completely after arrival.
+            if (teleportGlow > 0) {
+                ctx.save();
+                ctx.globalAlpha = teleportGlow;
+                const glow = ctx.createRadialGradient(rx, ry-9, 1, rx, ry-9, 18);
+                glow.addColorStop(0, 'rgba(235,255,255,1)');
+                glow.addColorStop(0.3, 'rgba(34,211,238,0.95)');
+                glow.addColorStop(1, 'rgba(37,99,235,0)');
+                ctx.fillStyle = glow;
+                ctx.beginPath(); ctx.arc(rx, ry-9, 18, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#e0ffff';
+                ctx.beginPath(); ctx.arc(rx, ry-9, 4, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function createNode(type, count = 2, functionId = selectedFunctionId) {
+            return {id: 'node_' + nodeCounter++, type, count, children: [],
+                    ...(type === 'callF' ? {functionId} : {})};
+        }
+
+        function rootNodes(root) {
+            return root === 'main' ? programTree : functions.find(f => f.id === root)?.nodes;
+        }
+
+        function editorRootFor(id) {
+            return functions.find(f => f.id === id || findNodeById(f.nodes, id))?.id || 'main';
+        }
+
+        function allProgramNodes() {
+            return [...programTree, ...functions.flatMap(f => f.nodes)];
+        }
+
+        function addFunction() {
+            if (isExecuting) return;
+            while (functions.some(f => f.id === 'F' + nextFunctionNumber)) nextFunctionNumber++;
+            const id = 'F' + nextFunctionNumber++;
+            functions.push({id, nodes: []});
+            selectedFunctionId = id;
+            selectedTargetId = id;
+            renderProgramUI();
+            document.getElementById('function-card-' + id)?.scrollIntoView({block: 'nearest'});
+            setStatus(`${id} creada. Agregá sus instrucciones y luego insertá su llamada donde corresponda.`);
+        }
+
+        function selectFunction(id) {
+            if (isExecuting || !functions.some(f => f.id === id)) return;
+            selectedFunctionId = id;
+            renderProgramUI();
+        }
+
+        function selectInsertionTarget(id) {
+            if (isExecuting) return;
+            selectedTargetId = id;
+            renderProgramUI();
+        }
+
+        function addNodeToProgram(node, targetParentId = selectedTargetId) {
+            if (isExecuting) return;
+            const nodes = rootNodes(editorRootFor(targetParentId));
+            const parent = findNodeById(nodes, targetParentId);
+            if (parent?.type === 'repeat') parent.children.push(node);
+            else nodes.push(node);
+            renderProgramUI();
+        }
+
+        function findNodeById(nodes, id) {
+            for (let n of nodes) {
+                if (n.id === id) return n;
+                if (n.children && n.children.length > 0) {
+                    const found = findNodeById(n.children, id);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+
+        function removeNodeById(nodes, id) {
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i].id === id) {
+                    nodes.splice(i, 1);
+                    return true;
+                }
+                if (nodes[i].children && nodes[i].children.length > 0) {
+                    if (removeNodeById(nodes[i].children, id)) return true;
+                }
+            }
+            return false;
+        }
+
+        function countTotalNodes(nodes) {
+            let total = 0;
+            for (let n of nodes) {
+                total++;
+                if (n.children) total += countTotalNodes(n.children);
+            }
+            return total;
+        }
+
+        function renderProgramUI() {
+            const renderEditor = (container, nodes, name) => {
+                container.innerHTML = '';
+                if (!nodes.length) container.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center pointer-events-none">${name} vacío. Elegí «agregar aquí» o arrastrá instrucciones.</p>`;
+                else renderNodesRecursive(nodes, container);
+            };
+            renderEditor(document.getElementById('program-tree'), programTree, 'Principal');
+            document.getElementById('cmd-count-badge').innerText = `${countTotalNodes(programTree)} bloques`;
+            const list = document.getElementById('functions-list');
+            const previousScroll = list.scrollTop;
+            list.innerHTML = '';
+            for (const fn of functions) {
+                const card = document.createElement('div');
+                card.id = 'function-card-' + fn.id;
+                card.className = 'rounded-xl border border-pink-900/60 bg-slate-950/40 p-3 flex flex-col gap-2';
+                card.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <label class="flex items-center gap-2 text-sm font-bold text-pink-300 cursor-pointer">
+                            <input type="radio" name="called-function" value="${fn.id}" ${fn.id === selectedFunctionId ? 'checked' : ''} onchange="selectFunction('${fn.id}')" class="accent-pink-400">
+                            ${fn.id} <span class="text-[10px] text-slate-400 font-normal">${countTotalNodes(fn.nodes)} bloques</span>
+                        </label>
+                        <button type="button" onclick="selectInsertionTarget('${fn.id}')" aria-pressed="${selectedTargetId === fn.id}" class="text-xs text-pink-200 border border-pink-800 rounded px-2 py-1 ${selectedTargetId === fn.id ? 'ring-2 ring-cyan-400' : ''}">Agregar aquí</button>
+                    </div>
+                    <div class="function-editor program-editor border-2 border-dashed border-slate-800 rounded-lg p-2 min-h-[70px] flex flex-col gap-2"></div>`;
+                const editor = card.querySelector('.function-editor');
+                setupDropZone(editor, fn.id);
+                renderEditor(editor, fn.nodes, fn.id);
+                list.appendChild(card);
+            }
+            list.scrollTop = previousScroll;
+            const button = document.getElementById('target-main');
+            button.setAttribute('aria-pressed', String(selectedTargetId === 'main'));
+            button.classList.toggle('ring-2', selectedTargetId === 'main');
+            button.classList.toggle('ring-cyan-400', selectedTargetId === 'main');
+            document.getElementById('call-function-label').textContent = 'Llamar ' + selectedFunctionId;
+            const root = editorRootFor(selectedTargetId);
+            document.getElementById('insertion-target').textContent = 'Agregando a: ' +
+                (root === 'main' ? 'Principal' : root) + (selectedTargetId === root ? '' : ' → bucle seleccionado') +
+                ' · Llamada seleccionada: ' + selectedFunctionId;
+            document.getElementById('algorithm-text').textContent = formatAlgorithm();
+            setEditorLocked(isExecuting);
+        }
+
+        function renderNodesRecursive(nodes, parentEl) {
+            nodes.forEach(node => {
+                const nodeEl = document.createElement('div');
+                nodeEl.id = node.id;
+                nodeEl.dataset.id = node.id;
+
+                if (node.type === 'repeat') {
+                    const isSelected = (selectedTargetId === node.id);
+                    nodeEl.className = `nested-block rounded-xl border ${isSelected ? 'border-purple-400 bg-purple-950/30' : 'border-purple-800/60 bg-slate-900/90'} p-2.5 flex flex-col gap-2 transition-all shadow-md`;
+                    
+                    nodeEl.innerHTML = `
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 cursor-pointer flex-1" onclick="selectLoopTarget('${node.id}')">
+                                <span class="w-6 h-6 rounded bg-purple-900/80 text-purple-300 text-xs flex items-center justify-center font-bold">🔁</span>
+                                <span class="text-xs font-bold text-purple-300">Repetir</span>
+                                <input type="number" min="1" max="99" value="${node.count}" class="w-12 bg-slate-950 text-xs font-bold text-purple-200 border border-purple-700/60 rounded px-1.5 py-0.5 text-center focus:outline-none focus:border-purple-400" onchange="updateRepeatCount('${node.id}', this.value)" onclick="event.stopPropagation()">
+                                <span class="text-xs text-purple-400 font-medium">veces</span>
+                            </div>
+                            <button onclick="deleteNode('${node.id}')" class="text-slate-500 hover:text-red-400 p-1 text-xs transition-colors" title="Eliminar">✕</button>
+                        </div>
+                        <div class="child-container ml-3 pl-2.5 border-l-2 border-purple-500/40 min-h-[36px] flex flex-col gap-1.5 py-1" data-parent-id="${node.id}">
+                        </div>
+                    `;
+
+                    const childContainer = nodeEl.querySelector('.child-container');
+                    
+                    // Allow dropping into this repeat container
+                    setupDropZone(childContainer, node.id);
+
+                    if (node.children.length === 0) {
+                        childContainer.innerHTML = `<span class="text-[10px] text-purple-400/50 italic py-1 pl-1 pointer-events-none">+ Arrastra o selecciona para añadir aquí</span>`;
+                    } else {
+                        renderNodesRecursive(node.children, childContainer);
+                    }
+
+                } else {
+                    // Regular Instruction Node
+                    const cmdMeta = getCmdMeta(node.type, node.functionId);
+                    nodeEl.className = `node-item bg-slate-900/90 border border-slate-700/70 rounded-lg p-2 flex items-center justify-between gap-2 hover:border-slate-500 transition-all shadow-sm`;
+                    
+                    nodeEl.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded ${cmdMeta.bg} ${cmdMeta.color} text-xs flex items-center justify-center font-bold">${cmdMeta.icon}</span>
+                            <span class="text-xs font-semibold text-slate-200">${cmdMeta.label}</span>
+                        </div>
+                        <button onclick="deleteNode('${node.id}')" class="text-slate-500 hover:text-red-400 p-1 text-xs transition-colors" title="Eliminar">✕</button>
+                    `;
+                }
+
+                parentEl.appendChild(nodeEl);
+            });
+        }
+
+        function getCmdMeta(type, functionId = selectedFunctionId) {
+            switch (type) {
+                case 'callF': return { label: 'Llamar ' + functionId, icon: functionId, bg: 'bg-pink-950', color: 'text-pink-300' };
+                case 'walk': return { label: 'Avanzar', icon: '↑', bg: 'bg-cyan-950', color: 'text-cyan-400' };
+                case 'right': return { label: 'Girar Der.', icon: '↷', bg: 'bg-indigo-950', color: 'text-indigo-400' };
+                case 'left': return { label: 'Girar Izq.', icon: '↶', bg: 'bg-indigo-950', color: 'text-indigo-400' };
+                case 'jump': return { label: 'Saltar', icon: '⤊', bg: 'bg-emerald-950', color: 'text-emerald-400' };
+                case 'light': return { label: 'Luz', icon: '💡', bg: 'bg-amber-950', color: 'text-amber-400' };
+                default: return { label: type, icon: '•', bg: 'bg-slate-800', color: 'text-slate-300' };
+            }
+        }
+
+        function selectLoopTarget(id) {
+            if (isExecuting) return;
+            if (selectedTargetId === id) {
+                selectedTargetId = editorRootFor(id); // Return to its own editor
+            } else {
+                selectedTargetId = id;
+            }
+            renderProgramUI();
+        }
+
+        function updateRepeatCount(id, val) {
+            if (isExecuting) return;
+            const node = findNodeById(allProgramNodes(), id);
+            if (node) {
+                node.count = Math.min(99, Math.max(1, parseInt(val) || 1));
+                renderProgramUI();
+            }
+        }
+
+        function deleteNode(id) {
+            if (isExecuting) return;
+            sound.turn();
+            const root = editorRootFor(selectedTargetId);
+            removeNodeById(programTree, id);
+            functions.forEach(f => removeNodeById(f.nodes, id));
+            if (selectedTargetId !== 'main' && !functions.some(f => f.id === selectedTargetId) &&
+                !findNodeById(allProgramNodes(), selectedTargetId)) selectedTargetId = root;
+            renderProgramUI();
+        }
+
+        function setupDropZone(el, parentId) {
+            el.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (isExecuting) return;
+                el.classList.add('drop-target');
+            });
+            el.addEventListener('dragleave', () => {
+                el.classList.remove('drop-target');
+            });
+            el.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (isExecuting) return;
+                el.classList.remove('drop-target');
+                const cmdType = e.dataTransfer.getData('text/plain');
+                if (['walk','right','left','jump','light','repeat','callF'].includes(cmdType)) {
+                    const newNode = createNode(cmdType, 2, e.dataTransfer.getData('application/x-lightbot-function') || selectedFunctionId);
+                    addNodeToProgram(newNode, parentId);
+                }
+            });
+        }
+
+        // Toolbox drag events
+        document.querySelectorAll('.cmd-btn').forEach(btn => {
+            btn.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', btn.dataset.cmd);
+                if (btn.dataset.cmd === 'callF') e.dataTransfer.setData('application/x-lightbot-function', selectedFunctionId);
+            });
+            btn.addEventListener('click', () => {
+                sound.turn();
+                const newNode = createNode(btn.dataset.cmd);
+                addNodeToProgram(newNode, selectedTargetId);
+            });
+        });
+
+        // Setup Root DropZone
+        const rootTreeEl = document.getElementById('program-tree');
+        setupDropZone(rootTreeEl, 'main');
+
+        // Validate reachable calls before moving. Unused empty declarations are allowed.
+        function validateCalls() {
+            const definitions = new Map(functions.map(f => [f.id, f.nodes]));
+            const callsIn = nodes => {
+                const result = [], stack = [...nodes];
+                while (stack.length) {
+                    const n = stack.pop();
+                    if (n.type === 'callF') result.push(n.functionId);
+                    if (n.children) stack.push(...n.children);
+                }
+                return result;
+            };
+            const done = new Set(), active = new Set();
+            const frames = [{calls: callsIn(programTree), index: 0, id: null}];
+            while (frames.length) {
+                const frame = frames[frames.length-1];
+                if (frame.index === frame.calls.length) {
+                    frames.pop();
+                    if (frame.id) { active.delete(frame.id); done.add(frame.id); }
+                    continue;
+                }
+                const id = frame.calls[frame.index++];
+                if (!definitions.has(id)) return `La función ${id} no existe.`;
+                if (!definitions.get(id).length) return `${id} está vacía. Agregale instrucciones antes de llamarla.`;
+                if (active.has(id)) return 'Llamadas circulares: ' + [...frames.filter(f=>f.id).map(f=>f.id), id].join(' → ') + '. Usá Repetir para los ciclos.';
+                if (done.has(id)) continue;
+                active.add(id);
+                frames.push({id, calls: callsIn(definitions.get(id)), index: 0});
+            }
+            return null;
+        }
+
+        let designerDraft = null;
+        let designerTool = 'raise';
+        let designerHistory = [];
+        const DESIGNER_HELP = {
+            raise: 'Subir piso: cada clic suma un peldaño. En un hueco crea primero suelo a altura 0.',
+            lower: 'Bajar piso: cada clic resta un peldaño, hasta 0. Para quitar el suelo, elegí Hueco.',
+            ground: 'Suelo 0: crea o baja la casilla a altura 0, conservando su lámpara.',
+            light: 'Lámpara: un clic coloca 💡; otro la quita. Funciona a cualquier altura, incluido el suelo 0.',
+            start: 'Salida: elegí dónde empieza el robot. Su altura se ajusta al piso de esa casilla.',
+            erase: 'Hueco: elimina toda la columna, su lámpara y su portal. Si era la salida, colocá otra.',
+            portal: 'Portal: escribí una letra y marcá dos casillas para conectarlas. Volver a pulsar una quita ese extremo.'
+        };
+
+        function newDesignerBoard(width = 8, height = 8) {
+            return {name:'Mi escenario', width, height, dir:0, start:{x:0,y:0}, rules:{maxJumpUp:1,maxJumpDown:1},
+                cells:Array.from({length:height},()=>Array.from({length:width},()=>({z:0,isLight:false})))};
+        }
+
+        function rememberDesigner() {
+            designerHistory.push(JSON.parse(JSON.stringify(designerDraft)));
+            if (designerHistory.length > 100) designerHistory.shift();
+        }
+
+        function openDesigner() {
+            if (isExecuting) return;
+            if (!designerDraft) designerDraft = newDesignerBoard();
+            renderDesigner();
+            document.getElementById('designer-dialog').showModal();
+        }
+
+        function designerMessage(text) { document.getElementById('designer-status').textContent = text; }
+
+        function setDesignerTool(tool) {
+            if (!DESIGNER_HELP[tool]) return;
+            designerTool = tool;
+            document.querySelectorAll('[data-design-tool]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.designTool===tool)));
+            document.getElementById('designer-tool-help').textContent = DESIGNER_HELP[tool];
+        }
+
+        function renderDesigner() {
+            const draft = designerDraft;
+            document.getElementById('designer-name').value = draft.name;
+            document.getElementById('designer-width').value = draft.width;
+            document.getElementById('designer-height').value = draft.height;
+            document.getElementById('designer-direction').value = draft.dir;
+            document.getElementById('designer-undo').disabled = !designerHistory.length;
+            setDesignerTool(designerTool);
+            const grid = document.getElementById('designer-grid');
+            grid.innerHTML = '';
+            grid.style.gridTemplateColumns = `24px repeat(${draft.width},54px)`;
+            const axis = text => { const cell=document.createElement('span'); cell.className='designer-axis'; cell.textContent=text; grid.appendChild(cell); };
+            axis('y/x');
+            for(let x=0;x<draft.width;x++) axis(x);
+            let lights=0,tiles=0;
+            for(let y=0;y<draft.height;y++) {
+                axis(y);
+                for(let x=0;x<draft.width;x++) {
+                    const tile=draft.cells[y][x];
+                    const isStart=draft.start?.x===x && draft.start?.y===y;
+                    if(tile) { tiles++; if(tile.isLight) lights++; }
+                    const button=document.createElement('button'); button.type='button';
+                    button.className='designer-cell'+(!tile?' is-hole':'')+(tile?.isLight?' is-light':'')+(isStart?' is-start':'');
+                    const label=`Casilla ${x}, ${y}: ${tile?'altura '+tile.z:'hueco'}${tile?.isLight?', lámpara':''}${isStart?', salida del robot':''}${tile?.portalId?', portal '+tile.portalId:''}`;
+                    button.title=label; button.setAttribute('aria-label',label);
+                    const icons=document.createElement('span'); icons.className='cell-icons';
+                    icons.textContent=(isStart?['→','↓','←','↑'][draft.dir]:'')+(tile?.isLight?'💡':'')+(tile?.portalId?'◉'+tile.portalId:'');
+                    const height=document.createElement('span');height.className='cell-height';height.textContent=tile?tile.z:'×';
+                    button.appendChild(icons);button.appendChild(height);
+                    button.addEventListener('click',()=>{editDesignerCell(x,y);});
+                    grid.appendChild(button);
+                }
+            }
+            document.getElementById('designer-summary').textContent=`${draft.width} × ${draft.height} · ${tiles} casillas · ${lights} lámparas · Salida: ${draft.start ? draft.start.x+', '+draft.start.y : 'sin colocar'}`;
+        }
+
+        function editDesignerCell(x,y) {
+            const d=designerDraft;
+            if(!d || x<0 || y<0 || x>=d.width || y>=d.height) return;
+            const tile=d.cells[y][x];
+            if(designerTool==='lower' && (!tile || tile.z===0)) return;
+            if(designerTool==='raise' && tile?.z>=100) {designerMessage('Altura máxima: 100.');return;}
+            let portalId;
+            if(designerTool==='portal') {
+                portalId=document.getElementById('designer-portal').value.trim().toUpperCase();
+                if(!/^[A-Z0-9]{1,3}$/.test(portalId)) {designerMessage('Usá de 1 a 3 letras o números para identificar el portal.');return;}
+                if(tile?.portalId!==portalId && d.cells.flat().filter(t=>t?.portalId===portalId).length>=2) {designerMessage('Ese portal ya tiene dos extremos. Quitá uno o elegí otra letra.');return;}
+            }
+            rememberDesigner();
+            const ground=()=>d.cells[y][x] ||= {z:0,isLight:false};
+            switch(designerTool) {
+                case 'raise': if(tile) tile.z++; else ground(); break;
+                case 'lower': tile.z--; break;
+                case 'ground': ground().z=0; break;
+                case 'light': {const t=ground();t.isLight=!t.isLight;break;}
+                case 'start': ground();d.start={x,y};break;
+                case 'erase': d.cells[y][x]=null;if(d.start?.x===x && d.start?.y===y)d.start=null;break;
+                case 'portal': {const t=ground();if(t.portalId===portalId)delete t.portalId;else t.portalId=portalId;break;}
+            }
+            designerMessage('');renderDesigner();
+        }
+
+        function resizeDesigner() {
+            const width=Number(document.getElementById('designer-width').value),height=Number(document.getElementById('designer-height').value);
+            if(!Number.isInteger(width)||!Number.isInteger(height)||width<1||height<1||width>20||height>20) {designerMessage('Elegí entre 1 y 20 filas y columnas.');return;}
+            rememberDesigner();
+            const d=designerDraft;
+            d.cells=Array.from({length:height},(_,y)=>Array.from({length:width},(_,x)=>y<d.height&&x<d.width?d.cells[y][x]:{z:0,isLight:false}));
+            d.width=width;d.height=height;
+            if(d.start && (d.start.x>=width || d.start.y>=height)) d.start=null;
+            designerMessage('Tamaño aplicado. Deshacer recupera las casillas recortadas.');renderDesigner();
+        }
+
+        function copyLevelToDesigner() {
+            const xs=activeLevel.tiles.map(t=>t.x),ys=activeLevel.tiles.map(t=>t.y);
+            const minX=Math.min(...xs),minY=Math.min(...ys),width=Math.max(...xs)-minX+1,height=Math.max(...ys)-minY+1;
+            if(width>20||height>20) {designerMessage('El nivel supera el tamaño de edición de 20 × 20.');return;}
+            rememberDesigner();
+            const cells=Array.from({length:height},()=>Array(width).fill(null));
+            for(const tile of activeLevel.tiles) cells[tile.y-minY][tile.x-minX]={z:tile.z,isLight:tile.isLight,...(tile.portalId?{portalId:tile.portalId}:{})};
+            designerDraft={name:'Copia de '+activeLevel.title,width,height,cells,rules:{...getJumpRules()},dir:activeLevel.start.dir,start:{x:activeLevel.start.x-minX,y:activeLevel.start.y-minY}};
+            designerMessage('Copia lista para editar. El nivel original se conserva.');renderDesigner();
+        }
+
+        function designerPackage() {
+            const d=designerDraft;
+            if(!d?.start || !d.cells[d.start.y]?.[d.start.x]) throw new Error('Colocá la salida del robot.');
+            const tiles=[];d.cells.forEach((row,y)=>row.forEach((tile,x)=>{if(tile)tiles.push({x,y,...tile});}));
+            if(!tiles.some(t=>t.isLight)) throw new Error('Colocá al menos una lámpara. Puede estar en el suelo de altura 0.');
+            const ids=LEVELS.map(l=>l.id),id=Math.max(...ids)+1;
+            const data={format:'lightbot-program',schemaVersion:1,exportedAt:new Date().toISOString(),
+                level:{id,title:d.name.trim()||'Mi escenario',desc:'Escenario creado en el diseñador.',solidColumns:true,
+                    start:{...d.start,z:d.cells[d.start.y][d.start.x].z,dir:d.dir},tiles,rules:d.rules || {maxJumpUp:1,maxJumpDown:1}},
+                program:[],functions:[{id:'F1',nodes:[]}],algorithmText:formatAlgorithm([],[{id:'F1',nodes:[]}])};
+            // Reuse the import validation, including exact pairs of portal endpoints.
+            const validated=parseProgramJSON(JSON.stringify(data));
+            data.level=validated.level;
+            return data;
+        }
+
+        function designerReachability(level) {
+            const byPosition=new Map(level.tiles.map(t=>[t.x+','+t.y,t]));
+            const pending=[byPosition.get(level.start.x+','+level.start.y)],seen=new Set();
+            for(let i=0;i<pending.length;i++) {
+                const tile=pending[i],key=tile.x+','+tile.y;if(seen.has(key))continue;seen.add(key);
+                for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+                    let next=byPosition.get((tile.x+dx)+','+(tile.y+dy));
+                    if(!next || next.z-tile.z>level.rules.maxJumpUp)continue;
+                    if(next.portalId)next=level.tiles.find(t=>t.portalId===next.portalId&&t!==next);
+                    pending.push(next);
+                }
+            }
+            return level.tiles.filter(t=>t.isLight&&!seen.has(t.x+','+t.y)).length;
+        }
+
+        function playDesigner() {
+            try {
+                const data=designerPackage();
+                const unreachable=designerReachability(data.level);
+                importProgramJSON(JSON.stringify(data));
+                document.getElementById('designer-dialog').close();
+                designerDraft=null;designerHistory=[];
+                setStatus('Escenario creado. Armá tu programa y guardá el tablero con Descargar JSON.'+
+                    (unreachable?` Atención: ${unreachable} lámpara(s) no son alcanzables desde la salida.`:''));
+            } catch(error) {designerMessage(error.message);}
+        }
+
+        function downloadDesigner() {
+            let url;const link=document.createElement('a');
+            try {
+                const data=designerPackage();
+                const unreachable=designerReachability(data.level);
+                url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)+'\n'],{type:'application/json;charset=utf-8'}));
+                link.href=url;link.download=`lightbot-escenario-${data.level.id}.json`;
+                document.getElementById('designer-dialog').appendChild(link);link.click();
+                designerMessage('Descarga solicitada. Recuperalo con Cargar JSON.'+(unreachable?` Atención: ${unreachable} lámpara(s) no son alcanzables.`:''));
+            } catch(error) {designerMessage(error.message);}
+            finally {link.remove();if(url)setTimeout(()=>URL.revokeObjectURL(url),1000);}
+        }
+
+        function formatAlgorithm(main = programTree, definitions = functions) {
+            const lines = [];
+            function write(nodes, depth) {
+                const indent = '    '.repeat(depth);
+                if (!nodes.length) lines.push(indent + '(sin instrucciones)');
+                for (const node of nodes) {
+                    if (node.type === 'repeat') {
+                        lines.push(indent + `Repetir ${node.count} veces:`);
+                        write(node.children, depth + 1);
+                        lines.push(indent + 'Fin repetir');
+                    } else {
+                        const labels = {walk: 'Avanzar', jump: 'Saltar', left: 'Girar izquierda', right: 'Girar derecha', light: 'Luz'};
+                        lines.push(indent + (node.type === 'callF' ? 'Llamar ' + node.functionId : labels[node.type]));
+                    }
+                }
+            }
+            lines.push('PROGRAMA PRINCIPAL');
+            write(main, 1);
+            lines.push('FIN PRINCIPAL');
+            for (const fn of definitions) {
+                lines.push('', 'FUNCIÓN ' + fn.id);
+                write(fn.nodes, 1);
+                lines.push('FIN ' + fn.id);
+            }
+            return lines.join('\n');
+        }
+
+        // Validate the whole file before modifying the editor or current level.
+        // Only declarative JSON data is loaded; execution traces are not replayed as state.
+        function parseProgramJSON(text) {
+            const fail = message => { throw new Error(message); };
+            if (text.length > 5 * 1024 * 1024) fail('El JSON supera el límite de carga de 5 MB.');
+            let data;
+            try { data = JSON.parse(text.replace(/^\uFEFF/, '')); }
+            catch { fail('El archivo no contiene JSON válido.'); }
+            if (!data || data.format !== 'lightbot-program' || data.schemaVersion !== 1)
+                fail('Formato no compatible. Usá un JSON descargado desde este juego.');
+            if (!Array.isArray(data.program) || !Array.isArray(data.functions)) fail('Falta Principal o la lista de funciones.');
+            if (data.functions.length > 5000) fail('El archivo contiene demasiadas funciones para cargarlo.');
+            const functionIds = new Set();
+            for (const fn of data.functions) {
+                if (!fn || typeof fn.id !== 'string' || !/^F[1-9][0-9]{0,8}$/.test(fn.id) || functionIds.has(fn.id))
+                    fail('Hay un nombre de función inválido o duplicado.');
+                functionIds.add(fn.id);
+            }
+            let nextNodeId = 1;
+            function normalize(nodes, depth = 0) {
+                if (!Array.isArray(nodes)) fail('Una lista de instrucciones no es válida.');
+                if (depth > 100) fail('El archivo supera los 100 niveles de anidación admitidos al cargar.');
+                return nodes.map(node => {
+                    if (++nextNodeId > 20001) fail('El archivo supera las 20.000 instrucciones admitidas al cargar.');
+                    if (!node || !['walk','jump','left','right','light','repeat','callF'].includes(node.type)) fail('Instrucción desconocida.');
+                    const clean = {id: 'node_' + (nextNodeId-1), type: node.type, count: 2, children: []};
+                    if (node.type === 'repeat') {
+                        if (!Number.isInteger(node.count) || node.count < 1 || node.count > 99) fail('Repetir debe indicar entre 1 y 99 veces.');
+                        clean.count = node.count;
+                        clean.children = normalize(node.children, depth + 1);
+                    } else if (node.type === 'callF') {
+                        if (!functionIds.has(node.functionId)) fail('Una llamada apunta a una función que no existe.');
+                        clean.functionId = node.functionId;
+                    }
+                    return clean;
+                });
+            }
+            const main = normalize(data.program);
+            const definitions = data.functions.map(fn => ({id: fn.id, nodes: normalize(fn.nodes)}));
+            const source = data.level;
+            if (!source || !Number.isSafeInteger(source.id) || source.id < 1 || !Array.isArray(source.tiles) || !source.tiles.length || source.tiles.length > 10000)
+                fail('El tablero del archivo no es válido.');
+            const coordinate = n => Number.isInteger(n) && Math.abs(n) <= 1000;
+            const tiles = [], occupied = new Set(), portalEnds = new Map();
+            for (const tile of source.tiles) {
+                if (!tile || !coordinate(tile.x) || !coordinate(tile.y) || !Number.isInteger(tile.z) || tile.z < 0 || tile.z > 100)
+                    fail('Hay coordenadas o alturas inválidas en el tablero.');
+                const key = tile.x + ',' + tile.y;
+                if (occupied.has(key)) fail('Hay casillas duplicadas.');
+                occupied.add(key);
+                if (typeof tile.isLight !== 'boolean') fail('Una casilla no indica correctamente si es luz.');
+                const clean = {x: tile.x, y: tile.y, z: tile.z, isLight: tile.isLight};
+                if (tile.portalId != null) {
+                    if (typeof tile.portalId !== 'string' || !/^[A-Z0-9]{1,3}$/.test(tile.portalId)) fail('Portal inválido.');
+                    clean.portalId = tile.portalId;
+                    if (!portalEnds.has(tile.portalId)) portalEnds.set(tile.portalId, []);
+                    portalEnds.get(tile.portalId).push([tile.x, tile.y]);
+                }
+                tiles.push(clean);
+            }
+            const portals = [...portalEnds].map(([id,ends]) => {
+                if (ends.length !== 2) fail('Cada portal debe tener exactamente dos extremos.');
+                return {id, ends};
+            });
+            const start = source.start;
+            const startTile = start && tiles.find(t=>t.x===start.x && t.y===start.y);
+            if (!startTile || start.z !== startTile.z || !Number.isInteger(start.dir) || start.dir < 0 || start.dir > 3)
+                fail('La posición inicial del robot no es válida.');
+            if (!tiles.some(t=>t.isLight)) fail('El tablero no tiene luces.');
+            const rules = source.rules || {maxJumpUp:1,maxJumpDown:1};
+            if (![rules.maxJumpUp,rules.maxJumpDown].every(n=>Number.isInteger(n)&&n>=0&&n<=100)) fail('Reglas de salto inválidas.');
+            const level = {id: source.id, title: typeof source.title === 'string' ? source.title.slice(0,150) : 'Nivel importado',
+                desc: typeof source.desc === 'string' ? source.desc.slice(0,500) : 'Tablero recuperado del archivo JSON.',
+                start: {x:start.x,y:start.y,z:start.z,dir:start.dir}, tiles, portals,
+                rules: {maxJumpUp:rules.maxJumpUp,maxJumpDown:rules.maxJumpDown}, solidColumns: source.solidColumns !== false};
+            return {main, definitions: definitions.length ? definitions : [{id:'F1',nodes:[]}], level, nextNodeId};
+        }
+
+        function importProgramJSON(text) {
+            if (isExecuting) throw new Error('Detené la ejecución antes de cargar un programa.');
+            const imported = parseProgramJSON(text);
+            const signature = level => JSON.stringify({start:[level.start.x,level.start.y,level.start.z,level.start.dir],
+                rules:[level.rules?.maxJumpUp ?? 1,level.rules?.maxJumpDown ?? 1],
+                tiles:level.tiles.map(t=>[t.x,t.y,t.z,!!t.isLight,t.portalId||null]).sort((a,b)=>a[0]-b[0]||a[1]-b[1])});
+            let index = LEVELS.findIndex(level => level.id === imported.level.id && signature(level) === signature(imported.level));
+            if (index < 0) {
+                index = LEVELS.length;
+                LEVELS.push(imported.level);
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = 'Importado · ' + imported.level.title;
+                document.getElementById('level-select').appendChild(option);
+            }
+            loadLevel(index);
+            programTree = imported.main;
+            functions = imported.definitions;
+            nodeCounter = imported.nextNodeId;
+            nextFunctionNumber = Math.max(...functions.map(fn=>Number(fn.id.slice(1)))) + 1;
+            selectedFunctionId = functions[0].id;
+            selectedTargetId = 'main';
+            renderProgramUI();
+            setStatus('JSON cargado. Se recuperaron el nivel, Principal y las funciones. Pulsá Ejecutar para reproducirlo.');
+        }
+
+        async function loadProgramFile(event) {
+            const input = event.target;
+            const file = input.files?.[0];
+            if (!file) return;
+            try {
+                if (file.size > 5 * 1024 * 1024) throw new Error('El archivo supera el límite de carga de 5 MB.');
+                const text = await file.text();
+                importProgramJSON(text);
+            } catch (error) {
+                setStatus('No se cargó el archivo: ' + error.message);
+            } finally { input.value = ''; }
+        }
+
+        function buildProgramExport() {
+            // Keep definitions (including repeats and function references), not just a flat path.
+            return JSON.parse(JSON.stringify({
+                format: 'lightbot-program', schemaVersion: 1,
+                exportedAt: new Date().toISOString(),
+                level: {id: activeLevel.id, title: activeLevel.title, desc: activeLevel.desc, solidColumns: !!activeLevel.solidColumns,
+                    start: activeLevel.start, tiles: activeLevel.tiles,
+                    portals: activeLevel.portals || [], rules: getJumpRules()},
+                program: programTree, functions, algorithmText: formatAlgorithm(),
+                conventions: {directions: {'0': '+x', '1': '+y', '2': '-x', '3': '-y'},
+                    calls: 'functionId identifies the function to call',
+                    movement: 'walk falls to lower neighbors; missing tile is fatal',
+                    portals: 'one transfer per arrival, keeping direction'}
+            }));
+        }
+
+        function completeActionRecord() {
+            if (!activeActionRecord) return;
+            activeActionRecord.to = {...robot};
+            activeActionRecord.litCount = tilesMap.filter(t => t.isLight && t.lit).length;
+            activeActionRecord = null;
+        }
+
+        function downloadProgram(solution = false) {
+            const status = document.getElementById('export-status');
+            if (solution && !victoryExport) { status.textContent = 'Todavía no hay una solución completada.'; return; }
+            const data = solution ? JSON.parse(JSON.stringify(victoryExport)) : buildProgramExport();
+            data.exportedAt = new Date().toISOString();
+            const filename = `lightbot-nivel-${data.level.id}-${solution ? 'solucion' : 'programa'}.json`;
+            let url;
+            const link = document.createElement('a');
+            try {
+                const blob = new Blob([JSON.stringify(data, null, 2) + '\n'], {type: 'application/json;charset=utf-8'});
+                url = URL.createObjectURL(blob);
+                link.href = url; link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                const message = 'Descarga solicitada: ' + filename;
+                if (solution) status.textContent = message;
+                else setStatus(message);
+            } catch (error) {
+                const message = 'No se pudo iniciar la descarga. Abrí el HTML en tu navegador y reintentá.';
+                if (solution) status.textContent = message;
+                else setStatus(message);
+            } finally {
+                link.remove();
+                if (url) setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }
+        }
+
+        function startExecution() {
+            if (isExecuting) return;
+            if (programTree.length === 0) { setStatus('Agregá instrucciones a Principal para ejecutar.'); return; }
+            const problem = validateCalls();
+            if (problem) { setStatus(problem); return; }
+            executionFunctions = new Map(functions.map(f => [f.id, JSON.parse(JSON.stringify(f.nodes))]));
+            hideVictoryModal();
+            resetLevelState();
+            runExport = buildProgramExport();
+            runExport.execution = {status: 'running', actions: []};
+            isExecuting = true;
+            isPaused = false;
+            setEditorLocked(true);
+            setStatus('Ejecutando programa…');
+
+            document.getElementById('play-text').innerText = 'PAUSAR';
+            document.getElementById('btn-play').classList.replace('bg-cyan-600', 'bg-amber-600');
+
+            // Build execution stack frame
+            // Stack frame item: { nodes: [], index: 0, currentLoop: 1, totalLoops: 1 }
+            executionStack = [{
+                nodes: JSON.parse(JSON.stringify(programTree)),
+                index: 0,
+                currentLoop: 1,
+                totalLoops: 1
+            }];
+
+            runNextStep();
+        }
+
+        function pauseExecution() {
+            isPaused = true;
+            setStatus('Pausado. Continuar sigue desde esta posición.');
+            document.getElementById('play-text').innerText = 'CONTINUAR';
+            document.getElementById('btn-play').classList.replace('bg-amber-600', 'bg-cyan-600');
+            if (executionTimer) clearTimeout(executionTimer);
+        }
+
+        function setStatus(message) {
+            document.getElementById('execution-status').textContent = message;
+        }
+
+        function setEditorLocked(locked) {
+            document.querySelectorAll('.program-editor').forEach(el => el.setAttribute('aria-disabled', String(locked)));
+            document.querySelectorAll('.cmd-btn, .program-editor input, .program-editor button, #target-main, #btn-add-function, #btn-import, #btn-designer, #functions-list input, #functions-list button').forEach(el => el.disabled = locked);
+        }
+
+        function clearInstructions() {
+            stopExecution();
+            programTree = [];
+            functions = [{id: 'F1', nodes: []}];
+            selectedFunctionId = 'F1';
+            nextFunctionNumber = 2;
+            selectedTargetId = 'main';
+            renderProgramUI();
+            setStatus('Principal y las funciones vacíos. Listo para un nuevo programa.');
+        }
+
+        // Ending execution must never change the board state.
+        function finishExecution() {
+            isExecuting = false;
+            isPaused = false;
+            clearTimeout(executionTimer);
+            executionTimer = null;
+            executionStack = [];
+            pendingFall = null;
+            pendingTeleport = null;
+            teleportGlow = 0;
+            activeActionRecord = null;
+            visualRobot = null;
+            document.getElementById('play-text').innerText = 'EJECUTAR';
+            document.getElementById('btn-play').classList.replace('bg-amber-600', 'bg-cyan-600');
+            clearHighlights();
+            setEditorLocked(false);
+        }
+
+        function stopExecution() {
+            finishExecution();
+            hideVictoryModal();
+            resetLevelState();
+            setStatus('Reiniciado. Robot en la salida y luces apagadas.');
+        }
+
+        function clearHighlights() {
+            document.querySelectorAll('.executing-node').forEach(el => {
+                el.classList.remove('executing-node');
+            });
+        }
+
+        function runNextStep() {
+            if (!isExecuting || isPaused) return;
+            if (pendingFall) { advanceFall(); return; }
+            if (pendingTeleport) { advanceTeleport(); return; }
+
+            // Unwind finished calls/loops iteratively, including long function chains.
+            while (executionStack.length) {
+                const top = executionStack[executionStack.length - 1];
+                if (top.index < top.nodes.length) break;
+                if (top.currentLoop < top.totalLoops) {
+                    top.currentLoop++;
+                    top.index = 0;
+                } else executionStack.pop();
+            }
+            if (!executionStack.length) {
+                finishExecution();
+                setStatus('Programa terminado. Se conserva el resultado. Ejecutar inicia un nuevo intento.');
+                checkVictoryCondition();
+                return;
+            }
+            const frame = executionStack[executionStack.length - 1];
+
+            const currentNode = frame.nodes[frame.index];
+            frame.index++;
+
+            // Highlight current executing node visually
+            clearHighlights();
+            const nodeEl = document.getElementById(currentNode.id);
+            if (nodeEl) {
+                nodeEl.classList.add('executing-node');
+                nodeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            if (currentNode.type === 'callF') {
+                const body = executionFunctions.get(currentNode.functionId);
+                if (!body?.length || executionStack.some(f => f.functionId === currentNode.functionId)) {
+                    finishExecution();
+                    setStatus('Llamada inválida a ' + currentNode.functionId + '. Revisá sus instrucciones.');
+                    return;
+                }
+                executionStack.push({nodes: body, index: 0, currentLoop: 1, totalLoops: 1, functionId: currentNode.functionId});
+                setStatus('Entrando en ' + currentNode.functionId + '…');
+                executionTimer = setTimeout(runNextStep, speedDelay / 2);
+            } else if (currentNode.type === 'repeat') {
+                if (currentNode.children.length > 0) {
+                    executionStack.push({
+                        nodes: currentNode.children,
+                        index: 0,
+                        currentLoop: 1,
+                        totalLoops: currentNode.count
+                    });
+                }
+                executionTimer = setTimeout(runNextStep, speedDelay / 2);
+            } else {
+                // Record actual primitive actions, including repeated/function-expanded moves.
+                activeActionRecord = {step: runExport.execution.actions.length + 1,
+                    command: currentNode.type, nodeId: currentNode.id,
+                    from: {...robot}, events: []};
+                runExport.execution.actions.push(activeActionRecord);
+                executeAction(currentNode.type);
+                if (!pendingFall && !pendingTeleport) completeActionRecord();
+                renderScene();
+                executionTimer = setTimeout(runNextStep, (pendingFall || pendingTeleport) ? 16 : speedDelay);
+            }
+        }
+
+        function executeAction(type) {
+            if (robot.fallen || pendingFall || pendingTeleport) return;
+            // Direction vectors: 0: East(+x), 1: South(+y), 2: West(-x), 3: North(-y)
+            const dx = [1, 0, -1, 0];
+            const dy = [0, 1, 0, -1];
+
+            const currentTile = getTileAt(robot.x, robot.y);
+            setStatus('Ejecutando: ' + getCmdMeta(type).label);
+
+            if (type === 'walk') {
+                const targetX = robot.x + dx[robot.dir];
+                const targetY = robot.y + dy[robot.dir];
+                const targetTile = getTileAt(targetX, targetY);
+
+                if (!targetTile || targetTile.z < robot.z) {
+                    beginFall(targetX, targetY, targetTile);
+                } else if (targetTile.z === robot.z) {
+                    robot.x = targetX;
+                    robot.y = targetY;
+                    sound.walk();
+                    activatePortal();
+                } else {
+                    setStatus('Hay un escalón más alto delante. Necesitás Saltar.');
+                }
+            } else if (type === 'jump') {
+                const targetX = robot.x + dx[robot.dir];
+                const targetY = robot.y + dy[robot.dir];
+                const targetTile = getTileAt(targetX, targetY);
+
+                const {maxJumpUp, maxJumpDown} = getJumpRules();
+                const heightDifference = targetTile ? targetTile.z - robot.z : Infinity;
+                if (!targetTile) {
+                    beginFall(targetX, targetY, null);
+                } else if (heightDifference <= maxJumpUp && heightDifference >= -maxJumpDown) {
+                    robot.x = targetX;
+                    robot.y = targetY;
+                    robot.z = targetTile.z;
+                    sound.jump();
+                    activatePortal();
+                } else {
+                    setStatus(`Salto bloqueado: necesita una casilla vecina; subida máxima ${maxJumpUp}, bajada máxima ${maxJumpDown}.`);
+                }
+            } else if (type === 'right') {
+                robot.dir = (robot.dir + 1) % 4;
+                sound.turn();
+            } else if (type === 'left') {
+                robot.dir = (robot.dir + 3) % 4;
+                sound.turn();
+            } else if (type === 'light') {
+                if (currentTile && currentTile.isLight) {
+                    currentTile.lit = !currentTile.lit;
+                    sound.light();
+                    updateLightCounter();
+                }
+            }
+        }
+
+        // Gravity for Avanzar: any lower neighboring surface catches the robot.
+        // A missing tile (including an interior hole) is a fatal fall, never a reset.
+        function beginFall(x, y, targetTile) {
+            const from = {...robot};
+            const to = {x, y, z: targetTile ? targetTile.z : -5, dir: robot.dir};
+            pendingFall = {from, to, fatal: !targetTile, tick: 0,
+                steps: Math.max(8, Math.round(Math.min(speedDelay, 420) / 16))};
+            robot = {...to};
+            visualRobot = {...from};
+            sound.walk();
+            setStatus(targetTile ? 'Cayendo a la casilla inferior…' : '¡El robot salió del tablero!');
+        }
+
+        function advanceFall() {
+            if (!pendingFall || !isExecuting || isPaused) return;
+            const fall = pendingFall;
+            const t = Math.min(1, ++fall.tick / fall.steps);
+            visualRobot = {
+                x: fall.from.x + (fall.to.x-fall.from.x) * Math.min(1, t*2),
+                y: fall.from.y + (fall.to.y-fall.from.y) * Math.min(1, t*2),
+                z: fall.from.z + (fall.to.z-fall.from.z) * t*t
+            };
+            if (t === 1) {
+                pendingFall = null;
+                visualRobot = null;
+                if (fall.fatal) {
+                    robot.fallen = true;
+                    completeActionRecord();
+                    finishExecution();
+                    setStatus('El robot cayó fuera del tablero. Corregí el programa y pulsá Ejecutar para reintentar.');
+                    renderScene();
+                    return;
+                }
+                setStatus('Aterrizó en la casilla inferior. Continúa el programa.');
+                activatePortal();
+                if (!pendingTeleport) completeActionRecord();
+            }
+            renderScene();
+            executionTimer = setTimeout(runNextStep, (pendingFall || pendingTeleport) ? 16 : speedDelay);
+        }
+
+        function activatePortal() {
+            if (robot.fallen || pendingFall || pendingTeleport) return false;
+            const entered = getTileAt(robot.x, robot.y);
+            if (!entered?.portalId) return false;
+            const destination = tilesMap.find(t => t.portalId === entered.portalId && t !== entered);
+            if (!destination) return false;
+            // Keep the robot on the entrance while it charges. One transfer only.
+            pendingTeleport = {portalId: entered.portalId, from: {...robot},
+                to: {...robot, x: destination.x, y: destination.y, z: destination.z},
+                tick: 0, hold: 20, charge: 14, fade: 12, transferred: false};
+            teleportGlow = 0;
+            setStatus(`Portal ${entered.portalId}: preparando teletransporte…`);
+            return true;
+        }
+
+        function advanceTeleport() {
+            if (!pendingTeleport || !isExecuting || isPaused) return;
+            const motion = pendingTeleport;
+            motion.tick++;
+            const transferAt = motion.hold + motion.charge;
+            if (motion.tick <= motion.hold) {
+                teleportGlow = 0;
+            } else if (motion.tick < transferAt) {
+                teleportGlow = (motion.tick - motion.hold) / motion.charge;
+            } else {
+                if (!motion.transferred) {
+                    motion.transferred = true;
+                    robot = {...motion.to};
+                    if (activeActionRecord) activeActionRecord.events.push({
+                        type: 'teleport', portalId: motion.portalId,
+                        from: {...motion.from}, to: {...motion.to}
+                    });
+                    sound.turn();
+                    setStatus(`Portal ${motion.portalId}: llegaste al destino.`);
+                }
+                teleportGlow = Math.max(0, 1 - (motion.tick - transferAt) / motion.fade);
+            }
+            if (motion.tick >= transferAt + motion.fade) {
+                pendingTeleport = null;
+                teleportGlow = 0;
+                completeActionRecord();
+            }
+            renderScene();
+            executionTimer = setTimeout(runNextStep, pendingTeleport ? 16 : speedDelay);
+        }
+
+        function getJumpRules() {
+            return activeLevel.rules || {maxJumpUp: 1, maxJumpDown: 1};
+        }
+
+        function getTileAt(x, y) {
+            return tilesMap.find(t => t.x === x && t.y === y);
+        }
+
+        function updateLightCounter() {
+            const total = tilesMap.filter(t => t.isLight).length;
+            const litCount = tilesMap.filter(t => t.isLight && t.lit).length;
+            document.getElementById('light-counter').innerText = `${litCount}/${total}`;
+        }
+
+        function checkVictoryCondition() {
+            if (robot.fallen || pendingFall || pendingTeleport) return;
+            const total = tilesMap.filter(t => t.isLight).length;
+            const litCount = tilesMap.filter(t => t.isLight && t.lit).length;
+
+            if (total > 0 && litCount === total) {
+                setStatus('¡Nivel completado! Todas las luces están encendidas.');
+                sound.win();
+                showVictoryModal();
+            }
+        }
+
+        function showVictoryModal() {
+            if (runExport) {
+                runExport.execution.status = 'completed';
+                runExport.execution.finalRobot = {...robot};
+                runExport.execution.lights = tilesMap.filter(t=>t.isLight).map(({x,y,z,lit})=>({x,y,z,lit}));
+                victoryExport = JSON.parse(JSON.stringify(runExport));
+            }
+            document.getElementById('export-status').textContent = 'Guardá tu solución antes de pasar al siguiente nivel.';
+            const modal = document.getElementById('win-modal');
+            const card = document.getElementById('win-card');
+            
+            document.getElementById('win-cmd-count').innerText = countTotalNodes(allProgramNodes());
+            document.getElementById('win-nest-info').innerText = hasNestedLoops(programTree) ? "¡Anidado Perfecto!" : "Resuelto";
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-90');
+            card.classList.add('scale-100');
+        }
+
+        function hideVictoryModal() {
+            const modal = document.getElementById('win-modal');
+            const card = document.getElementById('win-card');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+        }
+
+        function hasNestedLoops(nodes) {
+            for (let n of nodes) {
+                if (n.type === 'repeat') {
+                    for (let child of n.children) {
+                        if (child.type === 'repeat') return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function loadLevel(index) {
+            victoryExport = null;
+            runExport = null;
+            currentLevelIdx = index;
+            activeLevel = LEVELS[index];
+
+            document.getElementById('level-title').innerText = activeLevel.title;
+            document.getElementById('level-desc').innerText = activeLevel.desc;
+            const {maxJumpUp, maxJumpDown} = getJumpRules();
+            document.getElementById('level-rules').textContent =
+                `Avanzar: camina o cae al nivel inferior; salir del tablero termina el intento · Saltar: casilla vecina, subir hasta ${maxJumpUp} / bajar hasta ${maxJumpDown} peldaños (también en llano) · Luz: encender/apagar · ■: reiniciar` + (activeLevel.portals?.length ? ' · Portales: misma letra = conexión; activación al entrar, orientación conservada.' : '');
+
+            clearInstructions();
+            document.getElementById('level-select').value = index;
+
+            renderProgramUI();
+            resizeCanvas();
+        }
+
+        function resetLevelState() {
+            pendingFall = null;
+            pendingTeleport = null;
+            teleportGlow = 0;
+            activeActionRecord = null;
+            visualRobot = null;
+            robot = { ...activeLevel.start };
+            tilesMap = activeLevel.tiles.map(t => ({ ...t, lit: false }));
+            updateLightCounter();
+            renderScene();
+        }
+
+        // Initialize UI Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn-designer').addEventListener('click', openDesigner);
+            document.getElementById('designer-close').addEventListener('click',()=>document.getElementById('designer-dialog').close());
+            document.querySelectorAll('[data-design-tool]').forEach(button=>button.addEventListener('click',()=>setDesignerTool(button.dataset.designTool)));
+            document.getElementById('designer-name').addEventListener('input',event=>{designerDraft.name=event.target.value;});
+            document.getElementById('designer-direction').addEventListener('change',event=>{rememberDesigner();designerDraft.dir=Number(event.target.value);renderDesigner();});
+            document.getElementById('designer-resize').addEventListener('click',resizeDesigner);
+            document.getElementById('designer-copy').addEventListener('click',copyLevelToDesigner);
+            document.getElementById('designer-new').addEventListener('click',()=>{rememberDesigner();designerDraft=newDesignerBoard();designerMessage('Tablero nuevo, con suelo a altura 0.');renderDesigner();});
+            document.getElementById('designer-undo').addEventListener('click',()=>{if(designerHistory.length){designerDraft=designerHistory.pop();designerMessage('Cambio deshecho.');renderDesigner();}});
+            document.getElementById('designer-play').addEventListener('click',playDesigner);
+            document.getElementById('designer-download').addEventListener('click',downloadDesigner);
+            // Populate Level Selector dropdown
+            const selectEl = document.getElementById('level-select');
+            LEVELS.forEach((lvl, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.innerText = lvl.title;
+                selectEl.appendChild(opt);
+            });
+
+            selectEl.addEventListener('change', (e) => {
+                loadLevel(parseInt(e.target.value));
+            });
+
+            // Playback controls
+            document.getElementById('btn-play').addEventListener('click', () => {
+                if (!isExecuting) {
+                    startExecution();
+                } else if (isPaused) {
+                    isPaused = false;
+                    setStatus('Ejecutando programa…');
+                    document.getElementById('play-text').innerText = 'PAUSAR';
+                    document.getElementById('btn-play').classList.replace('bg-cyan-600', 'bg-amber-600');
+                    runNextStep();
+                } else {
+                    pauseExecution();
+                }
+            });
+
+            document.getElementById('btn-stop').addEventListener('click', stopExecution);
+            
+            document.getElementById('btn-clear').addEventListener('click', clearInstructions);
+            document.getElementById('btn-export').addEventListener('click', () => downloadProgram(false));
+            document.getElementById('btn-import').addEventListener('click', () => document.getElementById('import-file').click());
+            document.getElementById('import-file').addEventListener('change', loadProgramFile);
+            document.getElementById('btn-export-win').addEventListener('click', () => downloadProgram(true));
+
+            // Speed Slider
+            const speedSlider = document.getElementById('speed-slider');
+            speedSlider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                // Map 1..5 to delay (600ms down to 120ms)
+                speedDelay = 700 - (val * 110);
+            });
+
+            // Audio Toggle
+            document.getElementById('btn-audio').addEventListener('click', () => {
+                sound.enabled = !sound.enabled;
+                document.getElementById('icon-audio-on').classList.toggle('hidden', !sound.enabled);
+                document.getElementById('icon-audio-off').classList.toggle('hidden', sound.enabled);
+            });
+
+            // Next Level button
+            document.getElementById('btn-next-level').addEventListener('click', () => {
+                hideVictoryModal();
+                const nextIdx = (currentLevelIdx + 1) % LEVELS.length;
+                document.getElementById('level-select').value = nextIdx;
+                loadLevel(nextIdx);
+            });
+
+            new ResizeObserver(resizeCanvas).observe(canvas);
+
+            // Initial level load
+            loadLevel(0);
+        });
+    </script>
+</body>
+</html>

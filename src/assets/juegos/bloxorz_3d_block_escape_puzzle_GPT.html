@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloxorz · Explorador</title>
+<style>:root{color-scheme:dark;--gold:#ebbf72;--aqua:#7ed9ca;--muted:#8aa4aa;--line:#294148}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0,#173632 0,transparent 45%),#080f18;color:#e6efee;font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}button,input,select,textarea{font:inherit}button,select{cursor:pointer}button{color:#d2e5e1;border:1px solid #345150;background:linear-gradient(140deg,#223c41,#15242e);border-radius:10px;padding:9px 12px;font-size:12px;font-weight:650;transition:filter .15s,transform .15s}button:hover{filter:brightness(1.25);border-color:#72b8aa}button:active{transform:translateY(1px)}button:disabled{opacity:.5;cursor:wait}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:3px}input,select,textarea{max-width:100%;background:#0b1821;border:1px solid #385051;border-radius:8px;color:#dce9e5;padding:8px}h1,h2,h3,p{margin:0}p{color:var(--muted)}h1{font-size:23px;letter-spacing:3px;color:var(--gold)}h1 span{font-size:10px;letter-spacing:2px;border:1px solid #786640;padding:4px 8px;border-radius:20px}header{padding:18px 28px;border-bottom:1px solid #203831;background:#0a141ad9}header>div{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}header>div>div{display:flex;align-items:center;gap:12px}header>div>div:first-child>div:first-child{display:none}header p{font-size:11px;letter-spacing:1.5px;margin-top:3px}header button{padding:8px 15px}main{max-width:1680px;margin:auto;padding:22px;width:100%}.glass-panel{background:linear-gradient(145deg,#14252ddd,#0e1924ed);border:1px solid #2b4248;border-radius:20px;box-shadow:0 15px 45px #0003}#view-play{display:grid;grid-template-columns:minmax(0,1fr) 275px;gap:18px}#view-play>.glass-panel:first-child{padding:16px;display:flex;flex-direction:column;min-width:0}#view-play>.glass-panel:first-child>div:first-child{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}#view-play>.glass-panel:first-child>div:first-child>div{display:flex;align-items:center;gap:12px}#view-play>.glass-panel:first-child>div:first-child>div:last-child>div{min-width:85px;padding:4px 12px;border-left:1px solid #385052;text-align:center}#view-play>.glass-panel:first-child>div:first-child span{display:block}#view-play label{font-size:11px;color:var(--muted)}#hud-moves,#hud-timer{font:600 21px ui-monospace,monospace;color:var(--gold)}#canvas-container{position:relative;width:100%;height:clamp(450px,65vh,800px);overflow:hidden;background:#08141e;border:1px solid #34514f;border-radius:13px}#canvas-container canvas{display:block;touch-action:none;cursor:grab}#view-play>.glass-panel:first-child>div:last-child{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:12px}#view-play>.glass-panel:first-child>div:last-child>div{display:flex;gap:8px}#view-play>.glass-panel:last-child{padding:18px;display:flex;flex-direction:column;gap:14px;align-items:stretch}#view-play h3{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#8bb1a8}#view-play>.glass-panel:last-child>div.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;width:165px;height:165px;align-self:center}#view-play>.glass-panel:last-child>div.grid>div{display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--gold)}.dpad-btn{font-size:22px;border-radius:14px}.text-\[11px\]{font-size:11px}.text-xs{font-size:12px}.text-slate-500,.text-slate-400{color:var(--muted)}.font-mono-code{font-family:ui-monospace,monospace}.hidden{display:none!important}.opacity-0{opacity:0!important}.pointer-events-none{pointer-events:none!important}.bg-amber-500{background:var(--gold)!important;color:#18232a!important}.flex{display:flex}.flex-wrap{flex-wrap:wrap}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}.justify-center{justify-content:center}.gap-1{gap:4px}.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}.gap-5{gap:20px}.text-center{text-align:center}.w-full{width:100%}.mb-4{margin-bottom:16px}.my-5{margin:20px 0}.mt-2{margin-top:8px}.p-4{padding:16px}.p-5{padding:20px}.p-6{padding:24px}.rounded-2xl{border-radius:14px}.border{border:1px solid var(--line)}.bg-slate-900,.bg-slate-950{background:#101e29}.text-xl{font-size:20px}.text-2xl{font-size:24px}.text-4xl{font-size:40px}.text-amber-400{color:var(--gold)}.text-cyan-400{color:var(--aqua)}.fixed{position:fixed}.inset-0{inset:0}.z-50{z-index:50}.bg-black\/80{background:#020810d9}.backdrop-blur-md{backdrop-filter:blur(10px)}#win-modal,#json-modal{transition:opacity .2s}#win-card,#json-modal>div{background:#13232d;border:1px solid #587568;border-radius:22px;padding:28px;max-width:620px;width:100%;box-shadow:0 20px 100px #0009}#win-card{max-width:420px}#json-text{width:100%;min-height:300px;font:12px ui-monospace,monospace;user-select:text}#json-error,#editor-status{min-height:22px;font-size:12px;color:#ebbf72}#view-editor>.glass-panel,#view-guide>.glass-panel{padding:22px;display:flex;flex-direction:column;gap:18px}#view-editor>.glass-panel>div:first-child{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}#editor-canvas{max-width:100%;height:auto;touch-action:none}#editor-w,#editor-h{width:65px}#view-editor .palette-btn-active{outline:2px solid var(--gold);outline-offset:2px}#view-guide .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}#view-guide .grid>div{background:#101c26;padding:20px;border:1px solid var(--line);border-radius:15px}#level-note{font:11px ui-monospace,monospace;color:var(--aqua);padding:11px 0 0}.explore{border-top:1px solid #345050;padding-top:15px;display:grid;gap:9px}.explore label{display:flex;flex-direction:column;gap:4px}.explore .two{display:grid;grid-template-columns:1fr 1fr;gap:6px}#hint-text{font-size:12px;color:#bed4ce;min-height:54px}.accent{background:linear-gradient(115deg,#dbb974,#edcc91);color:#18252a;border-color:#ebc788}footer{padding:16px;text-align:center;font-size:11px;color:#627d85}.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:#8caaa7;margin:12px 0 0}.legend b{color:var(--gold)}@media(min-width:1050px){#canvas-container{height:max(510px,68vh)}}@media(max-width:850px){main{padding:12px}header{padding:14px}#view-play{grid-template-columns:1fr}#view-play>.glass-panel:last-child{display:grid;grid-template-columns:165px 1fr;align-items:center}#view-play>.glass-panel:last-child h3{grid-column:1/-1}#view-play>.glass-panel:last-child .explore{grid-column:1/-1}#canvas-container{height:470px}#level-select{max-width:240px}}@media(max-width:480px){#canvas-container{height:380px}#view-play>.glass-panel:first-child>div:last-child{flex-wrap:wrap}#view-play>.glass-panel:first-child>div:last-child>div:last-child{display:none}#view-guide .grid{grid-template-columns:1fr}header>div>div{flex-wrap:wrap}#level-select{max-width:225px}#view-play>.glass-panel:last-child{grid-template-columns:150px 1fr}h1{font-size:19px}h1 span{font-size:8px}}
+</style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- Navigation Header -->
+    <header class="glass-panel sticky top-0 z-30 px-4 py-3 border-b border-slate-800 shadow-2xl">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                    <span class="text-2xl">🧱</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-wide bg-gradient-to-r from-amber-400 via-orange-400 to-cyan-400 bg-clip-text text-transparent">
+                        BLOXORZ <span class="text-xs px-2 py-0.5 rounded-full bg-amber-950 border border-amber-700 text-amber-400 ml-1 font-sans">EXPLORADOR</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">40 niveles · Laboratorio de lógica espacial</p>
+                </div>
+            </div>
+
+            <!-- Top Controls & View Switcher -->
+            <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <div class="bg-slate-900 border border-slate-800 p-1 rounded-xl flex items-center gap-1">
+                    <button id="tab-play" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-amber-500 text-slate-950 shadow-md">
+                        🎮 Jugar
+                    </button>
+                    <button id="tab-editor" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800">
+                        🛠️ Editor
+                    </button>
+                    <button id="tab-guide" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800">
+                        ❓ Reglas
+                    </button>
+                </div>
+
+                <button id="btn-sound" title="Sonido" class="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors">
+                    <span id="sound-icon" class="text-lg">🔊</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-3 sm:p-5 flex flex-col justify-center">
+
+        <!-- GAME VIEW -->
+        <div id="view-play" class="flex flex-col lg:flex-row gap-5 items-stretch justify-center">
+            
+            <!-- 3D Viewport Container -->
+            <div class="glass-panel rounded-3xl p-4 flex flex-col items-center justify-between shadow-2xl flex-1 relative min-h-[440px]">
+                
+                <!-- HUD Bar -->
+                <div class="w-full flex flex-wrap items-center justify-between gap-2 mb-2 px-2 z-10">
+                    <div class="flex items-center gap-2">
+                        <label for="level-select" class="text-xs font-bold text-slate-400">Nivel:</label>
+                        <select id="level-select" class="bg-slate-900 text-amber-400 font-bold text-sm rounded-xl px-3 py-1.5 border border-slate-700 outline-none focus:border-amber-500 cursor-pointer shadow-inner">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1 text-center">
+                            <span class="text-[10px] text-slate-400 block font-bold uppercase">Movimientos</span>
+                            <span id="hud-moves" class="text-base font-extrabold text-cyan-400 font-mono-code">0</span>
+                        </div>
+                        <div class="bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1 text-center">
+                            <span class="text-[10px] text-slate-400 block font-bold uppercase">Tiempo</span>
+                            <span id="hud-timer" class="text-base font-extrabold text-amber-400 font-mono-code">00:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ThreeJS Canvas Container -->
+                <div id="canvas-container" class="relative w-full flex-1 flex items-center justify-center min-h-[360px] rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
+                    <!-- Canvas inserted by JS -->
+                </div>
+
+                <div id="level-note"></div><div class="legend"><span><b>Ámbar</b> bloque</span><span>🟠 frágil</span><span>○ suave · × pesado</span><span>▧ puente</span></div><!-- Bottom Game Toolbar -->
+                <div class="w-full bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 flex items-center justify-between gap-3 shadow-lg mt-3 z-10">
+                    <div class="flex items-center gap-2">
+                        <button id="btn-undo" class="flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-cyan-300 font-bold text-xs rounded-xl border border-slate-700 transition-all shadow-md">
+                            <span>↩️</span>
+                            <span>Deshacer (Z)</span>
+                        </button>
+                        <button id="btn-reset" class="flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-red-950/40 hover:text-red-300 active:scale-95 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 hover:border-red-800/50 transition-all shadow-md">
+                            <span>🔄</span>
+                            <span>Reiniciar (R)</span>
+                        </button>
+                    </div>
+
+                    <div class="text-xs text-slate-500 hidden sm:block italic">
+                        Usa Flechas / WASD para rodar el bloque
+                    </div>
+                </div>
+            </div>
+
+            <!-- Touch D-Pad Sidebar -->
+            <div class="glass-panel rounded-3xl p-5 flex flex-col items-center justify-center gap-4 lg:w-72 shadow-2xl">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Controles Táctiles</h3>
+                
+                <div class="grid grid-cols-3 gap-2 w-48 h-48">
+                    <div></div>
+                    <button id="btn-up" class="dpad-btn rounded-2xl flex items-center justify-center text-2xl text-slate-200 hover:text-white transition-all">▲</button>
+                    <div></div>
+                    <button id="btn-left" class="dpad-btn rounded-2xl flex items-center justify-center text-2xl text-slate-200 hover:text-white transition-all">◀</button>
+                    <div class="flex items-center justify-center text-amber-500 font-extrabold text-xs">BLOXORZ</div>
+                    <button id="btn-right" class="dpad-btn rounded-2xl flex items-center justify-center text-2xl text-slate-200 hover:text-white transition-all">▶</button>
+                    <div></div>
+                    <button id="btn-down" class="dpad-btn rounded-2xl flex items-center justify-center text-2xl text-slate-200 hover:text-white transition-all">▼</button>
+                    <div></div>
+                </div>
+
+                <p class="text-[11px] text-slate-400 text-center leading-relaxed">
+                    Haz caer el bloque <b>VERTICALMENTE</b> sobre el orificio de meta 🎯 sin salirte de la plataforma.</p><div class="explore"><h3>Laboratorio de niveles</h3><div class="two"><label>Tamaño<select id="difficulty"><option value="0">7 × 7</option><option value="1" selected>9 × 9</option><option value="2">12 × 12</option></select></label><label>Mecánica<select id="mechanic"><option value="classic">Clásico</option><option value="fragile">Frágiles</option><option value="switch">Puente suave</option><option value="heavy">Puente pesado</option><option value="mixed" selected>Mixto</option></select></label></div><label>Semilla reproducible<input id="seed" type="number" min="0" max="4294967295" placeholder="Automática"></label><div class="two"><button id="btn-generate" class="accent">Generar</button><button id="btn-random-seed">🎲 Otra semilla</button></div><button id="btn-hint">💡 Una pista</button><p id="hint-text" role="status" aria-live="polite"></p><div class="two"><button id="btn-view">Vista superior</button><button id="btn-camera">Centrar cámara</button></div><button id="btn-to-editor">✎ Modificar este tablero</button><button id="btn-download-level">↓ Guardar nivel JSON</button></div><p>
+                </p>
+            </div>
+        </div>
+
+        <!-- LEVEL EDITOR VIEW -->
+        <div id="view-editor" class="hidden flex-col gap-5">
+            <div class="glass-panel rounded-3xl p-5 shadow-2xl flex flex-col gap-4">
+                
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                            <span>🛠️ Creador & Editor de Niveles</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Pinta baldosas, interruptores y la meta para crear tus desafíos</p>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <div class="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-xl border border-slate-800 text-xs">
+                            <span class="text-slate-400 font-bold">Ancho:</span>
+                            <input id="editor-w" type="number" min="6" max="24" value="10" class="w-12 bg-slate-800 text-center font-bold text-amber-300 rounded border border-slate-700 outline-none">
+                            <span class="text-slate-400 font-bold ml-2">Alto:</span>
+                            <input id="editor-h" type="number" min="6" max="24" value="10" class="w-12 bg-slate-800 text-center font-bold text-amber-300 rounded border border-slate-700 outline-none">
+                            <button id="btn-resize-grid" class="ml-2 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded font-bold text-xs">Cambiar Tamaño</button>
+                        </div>
+
+                        <button id="btn-test-level" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/30 transition-all active:scale-95">
+                            ▶ Probar Nivel
+                        </button>
+                        <button id="btn-export-json" class="px-4 py-2 bg-cyan-700 hover:bg-cyan-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all active:scale-95">
+                            📄 Exportar / Importar JSON
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tile Palette Selection -->
+                <div class="flex items-center justify-center gap-2 flex-wrap bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+                    <span class="text-xs font-bold text-slate-400 mr-2">Herramienta:</span>
+                    
+                    <button data-tile="1" class="palette-btn palette-btn-active flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-slate-200">
+                        <span>⬜</span> Normal (1)
+                    </button>
+                    <button data-tile="F" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-orange-400">
+                        <span>🟧</span> Frágil (F)
+                    </button>
+                    <button data-tile="G" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-cyan-400">
+                        <span>🎯</span> Meta (G)
+                    </button>
+                    <button data-tile="O" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-blue-400">
+                        <span>⭕</span> Botón Suave (O)
+                    </button>
+                    <button data-tile="X" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-red-400">
+                        <span>❌</span> Botón Pesado (X)
+                    </button>
+                    <button data-tile="B" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-teal-300">
+                        <span>🌉</span> Puente (B)
+                    </button>
+                    <button data-tile="S" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-amber-400">
+                        <span>🤖</span> Inicio (S)
+                    </button>
+                    <button data-tile="0" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-slate-500">
+                        <span>⬛</span> Vacío (0)
+                    </button>
+                </div>
+
+                <p>Los puentes nuevos comparten un grupo; cada interruptor nuevo alterna ese grupo. Las conexiones importadas se conservan. Arrastrá para pintar.</p><div class="flex gap-2 flex-wrap"><button id="btn-validate" class="accent">✓ Comprobar solución</button><button id="btn-download-editor">↓ Descargar diseño JSON</button></div><p id="editor-status" role="status"></p><!-- 2D Interactive Grid Canvas for Editor -->
+                <div class="flex items-center justify-center my-2">
+                    <canvas id="editor-canvas" class="rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl cursor-pointer"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- GUIDE / RULES VIEW -->
+        <div id="view-guide" class="hidden flex-col gap-5">
+            <div class="glass-panel rounded-3xl p-6 shadow-2xl max-w-3xl mx-auto flex flex-col gap-4">
+                <h2 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-2">📜 Reglas del Juego Bloxorz</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed text-slate-300">
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                        <h3 class="font-bold text-white text-sm mb-1">🎯 El Objetivo</h3>
+                        <p>Haz rodar el bloque de 1 × 1 × 2 por la plataforma hasta hacerlo caer <b>de pie (verticalmente)</b> en el orificio de meta 🎯.</p>
+                    </div>
+
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                        <h3 class="font-bold text-orange-400 text-sm mb-1">🟧 Baldosas Frágiles</h3>
+                        <p>Las baldosas naranjas soportan al bloque tumbado horizontalmente. Si el bloque se pone <b>vertical de pie</b> sobre una baldosa frágil, se romperá y caerás al vacío.</p>
+                    </div>
+
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                        <h3 class="font-bold text-blue-400 text-sm mb-1">⭕ Botón Suave (Círculo)</h3>
+                        <p>Se activa cuando <b>cualquier parte</b> del bloque entra en contacto con él. Alterna el estado de los puentes conectados.</p>
+                    </div>
+
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                        <h3 class="font-bold text-red-400 text-sm mb-1">❌ Botón Pesado (Cruz)</h3>
+                        <p>Requiere todo el peso del bloque: solo se activa cuando el bloque se coloca <b>verticalmente de pie</b> directamente sobre él.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Victory Modal -->
+    <div id="win-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-slate-900 border border-amber-500/40 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col items-center text-center transform scale-90 transition-transform duration-300" id="win-card">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center text-4xl mb-4 shadow-xl shadow-amber-500/30 animate-bounce">
+                🏆
+            </div>
+            <h2 class="text-2xl font-black text-white tracking-tight">¡NIVEL COMPLETADO!</h2>
+            <p class="text-sm text-slate-300 mt-2">¡Increíble precisión! El bloque encajó perfectamente en la meta.</p>
+            
+            <div class="w-full bg-slate-950 rounded-2xl p-4 border border-slate-800 my-5 flex justify-around text-xs">
+                <div>
+                    <span class="text-slate-500 block">Movimientos</span>
+                    <span id="win-moves" class="text-xl font-extrabold text-cyan-400 font-mono-code">0</span>
+                </div>
+                <div class="border-r border-slate-800"></div>
+                <div>
+                    <span class="text-slate-500 block">Tiempo</span>
+                    <span id="win-time" class="text-xl font-extrabold text-amber-400 font-mono-code">00:00</span>
+                </div>
+            </div>
+
+            <button id="btn-next-level" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-amber-500/30 transition-all active:scale-95">
+                Siguiente Nivel →
+            </button>
+        </div>
+    </div>
+
+    <!-- JSON Export/Import Modal -->
+    <div id="json-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 max-w-lg w-full shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="text-base font-bold text-cyan-400">Datos del Nivel en Formato JSON</h3>
+                <button id="btn-close-json" class="text-slate-400 hover:text-white font-bold text-lg">✕</button>
+            </div>
+            <p id="json-error" role="alert"></p><textarea id="json-text" class="w-full h-44 bg-slate-950 font-mono-code text-xs text-amber-300 p-3 rounded-xl border border-slate-800 outline-none focus:border-cyan-500" placeholder="Pega el código JSON del nivel aquí..."></textarea>
+            
+            <div class="flex justify-end gap-2">
+                <button id="btn-copy-json" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs rounded-xl border border-slate-700">Copiar</button>
+                <button id="btn-import-json" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs rounded-xl shadow-lg">Importar Nivel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+            }
+
+            playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.08) {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            }
+
+            rollThud() {
+                this.playTone(90, 'triangle', 0.08, 0.12);
+            }
+
+            switchClick() {
+                this.playTone(480, 'sine', 0.1, 0.08);
+            }
+
+            fragileBreak() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                // Descending glass frequencies
+                [400, 320, 200, 120].forEach((f, idx) => {
+                    setTimeout(() => this.playTone(f, 'sawtooth', 0.12, 0.1), idx * 30);
+                });
+            }
+
+            fallWhoosh() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.5);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            }
+
+            winFanfare() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
+                notes.forEach((f, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(f, now + idx * 0.08);
+                    gain.gain.setValueAtTime(0.12, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.3);
+                });
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        const DEFAULT_LEVELS = [{"id":1,"name":"Nivel 1: Primeros Pasos","grid":["111000","111111","111111","00011G"],"start":{"x":0,"z":0},"bridges":[],"switches":[],"optimal":7},{"id":2,"name":"Nivel 2: Suelo Frágil","grid":["111100","1FF111","111111","00111G"],"start":{"x":0,"z":0},"bridges":[],"switches":[],"optimal":6},{"id":3,"name":"Nivel 3: El Puente Suave","grid":["1111O1","111001","11B111","10001G"],"start":{"x":0,"z":0},"bridges":[{"id":"b1","x":2,"z":2,"active":false}],"switches":[{"type":"O","x":4,"z":0,"targetBridge":"b1"}],"optimal":14},{"id":4,"name":"Nivel 4: Botón Pesado","grid":["111000","1X1B11","111111","11001G"],"start":{"x":0,"z":0},"bridges":[{"id":"b1","x":3,"z":1,"active":false}],"switches":[{"type":"X","x":1,"z":1,"targetBridge":"b1"}],"optimal":19},{"id":5,"name":"Nivel 5: Escape Maestro","grid":["11111O","1F1000","111B11","00X111","00B01G"],"start":{"x":0,"z":0},"bridges":[{"id":"b1","x":3,"z":2,"active":false},{"id":"b2","x":2,"z":4,"active":false}],"switches":[{"type":"O","x":5,"z":0,"targetBridge":"b1"},{"type":"X","x":2,"z":3,"targetBridge":"b2"}],"optimal":16},{"name":"Nivel 6: Islas de jade","seed":71000,"grid":["1111000","1111111","1111111","1110111","1111101","111001G","1111111"],"start":{"x":1,"z":1},"bridges":[],"switches":[],"optimal":10,"id":6,"mechanic":"classic"},{"name":"Nivel 7: Cambio de eje","seed":71977,"grid":["1111110","1111111","11110G1","1110111","1111010","1111111","1111111"],"start":{"x":1,"z":1},"bridges":[],"switches":[],"optimal":9,"id":7,"mechanic":"classic"},{"name":"Nivel 8: El rodeo","seed":72954,"grid":["1110110","1111101","1111111","1110111","1101101","1111100","11111G1"],"start":{"x":1,"z":1},"bridges":[],"switches":[],"optimal":12,"id":8,"mechanic":"classic"},{"name":"Nivel 9: Pasos de ámbar","seed":73931,"grid":["1111111","1111101","1110110","1111111","1110111","110000G","0011101"],"start":{"x":1,"z":1},"bridges":[],"switches":[],"optimal":14,"id":9,"mechanic":"classic"},{"name":"Nivel 10: La península","seed":74908,"grid":["1110111","1111110","1111010","1010111","1011111","1111110","1G11110"],"start":{"x":1,"z":1},"bridges":[],"switches":[],"optimal":16,"id":10,"mechanic":"classic"},{"name":"Nivel 11: Falsa cercanía","seed":75885,"grid":["1111110","1111111","1111011","1111101","11101G1","0111111","1001111"],"start":{"x":1,"z":1},"bridges":[],"switches":[],"optimal":11,"id":11,"mechanic":"classic"},{"name":"Nivel 12: Entre vacíos","seed":76862,"grid":["1111101","1111111","1111011","1101111","1111111","01G1100","1011101"],"start":{"x":1,"z":1},"bridges":[],"switches":[],"optimal":11,"id":12,"mechanic":"classic"},{"name":"Nivel 13: Giro preciso","seed":77839,"grid":["F11F110","11F0101","1F11011","110101F","01F0F0F","01GF10F","011110F"],"start":{"x":1,"z":1},"bridges":[],"switches":[],"optimal":23,"id":13,"mechanic":"fragile"},{"name":"Nivel 14: El balcón","seed":78816,"grid":["F110F10","F1111F1","111F1F1","01111FF","F110000","1111111","111F11G"],"start":{"x":1,"z":1},"bridges":[],"switches":[],"optimal":13,"id":14,"mechanic":"fragile"},{"name":"Nivel 15: Cruce de cristal","seed":79793,"grid":["11F101F","111F10F","F11F101","1110111","11F1F01","F110001","F11FG10"],"start":{"x":1,"z":1},"bridges":[],"switches":[],"optimal":9,"id":15,"mechanic":"fragile"},{"name":"Nivel 16: El desvío","seed":80770,"grid":["F1FF11F","111F1G0","F1F1101","1101110","F11111F","11F1111","1111100"],"start":{"x":1,"z":1},"bridges":[],"switches":[],"optimal":10,"id":16,"mechanic":"fragile"},{"name":"Nivel 17: El umbral","seed":81747,"grid":["11F1F01","F11111F","11111FF","11F1011","0111001","011F110","011G011"],"start":{"x":1,"z":1},"bridges":[],"switches":[],"optimal":8,"id":17,"mechanic":"fragile"},{"name":"Nivel 18: Puente dormido","seed":82724,"grid":["11F1101F1","1110GF001","111011111","1F111F111","F11100B11","11011FFF1","010F001O0","101F11001","1F1110100"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":6,"z":4,"active":false}],"switches":[{"type":"O","x":7,"z":6,"targetBridge":"b1"}],"optimal":19,"id":18,"mechanic":"switch"},{"name":"Nivel 19: Circuito azul","seed":83701,"grid":["1FF01111F","11F111FF1","11101FF11","F10F11101","0011B101O","11F11F100","0001F1011","1F0F11101","110G00011"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":4,"z":4,"active":false}],"switches":[{"type":"O","x":8,"z":4,"targetBridge":"b1"}],"optimal":20,"id":19,"mechanic":"mixed"},{"name":"Nivel 20: Doble regreso","seed":84678,"grid":["F1111F111","B1F1100F1","11F1O0111","101101101","111001001","01111F110","110000101","010110111","GF1111110"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":0,"z":1,"active":false}],"switches":[{"type":"O","x":4,"z":2,"targetBridge":"b1"}],"optimal":22,"id":20,"mechanic":"mixed"},{"name":"Nivel 21: Peso completo","seed":85655,"grid":["1111F0111","111000101","F111X00G1","11F1011B0","111011111","0F11F0101","FF110F111","F0F111F11","111111FF1"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":7,"z":3,"active":false}],"switches":[{"type":"X","x":4,"z":2,"targetBridge":"b1"}],"optimal":26,"id":21,"mechanic":"heavy"},{"name":"Nivel 22: El interruptor","seed":86632,"grid":["11110111B","111F10F11","1111F0G1F","1111011O0","F111110F1","101111011","1F1FF1111","11F010F11","011101F1F"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":8,"z":0,"active":false}],"switches":[{"type":"O","x":7,"z":3,"targetBridge":"b1"}],"optimal":19,"id":22,"mechanic":"mixed"},{"name":"Nivel 23: Punto de apoyo","seed":87609,"grid":["FO11F11F1","111111111","11F101F01","1010011F0","01101F1F0","111F0FFF1","F10010100","F0F111B00","0F1G11001"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":6,"z":7,"active":false}],"switches":[{"type":"O","x":1,"z":0,"targetBridge":"b1"}],"optimal":17,"id":23,"mechanic":"mixed"},{"name":"Nivel 24: Vuelta larga","seed":88586,"grid":["1111101FF","11111F111","1111B110G","F11F1F111","11010111F","111FO0100","011011011","010111001","010F0000F"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":4,"z":2,"active":false}],"switches":[{"type":"O","x":4,"z":5,"targetBridge":"b1"}],"optimal":20,"id":24,"mechanic":"switch"},{"name":"Nivel 25: Trampa naranja","seed":89563,"grid":["111FF1F01","F11110G11","FF1111011","10011F1B1","10001111F","11FF11001","1011F1110","01O11F111","001010011"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":7,"z":3,"active":false}],"switches":[{"type":"O","x":2,"z":7,"targetBridge":"b1"}],"optimal":19,"id":25,"mechanic":"mixed"},{"name":"Nivel 26: Archipiélago","seed":90540,"grid":["11F01011G","11F1011F1","111101B10","1F1F1X11F","1F01F0010","1F101F100","11011F011","101110111","1100111F0"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":6,"z":2,"active":false}],"switches":[{"type":"X","x":5,"z":3,"targetBridge":"b1"}],"optimal":16,"id":26,"mechanic":"heavy"},{"name":"Nivel 27: La espiral","seed":91517,"grid":["11101F100","111111F11","F1F101101","01101101O","0F110111F","F0111110F","0F0011110","G11B1F010","0F1F11101"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":3,"z":7,"active":false}],"switches":[{"type":"O","x":8,"z":3,"targetBridge":"b1"}],"optimal":35,"id":27,"mechanic":"switch"},{"name":"Nivel 28: Frontera","seed":92494,"grid":["1110FF101","11FO1001F","1B101111F","10F0F1111","101F1F101","1011F0010","100111F11","G0111F111","F11010111"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":1,"z":2,"active":false}],"switches":[{"type":"O","x":3,"z":1,"targetBridge":"b1"}],"optimal":30,"id":28,"mechanic":"mixed"},{"name":"Nivel 29: Rumbo perdido","seed":93471,"grid":["1111F1000","11111B111","111FF1111","11F010110","1F1F01100","F10011G11","1F0110101","1111O0001","1110F0F1F"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":5,"z":1,"active":false}],"switches":[{"type":"O","x":4,"z":7,"targetBridge":"b1"}],"optimal":22,"id":29,"mechanic":"mixed"},{"name":"Nivel 30: Ecos","seed":94448,"grid":["1111101110F0","11111F111010","1F1FF1011000","0011F1111111","0111111F1111","10FF01111100","OFF1F1110110","110101101100","1000111F1110","0F1B11F01011","011G01110010","101010F10111"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":3,"z":9,"active":false}],"switches":[{"type":"O","x":0,"z":6,"targetBridge":"b1"}],"optimal":28,"id":30,"mechanic":"switch"},{"name":"Nivel 31: Pasarela","seed":95425,"grid":["111011010F00","111F111F1111","111110111F11","00F000011100","010111FF1001","010111111001","110011111111","1011B101F11X","G10100000100","101111110111","1101111110F0","11F100111F01"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":4,"z":7,"active":false}],"switches":[{"type":"X","x":11,"z":7,"targetBridge":"b1"}],"optimal":46,"id":31,"mechanic":"heavy"},{"name":"Nivel 32: Contrapeso","seed":96402,"grid":["111101011010","1111F11F0000","11F01F011110","FF1110101101","0111B1F11010","001010F11110","11F11011F111","10FO11101111","1000010GFF11","F11F0100FF00","010111101011","1100110110F1"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":4,"z":4,"active":false}],"switches":[{"type":"O","x":3,"z":7,"targetBridge":"b1"}],"optimal":40,"id":32,"mechanic":"mixed"},{"name":"Nivel 33: Geometría oculta","seed":97379,"grid":["111F1F0100F0","11101111F01G","111100111111","01O011101111","1BF1FF001000","0F1101111111","111011011101","11F01101111F","0101110FF1F0","111101101010","100110110000","111101111111"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":1,"z":4,"active":false}],"switches":[{"type":"O","x":2,"z":3,"targetBridge":"b1"}],"optimal":39,"id":33,"mechanic":"switch"},{"name":"Nivel 34: Último giro","seed":98356,"grid":["111010111001","1111F1100011","1111111F1111","O1F111110110","1111F010F001","011100F0FF11","1101F1011000","101110F11001","11101111FFF0","01G100111011","11F1F1B10110","011110001010"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":6,"z":10,"active":false}],"switches":[{"type":"O","x":0,"z":3,"targetBridge":"b1"}],"optimal":37,"id":34,"mechanic":"mixed"},{"name":"Nivel 35: El observatorio","seed":99333,"grid":["11F1001111GF","1110011F0100","1F111F0110F1","011011111F10","11111B000F01","1110F11110F0","01F001001011","0110110110F1","001111111010","11F1111111FO","011F001F0010","011011F11110"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":5,"z":4,"active":false}],"switches":[{"type":"O","x":11,"z":9,"targetBridge":"b1"}],"optimal":30,"id":35,"mechanic":"mixed"},{"name":"Nivel 36: Laberinto aéreo","seed":100310,"grid":["11110F111110","111X00101011","F11101F10011","FF0111001101","11FF1101F00F","FB011100001F","1F0010110011","111F10111011","1F1FF1100101","100101110011","001F11010100","0110011FG100"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":1,"z":5,"active":false}],"switches":[{"type":"X","x":3,"z":1,"targetBridge":"b1"}],"optimal":25,"id":36,"mechanic":"heavy"},{"name":"Nivel 37: Cámara de ámbar","seed":101287,"grid":["F1FF100O1011","111100F10G11","11111F1110F1","F01110001111","01111110F101","10011011F100","110010110111","1F101F1B1010","010111111111","11000F110111","1F1111F11111","010011101F10"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":7,"z":7,"active":false}],"switches":[{"type":"O","x":7,"z":0,"targetBridge":"b1"}],"optimal":33,"id":37,"mechanic":"mixed"},{"name":"Nivel 38: El nexo","seed":102264,"grid":["11100001F1F1","F11101010010","1111111110F1","00011F10F110","11110111F01G","111101F01101","111F11111101","0F10011O0F01","010100011001","11010111011F","111100111111","01F00111B111"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":8,"z":11,"active":false}],"switches":[{"type":"O","x":7,"z":7,"targetBridge":"b1"}],"optimal":25,"id":38,"mechanic":"mixed"},{"name":"Nivel 39: Horizonte","seed":103241,"grid":["11F001111111","1110110G1100","1F1011111000","011001101101","11F1BF010011","10111F010101","1F1011001100","11F01F00O101","010F1FF11011","111100011010","1F1100F1F101","11011F100011"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":4,"z":4,"active":false}],"switches":[{"type":"O","x":8,"z":7,"targetBridge":"b1"}],"optimal":57,"id":39,"mechanic":"switch"},{"name":"Nivel 40: Explorador","seed":104218,"grid":["FF1111B11101","F11011101F10","11111F0F111F","1111110O0011","111111111101","0001110F0101","01101F01F111","F01111101011","111011101101","1011F1101101","00101111010G","00111F100111"],"start":{"x":1,"z":1},"bridges":[{"id":"b1","x":6,"z":0,"active":false}],"switches":[{"type":"O","x":7,"z":3,"targetBridge":"b1"}],"optimal":25,"id":40,"mechanic":"mixed"}];
+
+// Search state: x, z, orientation (0 upright, 1 X, 2 Z), bridge mask.
+const DIRS=['UP','RIGHT','DOWN','LEFT'];
+function stepState(s,d){let [x,z,o,m]=s;if(d==='LEFT'){x-=o===0?2:1;o=o===0?1:o===1?0:2;}if(d==='RIGHT'){x+=o===1?2:1;o=o===0?1:o===1?0:2;}if(d==='UP'){z-=o===0?2:1;o=o===0?2:o===2?0:1;}if(d==='DOWN'){z+=o===2?2:1;o=o===0?2:o===2?0:1;}return [x,z,o,m];}
+function feet(s){return s[2]===0?[[s[0],s[1]]]:s[2]===1?[[s[0],s[1]],[s[0]+1,s[1]]]:[[s[0],s[1]],[s[0],s[1]+1]];}
+function searchLevel(level,initial=null,all=false){
+ const ids=[...new Set((level.bridges||[]).map(b=>b.id))];if(ids.length>12)return {limited:true};
+ const bmap=new Map((level.bridges||[]).map(b=>[b.x+','+b.z,ids.indexOf(b.id)]));
+ let mask=0;for(const b of level.bridges||[])if(b.active)mask|=1<<ids.indexOf(b.id);
+ const start=initial||[level.start.x,level.start.z,0,mask];
+ const valid=s=>feet(s).every(([x,z])=>{const c=level.grid[z]?.[x];return c&&c!=='0'&&!(c==='F'&&s[2]===0)&&!(c==='B'&&!(s[3]&(1<<bmap.get(x+','+z))));});
+ if(!valid(start))return null;
+ const queue=[start],parents=[-1],directions=[''],distances=[0],seen=new Set([start.join(',')]);
+ for(let i=0;i<queue.length;i++){
+  const s=queue[i];if(!all&&s[2]===0&&level.grid[s[1]][s[0]]==='G'){const path=[];let j=i;while(parents[j]>=0){path.push(directions[j]);j=parents[j];}return {path:path.reverse(),visited:queue.length};}
+  if(queue.length>150000)return {limited:true};
+  for(const dir of DIRS){const t=stepState(s,dir);if(!valid(t))continue;
+   for(const sw of level.switches||[])if((sw.type==='O'||t[2]===0)&&feet(t).some(([x,z])=>x===sw.x&&z===sw.z))t[3]^=1<<ids.indexOf(sw.targetBridge);
+   if(!valid(t))continue;const key=t.join(',');if(seen.has(key))continue;seen.add(key);queue.push(t);parents.push(i);directions.push(dir);distances.push(distances[i]+1);
+  }
+ }
+ return all?{queue,distances}:null;
+}
+function seeded(seed){let a=seed>>>0;return ()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;};}
+function generateLevel(seed,difficulty=1,mechanic='mixed'){
+ const rng=seeded(seed),size=[7,9,12][difficulty],minimum=[8,16,25][difficulty];let best=null,bestDist=-1;
+ for(let attempt=0;attempt<100;attempt++){
+  let g=Array.from({length:size},()=>Array.from({length:size},()=>rng()<[.80,.72,.69][difficulty]?'1':'0'));
+  for(let z=0;z<3;z++)for(let x=0;x<3;x++)g[z][x]='1';
+  let lv={name:'Exploración '+seed,seed,grid:g.map(r=>r.join('')),start:{x:1,z:1},bridges:[],switches:[]};
+  const reach=searchLevel(lv,null,true);if(!reach?.queue)continue;
+  let idx=0;reach.queue.forEach((s,i)=>{if(s[2]===0&&reach.distances[i]>reach.distances[idx])idx=i;});
+  const dest=reach.queue[idx];g[dest[1]][dest[0]]='G';
+  if(mechanic!=='classic')for(let k=0;k<size*2;k++){const x=Math.floor(rng()*size),z=Math.floor(rng()*size);if(g[z][x]==='1'&&(x!==1||z!==1))g[z][x]='F';}
+  lv.grid=g.map(r=>r.join(''));let sol=searchLevel(lv);
+  if(!sol?.path)continue;
+  if(mechanic==='switch'||mechanic==='heavy'||(mechanic==='mixed'&&difficulty>0)){
+   let installed=false;
+   for(let k=0;k<160;k++){
+    const bx=Math.floor(rng()*size),bz=Math.floor(rng()*size),sx=Math.floor(rng()*size),sz=Math.floor(rng()*size);
+    if(g[bz][bx]!=='1'||g[sz][sx]!=='1'||(bx===sx&&bz===sz)||(bx===1&&bz===1)||(sx===1&&sz===1))continue;
+    const cg=g.map(r=>r.slice()),type=mechanic==='heavy'?'X':'O';cg[bz][bx]='B';cg[sz][sx]=type;
+    const candidate={...lv,grid:cg.map(r=>r.join('')),bridges:[{id:'b1',x:bx,z:bz,active:false}],switches:[{type,x:sx,z:sz,targetBridge:'b1'}]};
+    const cs=searchLevel(candidate);if(!cs?.path)continue;
+    if(searchLevel({...candidate,switches:[]}))continue; // Bridge must matter.
+    lv=candidate;sol=cs;installed=true;break;
+   }
+   if((mechanic==='switch'||mechanic==='heavy')&&!installed)continue;
+  }
+  if(sol.path.length>bestDist){best=lv;bestDist=sol.path.length;best.optimal=bestDist;}
+  if(bestDist>=minimum)return best;
+ }
+ if(!best)throw Error('No se encontró un tablero para esta semilla. Probá otra.');return best;
+}
+
+class Bloxorz3DGame {
+ constructor(id){this.container=document.getElementById(id);this.canvas=document.createElement('canvas');this.container.appendChild(this.canvas);this.ctx=this.canvas.getContext('2d');this.camRotY=.65;this.zoom=1;this.viewTop=false;this.generation=0;this.history=[];this.bridgeStates={};this.moves=0;this.seconds=0;this.setupCameraOrbit();new ResizeObserver(()=>this.resizeCanvas()).observe(this.container);this.animateLoop();}
+ setupCameraOrbit(){let dragging=false,last=0;this.canvas.addEventListener('pointerdown',e=>{dragging=true;last=e.clientX;this.canvas.setPointerCapture(e.pointerId);});this.canvas.addEventListener('pointermove',e=>{if(dragging){this.camRotY+=(e.clientX-last)*.008;last=e.clientX;}});this.canvas.addEventListener('pointerup',()=>dragging=false);this.canvas.addEventListener('pointercancel',()=>dragging=false);this.canvas.addEventListener('wheel',e=>{e.preventDefault();this.zoom=Math.max(.65,Math.min(1.7,this.zoom-e.deltaY*.001));},{passive:false});}
+ loadLevel(lv){if(!lv)return;this.generation++;this.level=JSON.parse(JSON.stringify(lv));this.grid=typeof lv.grid==='string'?lv.grid.trim().split('\n'):lv.grid;this.rows=this.grid.length;this.cols=Math.max(...this.grid.map(r=>r.length));this.blockPos={...lv.start};this.blockState='STANDING';this.moves=0;this.history=[];this.isAnimating=false;this.isGameOver=false;this.motion=null;this.drop=0;this.dropStart=null;this.bridgeStates={};(lv.bridges||[]).forEach(b=>this.bridgeStates[b.id]=!!b.active);this.switches=lv.switches||[];this.resetTimer();this.updateHUD();hideWinModal();this.resizeCanvas();if(document.getElementById('level-note'))this.updateInfo();}
+ state(){return [this.blockPos.x,this.blockPos.z,['STANDING','HORIZONTAL_X','HORIZONTAL_Z'].indexOf(this.blockState),0];}
+ getFootprint(pos,state){return feet([pos.x,pos.z,['STANDING','HORIZONTAL_X','HORIZONTAL_Z'].indexOf(state)]).map(([x,z])=>({x,z}));}
+ roll(dir){if(this.isAnimating||this.isGameOver||!this.level)return;const s=this.state(),t=stepState(s,dir);this.saveHistory();this.isAnimating=true;const token=this.generation;this.motion={s,dir,started:performance.now(),progress:0};setTimeout(()=>{if(token!==this.generation)return;this.motion=null;this.blockPos={x:t[0],z:t[1]};this.blockState=['STANDING','HORIZONTAL_X','HORIZONTAL_Z'][t[2]];this.moves++;this.isAnimating=false;sound.rollThud();this.checkTileRules();this.updateHUD();},190);}
+ supported(){return this.getFootprint(this.blockPos,this.blockState).every(({x,z})=>{let c=this.grid[z]?.[x];if(!c||c==='0')return false;if(c==='B'){let b=this.level.bridges.find(b=>b.x===x&&b.z===z);return !!b&&this.bridgeStates[b.id];}return !(c==='F'&&this.blockState==='STANDING');});}
+ checkTileRules(){if(!this.supported()){this.triggerFallDown();return;}if(this.blockState==='STANDING'&&this.grid[this.blockPos.z][this.blockPos.x]==='G'){this.triggerWin();return;}for(const pt of this.getFootprint(this.blockPos,this.blockState)){let c=this.grid[pt.z][pt.x];if(c==='O'||(c==='X'&&this.blockState==='STANDING'))this.toggleSwitchesAt(pt.x,pt.z,c);}if(!this.supported())this.triggerFallDown();}
+ toggleSwitchesAt(x,z,type){for(const sw of this.switches.filter(s=>s.x===x&&s.z===z&&s.type===type))this.bridgeStates[sw.targetBridge]=!this.bridgeStates[sw.targetBridge];sound.switchClick();}
+ triggerFallDown(){this.isGameOver=true;this.dropStart=performance.now();sound.fallWhoosh();const token=this.generation;setTimeout(()=>{if(token!==this.generation)return;this.undo();this.isGameOver=false;this.dropStart=null;},620);}
+ triggerWin(){this.isGameOver=true;this.stopTimer();this.dropStart=performance.now();sound.winFanfare();const key='bloxorz-explorer-records';try{let records=JSON.parse(localStorage.getItem(key)||'{}');const id=this.level.seed??this.level.id;records[id]=Math.min(records[id]??Infinity,this.moves);localStorage.setItem(key,JSON.stringify(records));}catch(e){}const token=this.generation;setTimeout(()=>{if(token===this.generation)showWinModal(this.moves,formatTime(this.seconds));},500);}
+ saveHistory(){this.history.push({blockPos:{...this.blockPos},blockState:this.blockState,moves:this.moves,bridgeStates:{...this.bridgeStates}});}
+ undo(){if(this.isAnimating||!this.history.length)return;this.generation++;const s=this.history.pop();Object.assign(this,s);this.isGameOver=false;this.dropStart=null;this.motion=null;hideWinModal();this.updateHUD();}
+ resetTimer(){this.stopTimer();this.seconds=0;document.getElementById('hud-timer').innerText='00:00';this.timerInterval=setInterval(()=>{if(!this.isGameOver&&!document.getElementById('view-play').classList.contains('hidden')){this.seconds++;document.getElementById('hud-timer').innerText=formatTime(this.seconds);}},1000);}
+ stopTimer(){clearInterval(this.timerInterval);}
+ updateHUD(){document.getElementById('hud-moves').innerText=this.moves;}
+ updateInfo(){let r;try{r=JSON.parse(localStorage.getItem('bloxorz-explorer-records')||'{}')[this.level.seed??this.level.id];}catch(e){}document.getElementById('level-note').textContent=`${this.cols} × ${this.rows} casillas · ${this.level.optimal?this.level.optimal+' movimientos mínimos':'Nivel personalizado'}${r?' · Récord: '+r:''}`;document.getElementById('hint-text').textContent='Llegá de pie al portal. Podés atravesarlo acostado.';}
+ resizeCanvas(){const r=this.container.getBoundingClientRect();this.width=r.width;this.height=r.height;if(!r.width||!r.height)return;let d=Math.min(window.devicePixelRatio||1,2);this.canvas.width=Math.round(r.width*d);this.canvas.height=Math.round(r.height*d);this.canvas.style.width=r.width+'px';this.canvas.style.height=r.height+'px';this.ctx.setTransform(d,0,0,d,0,0);}
+ animateLoop(){requestAnimationFrame(()=>this.animateLoop());if(this.grid&&this.width)this.draw();}
+ draw(){const ctx=this.ctx,w=this.width,h=this.height,t=performance.now()/1000;ctx.clearRect(0,0,w,h);let bg=ctx.createRadialGradient(w*.5,h*.4,5,w*.5,h*.5,w*.65);bg.addColorStop(0,'#16383f');bg.addColorStop(1,'#060e19');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+ for(let i=0;i<50;i++){ctx.fillStyle=`rgba(158,232,217,${.10+.13*Math.sin(i+t)})`;ctx.fillRect((i*167.3)%w,(i*97.7)%h,1.4,1.4);}
+ const a=this.camRotY,ca=Math.cos(a),sa=Math.sin(a),tilt=this.viewTop?.90:.51,lift=Math.sqrt(1-tilt*tilt);const span=Math.max(this.cols*ca+this.rows*sa,this.cols*sa+this.rows*ca,Math.max(this.cols,this.rows));this.scale=Math.min((w-65)/(Math.abs(ca)*this.cols+Math.abs(sa)*this.rows+1),(h-105)/(tilt*(Math.abs(sa)*this.cols+Math.abs(ca)*this.rows)+3))*this.zoom;
+ const scale=this.scale,project=([x,y,z])=>{x-=(this.cols-1)/2;z-=(this.rows-1)/2;return [w/2+(x*ca-z*sa)*scale,h*.53+((x*sa+z*ca)*tilt-y*lift)*scale];};
+ const poly=(v,fill,stroke)=>{ctx.beginPath();v.forEach((p,i)=>{const q=project(p);i?ctx.lineTo(...q):ctx.moveTo(...q);});ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=.8;ctx.stroke();}};
+ const box=(x,z,sx,sz,y0,y1,colors,transform=null)=>{let vs=[[x,y0,z],[x+sx,y0,z],[x+sx,y0,z+sz],[x,y0,z+sz],[x,y1,z],[x+sx,y1,z],[x+sx,y1,z+sz],[x,y1,z+sz]];if(transform)vs=vs.map(transform);const faces=[[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[0,3,2,1]];faces.map((f,i)=>({f,i,depth:f.reduce((n,k)=>n+vs[k][0]*sa+vs[k][2]*ca+vs[k][1]*lift/tilt,0)/4})).sort((a,b)=>a.depth-b.depth).forEach(({f,i})=>{const u=vs[f[0]],v=vs[f[1]],q=vs[f[2]],A=v.map((n,k)=>n-u[k]),B=q.map((n,k)=>n-v[k]),n=[A[1]*B[2]-A[2]*B[1],A[2]*B[0]-A[0]*B[2],A[0]*B[1]-A[1]*B[0]];if(n[0]*sa+n[1]*lift/tilt+n[2]*ca<0)poly(f.map(k=>vs[k]),colors[i%colors.length],'rgba(175,236,222,.16)');});};
+ let tiles=[];for(let z=0;z<this.rows;z++)for(let x=0;x<this.cols;x++)if(this.grid[z][x]!=='0')tiles.push({x,z,c:this.grid[z][x]});tiles.sort((p,q)=>(p.x-q.x)*sa+(p.z-q.z)*ca);
+ for(const {x,z,c}of tiles){const edge=.46;
+ if(c==='G'){box(x-.49,z-.49,.98,.98,-.55,-.24,['#06121a','#102a39','#143543']);poly([[x-edge,-.20,z-edge],[x+edge,-.20,z-edge],[x+edge,-.20,z+edge],[x-edge,-.20,z+edge]],'#020910','#63edfa');ctx.save();ctx.shadowColor='#3ef1ed';ctx.shadowBlur=15;for(const dz of [-.43,.43])box(x-.46,z+dz-.025,.92,.05,-.06,.01,['#b6fff4','#29b6be','#258d98']);for(const dx of [-.43,.43])box(x+dx-.025,z-.46,.05,.92,-.06,.01,['#b6fff4','#29b6be','#258d98']);ctx.restore();continue;}
+ const bridge=this.level.bridges?.find(b=>b.x===x&&b.z===z);if(c==='B'&&!this.bridgeStates[bridge?.id]){poly([[x-edge,-.10,z-edge],[x+edge,-.10,z-edge],[x+edge,-.10,z+edge],[x-edge,-.10,z+edge]],'rgba(30,208,204,.035)','rgba(67,219,218,.4)');continue;}
+ const colors=c==='F'?['#e99a4e','#73472a','#9d5930']:c==='B'?['#49c6c1','#155666','#267f82']:['#55988d','#203f46','#2c5a5c'];box(x-edge,z-edge,.92,.92,-.27,0,colors);poly([[x-.35,.006,z-.35],[x+.35,.006,z-.35],[x+.35,.006,z+.35],[x-.35,.006,z+.35]],'rgba(181,241,223,.065)','rgba(183,235,223,.12)');
+ if(c==='F'){ctx.beginPath();[[x-.3,.016,z-.3],[x,.016,z],[x-.12,.016,z+.27]].forEach((p,i)=>i?ctx.lineTo(...project(p)):ctx.moveTo(...project(p)));ctx.strokeStyle='#80502d';ctx.stroke();}
+ if(c==='O'||c==='X'){let p=project([x,.025,z]);ctx.save();ctx.translate(...p);ctx.scale(1,tilt);ctx.strokeStyle=c==='O'?'#a3fafa':'#ffb0ae';ctx.fillStyle=c==='O'?'#153e4c':'#5e2a38';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,scale*.24,0,Math.PI*2);ctx.fill();ctx.stroke();if(c==='X'){ctx.beginPath();ctx.moveTo(-scale*.12,-scale*.12);ctx.lineTo(scale*.12,scale*.12);ctx.moveTo(scale*.12,-scale*.12);ctx.lineTo(-scale*.12,scale*.12);ctx.stroke();}ctx.restore();}
+ }
+ let s=this.motion?this.motion.s:this.state(),[x,z,o]=s,sx=o===1?2:1,sz=o===2?2:1,sy=o===0?2:1;
+ let transform=null;if(this.motion){const m=this.motion,p=Math.min(1,(performance.now()-m.started)/190),angle=(p*p*(3-2*p))*Math.PI/2;const dir=m.dir;const px=dir==='LEFT'?x-.5:dir==='RIGHT'?x+sx-.5:x;const pz=dir==='UP'?z-.5:dir==='DOWN'?z+sz-.5:z;transform=([vx,vy,vz])=>{let c=Math.cos(angle),s=Math.sin(angle);if(dir==='LEFT'||dir==='RIGHT'){s*=dir==='RIGHT'?-1:1;return [px+(vx-px)*c-vy*s,(vx-px)*s+vy*c,vz];}s*=dir==='DOWN'?1:-1;return [vx,vy*c-(vz-pz)*s,pz+vy*s+(vz-pz)*c];};}
+ let drop=this.dropStart?Math.pow((performance.now()-this.dropStart)/180,2):0;
+ ctx.save();if(drop)ctx.globalAlpha=Math.max(0,1-drop/10);box(x-.455,z-.455,sx-.09,sz-.09,.04-drop,sy-.04-drop,['#f3ce7e','#a87336','#dba448','#bd853e','#d5a25a','#a06b32'],transform);
+ if(!this.motion&&!drop){for(let k=0;k<3;k++){let y=sy*(k+1)/4;const ps=[[x-.458,y,z-.458],[x+sx-.542,y,z-.458],[x+sx-.542,y,z+sz-.542],[x-.458,y,z+sz-.542]];ctx.beginPath();const visible=ca>=0?[ps[2],ps[3]]:[ps[0],ps[1]];ctx.moveTo(...project(visible[0]));ctx.lineTo(...project(visible[1]));const side=sa>=0?[ps[1],ps[2]]:[ps[3],ps[0]];ctx.moveTo(...project(side[0]));ctx.lineTo(...project(side[1]));ctx.strokeStyle='rgba(90,50,19,.22)';ctx.lineWidth=1;ctx.stroke();}}
+ ctx.restore();
+ // Board axes stay explicit when the camera is rotated.
+ const ox=62,oy=h-52;ctx.font='11px system-ui';for(const [dx,dz,label]of [[0,-1,'↑ W'],[1,0,'D →']]){const ex=ox+(dx*ca-dz*sa)*30,ey=oy+(dx*sa+dz*ca)*tilt*30;ctx.strokeStyle='#76aba9';ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ex,ey);ctx.stroke();ctx.fillStyle='#afd3cf';ctx.fillText(label,ex-8,ey-8);}ctx.fillStyle='#789a9d';ctx.textAlign='right';ctx.fillText('Arrastrá para girar · Rueda para zoom',w-18,h-18);ctx.textAlign='left';
+ }
+}
+
+        class LevelEditor {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+
+                this.cols = 10;
+                this.rows = 10;
+                this.tileSize = 38;
+                this.activeTile = '1'; // Normal tile
+
+                this.grid = [];
+                this.startPos = { x: 0, z: 0 };
+                this.isDrawing = false;
+
+                this.initGrid(10, 10);
+                this.setupEvents();
+            }
+
+            initGrid(cols, rows) {
+                this.cols = cols;
+                this.rows = rows;
+                this.grid = [];
+
+                for (let r = 0; r < rows; r++) {
+                    const row = [];
+                    for (let c = 0; c < cols; c++) {
+                        row.push('0');
+                    }
+                    this.grid.push(row);
+                }
+
+                // Default layout center
+                for (let r = 2; r < 6; r++) {
+                    for (let c = 2; c < 6; c++) {
+                        this.grid[r][c] = '1';
+                    }
+                }
+                this.grid[2][2] = 'S';
+                this.grid[5][5] = 'G';
+                this.startPos = { x: 2, z: 2 };
+
+                this.updateCanvasDimensions();
+                this.render();
+            }
+
+            updateCanvasDimensions() {
+                this.canvas.width = this.cols * this.tileSize;
+                this.canvas.height = this.rows * this.tileSize;
+            }
+
+            setupEvents() {
+                const getTileCoords = (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const mx = e.clientX - rect.left;
+                    const my = e.clientY - rect.top;
+                    const c = Math.floor(mx * this.canvas.width / rect.width / this.tileSize);
+                    const r = Math.floor(my * this.canvas.height / rect.height / this.tileSize);
+                    return { c, r };
+                };
+
+                this.canvas.addEventListener('pointerdown', (e) => {
+                    this.isDrawing = true;
+                    const { c, r } = getTileCoords(e);
+                    this.setTile(c, r);
+                });
+
+                this.canvas.addEventListener('pointermove', (e) => {
+                    if (this.isDrawing) {
+                        const { c, r } = getTileCoords(e);
+                        this.setTile(c, r);
+                    }
+                });
+
+                window.addEventListener('pointerup', () => { this.isDrawing = false; });
+            }
+
+            setTile(c, r) {
+                if (c < 0 || c >= this.cols || r < 0 || r >= this.rows) return;
+
+                if (this.activeTile === 'S') {
+                    // Single start position enforcement
+                    for (let row = 0; row < this.rows; row++) {
+                        for (let col = 0; col < this.cols; col++) {
+                            if (this.grid[row][col] === 'S') this.grid[row][col] = '1';
+                        }
+                    }
+                    this.startPos = { x: c, z: r };
+                }
+
+                this.grid[r][c] = this.activeTile;
+                this.render();
+            }
+
+            exportJSON() {
+                const gridStrings = this.grid.map(row => row.join(''));
+                return JSON.stringify({
+                    id: 99,
+                    name: "Nivel Personalizado",
+                    grid: gridStrings,
+                    start: this.startPos,
+                    bridges: [],
+                    switches: []
+                }, null, 2);
+            }
+
+            importJSON(jsonStr) {
+                try {
+                    const data = JSON.parse(jsonStr);
+                    const gridArr = typeof data.grid === 'string' ? data.grid.trim().split('\n') : data.grid;
+                    
+                    this.rows = gridArr.length;
+                    this.cols = Math.max(...gridArr.map(r => r.length));
+                    this.grid = [];
+
+                    for (let r = 0; r < this.rows; r++) {
+                        const row = [];
+                        const line = gridArr[r] || "";
+                        for (let c = 0; c < this.cols; c++) {
+                            row.push(line[c] || '0');
+                        }
+                        this.grid.push(row);
+                    }
+
+                    this.startPos = data.start || { x: 0, z: 0 };
+                    this.updateCanvasDimensions();
+                    this.render();
+                } catch (e) {
+                    console.error("JSON de nivel no válido", e);
+                }
+            }
+
+            render() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                const ts = this.tileSize;
+
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        const tile = this.grid[r][c];
+                        const x = c * ts;
+                        const y = r * ts;
+
+                        this.ctx.fillStyle = '#090d16';
+                        this.ctx.fillRect(x, y, ts, ts);
+                        this.ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                        this.ctx.strokeRect(x, y, ts, ts);
+
+                        if (tile === '1') {
+                            this.ctx.fillStyle = '#cbd5e1';
+                            this.ctx.fillRect(x + 2, y + 2, ts - 4, ts - 4);
+                        } else if (tile === 'F') {
+                            this.ctx.fillStyle = '#f97316';
+                            this.ctx.fillRect(x + 2, y + 2, ts - 4, ts - 4);
+                        } else if (tile === 'G') {
+                            this.ctx.fillStyle = '#38bdf8';
+                            this.ctx.fillRect(x + 4, y + 4, ts - 8, ts - 8);
+                        } else if (tile === 'O') {
+                            this.ctx.fillStyle = '#60a5fa';
+                            this.ctx.beginPath();
+                            this.ctx.arc(x + ts/2, y + ts/2, ts*0.3, 0, Math.PI*2);
+                            this.ctx.fill();
+                        } else if (tile === 'X') {
+                            this.ctx.fillStyle = '#ef4444';
+                            this.ctx.fillRect(x + 6, y + 6, ts - 12, ts - 12);
+                        } else if (tile === 'B') {
+                            this.ctx.fillStyle = '#06b6d4';
+                            this.ctx.fillRect(x + 2, y + 2, ts - 4, ts - 4);
+                        } else if (tile === 'S') {
+                            this.ctx.fillStyle = '#d97706';
+                            this.ctx.fillRect(x + 2, y + 2, ts - 4, ts - 4);
+                        }
+                    }
+                }
+            }
+        }
+
+        let game = null;
+        let editor = null;
+
+        function formatTime(s) {
+            const mins = Math.floor(s / 60);
+            const secs = s % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new Bloxorz3DGame('canvas-container');
+            editor = new LevelEditor('editor-canvas');
+
+            // Populate Level Select
+            const levelSelect = document.getElementById('level-select');
+            DEFAULT_LEVELS.forEach((lvl, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.innerText = lvl.name;
+                levelSelect.appendChild(opt);
+            });
+
+            levelSelect.addEventListener('change', (e) => {
+                if(e.target.value !== 'custom') game.loadLevel(DEFAULT_LEVELS[parseInt(e.target.value)]);
+            });
+
+            // Initial level load
+            game.loadLevel(DEFAULT_LEVELS[0]);
+            game.resizeCanvas();
+
+            // Keyboard Controls
+            window.addEventListener('keydown', (e) => {
+                if (document.getElementById('view-play').classList.contains('hidden') || ['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName) || !document.getElementById('json-modal').classList.contains('pointer-events-none') || !document.getElementById('win-modal').classList.contains('pointer-events-none')) return;
+
+                switch (e.key) {
+                    case 'ArrowUp':
+                    case 'w':
+                    case 'W':
+                        e.preventDefault();
+                        game.roll('UP');
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                    case 'S':
+                        e.preventDefault();
+                        game.roll('DOWN');
+                        break;
+                    case 'ArrowLeft':
+                    case 'a':
+                    case 'A':
+                        e.preventDefault();
+                        game.roll('LEFT');
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                    case 'D':
+                        e.preventDefault();
+                        game.roll('RIGHT');
+                        break;
+                    case 'z':
+                    case 'Z':
+                        game.undo();
+                        break;
+                    case 'r':
+                    case 'R':
+                        const selectedIdx = parseInt(levelSelect.value);
+                        if (!isNaN(selectedIdx)) game.loadLevel(DEFAULT_LEVELS[selectedIdx]);
+                        break;
+                }
+            });
+
+            // Touch D-Pad Events
+            document.getElementById('btn-up').addEventListener('click', () => game.roll('UP'));
+            document.getElementById('btn-down').addEventListener('click', () => game.roll('DOWN'));
+            document.getElementById('btn-left').addEventListener('click', () => game.roll('LEFT'));
+            document.getElementById('btn-right').addEventListener('click', () => game.roll('RIGHT'));
+
+            document.getElementById('btn-undo').addEventListener('click', () => game.undo());
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                const selectedIdx = parseInt(levelSelect.value);
+                if (!isNaN(selectedIdx)) game.loadLevel(DEFAULT_LEVELS[selectedIdx]);
+            });
+
+            // Tab Switching Navigation
+            const tabPlay = document.getElementById('tab-play');
+            const tabEditor = document.getElementById('tab-editor');
+            const tabGuide = document.getElementById('tab-guide');
+            const viewPlay = document.getElementById('view-play');
+            const viewEditor = document.getElementById('view-editor');
+            const viewGuide = document.getElementById('view-guide');
+
+            function resetTabs() {
+                tabPlay.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800";
+                tabEditor.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800";
+                tabGuide.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800";
+                viewPlay.classList.add('hidden');
+                viewEditor.classList.add('hidden');
+                viewGuide.classList.add('hidden');
+            }
+
+            tabPlay.addEventListener('click', () => {
+                resetTabs();
+                tabPlay.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-amber-500 text-slate-950 shadow-md";
+                viewPlay.classList.remove('hidden');
+                game.resizeCanvas();
+            });
+
+            tabEditor.addEventListener('click', () => {
+                resetTabs();
+                tabEditor.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-amber-500 text-slate-950 shadow-md";
+                viewEditor.classList.remove('hidden');
+                editor.render();
+            });
+
+            tabGuide.addEventListener('click', () => {
+                resetTabs();
+                tabGuide.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-amber-500 text-slate-950 shadow-md";
+                viewGuide.classList.remove('hidden');
+            });
+
+            // Sound Toggle
+            document.getElementById('btn-sound').addEventListener('click', () => {
+                sound.enabled = !sound.enabled;
+                document.getElementById('sound-icon').innerText = sound.enabled ? '🔊' : '🔇';
+            });
+
+            // Editor Palette Buttons
+            document.querySelectorAll('.palette-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('palette-btn-active'));
+                    btn.classList.add('palette-btn-active');
+                    editor.activeTile = btn.dataset.tile;
+                });
+            });
+
+            // Resize Grid
+            document.getElementById('btn-resize-grid').addEventListener('click', () => {
+                const w = parseInt(document.getElementById('editor-w').value) || 10;
+                const h = parseInt(document.getElementById('editor-h').value) || 10;
+                editor.initGrid(w, h);
+            });
+
+            // Test Custom Level
+            document.getElementById('btn-test-level').addEventListener('click', () => {
+                const customJSONStr = editor.exportJSON();
+                const customData = JSON.parse(customJSONStr);
+                tabPlay.click();
+
+                let customOpt = document.getElementById('opt-custom');
+                if (!customOpt) {
+                    customOpt = document.createElement('option');
+                    customOpt.id = 'opt-custom';
+                    customOpt.value = 'custom';
+                    customOpt.innerText = '⚙️ Nivel Personalizado';
+                    levelSelect.appendChild(customOpt);
+                }
+                levelSelect.value = 'custom';
+                game.loadLevel(customData);
+            });
+
+            // JSON Export/Import Modal Wiring
+            const jsonModal = document.getElementById('json-modal');
+            const jsonText = document.getElementById('json-text');
+
+            document.getElementById('btn-export-json').addEventListener('click', () => {
+                jsonText.value = editor.exportJSON();
+                jsonModal.classList.remove('opacity-0', 'pointer-events-none');
+            });
+
+            document.getElementById('btn-close-json').addEventListener('click', () => {
+                jsonModal.classList.add('opacity-0', 'pointer-events-none');
+            });
+
+            document.getElementById('btn-copy-json').addEventListener('click', () => {
+                jsonText.select();
+                document.execCommand('copy');
+            });
+
+            document.getElementById('btn-import-json').addEventListener('click', () => {
+                if (jsonText.value.trim().length > 0) {
+                    editor.importJSON(jsonText.value);
+                    jsonModal.classList.add('opacity-0', 'pointer-events-none');
+                }
+            });
+
+            // Next Level Button inside Victory Modal
+            document.getElementById('btn-next-level').addEventListener('click', () => {
+                hideWinModal();
+                const currentVal = parseInt(levelSelect.value);
+                if (!isNaN(currentVal) && currentVal + 1 < DEFAULT_LEVELS.length) {
+                    levelSelect.value = currentVal + 1;
+                    game.loadLevel(DEFAULT_LEVELS[currentVal + 1]);
+                } else {
+                    levelSelect.value = 0;
+                    game.loadLevel(DEFAULT_LEVELS[0]);
+                }
+            });
+
+            // Window Resize Handler
+            window.addEventListener('resize', () => {
+                if (game) game.resizeCanvas();
+            });
+        });
+
+        function showWinModal(moves, timeStr) {
+            document.getElementById('win-moves').innerText = moves;
+            document.getElementById('win-time').innerText = timeStr;
+
+            const modal = document.getElementById('win-modal');
+            const card = document.getElementById('win-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-90');
+            card.classList.add('scale-100');
+        }
+
+        function hideWinModal() {
+            const modal = document.getElementById('win-modal');
+            const card = document.getElementById('win-card');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+        }
+    // Editor metadata survives the JSON round trip; new switches share the new bridge group.
+const oldInit=LevelEditor.prototype.initGrid;
+LevelEditor.prototype.initGrid=function(w,h){this.metadata={bridges:[],switches:[]};oldInit.call(this,Math.max(6,Math.min(24,w)),Math.max(6,Math.min(24,h)));};
+LevelEditor.prototype.exportJSON=function(){
+ const bridges=[],switches=[];const old=this.metadata||{};
+ this.grid.forEach((row,z)=>row.forEach((c,x)=>{if(c==='B')bridges.push((old.bridges||[]).find(b=>b.x===x&&b.z===z)||{id:'editor-bridge',x,z,active:false});}));
+ const ids=[...new Set(bridges.map(b=>b.id))];this.grid.forEach((row,z)=>row.forEach((c,x)=>{if(c==='O'||c==='X'){let prev=(old.switches||[]).filter(s=>s.x===x&&s.z===z&&s.type===c&&ids.includes(s.targetBridge));switches.push(...(prev.length?prev:ids.map(id=>({type:c,x,z,targetBridge:id}))));}}));
+ return JSON.stringify({id:99,name:'Nivel personalizado',grid:this.grid.map(r=>r.join('')),start:this.startPos,bridges,switches},null,2);
+};
+const oldImport=LevelEditor.prototype.importJSON;
+LevelEditor.prototype.importJSON=function(text){let d=JSON.parse(text);if(typeof d.grid==='string')d.grid=d.grid.trim().split('\n');if(!Array.isArray(d.grid)||d.grid.length<1||d.grid.length>24||d.grid.some(r=>typeof r!=='string'||r.length>24||!/^[01SFGBOX]+$/.test(r)))throw Error('Usá una cuadrícula de hasta 24 × 24 con símbolos 0, 1, S, F, G, B, O y X.');if(!d.start||!Number.isInteger(d.start.x)||!Number.isInteger(d.start.z)||!d.grid[d.start.z]?.[d.start.x]||d.grid[d.start.z][d.start.x]==='0')throw Error('Falta una posición inicial válida.');this.metadata={bridges:d.bridges||[],switches:d.switches||[]};oldImport.call(this,JSON.stringify(d));document.getElementById('editor-w').value=this.cols;document.getElementById('editor-h').value=this.rows;};
+const oldSet=LevelEditor.prototype.setTile;
+LevelEditor.prototype.setTile=function(c,r){if(this.activeTile==='G'&&c>=0&&c<this.cols&&r>=0&&r<this.rows)this.grid.forEach(row=>row.forEach((v,i)=>{if(v==='G')row[i]='1';}));oldSet.call(this,c,r);};
+const previousRender=LevelEditor.prototype.render;
+LevelEditor.prototype.render=function(){previousRender.call(this);const x=this.startPos.x*this.tileSize,y=this.startPos.z*this.tileSize;this.ctx.strokeStyle='#ffe6a0';this.ctx.lineWidth=3;this.ctx.strokeRect(x+5,y+5,this.tileSize-10,this.tileSize-10);this.ctx.fillStyle='#fff1c9';this.ctx.font='bold 13px system-ui';this.ctx.fillText('S',x+14,y+24);this.ctx.lineWidth=1;};
+function downloadLevel(data){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='bloxorz-'+(data.seed??data.id??'nivel')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function validatePlayable(d){if(d.grid.join('').split('G').length!==2)throw Error('El tablero debe tener exactamente una meta.');const tile=d.grid[d.start.z]?.[d.start.x];if(!tile||'0FB'.includes(tile))throw Error('Colocá el inicio sobre una casilla firme.');let result=searchLevel(d);if(result?.limited)throw Error('La búsqueda alcanzó su límite. Simplificá los puentes.');return result;}
+document.addEventListener('DOMContentLoaded',()=>{
+ const select=document.getElementById('level-select'),hint=document.getElementById('hint-text');
+ const custom=(data)=>{let opt=document.getElementById('opt-custom');if(!opt){opt=document.createElement('option');opt.id='opt-custom';opt.value='custom';select.appendChild(opt);}opt.textContent=data.name;select.value='custom';game.loadLevel(data);};
+ document.getElementById('btn-generate').onclick=()=>{const btn=document.getElementById('btn-generate');btn.disabled=true;hint.textContent='Construyendo y comprobando el recorrido…';setTimeout(()=>{try{let seed=Number(document.getElementById('seed').value);if(!Number.isFinite(seed)||!document.getElementById('seed').value)seed=Math.floor(Math.random()*1e9);seed=seed>>>0;document.getElementById('seed').value=seed;custom(generateLevel(seed,Number(document.getElementById('difficulty').value),document.getElementById('mechanic').value));hint.textContent='Tablero comprobado · Semilla '+seed;}catch(e){hint.textContent=e.message;}finally{btn.disabled=false;}},30);};
+ document.getElementById('btn-random-seed').onclick=()=>{document.getElementById('seed').value=Math.floor(Math.random()*1e9);document.getElementById('btn-generate').click();};
+ document.getElementById('btn-hint').onclick=()=>{if(game.isAnimating||game.isGameOver)return;const ids=[...new Set((game.level.bridges||[]).map(b=>b.id))];let s=game.state();ids.forEach((id,i)=>{if(game.bridgeStates[id])s[3]|=1<<i;});let sol=searchLevel(game.level,s);hint.textContent=sol?.path?.length?`Próximo paso: ${{UP:'↑ Arriba (W)',DOWN:'↓ Abajo (S)',LEFT:'← Izquierda (A)',RIGHT:'→ Derecha (D)'}[sol.path[0]]}. Quedan ${sol.path.length} movimientos por el camino más corto.`:sol?.limited?'La búsqueda alcanzó su límite.':'Desde aquí no hay solución. Deshacé algunos movimientos.';};
+ document.getElementById('btn-to-editor').onclick=()=>{editor.importJSON(JSON.stringify(game.level));document.getElementById('tab-editor').click();};
+ document.getElementById('btn-download-level').onclick=()=>downloadLevel(game.level);
+ document.getElementById('btn-view').onclick=()=>{game.viewTop=!game.viewTop;};document.getElementById('btn-camera').onclick=()=>{game.camRotY=.65;game.zoom=1;game.viewTop=false;};
+ document.getElementById('btn-validate').onclick=()=>{const out=document.getElementById('editor-status');try{let s=validatePlayable(JSON.parse(editor.exportJSON()));out.textContent=s?'✓ Tiene solución: '+s.path.length+' movimientos mínimos.':'No tiene solución. Modificá la plataforma, el inicio o los interruptores.';}catch(e){out.textContent=e.message;}};
+ document.getElementById('btn-download-editor').onclick=()=>downloadLevel(JSON.parse(editor.exportJSON()));
+ // Replace original import handler to expose validation errors instead of silently discarding them.
+ const importBtn=document.getElementById('btn-import-json'),fresh=importBtn.cloneNode(true);importBtn.replaceWith(fresh);fresh.onclick=()=>{try{editor.importJSON(document.getElementById('json-text').value);document.getElementById('json-modal').classList.add('opacity-0','pointer-events-none');}catch(e){document.getElementById('json-error').textContent=e.message;}};
+ const test=document.getElementById('btn-test-level'),newTest=test.cloneNode(true);test.replaceWith(newTest);newTest.onclick=()=>{try{const data=JSON.parse(editor.exportJSON()),s=validatePlayable(data);if(!s){document.getElementById('editor-status').textContent='Este diseño no tiene solución. Corregilo antes de jugar.';return;}data.optimal=s.path.length;document.getElementById('tab-play').click();custom(data);}catch(e){document.getElementById('editor-status').textContent=e.message;}};
+ document.getElementById('btn-reset').addEventListener('click',()=>{if(select.value==='custom')game.loadLevel(game.level);});
+ window.addEventListener('keydown',e=>{if((e.key==='r'||e.key==='R')&&select.value==='custom'&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)&&!document.getElementById('view-play').classList.contains('hidden'))game.loadLevel(game.level);});
+ game.updateInfo();
+});
+</script>
+<footer>BLOXORZ · EXPLORADOR — Rodá, probá, transformá. Flechas / WASD · Z deshacer · R reiniciar.</footer></body>
+</html>

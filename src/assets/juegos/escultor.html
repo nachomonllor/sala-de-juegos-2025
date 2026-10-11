@@ -480,12 +480,15 @@ canvas {
   border-color: #ff8fa3;
 }
 </style>
-</head>
+<style>.funcs{max-height:65vh;overflow:auto}.funcs .expr{overflow-wrap:anywhere}.funcs button.fn{text-align:left;color:inherit;background:#122337}.funcs button.fn.on{background:#1b4943}@media(max-width:720px){.funcs{max-height:25vh}.funcs .expr{font-size:11px}}</style><style>
+.curve-title{display:flex;gap:8px;align-items:center}.curve-title input{width:17px;height:17px;flex-shrink:0;accent-color:var(--c);cursor:pointer}.relation-buttons{display:flex;gap:4px;flex-wrap:wrap}.relation-buttons button{font-size:11px;padding:4px 6px;flex:1}.relation-buttons .chosen{background:#276150;border-color:#73efd3;color:white}.funcs .fn.selected-0{border:2px solid white;box-shadow:0 0 0 1px #fff4;background:#ffffff10}.funcs .fn.selected-1{border:2px solid #ffd064;background:#ffd06412}.funcs .fn.is-hidden{opacity:.5}.region-note{color:#a1b9cb}.funcs .fn:focus-visible{outline:2px solid #63ead4}.funcs{max-height:65vh}.funcs>small{grid-column:1/-1}@media(max-width:720px){.funcs{max-height:29vh}.relation-buttons button{font-size:10px;padding:3px}.curve-title input{width:15px;height:15px}}
+</style><style>/* Taller de formas: the SCSS source below mirrors these overrides. */
+body{background:#13172b}.topbar{background:#1c2037;border-bottom:1px solid #353951}.topbar h1 span{color:#f5bc57}.panel{background:rgba(30,34,57,.96);border-color:#414560;border-radius:18px;box-shadow:0 12px 32px #0002}button,select{border-radius:12px;background:#2a2e4c;border-color:#454a6e}button:hover:not(:disabled){background:#383d5c}.primary{background:#206e64;border-color:#63ead4}.hud strong{font-size:18px}.hud #goal{font-size:14px;color:#e5e7ff}.lesson-badge{color:#f5bc57;font-size:10px;font-weight:800;letter-spacing:1px}.funcs h3{font-size:23px;margin:10px 0}.lesson-equation{font:17px/1.5 ui-monospace,monospace;padding:12px;background:#151a30;border-radius:12px;overflow-wrap:anywhere}.lesson-control{margin-top:18px}.lesson-control label{display:block;color:#c0c7e1;margin-bottom:8px}.lesson-stepper{display:flex;align-items:center;justify-content:space-between;gap:10px}.lesson-stepper button{width:52px;height:46px;font-size:24px}.lesson-stepper output{font-size:28px;font-weight:700}.lesson-tip,.funcs details{font-size:12px;color:#b5bed9;line-height:1.6}.funcs summary{cursor:pointer;color:#8ee5d2}.lesson-visibility{display:block;margin-top:14px;font-size:12px}.curve-mode .ops [data-op],.curve-mode #rotBtn,.curve-mode #sel,.curve-mode .ops .label,.curve-mode .ops .hint-text{display:none}.curve-mode .ops{width:160px}.curve-mode .funcs{max-height:65vh}.curve-mode #bounds{font-size:10px}.curve-mode .ops::before{content:'¿Ya encaja?';display:block;font-size:16px;margin-bottom:10px;color:#e7edff}.curve-mode .funcs .primary{margin:6px 0;padding:12px;width:100%}@media(max-width:720px){.topbar small{display:none}.curve-mode .funcs{max-height:30vh}.curve-mode .ops{width:calc(100% - 24px)}.curve-mode .ops::before{display:none}.lesson-tip{display:none}.lesson-equation{font-size:14px;padding:8px}.lesson-control{margin-top:8px}.funcs h3{font-size:18px;margin:4px 0}.lesson-stepper button{height:36px}.lesson-visibility{margin-top:6px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style></head>
 <body>
 <header class="topbar">
   <div>
-    <h1>Escultor <span>∪</span> Plano libre</h1>
-    <small>Una figura. Muchas maneras de llegar.</small>
+    <h1>Escultor <span>✦</span> Taller de formas</h1>
+    <small>Mové, probá, descubrí. Cada forma es un pequeño desafío.</small>
   </div>
   <div class="tools">
     <select id="level" aria-label="Desafío"></select>
@@ -540,7 +543,7 @@ canvas {
     <button id="helpBtn">Cómo jugar</button>
     <button id="saveBtn">Guardar partida</button>
     <button id="loadBtn">Cargar partida</button>
-    <label>Sin cronómetro <input type="checkbox" id="practice"></label>
+    <label>Sin cronómetro <input type="checkbox" id="practice" checked></label>
   </nav>
 
   <div id="toast" class="toast"></div>
@@ -560,52 +563,7 @@ canvas {
 </div>
 
 <script type="text/x-scss" id="fuente-scss">
-// Escultor ∪ Plano libre — estilos fuente (SCSS)
-// Compilar: npx sass styles.scss styles.css --no-source-map
 
-// ---------- Tokens ----------
-$bg: #091321;
-$surface: #102034;
-$surface-2: #182b40;
-$surface-3: #22394f;
-$line: #2f4762;
-$ink: #e7f1fc;
-$muted: #9fb3ce;
-$mint: #63ead4;
-$mint-deep: #167568;
-$danger: #ff8fa3;
-$amber: #f5bc57;
-
-$radius: 12px;
-$header-h: 64px;
-$header-h-sm: 96px;
-$ops-w: 196px;
-
-$bp-sm: 720px;
-
-// ---------- Mixins ----------
-@mixin small-screen {
-  @media (max-width: $bp-sm) {
-    @content;
-  }
-}
-
-@mixin glass($alpha: 0.94) {
-  background: rgba($surface, $alpha);
-  border: 1px solid $line;
-  border-radius: $radius;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
-}
-
-@mixin focus-ring {
-  &:focus-visible {
-    outline: 2px solid $mint;
-    outline-offset: 2px;
-  }
-}
-
-// ---------- Base ----------
 *,
 *::before,
 *::after {
@@ -623,8 +581,8 @@ body {
 
 body {
   margin: 0;
-  background: $bg;
-  color: $ink;
+  background: #091321;
+  color: #e7f1fc;
   font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   overflow: hidden;
 }
@@ -633,107 +591,104 @@ button,
 select {
   font: inherit;
   color: inherit;
-  background: $surface-2;
-  border: 1px solid $line;
+  background: #182b40;
+  border: 1px solid #2f4762;
   border-radius: 9px;
   padding: 8px 10px;
   cursor: pointer;
-  @include focus-ring;
-
-  &:hover:not(:disabled) {
-    background: $surface-3;
-  }
-
-  &:disabled {
-    opacity: 0.35;
-    cursor: default;
-  }
+}
+button:focus-visible,
+select:focus-visible {
+  outline: 2px solid #63ead4;
+  outline-offset: 2px;
+}
+button:hover:not(:disabled),
+select:hover:not(:disabled) {
+  background: #22394f;
+}
+button:disabled,
+select:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .primary {
-  background: $mint-deep;
-  border-color: $mint;
+  background: #167568;
+  border-color: #63ead4;
   font-weight: 600;
-
-  &:hover:not(:disabled) {
-    background: lighten($mint-deep, 7%);
-  }
+}
+.primary:hover:not(:disabled) {
+  background: rgb(10.8432783185%, 57.666525603%, 51.2591338694%);
 }
 
 small,
 .muted {
-  color: $muted;
+  color: #9fb3ce;
   font-size: 12px;
 }
 
 kbd {
   font: 11px ui-monospace, Consolas, monospace;
-  background: $surface-2;
-  border: 1px solid $line;
+  background: #182b40;
+  border: 1px solid #2f4762;
   border-radius: 4px;
   padding: 0 4px;
 }
 
-// ---------- Header ----------
 .topbar {
-  height: $header-h;
+  height: 64px;
   padding: 0 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: $surface;
-  border-bottom: 1px solid $line;
-
-  h1 {
-    margin: 0;
-    font-size: 19px;
-    letter-spacing: 0.2px;
-
-    span {
-      color: $mint;
-    }
-  }
-
-  .tools {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  #clock {
-    font-variant-numeric: tabular-nums;
-    color: $mint;
-    font-size: 18px;
-    min-width: 58px;
-    text-align: right;
-  }
-
-  @include small-screen {
-    height: $header-h-sm;
+  background: #102034;
+  border-bottom: 1px solid #2f4762;
+}
+.topbar h1 {
+  margin: 0;
+  font-size: 19px;
+  letter-spacing: 0.2px;
+}
+.topbar h1 span {
+  color: #63ead4;
+}
+.topbar .tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topbar #clock {
+  font-variant-numeric: tabular-nums;
+  color: #63ead4;
+  font-size: 18px;
+  min-width: 58px;
+  text-align: right;
+}
+@media (max-width: 720px) {
+  .topbar {
+    height: 96px;
     flex-wrap: wrap;
     align-content: center;
     padding: 6px 10px;
     row-gap: 4px;
-
-    h1 {
-      font-size: 16px;
-    }
-
-    select {
-      max-width: 190px;
-      font-size: 12px;
-    }
+  }
+  .topbar h1 {
+    font-size: 16px;
+  }
+  .topbar select {
+    max-width: 190px;
+    font-size: 12px;
   }
 }
 
-// ---------- Board ----------
 #board {
   position: relative;
-  height: calc(100dvh - #{$header-h});
-
-  @include small-screen {
-    height: calc(100dvh - #{$header-h-sm});
+  height: calc(100dvh - 64px);
+}
+@media (max-width: 720px) {
+  #board {
+    height: calc(100dvh - 96px);
   }
 }
 
@@ -746,7 +701,11 @@ canvas {
 }
 
 .panel {
-  @include glass;
+  background: rgba(16, 32, 52, 0.94);
+  border: 1px solid #2f4762;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
   position: absolute;
   padding: 10px 12px;
 }
@@ -756,85 +715,75 @@ canvas {
   left: 14px;
   max-width: 340px;
   pointer-events: none;
-
-  strong {
-    display: block;
-    font-size: 15px;
-  }
-
-  p {
-    margin: 3px 0 0;
-    font-size: 12px;
-    color: $muted;
-  }
-
-  @include small-screen {
+}
+.hud strong {
+  display: block;
+  font-size: 15px;
+}
+.hud p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: #9fb3ce;
+}
+@media (max-width: 720px) {
+  .hud {
     top: 6px;
     left: 6px;
     right: 6px;
     max-width: none;
     padding: 6px 9px;
-
-    strong {
-      font-size: 13px;
-    }
-
-    p {
-      font-size: 11px;
-    }
+  }
+  .hud strong {
+    font-size: 13px;
+  }
+  .hud p {
+    font-size: 11px;
   }
 }
 
-// ---------- Operaciones ----------
 .ops {
   top: 12px;
   right: 14px;
-  width: $ops-w;
+  width: 196px;
   display: grid;
   gap: 6px;
   max-height: calc(100% - 24px);
   overflow-y: auto;
-
-  .sel {
-    font-size: 12px;
-    line-height: 1.5;
-    min-height: 36px;
-
-    b {
-      color: $mint;
-    }
-  }
-
-  button {
-    text-align: left;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .sym {
-    width: 22px;
-    font-size: 18px;
-    color: $mint;
-    text-align: center;
-  }
-
-  .row {
-    display: flex;
-    gap: 6px;
-
-    button {
-      flex: 1;
-      justify-content: center;
-    }
-  }
-
-  .confirm {
-    justify-content: center;
-    margin-top: 4px;
-  }
-
-  @include small-screen {
+}
+.ops .sel {
+  font-size: 12px;
+  line-height: 1.5;
+  min-height: 36px;
+}
+.ops .sel b {
+  color: #63ead4;
+}
+.ops button {
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ops .sym {
+  width: 22px;
+  font-size: 18px;
+  color: #63ead4;
+  text-align: center;
+}
+.ops .row {
+  display: flex;
+  gap: 6px;
+}
+.ops .row button {
+  flex: 1;
+  justify-content: center;
+}
+.ops .confirm {
+  justify-content: center;
+  margin-top: 4px;
+}
+@media (max-width: 720px) {
+  .ops {
     top: auto;
     bottom: 6px;
     right: 6px;
@@ -844,160 +793,139 @@ canvas {
     flex-wrap: wrap;
     gap: 4px;
     padding: 6px;
-
-    .sel,
-    .hint-text,
-    .label {
-      display: none;
-    }
-
-    button {
-      padding: 6px 7px;
-      font-size: 12px;
-      flex: 1 1 auto;
-      justify-content: center;
-    }
-
-    .sym {
-      width: auto;
-      font-size: 15px;
-    }
-
-    .row {
-      flex: 1 1 100%;
-    }
+  }
+  .ops .sel,
+  .ops .hint-text,
+  .ops .label {
+    display: none;
+  }
+  .ops button {
+    padding: 6px 7px;
+    font-size: 12px;
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  .ops .sym {
+    width: auto;
+    font-size: 15px;
+  }
+  .ops .row {
+    flex: 1 1 100%;
   }
 }
 
-// ---------- Panel de funciones ----------
 .funcs {
   left: 14px;
   top: 104px;
   width: 280px;
   display: grid;
   gap: 8px;
-
-  &[hidden] {
-    display: none;
-  }
-
-  .fn {
-    border: 1px solid $line;
-    border-left: 4px solid var(--c, $mint);
-    border-radius: 9px;
-    padding: 7px 8px;
-    display: grid;
-    gap: 5px;
-    cursor: pointer;
-
-    &.on {
-      background: rgba($mint, 0.08);
-      border-color: $mint;
-    }
-  }
-
-  .expr {
-    font: 15px ui-monospace, Consolas, monospace;
-  }
-
-  .param {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-
-    span {
-      min-width: 70px;
-      color: $muted;
-    }
-
-    button {
-      padding: 1px 9px;
-      line-height: 20px;
-    }
-
-    output {
-      min-width: 34px;
-      text-align: center;
-      font-variant-numeric: tabular-nums;
-    }
-  }
-
-  i {
-    font-style: normal;
-  }
-
-  @include small-screen {
+}
+.funcs[hidden] {
+  display: none;
+}
+.funcs .fn {
+  border: 1px solid #2f4762;
+  border-left: 4px solid var(--c, #63ead4);
+  border-radius: 9px;
+  padding: 7px 8px;
+  display: grid;
+  gap: 5px;
+  cursor: pointer;
+}
+.funcs .fn.on {
+  background: rgba(99, 234, 212, 0.08);
+  border-color: #63ead4;
+}
+.funcs .expr {
+  font: 15px ui-monospace, Consolas, monospace;
+}
+.funcs .param {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.funcs .param span {
+  min-width: 70px;
+  color: #9fb3ce;
+}
+.funcs .param button {
+  padding: 1px 9px;
+  line-height: 20px;
+}
+.funcs .param output {
+  min-width: 34px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.funcs i {
+  font-style: normal;
+}
+@media (max-width: 720px) {
+  .funcs {
     left: 6px;
     right: 6px;
     width: auto;
     padding: 6px;
     gap: 5px;
     grid-template-columns: 1fr 1fr;
-
-    > small {
-      grid-column: 1 / -1;
-      font-size: 10px;
-    }
-
-    .fn {
-      padding: 5px 6px;
-      gap: 3px;
-    }
-
-    .expr {
-      font-size: 13px;
-    }
-
-    .param span {
-      min-width: 12px;
-    }
-
-    .long {
-      display: none;
-    }
+  }
+  .funcs > small {
+    grid-column: 1/-1;
+    font-size: 10px;
+  }
+  .funcs .fn {
+    padding: 5px 6px;
+    gap: 3px;
+  }
+  .funcs .expr {
+    font-size: 13px;
+  }
+  .funcs .param span {
+    min-width: 12px;
+  }
+  .funcs .long {
+    display: none;
   }
 }
 
-// ---------- Barra inferior ----------
 .status {
   left: 14px;
   bottom: 12px;
-  max-width: min(560px, calc(100% - #{$ops-w} - 60px));
-
-  #notice {
-    font-size: 13px;
-  }
-
-  #cursor {
-    font-size: 11px;
-    color: $muted;
-    font-variant-numeric: tabular-nums;
-  }
-
-  @include small-screen {
+  max-width: min(560px, 100% - 196px - 60px);
+}
+.status #notice {
+  font-size: 13px;
+}
+.status #cursor {
+  font-size: 11px;
+  color: #9fb3ce;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 720px) {
+  .status {
     display: none;
   }
 }
 
 .zoom {
-  right: calc(#{$ops-w} + 28px);
+  right: calc(196px + 28px);
   bottom: 12px;
   display: flex;
   gap: 6px;
   padding: 6px;
-
-  @include small-screen {
+}
+@media (max-width: 720px) {
+  .zoom {
     right: 6px;
     padding: 4px;
-
-    button {
-      padding: 4px 8px;
-    }
+  }
+  .zoom button {
+    padding: 4px 8px;
   }
 }
 
-// ---------- Menú ----------
 .menu {
   right: 14px;
   top: 8px;
@@ -1005,22 +933,19 @@ canvas {
   display: grid;
   gap: 6px;
   min-width: 210px;
-
-  &[hidden] {
-    display: none;
-  }
-
-  label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    padding: 4px 2px;
-  }
+}
+.menu[hidden] {
+  display: none;
+}
+.menu label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  padding: 4px 2px;
 }
 
-// ---------- Diálogos ----------
 .overlay {
   position: fixed;
   inset: 0;
@@ -1029,59 +954,56 @@ canvas {
   display: grid;
   place-items: center;
   padding: 16px;
-
-  &[hidden] {
-    display: none;
-  }
+}
+.overlay[hidden] {
+  display: none;
 }
 
 .dialog {
-  @include glass(0.98);
+  background: rgba(16, 32, 52, 0.98);
+  border: 1px solid #2f4762;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
   padding: 24px 26px;
   max-width: 620px;
   width: 100%;
   max-height: 88dvh;
   overflow: auto;
   line-height: 1.6;
-
-  h2 {
-    margin: 0 0 10px;
-    color: $mint;
-  }
-
-  ul {
-    padding-left: 20px;
-  }
-
-  .math {
-    font: 14px ui-monospace, Consolas, monospace;
-    background: $bg;
-    border: 1px solid $line;
-    border-radius: 8px;
-    padding: 8px 10px;
-    overflow-x: auto;
-    white-space: normal;
-  }
-
-  .stats {
-    display: flex;
-    gap: 22px;
-    margin: 6px 0 12px;
-
-    b {
-      display: block;
-      font-size: 22px;
-      color: $mint;
-      font-variant-numeric: tabular-nums;
-    }
-  }
-
-  .actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 14px;
-  }
+}
+.dialog h2 {
+  margin: 0 0 10px;
+  color: #63ead4;
+}
+.dialog ul {
+  padding-left: 20px;
+}
+.dialog .math {
+  font: 14px ui-monospace, Consolas, monospace;
+  background: #091321;
+  border: 1px solid #2f4762;
+  border-radius: 8px;
+  padding: 8px 10px;
+  overflow-x: auto;
+  white-space: normal;
+}
+.dialog .stats {
+  display: flex;
+  gap: 22px;
+  margin: 6px 0 12px;
+}
+.dialog .stats b {
+  display: block;
+  font-size: 22px;
+  color: #63ead4;
+  font-variant-numeric: tabular-nums;
+}
+.dialog .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
 }
 
 .toast {
@@ -1089,24 +1011,36 @@ canvas {
   left: 50%;
   top: 14px;
   transform: translateX(-50%);
-  @include glass(0.98);
-  border-color: $amber;
+  background: rgba(16, 32, 52, 0.98);
+  border: 1px solid #2f4762;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  border-color: #f5bc57;
   padding: 8px 14px;
   font-size: 13px;
   z-index: 8;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s;
-
-  &.show {
-    opacity: 1;
-  }
-
-  &.err {
-    border-color: $danger;
-  }
+}
+.toast.show {
+  opacity: 1;
+}
+.toast.err {
+  border-color: #ff8fa3;
 }
 
+.funcs{max-height:65vh;overflow:auto}.funcs .expr{overflow-wrap:anywhere}.funcs button.fn{text-align:left;color:inherit;background:#122337}.funcs button.fn.on{background:#1b4943}@media(max-width:720px){.funcs{max-height:25vh}.funcs .expr{font-size:11px}}
+
+.curve-title{display:flex;gap:8px;align-items:center}.curve-title input{width:17px;height:17px;flex-shrink:0;accent-color:var(--c);cursor:pointer}.relation-buttons{display:flex;gap:4px;flex-wrap:wrap}.relation-buttons button{font-size:11px;padding:4px 6px;flex:1}.relation-buttons .chosen{background:#276150;border-color:#73efd3;color:white}.funcs .fn.selected-0{border:2px solid white;box-shadow:0 0 0 1px #fff4;background:#ffffff10}.funcs .fn.selected-1{border:2px solid #ffd064;background:#ffd06412}.funcs .fn.is-hidden{opacity:.5}.region-note{color:#a1b9cb}.funcs .fn:focus-visible{outline:2px solid #63ead4}.funcs{max-height:65vh}.funcs>small{grid-column:1/-1}@media(max-width:720px){.funcs{max-height:29vh}.relation-buttons button{font-size:10px;padding:3px}.curve-title input{width:15px;height:15px}}
+
+/* Taller de formas: the SCSS source below mirrors these overrides. */
+body{background:#13172b}.topbar{background:#1c2037;border-bottom:1px solid #353951}.topbar h1 span{color:#f5bc57}.panel{background:rgba(30,34,57,.96);border-color:#414560;border-radius:18px;box-shadow:0 12px 32px #0002}button,select{border-radius:12px;background:#2a2e4c;border-color:#454a6e}button:hover:not(:disabled){background:#383d5c}.primary{background:#206e64;border-color:#63ead4}.hud strong{font-size:18px}.hud #goal{font-size:14px;color:#e5e7ff}.lesson-badge{color:#f5bc57;font-size:10px;font-weight:800;letter-spacing:1px}.funcs h3{font-size:23px;margin:10px 0}.lesson-equation{font:17px/1.5 ui-monospace,monospace;padding:12px;background:#151a30;border-radius:12px;overflow-wrap:anywhere}.lesson-control{margin-top:18px}.lesson-control label{display:block;color:#c0c7e1;margin-bottom:8px}.lesson-stepper{display:flex;align-items:center;justify-content:space-between;gap:10px}.lesson-stepper button{width:52px;height:46px;font-size:24px}.lesson-stepper output{font-size:28px;font-weight:700}.lesson-tip,.funcs details{font-size:12px;color:#b5bed9;line-height:1.6}.funcs summary{cursor:pointer;color:#8ee5d2}.lesson-visibility{display:block;margin-top:14px;font-size:12px}.curve-mode .ops [data-op],.curve-mode #rotBtn,.curve-mode #sel,.curve-mode .ops .label,.curve-mode .ops .hint-text{display:none}.curve-mode .ops{width:160px}.curve-mode .funcs{max-height:65vh}.curve-mode #bounds{font-size:10px}.curve-mode .ops::before{content:'¿Ya encaja?';display:block;font-size:16px;margin-bottom:10px;color:#e7edff}.curve-mode .funcs .primary{margin:6px 0;padding:12px;width:100%}@media(max-width:720px){.topbar small{display:none}.curve-mode .funcs{max-height:30vh}.curve-mode .ops{width:calc(100% - 24px)}.curve-mode .ops::before{display:none}.lesson-tip{display:none}.lesson-equation{font-size:14px;padding:8px}.lesson-control{margin-top:8px}.funcs h3{font-size:18px;margin:4px 0}.lesson-stepper button{height:36px}.lesson-visibility{margin-top:6px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+#designer[hidden]{display:none!important}#designer{position:fixed;inset:0;z-index:40;background:#13172b;color:#e7f1fc;display:grid;grid-template-rows:auto 1fr;font:14px/1.4 system-ui,sans-serif}#designer *{box-sizing:border-box}#designer header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#1c2037;border-bottom:1px solid #414560;flex-wrap:wrap}#designer header strong{font-size:19px;margin-right:auto}#designer button{font:inherit}#designer input,#designer select,#designer textarea{background:#151a30;color:#e7f1fc;border:1px solid #454a6e;border-radius:8px;padding:8px;min-width:0;width:100%;font:inherit}#designer input[type=checkbox]{width:auto;accent-color:#63ead4}#designer textarea{resize:vertical;font:13px ui-monospace,monospace}#designer label{display:block;color:#bcc7df;font-size:12px}#designer summary{cursor:pointer;color:#8ee5d2;padding:8px 0;font-weight:600}.d-layout{display:grid;grid-template-columns:300px minmax(200px,1fr) 280px;min-height:0}.d-panel{padding:14px;overflow:auto;background:#1c2037;border-right:1px solid #353951}.d-panel.right{border-right:0;border-left:1px solid #353951}.d-panel h3{font-size:14px;color:#f5bc57;margin:15px 0 8px}.d-row{display:flex;gap:7px;align-items:center;margin:8px 0}.d-row>*{flex:1;min-width:0}.d-row button{padding:8px 6px}.d-viewport{position:relative;min-width:0;min-height:0}#dCanvas{width:100%;height:100%;display:block;touch-action:none}#dStatus{position:absolute;bottom:12px;left:12px;right:12px;background:#20253beF;border:1px solid #414560;padding:10px;border-radius:12px;pointer-events:none;font-size:12px;white-space:pre-line}#dStatus.error{border-color:#ff8399;color:#ffc4cf}.d-view-tools{position:absolute;top:12px;right:12px;display:flex;gap:4px}.d-layer{display:flex;align-items:center;gap:6px;margin:6px 0;padding:7px;border:1px solid #414560;border-radius:10px}.d-layer.selected{border-color:#63ead4;background:#29443f}.d-layer button{flex:1;text-align:left;background:transparent;border:0;padding:4px;font-size:12px;overflow-wrap:anywhere}.d-layer input{flex:0!important}.d-swatch{width:8px;height:24px;border-radius:5px;flex:none}.d-small{font-size:11px;color:#aebbd5}.d-formgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.d-formgrid label input{margin-top:4px}.d-history-item{display:flex;align-items:flex-start;gap:7px;padding:7px 4px;border-bottom:1px solid #383e57;font-size:12px}.d-history-item.off{opacity:.5}.d-history-item button{font-size:11px;padding:2px 6px}.d-history-item span{flex:1}.d-tag{color:#f5bc57;font-size:11px;background:#34304a;padding:5px 8px;border-radius:8px}.d-ops{display:grid;grid-template-columns:1fr 1fr;gap:6px}#dPreviewResult{white-space:pre-line;font-size:12px;padding:8px;background:#151a30;border-radius:8px}#designer.testing [data-edit-only]{display:none!important}#designer.testing .d-layout{grid-template-columns:270px minmax(200px,1fr) 240px}#designer.testing #dInspector input:disabled{opacity:.5}#dTargetInfo{overflow-wrap:anywhere}#designer details p{font-size:12px;color:#b9c6de}.d-badge{color:#63ead4}.d-list-actions{display:flex;gap:5px;flex-wrap:wrap}.d-list-actions button{font-size:12px}#dClose{flex:none;white-space:nowrap}.d-empty{padding:12px;border:1px dashed #555d7b;border-radius:10px;color:#b9c6de;font-size:12px}@media(max-width:1000px){.d-layout,#designer.testing .d-layout{grid-template-columns:250px minmax(160px,1fr)}.d-panel.right{grid-column:1/-1;max-height:27vh;display:grid;grid-template-columns:1fr 1fr;gap:12px;border-top:1px solid #414560}.d-layout{grid-template-rows:minmax(200px,1fr) auto}}@media(max-width:600px){#designer header{padding:7px;gap:5px}#designer header strong{font-size:15px}#designer header button{font-size:11px;padding:6px}.d-layout,#designer.testing .d-layout{display:flex;flex-direction:column;overflow:auto}.d-panel{max-height:32vh;flex:none;padding:9px}.d-viewport{height:48vh;min-height:300px;flex:none}.d-panel.right{display:block;max-height:none;overflow:visible}.d-formgrid{grid-template-columns:repeat(2,1fr)}#dStatus{font-size:11px}#designer h3{margin-top:8px}}
+
+@media(max-width:720px){.topbar .tools{width:100%;min-width:0;gap:5px}.topbar #level{flex:1;min-width:0;max-width:none}.topbar #designerBtn{font-size:11px;padding:8px 6px;white-space:nowrap}.topbar #clock{min-width:42px;font-size:15px}}
 </script>
 <script>
 /* polygon-clipping 0.15.7 — MIT License — https://github.com/mfogel/polygon-clipping */
@@ -1259,7 +1193,8 @@ canvas {
     if (c !== 0) s += s ? (c > 0 ? ` + ${fmt(c)}` : ` − ${fmt(-c)}`) : fmt(c);
     return s || '0';
   }
-  function fnRegion(type, p, origin) {
+  function fnRegion(type, p, origin, size = 10) {
+    if (FN[type].region) return FN[type].region(p, origin, size);
     const def = FN[type], [x0, y0] = origin, x1 = x0 + 10, y1 = y0 + 10, M = 3, N = 240;
     const curve = [];
     const lo = def.rel === '≤' ? y0 - M + 1 : y0 - M;
@@ -1326,6 +1261,175 @@ canvas {
     },
   ];
 
+  // Regiones de las referencias: los semiplanos se recortan exactamente;
+  // las cónicas se aproximan por contornos poligonales dentro del universo.
+  function halfPlane(origin, size, a, b, c) {
+    const [x,y]=origin;
+    let pts=[[x,y],[x+size,y],[x+size,y+size],[x,y+size]],out=[];
+    for(let i=0;i<pts.length;i++){
+      const p=pts[i],q=pts[(i+1)%pts.length],fp=a*p[0]+b*p[1]-c,fq=a*q[0]+b*q[1]-c;
+      if(fp<=0)out.push(p);
+      if((fp<=0)!==(fq<=0)){const t=fp/(fp-fq);out.push([p[0]+t*(q[0]-p[0]),p[1]+t*(q[1]-p[1])]);}
+    }
+    return out.length>=3?Geo.poly(out):[];
+  }
+  function hyperRegion(origin,size,outside,a2=16,b2=9){
+    const [x,y]=origin,left=[],right=[],n=1600;
+    for(let i=0;i<=n;i++){const yy=y+size*i/n,xx=Math.sqrt(a2*(1+yy*yy/b2));left.push([-xx,yy]);right.push([xx,yy]);}
+    const U=Geo.rect(x,y,size,size),inside=Geo.op(Geo.poly([...left,...right.reverse()]),U,'intersection');
+    return outside?Geo.op(U,inside,'difference'):inside;
+  }
+  Object.assign(FN,{
+    xge:{label:'Límite izquierdo',color:'#fc8399',params:[],keys:['k'],expr:p=>`x ≥ ${fmt(p.k)}`,region:(p,o,s)=>halfPlane(o,s,-1,0,-p.k)},
+    xle:{label:'Límite derecho',color:'#a9d978',params:[],keys:['k'],expr:p=>`x ≤ ${fmt(p.k)}`,region:(p,o,s)=>halfPlane(o,s,1,0,p.k)},
+    yle:{label:'Techo horizontal',color:'#78adff',params:[],keys:['k'],expr:p=>`y ≤ ${fmt(p.k)}`,region:(p,o,s)=>halfPlane(o,s,0,1,p.k)},
+    yge:{label:'Piso horizontal',color:'#fc8399',params:[],keys:['k'],expr:p=>`y ≥ ${fmt(p.k)}`,region:(p,o,s)=>halfPlane(o,s,0,-1,-p.k)},
+    aboveLine:{label:'Sobre la recta',color:'#f5bc57',params:[],keys:['m','b'],expr:p=>`y ≥ ${poly1(p.m,'x',p.b)}`,region:(p,o,s)=>halfPlane(o,s,p.m,-1,-p.b)},
+    belowLine:{label:'Bajo la recta',color:'#f5bc57',params:[],keys:['m','b'],expr:p=>`y ≤ ${poly1(p.m,'x',p.b)}`,region:(p,o,s)=>halfPlane(o,s,-p.m,1,p.b)},
+    disk:{label:'Disco',color:'#d099ff',params:[],keys:['cx','cy','r2'],expr:p=>`(x − ${fmt(p.cx)})² + (y − ${fmt(p.cy)})² ≤ ${fmt(p.r2)}`,region:(p,o,s)=>Geo.op(Geo.circle(p.cx,p.cy,Math.sqrt(p.r2),512),Geo.rect(...o,s,s),'intersection')},
+    hyperIn:{label:'Entre las ramas',color:'#d099ff',params:[],keys:[],expr:()=> 'x²/16 − y²/9 ≤ 1',region:(p,o,s)=>hyperRegion(o,s,false)},
+    hyperOut:{label:'Ramas exteriores',color:'#d099ff',params:[],keys:[],expr:()=> 'x²/16 − y²/9 ≥ 1',region:(p,o,s)=>hyperRegion(o,s,true)},
+  });
+  const regionPiece=(type,p={})=>({kind:'fn',prim:{type,p}});
+  function graphLevel({name,origin,size=10,pieces,complement=false,lesson,source}){
+    return {name,goal:complement?'Construí la intersección y después obtené su complemento en U.':'Combiná las desigualdades hasta obtener la región común punteada.',fixedOrigin:origin,universeSize:size,graph:true,pieces,lesson,source,
+      target(){let regions=this.pieces.map(l=>fnRegion(l.prim.type,l.prim.p,this.fixedOrigin,this.universeSize));let g=regions.reduce((a,b)=>Geo.op(a,b,'intersection'));return complement?Geo.op(Geo.rect(...origin,size,size),g,'difference'):g;},
+      hint(){const names=this.pieces.map(l=>FN[l.prim.type].expr(l.prim.p));return `Elegí dos tarjetas y aplicá ∩. Seleccioná otra tarjeta junto al resultado y repetí hasta usar estas condiciones: <b>${names.join(' ∧ ')}</b>. ${complement?'Al final, dejá solo el resultado seleccionado y aplicá U − A. ':''}Luego pulsá Confirmar. <br><br>${lesson}`;}
+    };
+  }
+  LEVELS.push(
+    graphLevel({name:'Tres rectas, un triángulo',origin:[-6,-5],pieces:[regionPiece('xge',{k:-5}),regionPiece('yle',{k:3}),regionPiece('aboveLine',{m:1,b:1})],source:'interseccion-2-rectas-e-inclinacion.jpg',lesson:'La región satisface simultáneamente x ≥ −5, y ≤ 3 e y ≥ x + 1. Sus vértices son (−5; −4), (−5; 3) y (2; 3). La intersección representa el “y” lógico.'}),
+    graphLevel({name:'Disco entre dos cortes',origin:[1,-5],pieces:[regionPiece('disk',{cx:6,cy:0,r2:5}),regionPiece('xle',{k:7}),regionPiece('yle',{k:1})],source:'insterseccion-circunferencia-rectas.jpg',lesson:'El disco tiene centro (6; 0) y radio √5. Se conserva solamente la parte con x ≤ 7 e y ≤ 1. Se usa la suma de cuadrados para reproducir el círculo dibujado; un signo menos describiría una hipérbola. El límite x ≥ 4 aparece desactivado en la referencia.'}),
+    graphLevel({name:'Disco bajo el techo',origin:[-5,-5],pieces:[regionPiece('disk',{cx:0,cy:0,r2:20}),regionPiece('xge',{k:-5}),regionPiece('yle',{k:3})],source:'universal-interseccion-circunferencia.gif',lesson:'La circunferencia x² + y² = 20 es la frontera; para operar con área usamos el disco x² + y² ≤ 20. El límite x ≥ −5 no recorta este disco, porque su extremo izquierdo es −√20 ≈ −4,472.'}),
+    graphLevel({name:'Lo que queda en el universo',origin:[-5,-5],complement:true,pieces:[regionPiece('disk',{cx:0,cy:0,r2:20}),regionPiece('xge',{k:-5}),regionPiece('yle',{k:3})],source:'universal-interseccion-circunferencia.gif',lesson:'El objetivo es U menos la intersección anterior. El contorno rojo del dibujo rodea la intersección; aquí la anotación “U − intersección” se interpreta como un segundo desafío distinto. Complementar depende siempre del universo elegido.'}),
+    graphLevel({name:'Hipérbola en una franja negativa',origin:[-25,-15],size:30,pieces:[regionPiece('hyperOut'),regionPiece('xge',{k:-20}),regionPiece('xle',{k:-10})],source:'interseccion funciones_1.jpg',lesson:'x²/16 − y²/9 ≥ 1 selecciona las regiones exteriores de las ramas. Al intersectar con −20 ≤ x ≤ −10 queda un fragmento de la rama izquierda. Esta hipérbola no es la gráfica de una única función y=f(x). U mide 30 × 30 para conservar las coordenadas originales.'}),
+    graphLevel({name:'Hipérbola, recta y dos alturas',origin:[-110,-30],size:220,pieces:[regionPiece('hyperIn'),regionPiece('belowLine',{m:2,b:5}),regionPiece('yle',{k:80}),regionPiece('yge',{k:-20})],source:'inserseccion-func-2.jpg + intersecciones-hiperbola-y-rectas.jpg',lesson:'Se exige x²/16 − y²/9 ≤ 1, y ≤ 2x + 5 y −20 ≤ y ≤ 80. Las dos capturas muestran las mismas condiciones activas con distintos encuadres; se reúnen en este desafío. U mide 220 × 220 para contener toda la intersección sin cambiar las fórmulas.'})
+  );
+
+  FN.hyperCustom={label:'Hipérbola',color:'#d099ff',params:[],keys:['a2','b2'],expr:p=>`x²/${fmt(p.a2)} − y²/${fmt(p.b2)} ≤ 1`,region:(p,o,s)=>hyperRegion(o,s,false,p.a2,p.b2)};
+  const stripes=[1,-3,-5,-9].map(b=>regionPiece('belowLine',{m:2,b}));
+  function customGraph(name,origin,size,pieces,recipe,lesson,hint){
+    return {name,fixedOrigin:origin,universeSize:size,graph:true,pieces,recipe,lesson,goal:'Elegí los lados de las curvas y combiná las regiones para reproducir el amarillo de la referencia.',
+      target(){const r=this.pieces.map(l=>fnRegion(l.prim.type,l.prim.p,origin,size));const op=(a,b,t)=>Geo.op(a,b,t);return recipe(r,op,Geo.rect(...origin,size,size));},hint:()=>hint+'<br><br>'+lesson};
+  }
+  LEVELS.push(
+    customGraph('Franjas intercaladas',[-7,-10],22,stripes,(r,op,u)=>op(u,r.reduce((a,b)=>op(a,b,'xor')),'difference'),
+      'Las cuatro rectas son paralelas. El objetivo reúne y ≥ 2x + 1, la franja 2x − 5 ≤ y ≤ 2x − 3 y y ≤ 2x − 9, recortados por U. Las marcas amarillas a mano se interpretan mediante esos límites exactos.',
+      'Elegí ≤ en las cuatro rectas. Aplicá diferencia simétrica sucesivamente entre las cuatro regiones. Finalmente, U − A y Confirmar.'),
+    customGraph('Franjas bajo una transversal',[-5,-10],12,[...stripes,regionPiece('belowLine',{m:-2,b:-5})],(r,op)=>op(r.slice(0,4).reduce((a,b)=>op(a,b,'xor')),r[4],'intersection'),
+      'Se conservan las franjas entre las rectas 2x + 1 y 2x − 3, y entre 2x − 5 y 2x − 9, solamente debajo de y = −2x −5. El borde inferior visible es el recorte de U, no una recta adicional inferida del trazo a mano.',
+      'Elegí ≤ en las cinco tarjetas. Combiná las primeras cuatro con △ y luego intersectá ese resultado con y ≤ −2x − 5.'),
+    customGraph('Dos fragmentos de hipérbola',[-9,-3],13,[regionPiece('hyperCustom',{a2:5,b2:2}),regionPiece('xge',{k:-1}),regionPiece('xle',{k:3}),regionPiece('yle',{k:5}),regionPiece('yge',{k:-2})],
+      (r,op)=>r.slice(2).reduce((a,b)=>op(a,b,'intersection'),op(r[0],r[1],'xor')),
+      'La zona izquierda está entre las ramas de x²/5 − y²/2 = 1 y a la izquierda de x = −1. La pequeña zona derecha está fuera de la rama, hasta x = 3. Ambas se recortan entre y = −2 e y = 5. Se conservan como una única figura compuesta.',
+      'Hipérbola: ≤ (entre ramas). Recta x = −1: ≥ (derecha). Aplicá △ a esas dos regiones. Después intersectá con x ≤ 3, y ≤ 5 e y ≥ −2.')
+  );
+  function defaultRel(type){return ['xge','yge','aboveLine','hyperOut','parab'].includes(type)?'≥':'≤';}
+  function relation(l){return l.rel===undefined?defaultRel(l.prim.type):l.rel;}
+  function equation(l){return FN[l.prim.type].expr(l.prim.p).replace(/[≤≥]/,'=');}
+  function regionFor(l,origin=S.origin,size=usize()){
+    const rel=relation(l);if(rel==='=')return [];
+    const base=fnRegion(l.prim.type,l.prim.p,origin,size);
+    return rel===defaultRel(l.prim.type)?base:Geo.op(Geo.rect(...origin,size,size),base,'difference');
+  }
+  function sideLabel(l,rel){const t=l.prim.type;if(rel==='=')return 'Solo curva';if(t==='xge'||t==='xle')return rel==='≤'?'Izquierda':'Derecha';if(t==='disk')return rel==='≤'?'Interior':'Exterior';if(t.startsWith('hyper'))return rel==='≤'?'Entre ramas':'Ramas exteriores';return rel==='≤'?'Abajo':'Arriba';}
+  function chooseRelation(l,rel){if(lvl().curve)return false;if(!['=','≤','≥'].includes(rel)||relation(l)===rel)return;act(()=>{l.rel=rel;l.visible=true;refresh(l);});say(`${equation(l)} · ${sideLabel(l,rel)}. ${rel==='='?'Elegí ≤ o ≥ antes de operar.':''}`);}
+  function setVisible(l,v){l.visible=v;if(!v){S.selected=S.selected.filter(id=>id!==l.id);if(hover?.id===l.id)hover=hoverHit=null;if(candidate?.id===l.id)candidate=null;}update();say(v?`${l.name} visible.`:`${l.name} oculta; su geometría se conserva y se quitó de A/B.`);}
+  // Curvas analíticas para dibujar su continuación fuera de U sin convertirla en pieza.
+  function curvePaths(l){if(l.prim.type.startsWith('learn'))return curveLessonPaths(l);const t=l.prim.type,p=l.prim.p,[xmin,ymax]=toW(0,0),[xmax,ymin]=toW(W,H),n=500,paths=[];
+    if(t==='xge'||t==='xle')return [[[p.k,ymin],[p.k,ymax]]];
+    if(t==='yle'||t==='yge')return [[[xmin,p.k],[xmax,p.k]]];
+    if(t==='disk')return [Geo.circle(p.cx,p.cy,Math.sqrt(p.r2),512)[0][0]];
+    if(t.startsWith('hyper')){let a2=p.a2||16,b2=p.b2||9;for(const sign of [-1,1]){let path=[];for(let i=0;i<=n;i++){let y=ymin+(ymax-ymin)*i/n;path.push([sign*Math.sqrt(a2*(1+y*y/b2)),y]);}paths.push(path);}return paths;}
+    const f=FN[t].f||((p,x)=>p.m*x+p.b),path=[];for(let i=0;i<=n;i++){let x=xmin+(xmax-xmin)*i/n;path.push([x,f(p,x)]);}return [path];
+  }
+  function traceCurves(paths){ctx.beginPath();for(const p of paths)p.forEach((q,i)=>{const s=toS(q);i?ctx.lineTo(...s):ctx.moveTo(...s)});}
+  function drawBoundary(l){const paths=curvePaths(l),[x,y]=toS([S.origin[0],S.origin[1]+usize()]),s=usize()*view.s,sel=S.selected.indexOf(l.id);
+    ctx.save();ctx.beginPath();ctx.rect(0,0,W,H);ctx.rect(x,y,s,s);ctx.clip('evenodd');traceCurves(paths);ctx.strokeStyle=rgba(l.color,.26);ctx.lineWidth=1.7;ctx.stroke();ctx.restore();
+    ctx.save();ctx.beginPath();ctx.rect(x,y,s,s);ctx.clip();traceCurves(paths);ctx.strokeStyle=l.color;ctx.lineWidth=sel>=0?4:2.2;ctx.stroke();ctx.restore();
+  }
+  function curveHit(l,sx,sy){if(l.kind!=='fn'||l.visible===false)return false;const w=toW(sx,sy);if(!lvl().curve&&(w[0]<S.origin[0]||w[0]>S.origin[0]+usize()||w[1]<S.origin[1]||w[1]>S.origin[1]+usize()))return false;
+    for(const path of curvePaths(l))for(let i=1;i<path.length;i++){let a=toS(path[i-1]),b=toS(path[i]),dx=b[0]-a[0],dy=b[1]-a[1],t=clamp(((sx-a[0])*dx+(sy-a[1])*dy)/(dx*dx+dy*dy||1),0,1);if(Math.hypot(sx-a[0]-t*dx,sy-a[1]-t*dy)<6)return true;}return false;
+  }
+  function selectedOverlay(l,i){if(l.visible===false)return;ctx.save();const col=i===0?'#ffffff':'#ffd064';if(l.g.length){pathG(l.g);ctx.strokeStyle='#04111f';ctx.lineWidth=7;ctx.stroke();ctx.strokeStyle=col;ctx.lineWidth=3;ctx.setLineDash(i===0?[]:[10,5]);ctx.stroke();ctx.setLineDash([]);
+    // Sparse hatch is clipped to the chosen region and drawn after all other fills.
+    ctx.clip('evenodd');ctx.beginPath();for(let x=-H;x<W+H;x+=i===0?22:30){ctx.moveTo(x,0);ctx.lineTo(x+(i===0?H:-H),H);}ctx.strokeStyle=rgba(col,.19);ctx.lineWidth=1;ctx.stroke();}
+    else if(l.kind==='fn'){const [x,y]=toS([S.origin[0],S.origin[1]+usize()]);ctx.beginPath();ctx.rect(x,y,usize()*view.s,usize()*view.s);ctx.clip();traceCurves(curvePaths(l));ctx.strokeStyle=col;ctx.lineWidth=4;ctx.stroke();}ctx.restore();
+  }
+
+
+  // CURVE CHALLENGES: equality has no area. Compare canonical parameters.
+  const Q=(k,name,min,max,step=1)=>({k,name,min,max,step});
+  const offset=(v,k)=>v===0?k:`(${k} ${v<0?'+':'−'} ${fmt(Math.abs(v))})`;
+  const shift=(v)=>v===0?'':` ${v<0?'−':'+'} ${fmt(Math.abs(v))}`;
+  FN.learnLine={label:'Recta',params:[Q('m','Inclinación · m',-3,3,.5),Q('b','Altura · b',-12,12)],expr:p=>`y = ${poly1(p.m,'x',p.b)}`};
+  FN.learnCircle={label:'Circunferencia',params:[Q('h','Centro horizontal · h',-12,12),Q('k','Centro vertical · k',-12,12),Q('r','Radio · r',1,5)],expr:p=>`${offset(p.h,'x')}² + ${offset(p.k,'y')}² = ${fmt(p.r)}²`};
+  FN.learnParab={label:'Parábola',params:[Q('h','Vértice horizontal · h',-12,12),Q('k','Vértice vertical · k',-12,12),Q('a','Apertura · a',-2,2,.25)],expr:p=>`y = ${fmt(p.a)}${offset(p.h,'x')}²${shift(p.k)}`};
+  FN.learnEllipse={label:'Elipse',params:[Q('h','Centro horizontal · h',-12,12),Q('k','Centro vertical · k',-12,12),Q('a','Semieje horizontal · a',1,5),Q('b','Semieje vertical · b',1,5),Q('o','Orientación',0,1)],expr:p=>`${offset(p.h,'x')}²/${fmt(p.o?p.b:p.a)}² + ${offset(p.k,'y')}²/${fmt(p.o?p.a:p.b)}² = 1`};
+  FN.learnReciprocal={label:'Hipérbola',params:[Q('a','Signo de a',-1,1,2)],expr:p=>`y = ${fmt(p.a)}/x · x ≠ 0`};
+  function lesson(name,type,start,answer,keys,goal,lesson,options={}){
+    return {name,curve:true,graph:true,fixedOrigin:[-5,-5],pieces:[{kind:'fn',prim:{type,p:start}}],answer,keys,goal,lesson,...options,
+      target:()=>[],hint:()=>`Probá ${keys.map(k=>`${k} = ${fmt(answer[k])}`).join(', ')}. Después pulsá Confirmar. Los demás valores quedan fijos.`};
+  }
+  const INTRO=[
+    lesson('Una recta que sube','learnLine',{m:.5,b:0},{m:2,b:0},['m'],'Ajustá la inclinación hasta cubrir la línea punteada.','La pendiente m indica cuánto sube y cuando x aumenta una unidad. Cuanto mayor es m, más empinada queda la recta.'),
+    lesson('Ahora, cuesta abajo','learnLine',{m:2,b:0},{m:-2,b:0},['m'],'Hacé que la recta baje de izquierda a derecha.','Una pendiente negativa hace que y disminuya al aumentar x.'),
+    lesson('La recta cambia de altura','learnLine',{m:1,b:-9},{m:1,b:2},['b'],'Traé la recta al objetivo cambiando solo su altura.','b es el valor de y cuando x = 0. Cambiar b desplaza la recta sin alterar su inclinación.',{moveKeys:['b']}),
+    lesson('Un círculo hacia el centro','learnCircle',{h:-9,k:0,r:2},{h:0,k:0,r:2},['h'],'Arrastrá la circunferencia hacia la derecha, o cambiá h.','h cambia la posición horizontal del centro; el radio se conserva.',{moveKeys:['h']}),
+    lesson('El centro sube','learnCircle',{h:0,k:-9,r:2},{h:0,k:1,r:2},['k'],'Subí la circunferencia hasta el contorno punteado.','k cambia la posición vertical del centro.',{moveKeys:['k']}),
+    lesson('Un poco más grande','learnCircle',{h:0,k:0,r:1},{h:0,k:0,r:3},['r'],'Hacé crecer el radio. El centro queda quieto.','Todos los puntos de la circunferencia están a la misma distancia r del centro.'),
+    lesson('El vértice vuelve a casa','learnParab',{h:-8,k:0,a:.5},{h:0,k:0,a:.5},['h'],'Mové el vértice hasta el origen. Solo cambia h.','En y = a(x − h)² + k, el vértice es (h, k).', {moveKeys:['h']}),
+    lesson('La parábola baja','learnParab',{h:0,k:7,a:.5},{h:0,k:0,a:.5},['k'],'Bajá el vértice hasta el origen.','Cambiar k mueve la parábola verticalmente sin deformarla.',{moveKeys:['k']}),
+    lesson('De cuenco a techo','learnParab',{h:0,k:1,a:.5},{h:0,k:1,a:-.5},['a'],'Invertí la apertura con un solo botón.','El signo de a, que multiplica al término cuadrático, decide la apertura. Si a < 0, el vértice es un máximo.',{flip:true}),
+    lesson('Un techo, otro vértice','learnParab',{h:0,k:-2,a:-.5},{h:0,k:2,a:-.5},['k'],'Elevá el máximo hasta el objetivo.','El máximo también se puede trasladar: su altura es k.',{moveKeys:['k']}),
+    lesson('Una elipse al origen','learnEllipse',{h:-9,k:0,a:3,b:2,o:0},{h:0,k:0,a:3,b:2,o:0},['h'],'Acercá el centro de la elipse al origen.','Una elipse tiene dos semiejes. Mover su centro conserva ambos.',{moveKeys:['h']}),
+    lesson('De horizontal a vertical','learnEllipse',{h:0,k:0,a:4,b:2,o:0},{h:0,k:0,a:4,b:2,o:1},['o'],'Girá la elipse 90° para hacerla coincidir.','Al girar 90° se intercambian los semiejes horizontal y vertical.',{flip:true}),
+    lesson('Una elipse más alta','learnEllipse',{h:0,k:0,a:2,b:2,o:0},{h:0,k:0,a:2,b:4,o:0},['b'],'Cambiá solo el semieje vertical.','Si los semiejes son iguales, tenés una circunferencia. Si son distintos, una elipse.'),
+    lesson('La hipérbola cambia de lado','learnReciprocal',{a:1},{a:-1},['a'],'Cambiá el signo para reflejar las dos ramas.','y = 1/x e y = −1/x nunca tocan los ejes. En x = 0 la función no está definida.',{flip:true}),
+  ];
+  const INTRO_START=LEVELS.length;
+  LEVELS.push(...INTRO);
+  const BRIDGE_START=LEVELS.length;
+  LEVELS.push(
+    {...graphLevel({name:'De borde a relleno',origin:[-5,-5],pieces:[regionPiece('disk',{cx:0,cy:0,r2:9})],lesson:'La igualdad dibuja la circunferencia. Con ≤ elegís su interior: el disco. Con ≥ elegís el exterior dentro de U.'}),goal:'Elegí Interior (≤) y confirmá. Esta vez buscamos una superficie.',hint:()=> 'En la tarjeta elegí ≤ Interior. Seleccioná esa tarjeta y pulsá Confirmar.'},
+    {...graphLevel({name:'La mitad compartida',origin:[-5,-5],pieces:[regionPiece('disk',{cx:0,cy:0,r2:9}),regionPiece('yge',{k:0})],lesson:'La intersección conserva los puntos que están dentro del círculo y arriba del eje horizontal.'}),goal:'Pintá el disco y la parte de arriba. Elegí ambas tarjetas y conservá lo compartido con ∩.'}
+  );
+  const JOURNEY=[...Array.from({length:6},(_,i)=>i),...INTRO.map((_,i)=>INTRO_START+i),BRIDGE_START,BRIDGE_START+1,...Array.from({length:INTRO_START-6},(_,i)=>i+6)];
+  const levelNumber=i=>JOURNEY.indexOf(i)+1;
+  function curveLessonPaths(l){
+    const p=l.prim.p,t=l.prim.type,[xmin,ymax]=toW(0,0),[xmax,ymin]=toW(W,H),n=600;
+    if(t==='learnCircle'||t==='learnEllipse'){
+      const a=t==='learnCircle'?p.r:(p.o?p.b:p.a),b=t==='learnCircle'?p.r:(p.o?p.a:p.b);
+      return [Array.from({length:513},(_,i)=>{let q=i*Math.PI/256;return[p.h+a*Math.cos(q),p.k+b*Math.sin(q)]})];
+    }
+    if(t==='learnReciprocal')return [-1,1].map(sign=>Array.from({length:601},(_,i)=>{const x=sign*(.025+i*Math.max(Math.abs(xmin),Math.abs(xmax))/600);return [x,p.a/x]}));
+    return [Array.from({length:n+1},(_,i)=>{let x=xmin+(xmax-xmin)*i/n;return [x,t==='learnLine'?p.m*x+p.b:p.a*(x-p.h)**2+p.k]})];
+  }
+  function curveAnswerMatches(l){return l.kind==='fn'&&l.prim.type===lvl().pieces[0].prim.type&&Object.entries(lvl().answer).every(([k,v])=>Math.abs(l.prim.p[k]-v)<1e-9);}
+  function renderLesson(){
+    const box=$('funcs'),L=lvl(),l=S.layers[0],def=FN[l.prim.type];box.hidden=false;box.replaceChildren();
+    const badge=document.createElement('div');badge.className='lesson-badge';badge.textContent='✦ EXPLORÁ · UNA COSA A LA VEZ';box.append(badge);
+    const caption=document.createElement('h3');caption.textContent=def.label;box.append(caption);
+    const eq=document.createElement('div');eq.className='lesson-equation';eq.textContent=equation(l);box.append(eq);
+    for(const q of def.params.filter(q=>L.keys.includes(q.k))){
+      const row=document.createElement('div');row.className='lesson-control';
+      const label=document.createElement('label');label.textContent=q.name;row.append(label);
+      if(L.flip){const b=document.createElement('button');b.className='primary';b.dataset.param=q.k;b.textContent=q.k==='o'?'↻ Girar 90°':'↕ Cambiar signo';b.onclick=()=>setParam(l,q.k,q.k==='o'?1-l.prim.p.o:-l.prim.p[q.k]);row.append(b);}
+      else{
+        const group=document.createElement('div');group.className='lesson-stepper';
+        for(const delta of [-1,1]){const b=document.createElement('button');b.textContent=delta<0?'−':'+';b.setAttribute('aria-label',(delta<0?'Bajar ':'Subir ')+q.name);b.dataset.delta=delta;b.dataset.param=q.k;b.disabled=delta<0?l.prim.p[q.k]<=q.min:l.prim.p[q.k]>=q.max;b.onclick=()=>setParam(l,q.k,l.prim.p[q.k]+delta*q.step);group.append(b);if(delta<0){const o=document.createElement('output');o.textContent=fmt(l.prim.p[q.k]);group.append(o);}}
+        row.append(group);
+      }box.append(row);
+    }
+    const tip=document.createElement('p');tip.className='lesson-tip';tip.textContent=L.moveKeys?'También podés arrastrar la curva: el movimiento queda limitado al eje del desafío.':'Los otros valores quedan fijos. Probá sin apuro: siempre podés deshacer.';box.append(tip);
+    const more=document.createElement('details');more.innerHTML='<summary>¿Qué estoy cambiando?</summary>';const note=document.createElement('p');note.textContent=L.lesson;more.append(note);box.append(more);
+    const vis=document.createElement('label');vis.className='lesson-visibility';const cb=document.createElement('input');cb.type='checkbox';cb.checked=l.visible!==false;cb.onchange=()=>setVisible(l,cb.checked);vis.append(cb,document.createTextNode(' Mostrar mi curva'));box.append(vis);
+  }
+  function drawLessonTarget(){
+    const l={prim:{type:lvl().pieces[0].prim.type,p:lvl().answer}};
+    ctx.save();const [x,y]=toS([S.origin[0],S.origin[1]+usize()]);ctx.beginPath();ctx.rect(x,y,usize()*view.s,usize()*view.s);ctx.clip();traceCurves(curveLessonPaths(l));ctx.setLineDash([7,6]);ctx.lineWidth=3;ctx.strokeStyle='#63ead4';ctx.stroke();ctx.restore();
+    const mine=S.layers[0];if(mine.visible!==false){const p=mine.prim.p;let anchor=p.h!==undefined?[p.h,p.k]:mine.prim.type==='learnLine'?[0,p.b]:null;if(anchor){const [ax,ay]=toS(anchor);ctx.beginPath();ctx.arc(ax,ay,6,0,Math.PI*2);ctx.fillStyle=mine.color;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();}}
+  }
   // ------------------------------------------------------------------
   // Estado
   // ------------------------------------------------------------------
@@ -1342,10 +1446,11 @@ canvas {
   const lvl = () => LEVELS[S.level];
   const isFnLevel = () => !!lvl().fixedOrigin;
   const byId = (id) => S.layers.find((l) => l.id === id);
-  const Urect = () => Geo.rect(S.origin[0], S.origin[1], 10, 10);
-  const canRotate = (l) => ['rect', 'tri', 'result'].includes(l.kind);
+  const usize = () => lvl().universeSize || 10;
+  const Urect = () => Geo.rect(S.origin[0], S.origin[1], usize(), usize());
+  const canRotate = (l) => !lvl().graph && ['rect', 'tri', 'result'].includes(l.kind);
   const canResize = (l) => l.kind === 'rect' || l.kind === 'circle';
-  const canMove = (l) => l.kind !== 'fn';
+  const canMove = (l) => lvl().curve ? !!lvl().moveKeys : !lvl().graph && l.kind !== 'fn';
 
   function geomOf(l) {
     const p = l.prim;
@@ -1353,12 +1458,13 @@ canvas {
       case 'rect': return Geo.rect(p.x, p.y, p.w, p.h);
       case 'tri': return Geo.poly(p.pts);
       case 'circle': return Geo.circle(p.cx, p.cy, p.r);
-      case 'fn': return fnRegion(p.type, p.p, S.origin);
+      case 'fn': return regionFor(l);
       default: return l.g;
     }
   }
   function boxOf(l) {
     const p = l.prim;
+    if(lvl().curve&&l.kind==='fn'){const q=p.p,a=q.r??(p.type==='learnEllipse'?(q.o?q.b:q.a):1),b=q.r??(p.type==='learnEllipse'?(q.o?q.a:q.b):1);return {x:(q.h??0)-a,y:(q.k??q.b??0)-b,w:2*a,h:2*b};}
     if (l.kind === 'rect') return { x: p.x, y: p.y, w: p.w, h: p.h };
     if (l.kind === 'circle') return { x: p.cx - p.r, y: p.cy - p.r, w: 2 * p.r, h: 2 * p.r };
     if (l.kind === 'tri') {
@@ -1369,6 +1475,7 @@ canvas {
   }
   function refresh(l, newPivot = false) {
     l.g = geomOf(l);
+    if(l.kind==='fn')l.name=FN[l.prim.type].expr(l.prim.p).replace(/[≤≥]/,relation(l));
     if (newPivot) {
       const b = boxOf(l);
       l.pivot = l.kind === 'circle' ? [l.prim.cx, l.prim.cy] : b ? latticePivot(b) : [0, 0];
@@ -1377,8 +1484,9 @@ canvas {
   }
   function makeLayer(kind, prim) {
     const id = S.next++;
-    const l = { id, kind, prim: clone(prim), g: [], pivot: [0, 0] };
-    if (kind === 'fn') { l.name = FN[prim.type].label; l.color = FN[prim.type].color; }
+    const l = { id, kind, prim: clone(prim), g: [], pivot: [0, 0], visible: true };
+    if(kind==='fn')l.rel='=';
+    if (kind === 'fn') { l.name = FN[prim.type].region ? FN[prim.type].expr(prim.p) : FN[prim.type].label; l.color = PALETTE[(id - 1) % PALETTE.length]; }
     else { l.name = `Fig.${id}`; l.color = PALETTE[(id - 1) % PALETTE.length]; }
     return refresh(l, true);
   }
@@ -1387,6 +1495,7 @@ canvas {
   // Transformaciones (modifican la capa en el lugar)
   function translate(l, dx, dy) {
     const p = l.prim;
+    if(lvl().curve&&l.kind==='fn'){for(const k of lvl().moveKeys||[]){const q=FN[p.type].params.find(q=>q.k===k);p.p[k]=clamp(p.p[k]+(k==='h'?dx:dy),q.min,q.max);}refresh(l);return;}
     if (l.kind === 'rect') { p.x += dx; p.y += dy; }
     else if (l.kind === 'circle') { p.cx += dx; p.cy += dy; }
     else if (l.kind === 'tri') p.pts = p.pts.map((q) => [q[0] + dx, q[1] + dy]);
@@ -1460,8 +1569,9 @@ canvas {
     prepare(level, origin);
     initial = clone(S);
     resetSession();
-    say(L.fixedOrigin
-      ? 'Las funciones están atadas a U: no se arrastran, se editan con − y +. Hacé clic en una región o en su tarjeta para elegirla.'
+    if(L.curve){S.selected=[S.layers[0].id];$('practice').checked=true;timerTick();}
+    say(L.curve ? 'Cambiá el valor hasta cubrir la curva punteada y pulsá Confirmar.' : L.graph ? 'Elegí el lado de cada curva (≤ o ≥), seleccioná dos tarjetas y operá. Destildá una tarjeta para ocultarla.' : L.fixedOrigin
+      ? 'Elegí ≤ o ≥ para sombrear una región; = muestra solo la curva. Los parámetros se editan con − y +.'
       : 'Clic para elegir A y B. Arrastrá las piezas hacia el universo U.');
     update();
     fit();
@@ -1496,6 +1606,7 @@ canvas {
   }
   function undo() {
     if (!history.length) return;
+    won=false; $('modal').hidden=true;
     future.push(clone(S));
     S = history.pop();
     candidate = null;
@@ -1504,6 +1615,7 @@ canvas {
   }
   function redo() {
     if (!future.length) return;
+    won=false; $('modal').hidden=true;
     history.push(clone(S));
     S = future.pop();
     candidate = null;
@@ -1521,6 +1633,7 @@ canvas {
   // Acciones del jugador
   // ------------------------------------------------------------------
   function toggleSelect(l) {
+    if(l.visible===false)l.visible=true;
     const i = S.selected.indexOf(l.id);
     if (i >= 0) { S.selected.splice(i, 1); say(`${l.name} deseleccionada.`); }
     else if (S.selected.length >= 2) { toast('Ya elegiste A y B. Quitá una (clic sobre ella) para elegir otra.', true); return; }
@@ -1539,10 +1652,14 @@ canvas {
     return act(() => rotate(l)) && (say(`${l.name} giró 90° en sentido horario alrededor de ${pt(...l.pivot)}.`), true);
   }
   function setParam(l, k, v) {
+    if(!l||l.kind!=='fn'||!Number.isFinite(v)||(lvl().curve&&!lvl().keys.includes(k)))return false;
+    if(lvl().curve&&lvl().flip&&k==='a'&&v!==-l.prim.p.a)return false;
     const def = FN[l.prim.type].params.find((q) => q.k === k);
-    v = clamp(Math.round(v / def.step) * def.step, def.min, def.max);
+    if(!def)return false;
+    v = clamp(def.min+Math.round((v-def.min)/def.step)*def.step, def.min, def.max);
     if (v === l.prim.p[k]) return false;
     act(() => { l.prim.p[k] = v; refresh(l); });
+    if(lvl().curve){say('Tu curva cambió. Comparala con la línea punteada.');return true;}
     say(Geo.area(l.g) > 0 ? `${l.name}: ${FN[l.prim.type].expr(l.prim.p)}` : `${l.name}: ${FN[l.prim.type].expr(l.prim.p)} — dentro de U no queda región.`);
     return true;
   }
@@ -1555,6 +1672,7 @@ canvas {
     complement: { sym: '∁', name: 'Complemento' },
   };
   function operate(type) {
+    if(lvl().curve)return false;
     const sel = S.selected.map(byId);
     const unary = type === 'complement';
     if (unary ? sel.length !== 1 : sel.length !== 2) {
@@ -1562,12 +1680,13 @@ canvas {
       return false;
     }
     const [A, B] = sel;
+    if(sel.some(l=>l.kind==='fn'&&relation(l)==='=')){toast('Una igualdad es solo una curva: elegí ≤ o ≥ antes de operar.',true);return false;}
     let g;
     try { g = unary ? Geo.op(Urect(), A.g, 'difference') : Geo.op(A.g, B.g, type); }
     catch (err) { toast('No se pudo calcular la operación con esta geometría.', true); return false; }
     const ar = Geo.area(g), b = Geo.bounds(g);
     if (!b || ar < 1e-7) { toast('El resultado quedó vacío (∅). Las piezas se conservan.', true); return false; }
-    if (b.w > 40 || b.h > 40 || Math.abs(b.x) > 150 || Math.abs(b.y) > 150) { toast('El resultado es demasiado grande.', true); return false; }
+    if (b.w > Math.max(40, usize()) + 1e-6 || b.h > Math.max(40, usize()) + 1e-6 || Math.abs(b.x) > 300 || Math.abs(b.y) > 300) { toast('El resultado es demasiado grande.', true); return false; }
     const before = clone(S);
     S.layers = S.layers.filter((l) => !S.selected.includes(l.id));
     const R = { id: S.next++, kind: 'result', prim: null, g, pivot: latticePivot(b) };
@@ -1584,17 +1703,18 @@ canvas {
   }
 
   function confirmSolution() {
+    if(lvl().curve){const l=S.layers[0];if(curveAnswerMatches(l)){stopClock();won=true;openModal('¡Encajó! ✦',`<p>${escapeHTML(lvl().lesson)}</p><div class="math">${escapeHTML(equation(l))}</div><p>${S.moves} ajustes · Un concepto nuevo para tu caja de herramientas.</p>`,true);update();return true;}say('Todavía no coincide. Mirá la línea punteada y probá otro valor.');toast('Seguí probando: podés deshacer cada ajuste.');return false;}
     if (S.selected.length !== 1) {
       toast(S.selected.length ? 'Para entregar, dejá elegida una sola figura.' : 'Elegí la figura que querés entregar.', true);
       return false;
     }
     const l = byId(S.selected[0]);
+    if(l.kind==='fn'&&relation(l)==='='){toast('Elegí un lado (≤ o ≥) para formar una región.',true);return false;}
     const err = Geo.diffArea(l.g, T.g);
     if (err < 1e-7 * Math.max(1, Geo.area(T.g))) {
       stopClock();
       won = true;
       showWin(l);
-      reportScore();
       update();
       return true;
     }
@@ -1620,7 +1740,7 @@ canvas {
   }
   function fit() {
     if (!S || !W) return;
-    const boxes = [{ x: S.origin[0], y: S.origin[1], w: 10, h: 10 }, Geo.bounds(T.g), ...S.layers.map(boxOf)].filter(Boolean);
+    const boxes = [{ x: S.origin[0], y: S.origin[1], w: usize(), h: usize() }, Geo.bounds(T.g), ...S.layers.map(boxOf)].filter(Boolean);
     const x0 = Math.min(...boxes.map((b) => b.x)) - 1, y0 = Math.min(...boxes.map((b) => b.y)) - 1;
     const x1 = Math.max(...boxes.map((b) => b.x + b.w)) + 1, y1 = Math.max(...boxes.map((b) => b.y + b.h)) + 1;
     layout();
@@ -1637,7 +1757,7 @@ canvas {
       else top = rect('hudBox').bottom - br.top + 10;
     }
     const aw = Math.max(80, W - left - right), ah = Math.max(80, H - top - bottom);
-    view.s = clamp(Math.min(aw / (x1 - x0), ah / (y1 - y0)), 3, 120);
+    view.s = clamp(Math.min(aw / (x1 - x0), ah / (y1 - y0)), 0.25, 120);
     view.tx = left + aw / 2 - ((x0 + x1) / 2) * view.s;
     view.ty = top + ah / 2 + ((y0 + y1) / 2) * view.s;
     requestDraw();
@@ -1650,7 +1770,7 @@ canvas {
   }
   function zoomAt(f, sx = W / 2, sy = H / 2) {
     const [wx, wy] = toW(sx, sy);
-    view.s = clamp(view.s * f, 3, 160);
+    view.s = clamp(view.s * f, 0.25, 160);
     view.tx = sx - wx * view.s;
     view.ty = sy + wy * view.s;
     requestDraw();
@@ -1678,17 +1798,17 @@ canvas {
   function drawGrid() {
     const [wx0, wy1] = toW(0, 0), [wx1, wy0] = toW(W, H);
     const s = view.s;
-    const step = s >= 12 ? 1 : s >= 6 ? 2 : 5;
-    const lab = s >= 26 ? 1 : s >= 13 ? 2 : s >= 6 ? 5 : 10;
+    const step = s >= 12 ? 1 : s >= 6 ? 2 : s >= 2 ? 5 : s >= 0.7 ? 10 : 25;
+    const lab = s >= 26 ? 1 : s >= 13 ? 2 : s >= 6 ? 5 : s >= 2 ? 10 : s >= 0.7 ? 20 : 50;
     ctx.lineWidth = 1;
     for (let x = Math.ceil(wx0 / step) * step; x <= wx1; x += step) {
       const [sx] = toS([x, 0]);
-      ctx.strokeStyle = x === 0 ? 'rgba(140,230,190,.55)' : x % 5 === 0 ? 'rgba(80,110,140,.42)' : 'rgba(60,88,115,.25)';
+      ctx.strokeStyle = x === 0 ? 'rgba(140,230,190,.55)' : x % 5 === 0 ? 'rgba(118,123,164,.23)' : 'rgba(118,123,164,.12)';
       ctx.beginPath(); ctx.moveTo(Math.round(sx) + 0.5, 0); ctx.lineTo(Math.round(sx) + 0.5, H); ctx.stroke();
     }
     for (let y = Math.ceil(wy0 / step) * step; y <= wy1; y += step) {
       const [, sy] = toS([0, y]);
-      ctx.strokeStyle = y === 0 ? 'rgba(250,150,180,.55)' : y % 5 === 0 ? 'rgba(80,110,140,.42)' : 'rgba(60,88,115,.25)';
+      ctx.strokeStyle = y === 0 ? 'rgba(250,150,180,.55)' : y % 5 === 0 ? 'rgba(118,123,164,.23)' : 'rgba(118,123,164,.12)';
       ctx.beginPath(); ctx.moveTo(0, Math.round(sy) + 0.5); ctx.lineTo(W, Math.round(sy) + 0.5); ctx.stroke();
     }
     // Rótulos sobre los ejes (o pegados al borde si el eje no se ve)
@@ -1704,7 +1824,7 @@ canvas {
   }
 
   function drawUniverse() {
-    const [x, y] = toS([S.origin[0], S.origin[1] + 10]), s = 10 * view.s;
+    const [x, y] = toS([S.origin[0], S.origin[1] + usize()]), s = usize() * view.s;
     ctx.fillStyle = 'rgba(99,234,212,.035)';
     ctx.fillRect(x, y, s, s);
     ctx.strokeStyle = 'rgba(185,215,240,.75)';
@@ -1718,6 +1838,7 @@ canvas {
 
   function drawFnCurve(l) {
     const def = FN[l.prim.type], [x0, y0] = S.origin;
+    if (def.region) return; // El contorno recortado ya se dibuja junto con la región.
     const [ux, uy] = toS([x0, y0 + 10]);
     ctx.save();
     ctx.beginPath(); ctx.rect(ux, uy, 10 * view.s, 10 * view.s); ctx.clip();
@@ -1746,6 +1867,7 @@ canvas {
   }
 
   function drawLayer(l) {
+    if(l.visible===false)return;
     const sel = S.selected.indexOf(l.id), isHover = hover && hover.id === l.id;
     if (l.g.length) {
       pathG(l.g);
@@ -1755,7 +1877,7 @@ canvas {
       ctx.lineWidth = sel >= 0 ? 3 : isHover ? 2.2 : 1.4;
       ctx.stroke();
     }
-    if (l.kind === 'fn') drawFnCurve(l);
+    if (l.kind === 'fn') drawBoundary(l);
     const b = boxOf(l);
     if (!b) return;
     const [bx, by] = toS([b.x, b.y + b.h]);
@@ -1763,7 +1885,7 @@ canvas {
     ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
     ctx.fillStyle = rgba(l.color, 0.95);
     if (l.kind !== 'fn') ctx.fillText(l.name, bx + (sel >= 0 ? 22 : 1), by - 3);
-    if (sel >= 0) {
+    if (sel >= 0 && !lvl().curve) {
       ctx.beginPath(); ctx.arc(bx + 9, by - 10, 9, 0, Math.PI * 2);
       ctx.fillStyle = sel === 0 ? '#63ead4' : '#ffd479'; ctx.fill();
       ctx.fillStyle = '#08221f'; ctx.font = 'bold 11px system-ui, sans-serif';
@@ -1773,7 +1895,7 @@ canvas {
   }
 
   function drawHandles() {
-    if (!hover || drag) return;
+    if (!hover || hover.visible===false || drag) return;
     const l = hover;
     if (hoverHit && hoverHit.type === 'edge') {
       ctx.strokeStyle = '#ff6b81'; ctx.lineWidth = 4;
@@ -1801,11 +1923,12 @@ canvas {
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#091321'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#13172b'; ctx.fillRect(0, 0, W, H);
     if (!S) return;
     drawGrid();
     drawUniverse();
     for (const l of S.layers) drawLayer(l);
+    if(!lvl().curve)S.selected.map(byId).filter(Boolean).forEach(selectedOverlay);
     // Objetivo: contorno turquesa punteado, por encima de las piezas
     pathG(T.g);
     ctx.fillStyle = 'rgba(99,234,212,.07)'; ctx.fill('evenodd');
@@ -1821,6 +1944,7 @@ canvas {
         requestDraw();
       } else flash = null;
     }
+    if(lvl().curve)drawLessonTarget();
     drawHandles();
   }
 
@@ -1849,20 +1973,21 @@ canvas {
     return null;
   }
   function hitTest(sx, sy) {
-    if (hover && canRotate(hover)) {
+    if (hover && hover.visible!==false && canRotate(hover)) {
       const [px, py] = toS(hover.pivot);
       if (Math.hypot(sx - px, sy - py) <= 13) return { type: 'rotate', layer: hover };
     }
     const w = toW(sx, sy);
     for (let i = S.layers.length - 1; i >= 0; i--) {
       const l = S.layers[i];
+      if(l.visible===false)continue;
       const e = canResize(l) ? nearEdge(l, sx, sy) : null;
       if (e) return { type: 'edge', layer: l, edge: e };
-      if (Geo.contains(l.g, w)) return { type: 'body', layer: l };
+      if (Geo.contains(l.g, w) || curveHit(l,sx,sy)) return { type: 'body', layer: l };
     }
     return null;
   }
-  const layersAt = (w) => S.layers.filter((l) => Geo.contains(l.g, w)).reverse();
+  const layersAt = (w) => S.layers.filter((l) => l.visible!==false && Geo.contains(l.g, w)).reverse();
 
   // ------------------------------------------------------------------
   // Puntero
@@ -2013,11 +2138,12 @@ canvas {
 
   function update() {
     const L = lvl();
+    document.body.classList.toggle('curve-mode',!!L.curve);
     $('level').value = S.level;
-    $('title').textContent = `${S.level + 1}. ${L.name}`;
+    $('title').textContent = `${levelNumber(S.level)}. ${L.name}`;
     $('goal').textContent = L.goal;
     const [x0, y0] = S.origin;
-    $('bounds').textContent = `U = [${fmt(x0)}; ${fmt(x0 + 10)}] × [${fmt(y0)}; ${fmt(y0 + 10)}] · objetivo: contorno turquesa punteado`;
+    $('bounds').textContent = `U = [${fmt(x0)}; ${fmt(x0 + usize())}] × [${fmt(y0)}; ${fmt(y0 + usize())}] · objetivo: contorno turquesa punteado`;
     S.selected = S.selected.filter((id) => byId(id));
     const sel = S.selected.map(byId);
     $('sel').innerHTML = ['A', 'B'].map((k, i) => {
@@ -2025,7 +2151,7 @@ canvas {
       return `${k}: ${l ? `<b>${escapeHTML(l.name)}</b> · ${area2(Geo.area(l.g))} u²` : '—'}`;
     }).join('<br>');
     document.querySelectorAll('[data-op]').forEach((b) => {
-      b.disabled = b.dataset.op === 'complement' ? sel.length !== 1 : sel.length !== 2;
+      b.disabled = (b.dataset.op === 'complement' ? sel.length !== 1 : sel.length !== 2) || sel.some(l=>l.kind==='fn'&&relation(l)==='=');
     });
     $('rotBtn').disabled = !(sel[0] && canRotate(sel[0]));
     $('undoBtn').disabled = !history.length;
@@ -2038,37 +2164,21 @@ canvas {
   const escapeHTML = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   function renderFuncs() {
-    const box = $('funcs'), fns = S.layers.filter((l) => l.kind === 'fn');
-    box.hidden = !isFnLevel();
-    if (box.hidden) return;
-    box.replaceChildren();
-    const head = document.createElement('small');
-    head.textContent = fns.length ? 'FUNCIONES · clic en la tarjeta para elegirla' : 'FUNCIONES · ya se usaron en una operación';
-    box.appendChild(head);
-    for (const l of fns) {
-      const def = FN[l.prim.type], card = document.createElement('div');
-      const si = S.selected.indexOf(l.id);
-      card.className = `fn${si >= 0 ? ' on' : ''}`;
-      card.style.setProperty('--c', l.color);
-      const ex = document.createElement('div');
-      ex.className = 'expr';
-      ex.textContent = `${si >= 0 ? (si === 0 ? 'A · ' : 'B · ') : ''}${def.expr(l.prim.p)}`;
-      card.appendChild(ex);
-      for (const q of def.params) {
-        const row = document.createElement('div');
-        row.className = 'param';
-        const name = document.createElement('span'); const [w1, w2] = q.name.split(' '); name.innerHTML = `<i class="long">${w1} </i>${w2}`;
-        const minus = document.createElement('button'); minus.textContent = '−'; minus.setAttribute('aria-label', `Bajar ${q.name}`);
-        const out = document.createElement('output'); out.textContent = fmt(l.prim.p[q.k]);
-        const plus = document.createElement('button'); plus.textContent = '+'; plus.setAttribute('aria-label', `Subir ${q.name}`);
-        minus.disabled = l.prim.p[q.k] <= q.min; plus.disabled = l.prim.p[q.k] >= q.max;
-        minus.onclick = (ev) => { ev.stopPropagation(); setParam(l, q.k, l.prim.p[q.k] - q.step); };
-        plus.onclick = (ev) => { ev.stopPropagation(); setParam(l, q.k, l.prim.p[q.k] + q.step); };
-        row.append(name, minus, out, plus);
-        card.appendChild(row);
+    if(lvl().curve){renderLesson();return;}
+    const box=$('funcs');box.hidden=!isFnLevel();if(box.hidden)return;box.replaceChildren();
+    const head=document.createElement('small');head.textContent='CURVAS Y REGIONES · clic en tarjeta: A/B';box.appendChild(head);
+    const note=document.createElement('small');note.className='region-note';note.textContent='☑ visible · = solo curva · ≤ / ≥ eligen área';box.appendChild(note);
+    for(const l of S.layers){
+      const si=S.selected.indexOf(l.id),card=document.createElement('div');card.className='fn'+(si>=0?' on selected-'+si:'')+(l.visible===false?' is-hidden':'');card.dataset.layer=l.id;card.style.setProperty('--c',l.color);card.tabIndex=0;card.setAttribute('role','group');
+      const title=document.createElement('div');title.className='curve-title';
+      const vis=document.createElement('input');vis.type='checkbox';vis.checked=l.visible!==false;vis.setAttribute('aria-label','Mostrar '+l.name);vis.onclick=e=>e.stopPropagation();vis.onchange=()=>setVisible(l,vis.checked);
+      const ex=document.createElement('span');ex.className='expr';ex.textContent=(si>=0?['A · ','B · '][si]:'')+(l.kind==='fn'?equation(l):l.name+' · '+area2(Geo.area(l.g))+' u²');title.append(vis,ex);card.append(title);
+      if(l.kind==='fn'){
+        const buttons=document.createElement('div');buttons.className='relation-buttons';
+        for(const rel of ['=','≤','≥']){const btn=document.createElement('button');btn.type='button';btn.dataset.rel=rel;btn.textContent=rel+' '+sideLabel(l,rel);btn.className=relation(l)===rel?'chosen':'';btn.setAttribute('aria-pressed',String(relation(l)===rel));btn.onclick=e=>{e.stopPropagation();chooseRelation(l,rel)};buttons.append(btn);}card.append(buttons);
+        const def=FN[l.prim.type];for(const q of def.params){const row=document.createElement('div');row.className='param';const label=document.createElement('span');label.textContent=q.name;const minus=document.createElement('button'),plus=document.createElement('button'),out=document.createElement('output');minus.textContent='−';plus.textContent='+';out.textContent=fmt(l.prim.p[q.k]);minus.disabled=l.prim.p[q.k]<=q.min;plus.disabled=l.prim.p[q.k]>=q.max;minus.setAttribute('aria-label','Bajar '+q.name);plus.setAttribute('aria-label','Subir '+q.name);minus.onclick=e=>{e.stopPropagation();setParam(l,q.k,l.prim.p[q.k]-q.step)};plus.onclick=e=>{e.stopPropagation();setParam(l,q.k,l.prim.p[q.k]+q.step)};row.append(label,minus,out,plus);card.append(row);}
       }
-      card.onclick = () => toggleSelect(l);
-      box.appendChild(card);
+      card.onclick=()=>toggleSelect(l);card.onkeydown=e=>{if(e.target===card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();toggleSelect(l)}};box.append(card);
     }
   }
 
@@ -2081,7 +2191,9 @@ canvas {
   }
   function showWin(l) {
     let extra = '';
-    if (isFnLevel()) {
+    if (lvl().graph) {
+      extra = `<p>${lvl().lesson}</p><p class="muted">Las regiones infinitas se recortan en U. Los discos usan 512 segmentos; la hipérbola, 1600 intervalos verticales. El área mostrada es una aproximación geométrica.</p>`;
+    } else if (isFnLevel()) {
       const { line, parab } = lvl().solution;
       const A = parab.a, k = parab.c - line.b, disc = line.m ** 2 - 4 * A * k;
       const x1 = (line.m - Math.sqrt(disc)) / (2 * A), x2 = (line.m + Math.sqrt(disc)) / (2 * A);
@@ -2093,26 +2205,10 @@ canvas {
         <p class="muted">El juego dibuja la parábola con 240 tramos rectos: tu figura mide ≈ ${fmt(Geo.area(l.g), 2)} u². Si se integra entre otros límites que no sean los puntos de corte, el número cambia.</p>`;
     }
     openModal('¡Figura idéntica!', `
-      <div class="stats"><div><small>Tiempo</small><b>${$('practice').checked ? 'Libre' : clockText()}</b></div><div><small>Acciones</small><b>${S.moves}</b></div><div><small>Puntaje</small><b>${score()}</b></div><div><small>Área</small><b>${area2(Geo.area(l.g))} u²</b></div></div>
+      <div class="stats"><div><small>Tiempo</small><b>${$('practice').checked ? 'Libre' : clockText()}</b></div><div><small>Acciones</small><b>${S.moves}</b></div><div><small>Área</small><b>${area2(Geo.area(l.g))} u²</b></div></div>
       ${extra}`, true);
   }
   const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
-
-  // Puntaje: 1000 menos 2 por segundo y 10 por acción (mínimo 100). Sin cronómetro, solo cuentan las acciones.
-  function score() {
-    const t = $('practice').checked ? 0 : Math.floor(secs());
-    return Math.max(100, 1000 - 2 * t - 10 * S.moves);
-  }
-  // Si el juego corre dentro de la Sala de Juegos (iframe del mismo sitio), avisa el resultado.
-  function reportScore() {
-    if (window.parent === window) return;
-    try {
-      window.parent.postMessage({
-        tipo: 'sala-juegos:resultado', juego: 'escultor', puntaje: score(),
-        detalle: { nivel: S.level + 1, segundos: Math.floor(secs()), acciones: S.moves, practica: $('practice').checked },
-      }, window.location.origin);
-    } catch { /* abierto como archivo suelto: no hay a quién avisar */ }
-  }
 
   function showHelp() {
     openModal('Cómo jugar', `
@@ -2122,19 +2218,19 @@ canvas {
         <li><b>Arrastrar</b> una figura la mueve de a una unidad entera. Arrastrar el fondo mueve la vista; rueda o − / + para zoom.</li>
         <li><b>Bordes rojos:</b> en rectángulos, arrastrar un lado cambia ancho o alto (1 a 10); en círculos, el contorno cambia el radio (1 a 5).</li>
         <li><b>↻</b> en el centro de la figura, el botón “Girar A” o la tecla <kbd>R</kbd>: giro horario de 90° alrededor de un pivote fijo. Cuatro giros devuelven la figura a donde estaba.</li>
-        <li><b>Operaciones:</b> A ∪ B, A ∩ B, A − B, A △ B y U − A (U es el cuadrado de 10 × 10). Consumen sus figuras y crean una nueva, que queda elegida como A. Para B − A, elegí en el otro orden.</li>
+        <li><b>Operaciones:</b> A ∪ B, A ∩ B, A − B, A △ B y U − A (U es el cuadrado delimitado; su tamaño depende del nivel). Consumen sus figuras y crean una nueva, que queda elegida como A. Para B − A, elegí en el otro orden.</li>
         <li><b>Superpuestas:</b> Alt + clic recorre las figuras de abajo; después, un clic la elige. También podés arrastrar la de arriba a un costado.</li>
         <li><b>Atajos:</b> <kbd>Ctrl</kbd>+<kbd>Z</kbd> deshacer, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> rehacer, <kbd>Esc</kbd> quita la selección.</li>
-        <li><b>Último desafío:</b> las regiones de la recta y la parábola están atadas a U. No se arrastran: sus parámetros se editan con − / +.</li>
+        <li><b>Visibilidad y regiones:</b> cada tarjeta tiene una casilla para mostrar u ocultar la figura. Ocultar no la elimina, pero la quita de A/B. El modo = muestra solo la curva y no permite operar; elegí ≤ o ≥ para activar su región. Fuera de U se ven las curvas atenuadas como referencia; las operaciones usan solo el área dentro de U. A tiene contorno blanco y B dorado, con rayados distintos.</li><li><b>Funciones:</b> la recta y parábola del nivel 7 se editan con − / +. En los niveles 8–16 las desigualdades están fijas: elegí tarjetas y combiná regiones. Los resultados de esos niveles tampoco se mueven ni giran. Las hipérbolas usan universos mayores, indicados arriba.</li>
       </ul>`);
   }
   function showHint() {
     const d = T.d, P = (x, y) => pt(x + d[0], y + d[1]);
-    openModal('Pista', `<p>${lvl().hint(P)}</p><p class="muted">Es una solución posible; se acepta cualquier otra que llegue a la misma figura.</p>`);
+    openModal('Pista', `<p>${isFnLevel()&&!lvl().curve?'Primero elegí los lados indicados con ≤ o ≥. ':''}${lvl().hint(P)}</p><p class="muted">Es una solución posible; se acepta cualquier otra que llegue a la misma figura.</p>`);
   }
 
   function closeMenu() { $('menu').hidden = true; $('menuBtn').setAttribute('aria-expanded', 'false'); }
-  function goNext() { $('modal').hidden = true; loadLevel((S.level + 1) % LEVELS.length); }
+  function goNext() { $('modal').hidden = true; loadLevel(JOURNEY[(JOURNEY.indexOf(S.level)+1)%JOURNEY.length]); }
 
   // ------------------------------------------------------------------
   // Guardar / cargar
@@ -2160,12 +2256,12 @@ canvas {
     if (l.kind === 'tri') return p && Array.isArray(p.pts) && p.pts.length === 3 && p.pts.every((q) => Array.isArray(q) && q.length === 2 && q.every(finite));
     if (l.kind === 'fn') {
       const def = p && FN[p.type];
-      return !!def && def.params.every((q) => finite(p.p[q.k]) && p.p[q.k] >= q.min && p.p[q.k] <= q.max && Math.abs(p.p[q.k] / q.step - Math.round(p.p[q.k] / q.step)) < 1e-9);
+      return !!def && (l.rel===undefined||['=','≤','≥'].includes(l.rel)) && (l.visible===undefined||typeof l.visible==='boolean') && p.p && (!def.keys || def.keys.every(k => finite(p.p[k]) && Math.abs(p.p[k]) <= 300)) && (p.type !== 'disk' || p.p.r2 > 0) && (p.type !== 'hyperCustom' || (p.p.a2>0&&p.p.b2>0)) && def.params.every((q) => finite(p.p[q.k]) && p.p[q.k] >= q.min && p.p[q.k] <= q.max && Math.abs((p.p[q.k]-q.min) / q.step - Math.round((p.p[q.k]-q.min) / q.step)) < 1e-9);
     }
     if (l.kind === 'result') {
       let n = 0;
       const ok = Array.isArray(l.g) && l.g.length > 0 && l.g.every((poly) => Array.isArray(poly) && poly.length > 0 && poly.every((r) =>
-        Array.isArray(r) && r.length >= 4 && (n += r.length) <= 30000 && r.every((q) => Array.isArray(q) && q.length === 2 && q.every((v) => finite(v) && Math.abs(v) < 200)) &&
+        Array.isArray(r) && r.length >= 4 && (n += r.length) <= 30000 && r.every((q) => Array.isArray(q) && q.length === 2 && q.every((v) => finite(v) && Math.abs(v) < 500)) &&
         r[0][0] === r[r.length - 1][0] && r[0][1] === r[r.length - 1][1]));
       return ok && Geo.area(l.g) >= 1e-7;
     }
@@ -2177,6 +2273,7 @@ canvas {
     if (!Array.isArray(s.origin) || s.origin.length !== 2 || !s.origin.every(Number.isInteger)) return false;
     if (L.fixedOrigin ? s.origin.join() !== L.fixedOrigin.join() : s.origin.some((v) => v < -25 || v > 15)) return false;
     if (!Array.isArray(s.layers) || s.layers.length > 30 || !s.layers.every((l) => validLayer(l, s.origin))) return false;
+    if(L.curve&&(s.layers.length!==1||s.layers[0].kind!=='fn'||s.layers[0].prim.type!==L.pieces[0].prim.type||s.layers[0].rel!=='='||Object.entries(L.pieces[0].prim.p).some(([k,v])=>!L.keys.includes(k)&&s.layers[0].prim.p[k]!==v)||L.flip&&L.keys[0]==='a'&&Math.abs(s.layers[0].prim.p.a)!==Math.abs(L.answer.a)))return false;
     const ids = s.layers.map((l) => l.id);
     if (new Set(ids).size !== ids.length) return false;
     if (!Array.isArray(s.selected) || s.selected.length > 2 || new Set(s.selected).size !== s.selected.length || !s.selected.every((id) => ids.includes(id))) return false;
@@ -2186,9 +2283,10 @@ canvas {
     const prev = S;
     S = s;
     for (const l of s.layers) {
-      if (l.kind === 'fn') { l.name = FN[l.prim.type].label; l.color = FN[l.prim.type].color; }
+      if (l.kind === 'fn') { l.name = FN[l.prim.type].region ? FN[l.prim.type].expr(l.prim.p) : FN[l.prim.type].label; l.color = PALETTE[(l.id - 1) % PALETTE.length]; }
       else { l.name = `Fig.${l.id}`; l.color = PALETTE[(l.id - 1) % PALETTE.length]; }
       if (l.kind !== 'result') l.g = geomOf(l);
+      if(l.kind==='fn')l.name=FN[l.prim.type].expr(l.prim.p).replace(/[≤≥]/,relation(l));
     }
     s.next = Math.max(0, ...s.layers.map((l) => l.id)) + 1;
     S = prev;
@@ -2221,10 +2319,13 @@ canvas {
   // ------------------------------------------------------------------
   // Eventos de la interfaz
   // ------------------------------------------------------------------
-  LEVELS.forEach((L, i) => {
+  let chapterGroup=null,chapterName='';
+  JOURNEY.forEach((i) => {const L=LEVELS[i];
+    const chapter=i<6?'1 · Jugá con formas':L.curve?'2 · Descubrí las curvas':i>=BRIDGE_START?'3 · Del borde al área':'4 · Combiná regiones';
+    if(chapter!==chapterName){chapterName=chapter;chapterGroup=document.createElement('optgroup');chapterGroup.label=chapter;$('level').append(chapterGroup);}
     const o = document.createElement('option');
-    o.value = i; o.textContent = `${i + 1}. ${L.name}`;
-    $('level').appendChild(o);
+    o.value = i; o.textContent = `${levelNumber(i)}. ${L.name}`;
+    chapterGroup.appendChild(o);
   });
   $('level').addEventListener('change', (e) => loadLevel(+e.target.value));
   document.querySelectorAll('[data-op]').forEach((b) => b.addEventListener('click', () => operate(b.dataset.op)));
@@ -2257,6 +2358,7 @@ canvas {
     if (!$('menu').hidden && !$('menu').contains(e.target) && e.target !== $('menuBtn')) closeMenu();
   });
   window.addEventListener('keydown', (e) => {
+    if(document.getElementById('designer')&&!document.getElementById('designer').hidden)return;
     const typing = /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement && document.activeElement.tagName);
     if (e.key === 'Escape') {
       if (!$('modal').hidden) $('modal').hidden = true;
@@ -2273,13 +2375,14 @@ canvas {
     else if (!mod && e.key === '-') zoomAt(1 / 1.2);
   });
   let fitPending = true;
-  new ResizeObserver(() => { resizeCanvas(); if (fitPending) { fitPending = false; fit(); } requestDraw(); }).observe(canvas);
+  new ResizeObserver(() => { const oldW=W,oldH=H;resizeCanvas(); if (fitPending||oldW!==W||oldH!==H) { fitPending = false; fit(); } requestDraw(); }).observe(canvas);
 
   // ------------------------------------------------------------------
   // API de diagnóstico (para pruebas desde la consola)
   // ------------------------------------------------------------------
   window.EscultorTest = {
-    get state() { return S; }, get target() { return T; }, get won() { return won; }, LEVELS, Geo, FN,
+    get state() { return S; }, get target() { return T; }, get won() { return won; }, JOURNEY, INTRO_START, curveAnswerMatches, LEVELS, Geo, FN, fnRegion, Urect, toS, relation,
+    chooseRelation(id,rel){chooseRelation(byId(id),rel)}, setVisible(id,v){setVisible(byId(id),v)},
     loadLevel, operate, confirm: confirmSolution, undo, redo,
     select(ids) { S.selected = [...ids]; update(); },
     move(id, dx, dy) { const l = byId(id); return act(() => translate(l, dx, dy)); },
@@ -2294,5 +2397,186 @@ canvas {
 })();
 
 </script>
+<style>
+#designer[hidden]{display:none!important}#designer{position:fixed;inset:0;z-index:40;background:#13172b;color:#e7f1fc;display:grid;grid-template-rows:auto 1fr;font:14px/1.4 system-ui,sans-serif}#designer *{box-sizing:border-box}#designer header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#1c2037;border-bottom:1px solid #414560;flex-wrap:wrap}#designer header strong{font-size:19px;margin-right:auto}#designer button{font:inherit}#designer input,#designer select,#designer textarea{background:#151a30;color:#e7f1fc;border:1px solid #454a6e;border-radius:8px;padding:8px;min-width:0;width:100%;font:inherit}#designer input[type=checkbox]{width:auto;accent-color:#63ead4}#designer textarea{resize:vertical;font:13px ui-monospace,monospace}#designer label{display:block;color:#bcc7df;font-size:12px}#designer summary{cursor:pointer;color:#8ee5d2;padding:8px 0;font-weight:600}.d-layout{display:grid;grid-template-columns:300px minmax(200px,1fr) 280px;min-height:0}.d-panel{padding:14px;overflow:auto;background:#1c2037;border-right:1px solid #353951}.d-panel.right{border-right:0;border-left:1px solid #353951}.d-panel h3{font-size:14px;color:#f5bc57;margin:15px 0 8px}.d-row{display:flex;gap:7px;align-items:center;margin:8px 0}.d-row>*{flex:1;min-width:0}.d-row button{padding:8px 6px}.d-viewport{position:relative;min-width:0;min-height:0}#dCanvas{width:100%;height:100%;display:block;touch-action:none}#dStatus{position:absolute;bottom:12px;left:12px;right:12px;background:#20253beF;border:1px solid #414560;padding:10px;border-radius:12px;pointer-events:none;font-size:12px;white-space:pre-line}#dStatus.error{border-color:#ff8399;color:#ffc4cf}.d-view-tools{position:absolute;top:12px;right:12px;display:flex;gap:4px}.d-layer{display:flex;align-items:center;gap:6px;margin:6px 0;padding:7px;border:1px solid #414560;border-radius:10px}.d-layer.selected{border-color:#63ead4;background:#29443f}.d-layer button{flex:1;text-align:left;background:transparent;border:0;padding:4px;font-size:12px;overflow-wrap:anywhere}.d-layer input{flex:0!important}.d-swatch{width:8px;height:24px;border-radius:5px;flex:none}.d-small{font-size:11px;color:#aebbd5}.d-formgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.d-formgrid label input{margin-top:4px}.d-history-item{display:flex;align-items:flex-start;gap:7px;padding:7px 4px;border-bottom:1px solid #383e57;font-size:12px}.d-history-item.off{opacity:.5}.d-history-item button{font-size:11px;padding:2px 6px}.d-history-item span{flex:1}.d-tag{color:#f5bc57;font-size:11px;background:#34304a;padding:5px 8px;border-radius:8px}.d-ops{display:grid;grid-template-columns:1fr 1fr;gap:6px}#dPreviewResult{white-space:pre-line;font-size:12px;padding:8px;background:#151a30;border-radius:8px}#designer.testing [data-edit-only]{display:none!important}#designer.testing .d-layout{grid-template-columns:270px minmax(200px,1fr) 240px}#designer.testing #dInspector input:disabled{opacity:.5}#dTargetInfo{overflow-wrap:anywhere}#designer details p{font-size:12px;color:#b9c6de}.d-badge{color:#63ead4}.d-list-actions{display:flex;gap:5px;flex-wrap:wrap}.d-list-actions button{font-size:12px}#dClose{flex:none;white-space:nowrap}.d-empty{padding:12px;border:1px dashed #555d7b;border-radius:10px;color:#b9c6de;font-size:12px}@media(max-width:1000px){.d-layout,#designer.testing .d-layout{grid-template-columns:250px minmax(160px,1fr)}.d-panel.right{grid-column:1/-1;max-height:27vh;display:grid;grid-template-columns:1fr 1fr;gap:12px;border-top:1px solid #414560}.d-layout{grid-template-rows:minmax(200px,1fr) auto}}@media(max-width:600px){#designer header{padding:7px;gap:5px}#designer header strong{font-size:15px}#designer header button{font-size:11px;padding:6px}.d-layout,#designer.testing .d-layout{display:flex;flex-direction:column;overflow:auto}.d-panel{max-height:32vh;flex:none;padding:9px}.d-viewport{height:48vh;min-height:300px;flex:none}.d-panel.right{display:block;max-height:none;overflow:visible}.d-formgrid{grid-template-columns:repeat(2,1fr)}#dStatus{font-size:11px}#designer h3{margin-top:8px}}
+</style>
+<style>@media(max-width:720px){.topbar .tools{width:100%;min-width:0;gap:5px}.topbar #level{flex:1;min-width:0;max-width:none}.topbar #designerBtn{font-size:11px;padding:8px 6px;white-space:nowrap}.topbar #clock{min-width:42px;font-size:15px}}</style>
+<section id="designer" hidden aria-label="Diseñador de niveles">
+<header><strong>✦ Taller de niveles <span id="dMode" class="d-tag">Diseñar</span></strong><button id="dDemo" data-edit-only>Ejemplo</button><button id="dNew" data-edit-only>Nuevo</button><button id="dImportBtn">Abrir JSON</button><button id="dExport">Guardar JSON</button><button id="dTest" class="primary">▶ Probar nivel</button><button id="dBack" hidden>← Volver a editar</button><button id="dClose">Cerrar ✕</button></header>
+<div class="d-layout">
+<aside class="d-panel">
+<div data-edit-only><label>Nombre del nivel<input id="dName" maxlength="100" value="Mi primer nivel"></label><label>Consigna<input id="dGoal" maxlength="400" value="Construí la figura punteada."></label>
+<details><summary>Universo y ayuda</summary><div class="d-row"><label>Origen X<input id="dUX" type="number" min="-25" max="15" step="1" value="-5"></label><label>Origen Y<input id="dUY" type="number" min="-25" max="15" step="1" value="-5"></label><button id="dUniverse">Aplicar U</button></div><p>U mide 10 × 10. Para cambiarlo después de guardar el stock, volvé a preparar el stock.</p><p>1. Agregá piezas y prepará el stock. 2. Guardá el stock inicial. 3. Construí y marcá el objetivo. 4. Ajustá reglas, verificá y probá. El historial conserva tus acciones; el objetivo se guarda por separado.</p><p>Las curvas objetivo se comparan por su ecuación, no por píxeles. Las áreas de cónicas se aproximan sobre una malla fija de 64 × 64; evitá detalles menores que una celda de esa malla (≈ 0,16 unidades). El archivo JSON conserva el diseño; exportalo antes de cerrar la página.</p><p>Arrastrá piezas para moverlas. Clic elige A/B; Alt+clic recorre superposiciones. Arrastrá el fondo para desplazar la vista.</p></details>
+<h3>1 · Agregar piezas</h3><select id="dType"><option value="rect">Rectángulo</option><option value="circle">Círculo (figura)</option><option value="tri">Triángulo</option><option value="line">Recta</option><option value="vertical">Recta vertical</option><option value="conicCircle">Circunferencia</option><option value="parab">Parábola vertical</option><option value="horizontal">Parábola horizontal</option><option value="ellipse">Elipse</option><option value="hyper">Hipérbola</option><option value="reciprocal">Hipérbola y = a/x</option></select>
+<textarea id="dExpression" rows="2" aria-label="Expresión de la curva" hidden></textarea><div class="d-row"><button id="dAdd" class="primary">+ Agregar</button><button id="dPolygon">Dibujar polígono</button></div><p class="d-small" id="dFormulaHelp">Los vértices se colocan con clics. Cerrá el polígono con el botón que aparece al dibujar.</p>
+<button id="dStock" style="width:100%">Guardar stock inicial</button><p class="d-small" id="dStockInfo">Todavía no guardaste el stock.</p></div>
+<h3>Piezas · clic para elegir A/B</h3><div id="dLayers"></div><div id="dInspector"></div>
+</aside>
+<div class="d-viewport"><canvas id="dCanvas" tabindex="0" aria-label="Plano del diseñador"></canvas><div class="d-view-tools"><button id="dZoomOut" aria-label="Alejar">−</button><button id="dFit">Centrar</button><button id="dZoomIn" aria-label="Acercar">+</button></div><div id="dStatus" role="status" aria-live="polite">Agregá las piezas que recibirá el jugador.</div></div>
+<aside class="d-panel right"><div><h3>Construir</h3><div class="d-ops"><button data-dop="union">∪ Unir</button><button data-dop="intersection">∩ Intersectar</button><button data-dop="difference">A − B</button><button data-dop="xor">△ Exclusivo</button><button data-dop="complement">U − A</button><button id="dRotate">↻ Girar 90°</button></div><div class="d-row"><button id="dUndo">↶ Deshacer</button><button id="dRedo">↷ Rehacer</button></div>
+<div data-edit-only><button id="dTarget" class="primary" style="width:100%">◎ Usar A como objetivo</button><p id="dTargetInfo" class="d-small">Objetivo pendiente.</p><label><input id="dShowTarget" type="checkbox" checked> Mostrar objetivo punteado</label><details><summary>Reglas del jugador</summary><div id="dRules"></div><p>El editor mantiene todo habilitado. Estas reglas se aplican al probar el nivel y verificar la solución.</p></details><button id="dVerify" style="width:100%;margin-top:10px">✓ Verificar solución registrada</button><p id="dPreviewResult">Borrador: guardá stock y objetivo.</p></div>
+<div id="dPlayControls" hidden><p id="dPlayGoal"></p><button id="dConfirm" class="primary" style="width:100%">Confirmar ✓</button><button id="dAdopt" hidden style="width:100%;margin-top:8px">Guardar este intento como solución</button><button id="dRestart" style="width:100%;margin-top:8px">Reiniciar intento</button></div></div>
+<div data-edit-only><h3>Historial reproducible</h3><p class="d-small">Destildá un paso para omitirlo. «Ver» vuelve a ese punto; una edición desde allí inicia una nueva continuación.</p><div class="d-row"><button id="dStart">Inicio</button><button id="dEnd">Final</button></div><div id="dHistory"></div></div>
+</aside></div><input id="dImport" type="file" accept=".json,application/json" hidden>
+</section>
+<script id="designer-js">
+(()=>{'use strict';
+const $=id=>document.getElementById(id),G=window.EscultorTest.Geo,pc=window.polygonClipping,copy=x=>JSON.parse(JSON.stringify(x)),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),num=x=>Number.isFinite(x)&&Math.abs(x)<=10000,near=(a,b)=>Math.abs(a-b)<1e-8;
+const colors=['#f5bc57','#78adff','#d099ff','#fc8399','#a9d978','#7fe0e8'];
+const templates={line:'y = 2*x + 1',vertical:'x = 2',conicCircle:'(x-1)^2 + (y+1)^2 = 4',parab:'y = 0.5*(x-1)^2 - 2',horizontal:'x = 0.5*(y-1)^2 - 2',ellipse:'x^2/9 + y^2/4 = 1',hyper:'x^2/9 - y^2/4 = 1',reciprocal:'y = 1/x'};
+// Restricted expression parser. Rational polynomials, never eval / Function.
+// Supports numeric constants, x/y, + - * / ^2 and implicit multiplication.
+function polynomial(s){
+ if(s.length>220)throw Error('La expresión es demasiado larga.');
+ s=s.replace(/²/g,'^2').replace(/[−–]/g,'-').replace(/×/g,'*').replace(/÷/g,'/').replace(/,/g,'.').replace(/\s/g,'').toLowerCase();
+ const tok=s.match(/(?:\d+(?:\.\d*)?|\.\d+)|[xy()+\-*/^]/g)||[];
+ if(tok.join('')!==s)throw Error('Usá solo números, x, y, paréntesis y + − * / ^2.');
+ let ts=[];for(const t of tok){const prev=ts.at(-1);if(prev&&(/[xy)]/.test(prev)||/^\d|^\./.test(prev))&&(/[xy(]/.test(t)||/^\d|^\./.test(t)))ts.push('*');ts.push(t);}
+ let i=0,work=0;const one={'0,0':1},zero={'0,0':0};
+ const add=(a,b,k=1)=>{let r={...a};for(const key in b)r[key]=(r[key]||0)+k*b[key];return r};
+ const mul=(a,b)=>{let r={};for(const ka in a)for(const kb in b){if(++work>6000)throw Error('Expresión demasiado compleja.');let [x,y]=ka.split(',').map(Number),[u,v]=kb.split(',').map(Number);if(x+y+u+v>8)throw Error('Usá una ecuación de primer o segundo grado.');const k=[x+u,y+v].join();r[k]=(r[k]||0)+a[ka]*b[kb];}return r};
+ const combine=(a,b,op)=>op==='*'?{n:mul(a.n,b.n),d:mul(a.d,b.d)}:op==='/'?{n:mul(a.n,b.d),d:mul(a.d,b.n)}:{n:add(mul(a.n,b.d),mul(b.n,a.d),op==='-'?-1:1),d:mul(a.d,b.d)};
+ function atom(){let t=ts[i++];if(t==='+'||t==='-'){let a=atom();if(t==='-')a.n=Object.fromEntries(Object.entries(a.n).map(([k,v])=>[k,-v]));return a;}let a;if(t==='('){a=sum();if(ts[i++]!==')')throw Error('Falta cerrar un paréntesis.');}else if(t==='x'||t==='y')a={n:{[t==='x'?'1,0':'0,1']:1},d:one};else if(t&&/^\d|^\./.test(t))a={n:{'0,0':+t},d:one};else throw Error('Revisá la expresión cerca de '+(t||'su final')+'.');if(ts[i]==='^'){i++;if(ts[i++]!=='2')throw Error('Solo se admite potencia 2.');a=combine(a,a,'*');}return a;}
+ function product(){let a=atom();while(ts[i]==='*'||ts[i]==='/'){const op=ts[i++];a=combine(a,atom(),op);}return a;}
+ function sum(){let a=product();while(ts[i]==='+'||ts[i]==='-'){const op=ts[i++];a=combine(a,product(),op);}return a;}
+ const out=sum();if(i!==ts.length)throw Error('No se pudo interpretar toda la expresión.');return {out,add,mul};
+}
+function parseEquation(expr){
+ const sides=expr.split('=');if(sides.length!==2||sides.some(s=>!s.trim()))throw Error('Escribí una igualdad completa, por ejemplo y = 2*x + 1.');
+ const a=polynomial(sides[0]),b=polynomial(sides[1]),p=a.add(a.mul(a.out.n,b.out.d),a.mul(b.out.n,a.out.d),-1);
+ for(const [key,v] of Object.entries(p))if(Math.abs(v)>1e-9&&key.split(',').map(Number).reduce((x,y)=>x+y)>2)throw Error('La ecuación debe reducirse a una recta o cónica de grado 2.');
+ const c=['2,0','1,1','0,2','1,0','0,1','0,0'].map(k=>p[k]||0);if(c.some(v=>!num(v))||c.slice(0,5).every(v=>Math.abs(v)<1e-9))throw Error('La ecuación no define una curva válida.');
+ // Denominators depending on x/y are accepted only when they do not add an entire excluded line.
+ for(const d of [a.out.d,b.out.d]){
+  if(Object.values(d).every(v=>Math.abs(v)<1e-12))throw Error('No se puede dividir por cero.');
+  const vars=Object.entries(d).filter(([k,v])=>k!=='0,0'&&Math.abs(v)>1e-10);
+  if(vars.length){if(vars.length!==1||!['1,0','0,1'].includes(vars[0][0]))throw Error('Solo se admite un denominador lineal en x o en y.');const [key,v]=vars[0],root=-(d['0,0']||0)/v,vals=key==='1,0'?[c[2],c[1]*root+c[4],c[0]*root*root+c[3]*root+c[5]]:[c[0],c[1]*root+c[3],c[2]*root*root+c[4]*root+c[5]];if(Math.abs(vals[0])>1e-9||Math.abs(vals[1])>1e-9||Math.abs(vals[2])<1e-9)throw Error('Esa división introduce puntos excluidos. Usá la forma de hipérbola y = a/(x-h) + k con a distinto de cero.');}
+ }
+ return c;
+}
+const F=(c,x,y)=>c[0]*x*x+c[1]*x*y+c[2]*y*y+c[3]*x+c[4]*y+c[5];
+function transformed(l){const a=-l.angle*Math.PI/180,co=Math.cos(a),si=Math.sin(a);const f=(x,y)=>F(l.coeff,co*(x-l.x)-si*(y-l.y),si*(x-l.x)+co*(y-l.y));const z=f(0,0),xp=f(1,0),xm=f(-1,0),yp=f(0,1),ym=f(0,-1);return [(xp+xm)/2-z,f(1,1)-xp-yp+z,(yp+ym)/2-z,(xp-xm)/2,(yp-ym)/2,z].map(v=>Math.abs(v)<1e-10?0:v);}
+function normalized(c){const m=Math.max(...c.map(Math.abs));const first=c.find(x=>Math.abs(x)>1e-9);return c.map(x=>x/(m*(first<0?-1:1)));}
+function canonical(c){const names=['x²','xy','y²','x','y',''];let s='';c.forEach((v,i)=>{if(Math.abs(v)<1e-8)return;s+=(s?(v<0?' − ':' + '):(v<0?'−':''))+Math.abs(+v.toFixed(3))+names[i]});return s+' = 0';}
+function blank(){return {format:'escultor-taller',version:1,name:'Mi primer nivel',goal:'Construí la figura punteada.',u:[-5,-5],setup:[],stock:null,events:[],target:null,rules:{moveX:true,moveY:true,rotate:true,resize:true,formula:true,side:true,ops:{union:true,intersection:true,difference:true,xor:true,complement:true}}};}
+let D=blank(),pieces=[],selected=[],cursor=0,mode='edit',testEvents=[],testCursor=0,hidden=new Set(),polyPoints=null,nextId=1,verified=false,cache=new Map(),returnState=null;
+let W=0,H=0,view={s:36,tx:0,ty:0},drag=null;
+const root=$('designer'),canvas=$('dCanvas'),ctx=canvas.getContext('2d'),world=(x,y)=>[(x-view.tx)/view.s,(view.ty-y)/view.s],screen=p=>[p[0]*view.s+view.tx,view.ty-p[1]*view.s],U=()=>G.rect(...D.u,10,10),sel=()=>selected.map(id=>pieces.find(l=>l.id===id)).filter(Boolean);
+function status(s,error=false){$('dStatus').textContent=s;$('dStatus').className=error?'error':'';}
+function activeEvents(){return mode==='test'?testEvents:D.stock?D.events:D.setup;}
+function base(){return mode==='test'||D.stock?copy(D.stock||[]):[];}
+function constrain(e){if(e.type==='add'||e.type==='delete')throw Error('El stock del jugador es fijo: no puede crear ni borrar piezas.');if(e.type==='update')for(const k of Object.keys(e.patch)){const rule=k==='x'?'moveX':k==='y'?'moveY':k==='angle'?'rotate':['w','h','r','pts'].includes(k)?'resize':['expr','coeff'].includes(k)?'formula':k==='rel'?'side':null;if(rule&&!D.rules[rule])throw Error('La regla bloquea: '+ruleNames[rule]+'.');}if(e.type==='op'&&!D.rules.ops[e.op])throw Error('La operación '+e.op+' está bloqueada.');}
+function applyEvent(list,e,rules=false){
+ if(rules)constrain(e);list=copy(list);
+ if(list.length>24)throw Error('Máximo 24 piezas.');
+ const get=id=>{let l=list.find(l=>l.id===id);if(!l)throw Error('Falta la pieza '+id+' que este paso necesita.');return l};
+ if(e.type==='add'){if(list.some(l=>l.id===e.piece.id))throw Error('Identificador repetido.');const added=copy(e.piece);validatePiece(added);list.push(added);}
+ else if(e.type==='update'){const l=get(e.id);Object.assign(l,copy(e.patch));validatePiece(l);}
+ else if(e.type==='delete'){get(e.id);list=list.filter(l=>l.id!==e.id);}
+ else if(e.type==='op'){
+  const a=get(e.ids[0]),b=e.op==='complement'?null:get(e.ids[1]);if(a.kind==='curve'&&a.rel==='='||b?.kind==='curve'&&b.rel==='=')throw Error('Elegí ≤ o ≥ para que la curva tenga una región.');
+  const ga=geometry(a),gb=b?geometry(b):null;let g=e.op==='complement'?G.op(U(),ga,'difference'):G.op(ga,gb,e.op);if(G.area(g)<1e-7)throw Error('El resultado está vacío. Las piezas se conservan.');
+  list=list.filter(l=>!e.ids.includes(l.id));const bb=G.bounds(g),cx=bb.x+bb.w/2,cy=bb.y+bb.h/2;list.push({id:e.resultId,name:'Fig. '+e.resultId,kind:'result',g:G.move(g,-cx,-cy),x:cx,y:cy,angle:0,color:colors[(e.resultId-1)%colors.length]});
+ }else throw Error('Acción desconocida.');
+ return list;
+}
+function replay(events,count,rules=false){let list=base();for(let i=0;i<count;i++){if(events[i].enabled===false)continue;try{list=applyEvent(list,events[i],rules);}catch(e){throw Error('Paso '+(i+1)+': '+e.message)}}return list;}
+function perform(e){$('dAdopt').hidden=true;try{if(activeEvents().length>=500)throw Error('Máximo 500 pasos por historial.');const list=applyEvent(pieces,e,mode==='test'),events=activeEvents(),at=mode==='test'?testCursor:cursor;e.enabled=true;events.splice(at);events.push(e);if(mode==='test')testCursor++;else{cursor++;verified=false;}pieces=list;nextId=Math.max(nextId,...pieces.map(l=>l.id+1));selected=selected.filter(id=>pieces.some(l=>l.id===id));if(e.type==='add')selected=[e.piece.id];if(e.type==='op')selected=[e.resultId];cache.clear();render();status(e.label||'Acción aplicada.');return true;}catch(e){status(e.message,true);return false;}}
+function goto(n){$('dAdopt').hidden=true;try{const list=replay(activeEvents(),n,mode==='test');pieces=list;if(mode==='test')testCursor=n;else cursor=n;selected=selected.filter(id=>pieces.some(l=>l.id===id));cache.clear();render();status('Viendo '+n+' pasos.');}catch(e){status(e.message,true)}}
+function mapPoint(l,p){const a=l.angle*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return [l.x+c*p[0]-s*p[1],l.y+s*p[0]+c*p[1]];}
+function curveSegments(c,bounds,n=100){const [x0,y0,x1,y1]=bounds,dx=(x1-x0)/n,dy=(y1-y0)/n,out=[];for(let i=0;i<n;i++)for(let j=0;j<n;j++){const points=[[x0+i*dx,y0+j*dy],[x0+(i+1)*dx,y0+j*dy],[x0+(i+1)*dx,y0+(j+1)*dy],[x0+i*dx,y0+(j+1)*dy]],v=points.map(p=>F(c,...p)),hits=[];for(let k=0;k<4;k++){let z=(k+1)%4;if((v[k]<=0)!==(v[z]<=0)){const t=v[k]/(v[k]-v[z]);hits.push([points[k][0]+t*(points[z][0]-points[k][0]),points[k][1]+t*(points[z][1]-points[k][1])]);}}for(let k=0;k+1<hits.length;k+=2)out.push([hits[k],hits[k+1]]);}return out;}
+// Approximate conic regions using a fixed triangulation of U. All operands,
+// targets and replay use the same resolution and implicit sign convention.
+function conicRegion(c,rel){const n=64,[x0,y0]=D.u,step=10/n,polys=[];
+ function clip(tri){const vals=tri.map(p=>F(c,...p)*(rel==='≤'?1:-1)),r=[];for(let i=0;i<3;i++){const j=(i+1)%3,a=tri[i],b=tri[j],va=vals[i],vb=vals[j];if(va<=0)r.push(a);if((va<=0)!==(vb<=0)){let t=va/(va-vb);r.push([a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])]);}}if(r.length>=3)polys.push([G.ring(r)]);}
+ // Whole interior cells are merged horizontally before union, reducing work.
+ for(let j=0;j<n;j++){let run=-1;for(let i=0;i<=n;i++){let x=x0+i*step,y=y0+j*step,ps=[[x,y],[x+step,y],[x+step,y+step],[x,y+step]],vals=i<n?ps.map(p=>F(c,...p)*(rel==='≤'?1:-1)):null,full=vals&&vals.every(v=>v<=0);if(full){if(run<0)run=i;continue;}if(run>=0){polys.push(G.rect(x0+run*step,y,(i-run)*step,step)[0]);run=-1;}if(i<n&&!vals.every(v=>v>0)){clip([ps[0],ps[1],ps[2]]);clip([ps[0],ps[2],ps[3]]);}}}
+ return polys.length?pc.union(...polys):[];
+}
+function geometry(l){const key=JSON.stringify([D.u,l]);if(cache.has(key))return cache.get(key);let g;
+ if(l.kind==='curve')g=l.rel==='='?[]:conicRegion(transformed(l),l.rel);
+ else{g=l.kind==='rect'?G.rect(-l.w/2,-l.h/2,l.w,l.h):l.kind==='circle'?G.circle(0,0,l.r,256):l.kind==='tri'||l.kind==='polygon'?G.poly(l.pts):l.g;g=G.map(g,p=>mapPoint(l,p));}
+ cache.set(key,g);return g;
+}
+function targetMatches(l){if(!D.target)return false;const t=D.target.piece;if(t.kind==='curve'&&t.rel==='='){if(l.kind!=='curve'||l.rel!=='=')return false;let a=normalized(transformed(l)),b=normalized(transformed(t));return a.every((v,i)=>Math.abs(v-b[i])<1e-7);}return !(l.kind==='curve'&&l.rel==='=')&&G.equal(geometry(l),geometry(t));}
+function select(id){if(selected.includes(id))selected=selected.filter(x=>x!==id);else if(selected.length<2)selected.push(id);else selected=[selected[0],id];render();}
+function makePiece(type){const id=nextId++,l={id,name:'Fig. '+id,kind:type,x:D.u[0]-3,y:D.u[1]+5,angle:0,color:colors[(id-1)%colors.length]};if(type==='rect'){l.w=3;l.h=2;}else if(type==='circle')l.r=2;else if(type==='tri')l.pts=[[-2,-1],[2,-1],[-2,2]];else{l.kind='curve';l.expr=$('dExpression').value;l.coeff=parseEquation(l.expr);l.rel='=';l.x=0;l.y=0;}return l;}
+function add(){try{if(pieces.length>=24)throw Error('Máximo 24 piezas.');const l=makePiece($('dType').value);perform({type:'add',piece:l,label:'Agregar '+l.name+(l.expr?' · '+l.expr:' · '+l.kind)});fit();}catch(e){status(e.message,true)}}
+function updatePiece(id,patch,label){return perform({type:'update',id,patch,label})}
+function operate(op){const ids=selected.slice();if(ids.length!==(op==='complement'?1:2)){status(op==='complement'?'Elegí una pieza.':'Elegí A y B.',true);return false;}return perform({type:'op',op,ids,resultId:nextId++,label:op==='complement'?'Complemento de Fig. '+ids[0]:op+' entre Fig. '+ids.join(' y ')});}
+const ruleNames={moveX:'Mover en X',moveY:'Mover en Y',rotate:'Girar',resize:'Cambiar dimensiones',formula:'Editar expresiones',side:'Elegir ≤ / ≥'};
+function ruleAllowed(rule){return mode==='edit'||D.rules[rule];}
+function render(){
+ root.classList.toggle('testing',mode==='test');$('dMode').textContent=mode==='test'?'Jugando tu nivel':'Diseñar';$('dTest').hidden=mode==='test';$('dBack').hidden=mode!=='test';$('dPlayControls').hidden=mode!=='test';$('dExport').disabled=mode==='test';$('dImportBtn').disabled=mode==='test';$('dPlayGoal').textContent=D.name+' · '+D.goal;
+ $('dStockInfo').textContent=D.stock?D.stock.length+' piezas guardadas. El historial de abajo construye desde este stock.':'Todavía no guardaste el stock.';
+ $('dTargetInfo').textContent=D.target?'Objetivo guardado: '+D.target.piece.name+(D.target.piece.rel==='='?' (curva)':' (área)'):'Objetivo pendiente.';
+ $('dPreviewResult').textContent=verified?'✓ La solución registrada cumple las reglas y llega al objetivo.':'Borrador · verificá la solución después de cambiar pasos o reglas.';
+ const list=$('dLayers');list.replaceChildren();if(!pieces.length)list.innerHTML='<div class="d-empty">Agregá una figura o una curva para empezar.</div>';
+ for(const l of pieces){const row=document.createElement('div');row.className='d-layer'+(selected.includes(l.id)?' selected':'');const cb=document.createElement('input');cb.type='checkbox';cb.checked=!hidden.has(l.id);cb.setAttribute('aria-label','Mostrar '+l.name);cb.onchange=()=>{cb.checked?hidden.delete(l.id):hidden.add(l.id);draw()};const sw=document.createElement('span');sw.className='d-swatch';sw.style.background=l.color;const b=document.createElement('button');b.textContent=(selected.includes(l.id)?(selected.indexOf(l.id)?'B · ':'A · '):'')+l.name+(l.expr?' · '+l.expr:'');b.onclick=()=>select(l.id);row.append(cb,sw,b);list.append(row);}
+ inspector();const events=activeEvents(),pos=mode==='test'?testCursor:cursor;$('dUndo').disabled=pos===0;$('dRedo').disabled=pos===events.length;document.querySelectorAll('[data-dop]').forEach(b=>b.disabled=mode==='test'&&!D.rules.ops[b.dataset.dop]);$('dRotate').disabled=!selected.length||!ruleAllowed('rotate');
+ const hist=$('dHistory');hist.replaceChildren();D.stock||D.setup.length?null:hist.append(document.createTextNode('Tus acciones aparecerán aquí.'));(D.stock?D.events:D.setup).forEach((e,i)=>{const row=document.createElement('div');row.className='d-history-item'+(e.enabled===false?' off':'');const cb=document.createElement('input');cb.type='checkbox';cb.checked=e.enabled!==false;cb.setAttribute('aria-label','Incluir paso '+(i+1));cb.onchange=()=>{const prev=e.enabled;e.enabled=cb.checked;try{const result=replay(activeEvents(),activeEvents().length);pieces=result;cursor=activeEvents().length;verified=false;cache.clear();render();status('Secuencia recalculada. Verificá si todavía llega al objetivo.');}catch(error){e.enabled=prev;cb.checked=prev!==false;status(error.message+' No se cambió el historial.',true)}};const span=document.createElement('span');span.textContent=(i+1)+'. '+e.label;const btn=document.createElement('button');btn.textContent=cursor===i+1?'Aquí':'Ver';btn.onclick=()=>goto(i+1);row.append(cb,span,btn);hist.append(row);});draw();
+}
+function inspector(){const box=$('dInspector');box.replaceChildren();const l=sel()[0];if(!l)return;const h=document.createElement('h3');h.textContent='Editar A · '+l.name;box.append(h);const grid=document.createElement('div');grid.className='d-formgrid';
+ const field=(key,label,step=1,min=-50,max=50)=>{const lab=document.createElement('label');lab.textContent=label;const input=document.createElement('input');input.type='number';input.step=step;input.min=min;input.max=max;input.value=l[key];input.dataset.field=key;input.disabled=!ruleAllowed(key==='x'?'moveX':key==='y'?'moveY':key==='angle'?'rotate':'resize');input.onchange=()=>{const v=+input.value;if(!num(v)||v<min||v>max||!near(v/step,Math.round(v/step))){status('Valor inválido. Usá pasos de '+step+' entre '+min+' y '+max+'.',true);input.value=l[key];return;}updatePiece(l.id,{[key]:v},l.name+': '+key+' = '+v)};lab.append(input);grid.append(lab)};
+ field('x',l.kind==='curve'?'Traslación X':'Centro X',.5);field('y',l.kind==='curve'?'Traslación Y':'Centro Y',.5);field('angle','Giro antihorario °',90,-360,360);if(l.kind==='rect'){field('w','Ancho',.5,.5,20);field('h','Alto',.5,.5,20);}if(l.kind==='circle')field('r','Radio',.5,.5,10);box.append(grid);
+ if(l.kind==='curve'){const ta=document.createElement('textarea');ta.rows=2;ta.value=l.expr;ta.dataset.field='expression';ta.disabled=!ruleAllowed('formula');box.append(ta);const btn=document.createElement('button');btn.textContent='Aplicar expresión';btn.disabled=!ruleAllowed('formula');btn.onclick=()=>{try{const c=parseEquation(ta.value);updatePiece(l.id,{expr:ta.value,coeff:c},l.name+': expresión '+ta.value)}catch(e){status(e.message,true)}};box.append(btn);const labels=document.createElement('div');labels.className='d-small';labels.textContent='La expresión usa coordenadas locales; X/Y y el giro la transforman en el plano.';box.append(labels);const canonicalLine=document.createElement('div');canonicalLine.className='d-small';canonicalLine.textContent='En el plano: '+canonical(transformed(l));box.append(canonicalLine);const row=document.createElement('div');row.className='d-row';for(const rel of ['=','≤','≥']){const b=document.createElement('button');b.textContent=rel;b.className=l.rel===rel?'primary':'';b.disabled=!ruleAllowed('side');b.onclick=()=>updatePiece(l.id,{rel},l.name+': región '+rel);row.append(b)}box.append(row);const note=document.createElement('p');note.className='d-small';note.textContent='≤ / ≥ se aplican a la expresión «lado izquierdo − lado derecho», después de eliminar denominadores. Mirá el relleno: en y=1/x no equivalen globalmente a y≤1/x o y≥1/x.';box.append(note);}
+ if(mode==='edit'){const row=document.createElement('div');row.className='d-row';const dup=document.createElement('button');dup.textContent='Duplicar';dup.onclick=()=>{let n=copy(l);n.id=nextId++;n.name='Fig. '+n.id;n.x+=1;n.color=colors[(n.id-1)%colors.length];perform({type:'add',piece:n,label:'Duplicar '+l.name})};const del=document.createElement('button');del.textContent='Borrar';del.onclick=()=>perform({type:'delete',id:l.id,label:'Borrar '+l.name});row.append(dup,del);box.append(row);}
+}
+function renderRules(){const box=$('dRules');box.replaceChildren();for(const [k,label]of Object.entries(ruleNames)){const lab=document.createElement('label'),cb=document.createElement('input');cb.type='checkbox';cb.checked=D.rules[k];cb.dataset.rule=k;cb.onchange=()=>{D.rules[k]=cb.checked;verified=false;render()};lab.append(cb,document.createTextNode(' '+label));box.append(lab);}for(const k of Object.keys(D.rules.ops)){const lab=document.createElement('label'),cb=document.createElement('input');cb.type='checkbox';cb.checked=D.rules.ops[k];cb.dataset.rule=k;cb.onchange=()=>{D.rules.ops[k]=cb.checked;verified=false;render()};lab.append(cb,document.createTextNode(' '+({union:'Unión',intersection:'Intersección',difference:'Diferencia',xor:'Diferencia simétrica',complement:'Complemento'}[k])));box.append(lab);}}
+function saveStock(){if(!pieces.length){status('Agregá al menos una pieza.',true);return;}if(D.stock&&D.events.length&&!confirm('Guardar este nuevo stock reinicia el historial de construcción. El objetivo se conserva. ¿Continuar?'))return;D.stock=copy(pieces);D.events=[];cursor=0;verified=false;render();status('Stock inicial guardado. Ahora construí el objetivo: se registrará cada acción.');}
+function markTarget(){const l=sel()[0];if(selected.length!==1||!l){status('Elegí una sola pieza como objetivo.',true);return;}if(l.kind==='curve'&&l.rel==='='&&!curveSegments(transformed(l),[...D.u,D.u[0]+10,D.u[1]+10],100).length){status('La curva objetivo debe ser visible dentro de U.',true);return;}if(!(l.kind==='curve'&&l.rel==='=')){const g=geometry(l);if(G.area(g)<1e-7){status('El objetivo no puede estar vacío.',true);return;}if(G.diffArea(g,G.op(g,U(),'intersection'))>1e-6){status('Ubicá toda la figura objetivo dentro de U antes de guardarla.',true);return;}}D.target={piece:copy(l)};verified=false;render();status('Objetivo guardado por separado. Ya podés verificar y probar el nivel.');}
+function verify(){if(!D.stock||!D.target){status('Primero guardá stock y objetivo.',true);return false;}try{const result=replay(D.events,D.events.length,true);if(!result.some(targetMatches))throw Error('Los pasos habilitados no producen una pieza igual al objetivo.');verified=true;render();status('Solución verificada con las restricciones actuales.');return true;}catch(e){verified=false;render();$('dPreviewResult').textContent=e.message+'\nEsto no demuestra que el nivel sea imposible: puede existir otra solución.';status(e.message,true);return false;}}
+function test(){if(!D.stock||!D.target){status('Guardá el stock y el objetivo antes de probar.',true);return;}returnState={pieces:copy(pieces),selected:[...selected],cursor};mode='test';$('dAdopt').hidden=true;pieces=copy(D.stock);selected=[];hidden.clear();testEvents=[];testCursor=0;polyPoints=null;cache.clear();render();fit();status(D.goal+' · Las restricciones del nivel ya están activas.');}
+function back(){if(mode!=='test')return;mode='edit';pieces=returnState.pieces;selected=returnState.selected;cursor=returnState.cursor;cache.clear();render();fit();status('Volviste al diseño. El intento no modificó tu construcción.');}
+function confirmTarget(){if(selected.length!==1){status('Elegí una sola pieza para entregar.',true);return false;}if(targetMatches(sel()[0])){status('¡Objetivo conseguido! ✓ '+testCursor+' acciones en este intento.');$('dAdopt').hidden=false;if(testEvents.every(e=>e.enabled!==false)){$('dPreviewResult').textContent='El nivel fue resuelto durante la prueba.';}return true;}status('Todavía no coincide. Revisá posición, forma y región.',true);return false;}
+function download(){const data=copy(D);data.viewCursor=cursor;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download=(D.name.replace(/[^a-zA-Z0-9_-]/g,'_')||'nivel')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);status('Diseño exportado: stock, pasos, objetivo y reglas.');}
+function validatePiece(l){if(!l||!Number.isInteger(l.id)||l.id<1||!['rect','circle','tri','polygon','curve','result'].includes(l.kind)||![l.x,l.y,l.angle].every(num)||Math.abs(l.x)>100||Math.abs(l.y)>100||!near(l.angle/90,Math.round(l.angle/90))||typeof l.name!=='string'||l.name.length>120||!/^#[0-9a-f]{6}$/i.test(l.color))throw Error('Pieza inválida.');if(l.kind==='rect'&&![l.w,l.h].every(v=>num(v)&&v>0&&v<=20))throw Error('Dimensiones inválidas.');if(l.kind==='circle'&&(!num(l.r)||l.r<=0||l.r>10))throw Error('Radio inválido.');if(['tri','polygon'].includes(l.kind)&&(!Array.isArray(l.pts)||l.pts.length<3||l.pts.length>40||!l.pts.every(p=>Array.isArray(p)&&p.length===2&&p.every(num))))throw Error('Polígono inválido.');if(l.kind==='curve'){if(typeof l.expr!=='string'||!['=','≤','≥'].includes(l.rel))throw Error('Curva inválida.');l.coeff=parseEquation(l.expr);}if(l.kind==='result'){let count=0;if(!Array.isArray(l.g)||l.g.length>100||!l.g.every(p=>Array.isArray(p)&&p.length&&p.every(r=>Array.isArray(r)&&r.length>=4&&(count+=r.length)<40000&&r.every(q=>Array.isArray(q)&&q.length===2&&q.every(num)))))throw Error('Resultado inválido.');}}
+function importData(data){if(!data||data.format!=='escultor-taller'||data.version!==1||typeof data.name!=='string'||data.name.length>100||typeof data.goal!=='string'||data.goal.length>400||!Array.isArray(data.u)||data.u.length!==2||!data.u.every(v=>Number.isInteger(v)&&v>=-25&&v<=15))throw Error('No es un nivel válido de este diseñador.');for(const key of Object.keys(ruleNames))if(typeof data.rules?.[key]!=='boolean')throw Error('Reglas inválidas.');for(const key of ['union','intersection','difference','xor','complement'])if(typeof data.rules?.ops?.[key]!=='boolean')throw Error('Operadores inválidos.');
+ if(data.stock!==null&&(!Array.isArray(data.stock)||!data.stock.length||data.stock.length>24))throw Error('Stock inválido.');(data.stock||[]).forEach(validatePiece);if(new Set((data.stock||[]).map(l=>l.id)).size!==(data.stock||[]).length)throw Error('Piezas repetidas.');if(data.target)validatePiece(data.target.piece);
+ for(const events of [data.setup,data.events]){if(!Array.isArray(events)||events.length>500)throw Error('Historial inválido o demasiado largo.');for(const e of events){if(typeof e.label!=='string'||e.label.length>500||typeof e.enabled!=='boolean')throw Error('Paso inválido.');if(e.type==='add')validatePiece(e.piece);else if(e.type==='update'){if(!e.patch||Object.keys(e.patch).some(k=>!['x','y','angle','w','h','r','expr','coeff','rel'].includes(k)))throw Error('Edición inválida.');}else if(e.type==='delete'){if(!Number.isInteger(e.id))throw Error('Identificador inválido.');}else if(e.type==='op'){if(!['union','intersection','difference','xor','complement'].includes(e.op)||!Array.isArray(e.ids)||e.ids.length!==(e.op==='complement'?1:2)||new Set(e.ids).size!==e.ids.length||!Number.isInteger(e.resultId)||e.resultId<1)throw Error('Operación inválida.');}else throw Error('Acción desconocida.');}}
+ const old=D;D=data;try{let list=[];for(const e of data.setup){if(e.enabled===false)continue;list=applyEvent(list,e);list.forEach(validatePiece);}list=copy(data.stock||[]);for(const e of data.events){if(e.enabled===false)continue;list=applyEvent(list,e);list.forEach(validatePiece);}pieces=data.stock?list:replay(data.setup,data.setup.length);cursor=(data.stock?data.events:data.setup).length;const ids=[...pieces,...data.stock||[],...[...data.setup,...data.events].filter(e=>e.piece).map(e=>e.piece)].map(l=>l.id).concat([...data.setup,...data.events].map(e=>e.resultId||0));nextId=Math.max(0,...ids)+1;}catch(e){D=old;throw e;}mode='edit';selected=[];verified=false;hidden.clear();cache.clear();sync();renderRules();render();fit();status('Diseño cargado. Verificá la solución antes de compartirlo.');}
+function sync(){$('dName').value=D.name;$('dGoal').value=D.goal;$('dUX').value=D.u[0];$('dUY').value=D.u[1];}
+function path(g){ctx.beginPath();for(const p of g)for(const r of p){r.forEach((q,i)=>{const s=screen(q);i?ctx.lineTo(...s):ctx.moveTo(...s)});ctx.closePath();}}
+function strokeCurve(l,color,dash=false){const [x0,y1]=world(0,0),[x1,y0]=world(W,H),c=transformed(l),segments=curveSegments(c,[x0,y0,x1,y1],90);ctx.beginPath();for(const [a,b] of segments){ctx.moveTo(...screen(a));ctx.lineTo(...screen(b));}ctx.strokeStyle=color;ctx.setLineDash(dash?[7,5]:[]);ctx.lineWidth=dash?2.8:selected.includes(l.id)?3:2;ctx.stroke();ctx.setLineDash([]);}
+function drawPiece(l,target=false,outside=false){ctx.save();const fade=outside?.35:1;const [ux,uy]=screen([D.u[0],D.u[1]+10]);if(target){ctx.beginPath();ctx.rect(ux,uy,10*view.s,10*view.s);ctx.clip();}const color=target?'#63ead4':l.color;
+ if(l.kind==='curve'&&l.rel==='='){strokeCurve(l,color,target);if(!target){ctx.globalAlpha=.8;const p=screen([l.x,l.y]);ctx.beginPath();ctx.arc(...p,4,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();}}
+ else{const g=geometry(l);path(g);ctx.fillStyle=color;ctx.globalAlpha=(target?.09:selected.includes(l.id)?.28:.14)*fade;ctx.fill('evenodd');ctx.globalAlpha=fade;ctx.strokeStyle=color;ctx.lineWidth=target?2.7:selected.includes(l.id)?3:1.5;ctx.setLineDash(target?[7,5]:[]);ctx.stroke();ctx.setLineDash([]);if(selected.includes(l.id)&&!target){ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.stroke();}}
+ ctx.restore();}
+function draw(){if(root.hidden||!W)return;ctx.clearRect(0,0,W,H);ctx.fillStyle='#13172b';ctx.fillRect(0,0,W,H);let [x0,y1]=world(0,0),[x1,y0]=world(W,H);let step=view.s>12?1:5;ctx.font='10px system-ui';ctx.textAlign='center';for(let x=Math.ceil(x0/step)*step;x<x1;x+=step){let [sx]=screen([x,0]);ctx.strokeStyle=x===0?'#648c9c':'#2b3049';ctx.beginPath();ctx.moveTo(sx,0);ctx.lineTo(sx,H);ctx.stroke();if(view.s>20||x%5===0){ctx.fillStyle='#a6b4d0';ctx.fillText(x,sx,Math.min(H-45,Math.max(15,screen([0,0])[1]+12)));}}for(let y=Math.ceil(y0/step)*step;y<y1;y+=step){let [,sy]=screen([0,y]);ctx.strokeStyle=y===0?'#648c9c':'#2b3049';ctx.beginPath();ctx.moveTo(0,sy);ctx.lineTo(W,sy);ctx.stroke();if(y&&(view.s>20||y%5===0)){ctx.fillStyle='#a6b4d0';ctx.fillText(y,Math.max(14,Math.min(W-15,screen([0,0])[0]-12)),sy);}}
+ const [ux,uy]=screen([D.u[0],D.u[1]+10]);ctx.strokeStyle='#a8b6d1';ctx.strokeRect(ux,uy,10*view.s,10*view.s);ctx.fillStyle='#a8b6d1';ctx.fillText('U · 10 × 10',ux+40,uy-7);
+ for(const l of pieces)if(!hidden.has(l.id)){ctx.save();ctx.beginPath();ctx.rect(0,0,W,H);ctx.rect(ux,uy,10*view.s,10*view.s);ctx.clip('evenodd');ctx.globalAlpha=.35; // alpha applied by offscreen clipping below via global style
+ if(l.kind==='curve'&&l.rel==='=')strokeCurve(l,l.color);else drawPiece(l,false,true);ctx.restore();ctx.save();ctx.beginPath();ctx.rect(ux,uy,10*view.s,10*view.s);ctx.clip();drawPiece(l);ctx.restore();}
+ if(D.target&&($('dShowTarget').checked||mode==='test'))drawPiece(D.target.piece,true);
+ if(polyPoints){ctx.beginPath();polyPoints.forEach((p,i)=>{i?ctx.lineTo(...screen(p)):ctx.moveTo(...screen(p))});ctx.strokeStyle='#f5bc57';ctx.lineWidth=2;ctx.stroke();for(const p of polyPoints){ctx.beginPath();ctx.arc(...screen(p),4,0,Math.PI*2);ctx.fillStyle='#f5bc57';ctx.fill();}}
+}
+function fit(){if(!W)return;const bounds=[{x:D.u[0],y:D.u[1],w:10,h:10}];for(const l of pieces){if(l.kind==='curve')bounds.push({x:l.x-1,y:l.y-1,w:2,h:2});else{const b=G.bounds(geometry(l));if(b)bounds.push(b);}}let x0=Math.min(...bounds.map(b=>b.x))-1,x1=Math.max(...bounds.map(b=>b.x+b.w))+1,y0=Math.min(...bounds.map(b=>b.y))-1,y1=Math.max(...bounds.map(b=>b.y+b.h))+1;view.s=Math.max(8,Math.min((W-40)/(x1-x0),(H-110)/(y1-y0),90));view.tx=W/2-(x0+x1)/2*view.s;view.ty=(H-30)/2+(y0+y1)/2*view.s;draw();}
+function resizeCanvas(){const r=canvas.getBoundingClientRect();W=r.width;H=r.height;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);fit();}
+function hit(p){return pieces.filter(l=>!hidden.has(l.id)&&((l.kind==='curve'&&l.rel==='=')?(()=>{const c=transformed(l),v=F(c,...p),gx=2*c[0]*p[0]+c[1]*p[1]+c[3],gy=c[1]*p[0]+2*c[2]*p[1]+c[4];return Math.abs(v)/Math.max(.001,Math.hypot(gx,gy))<9/view.s})():G.contains(geometry(l),p))).reverse();}
+canvas.onpointerdown=e=>{if(e.button!==0)return;canvas.focus();const r=canvas.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top,p=world(sx,sy);if(polyPoints){polyPoints.push(p.map(v=>Math.round(v*2)/2));draw();return;}const hits=hit(p),l=e.altKey&&hits.length>1?hits[(hits.findIndex(l=>selected.includes(l.id))+1)%hits.length]:hits[0];drag={sx,sy,p,l:l?copy(l):null,moved:false,tx:view.tx,ty:view.ty};canvas.setPointerCapture(e.pointerId)};
+canvas.onpointermove=e=>{if(!drag)return;const r=canvas.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top;if(Math.hypot(sx-drag.sx,sy-drag.sy)<4&&!drag.moved)return;drag.moved=true;if(!drag.l){view.tx=drag.tx+sx-drag.sx;view.ty=drag.ty+sy-drag.sy;draw();return;}const p=world(sx,sy),l=pieces.find(l=>l.id===drag.l.id);if(ruleAllowed('moveX'))l.x=Math.max(-50,Math.min(50,drag.l.x+Math.round((p[0]-drag.p[0])*2)/2));if(ruleAllowed('moveY'))l.y=Math.max(-50,Math.min(50,drag.l.y+Math.round((p[1]-drag.p[1])*2)/2));cache.clear();draw()};
+canvas.onpointerup=()=>{if(!drag)return;const d=drag;drag=null;if(d.l&&d.moved){const l=pieces.find(l=>l.id===d.l.id),patch={};if(l.x!==d.l.x)patch.x=l.x;if(l.y!==d.l.y)patch.y=l.y;Object.assign(l,d.l);if(Object.keys(patch).length){selected=[l.id];updatePiece(l.id,patch,l.name+': mover a ('+(patch.x??l.x)+', '+(patch.y??l.y)+')')}}else if(d.l)select(d.l.id)};
+canvas.onpointercancel=()=>{if(drag?.l){Object.assign(pieces.find(l=>l.id===drag.l.id),drag.l);cache.clear();}drag=null;draw()};
+canvas.onwheel=e=>{e.preventDefault();view.s=Math.max(5,Math.min(140,view.s*Math.exp(-e.deltaY*.001)));draw()};
+$('dType').onchange=()=>{const t=$('dType').value;$('dExpression').hidden=!templates[t];if(templates[t])$('dExpression').value=templates[t];$('dFormulaHelp').textContent=templates[t]?'Ejemplo editable. Usá * para multiplicar y ^2 para cuadrados. Se admiten ecuaciones que se reduzcan a grado 1 o 2.':'Las figuras nuevas aparecen fuera de U. Podés ajustar su centro y dimensiones.';};
+$('dAdd').onclick=add;$('dStock').onclick=saveStock;$('dTarget').onclick=markTarget;$('dVerify').onclick=verify;$('dTest').onclick=test;$('dBack').onclick=back;$('dConfirm').onclick=confirmTarget;$('dRestart').onclick=()=>{$('dAdopt').hidden=true;pieces=copy(D.stock);testEvents=[];testCursor=0;selected=[];cache.clear();render();fit();status('Intento reiniciado.')};
+$('dAdopt').onclick=()=>{if(!confirmTarget())return;D.events=copy(testEvents.slice(0,testCursor));returnState={pieces:copy(pieces),selected:[...selected],cursor:testCursor};back();verify();status('La nueva solución quedó guardada en el historial del diseño. Exportá el JSON para conservarla.');};
+$('dUndo').onclick=()=>goto(Math.max(0,(mode==='test'?testCursor:cursor)-1));$('dRedo').onclick=()=>goto(Math.min(activeEvents().length,(mode==='test'?testCursor:cursor)+1));$('dStart').onclick=()=>goto(0);$('dEnd').onclick=()=>goto(activeEvents().length);
+$('dRotate').onclick=()=>{const l=sel()[0];if(l)updatePiece(l.id,{angle:(l.angle+270)%360},l.name+': girar 90° horario')};document.querySelectorAll('[data-dop]').forEach(b=>b.onclick=()=>operate(b.dataset.dop));
+$('dPolygon').onclick=()=>{if(polyPoints){if(polyPoints.length<3){status('Necesitás al menos tres vértices.',true);return;}if(polyPoints.length>30){status('Máximo 30 vértices.',true);return;}const pts=polyPoints;for(let i=0;i<pts.length;i++)for(let j=i+2;j<pts.length;j++){if(i===0&&j===pts.length-1)continue;const a=pts[i],b=pts[(i+1)%pts.length],c=pts[j],d=pts[(j+1)%pts.length],cross=(u,v,w)=>(v[0]-u[0])*(w[1]-u[1])-(v[1]-u[1])*(w[0]-u[0]);if(cross(a,b,c)*cross(a,b,d)<0&&cross(c,d,a)*cross(c,d,b)<0){status('El polígono se cruza. Cancelalo con Escape y dibujá un contorno simple.',true);return;}}if(G.area(G.poly(pts))<1e-6){status('Los vértices no encierran un área.',true);return;}const id=nextId++,cx=pts.reduce((s,p)=>s+p[0],0)/pts.length,cy=pts.reduce((s,p)=>s+p[1],0)/pts.length;perform({type:'add',piece:{id,name:'Fig. '+id,kind:'polygon',pts:pts.map(p=>[p[0]-cx,p[1]-cy]),x:cx,y:cy,angle:0,color:colors[(id-1)%colors.length]},label:'Dibujar polígono de '+pts.length+' vértices'});polyPoints=null;$('dPolygon').textContent='Dibujar polígono';draw();}else{polyPoints=[];$('dPolygon').textContent='Cerrar polígono ✓';status('Clic en cada vértice, después «Cerrar polígono». Escape cancela.')}};
+$('dFit').onclick=fit;$('dZoomIn').onclick=()=>{view.s=Math.min(140,view.s*1.2);draw()};$('dZoomOut').onclick=()=>{view.s=Math.max(5,view.s/1.2);draw()};$('dShowTarget').onchange=draw;
+$('dName').onchange=()=>D.name=$('dName').value.trim()||'Mi nivel';$('dGoal').onchange=()=>D.goal=$('dGoal').value;
+$('dUniverse').onclick=()=>{if(D.stock){status('El universo queda fijo al guardar el stock. Creá otro diseño para cambiarlo.',true);return;}const u=[+$('dUX').value,+$('dUY').value];if(!u.every(v=>Number.isInteger(v)&&v>=-25&&v<=15)){status('El origen de U debe estar entre −25 y 15, para que todo el cuadrado quede entre −25 y 25.',true);return;}D.u=u;D.target=null;cache.clear();render();fit()};
+$('dExport').onclick=download;$('dImportBtn').onclick=()=>$('dImport').click();$('dImport').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{if(f.size>3000000)throw Error('El archivo supera 3 MB.');const data=JSON.parse(await f.text());importData(data);}catch(error){status('No se cargó: '+error.message,true)}e.target.value=''};
+function newDesign(){D=blank();pieces=[];selected=[];cursor=0;mode='edit';hidden.clear();cache.clear();nextId=1;polyPoints=null;verified=false;sync();renderRules();render();fit();status('Nuevo diseño. Agregá las piezas y guardá el stock inicial.')}
+$('dNew').onclick=()=>{if((pieces.length||D.stock)&&!confirm('¿Crear un diseño vacío? Exportá antes si querés conservar el actual.'))return;newDesign()};
+$('dDemo').onclick=()=>{if((pieces.length||D.stock)&&!confirm('¿Cargar el ejemplo? Exportá antes si querés conservar el diseño actual.'))return;newDesign();D.name='Una ventana circular';D.goal='Mové las piezas y restá el círculo al cuadrado.';let a={id:1,name:'Fig. 1',kind:'rect',x:-8,y:1,angle:0,w:6,h:6,color:colors[0]},b={id:2,name:'Fig. 2',kind:'circle',x:8,y:0,angle:0,r:2,color:colors[1]};D.stock=[a,b];pieces=copy(D.stock);D.events=[{type:'update',id:1,patch:{x:0,y:0},label:'Centrar el cuadrado',enabled:true},{type:'update',id:2,patch:{x:0},label:'Centrar el círculo',enabled:true},{type:'op',ids:[1,2],op:'difference',resultId:3,label:'Restar círculo al cuadrado',enabled:true}];cursor=3;pieces=replay(D.events,3);D.target={piece:copy(pieces[0])};selected=[3];nextId=4;sync();render();fit();status('Ejemplo listo. Revisá el historial, verificá la solución o probá el nivel.');};
+$('dClose').onclick=()=>{if(mode==='test')back();root.hidden=true;};
+window.addEventListener('keydown',e=>{if(root.hidden)return;if(e.key==='Escape'&&polyPoints){polyPoints=null;$('dPolygon').textContent='Dibujar polígono';status('Dibujo cancelado.');draw();}if(e.target===canvas&&(e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.stopImmediatePropagation();goto(Math.max(0,(mode==='test'?testCursor:cursor)+(e.shiftKey?1:-1)));}},true);
+new ResizeObserver(()=>{if(!root.hidden)resizeCanvas()}).observe(canvas);
+const launch=document.createElement('button');launch.id='designerBtn';launch.textContent='✦ Diseñar';launch.onclick=()=>{root.hidden=false;render();resizeCanvas();};document.querySelector('.topbar .tools').prepend(launch);renderRules();
+window.DesignerTest={get data(){return D},get pieces(){return pieces},get mode(){return mode},get cursor(){return cursor},get verified(){return verified},parseEquation,transformed,geometry,targetMatches,perform,replay,verify,saveStock,markTarget,test,back,confirmTarget,importData,select,operate,newDesign,screen,fit,goto,open(){launch.click()},selectIds(ids){selected=[...ids];render()},update:updatePiece};
+})();
+</script>
+
 </body>
 </html>

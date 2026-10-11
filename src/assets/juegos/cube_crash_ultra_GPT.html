@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cube Crash Ultra</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at center, #1a103c 0%, #080512 100%);
+            color: #f3f4f6;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(23, 15, 48, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-button {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-button:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+
+        .glass-button:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .glass-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .neon-glow-purple {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.35);
+        }
+
+        .neon-text-purple {
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+        }
+
+        .neon-text-cyan {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
+        }
+
+        .neon-text-gold {
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+        }
+
+        canvas {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            cursor: pointer;
+        }
+
+        /* Pulse highlight for active powerup */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .active-powerup-bomb {
+            animation: pulse-ring 1.5s infinite;
+            border-color: #ef4444 !important;
+            background: rgba(239, 68, 68, 0.25) !important;
+        }
+
+        /* Modal backdrop transition */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    
+        body { padding: 12px !important; justify-content: flex-start !important; }
+        body > header, body > main { max-width: none !important; width: 100%; }
+        body > main { display:grid !important; grid-template-columns:240px minmax(0,1fr); align-items:start !important; gap:16px; }
+        main > aside { width:240px !important; order:0 !important; }
+        main > section { min-width:0; order:1 !important; }
+        main > section > div { width:100%; padding:10px !important; }
+        #game-canvas { display:block; max-width:100%; }
+        .level-controls { padding:14px; border-radius:16px; display:grid; gap:9px; font-size:12px; }
+        .level-controls label { display:grid; gap:5px; color:#c4b5fd; }
+        .level-controls select,.level-controls input { width:100%; padding:9px; border-radius:8px; background:#100d24; color:white; border:1px solid #655083; }
+        .level-controls button { padding:9px; border-radius:9px; }
+        #level-description { color:#a5f3fc; line-height:1.5; }
+        @media(max-width:760px) {
+          body > main { grid-template-columns:minmax(0,1fr); }
+          main > section { order:0 !important; }
+          main > aside { width:100% !important; order:1 !important; display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); }
+          .level-controls { grid-column:1/-1; }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 select-none">
+    <!-- TOP NAVIGATION / HEADER -->
+    <header class="w-full max-w-5xl flex items-center justify-between mb-3 px-3 py-2.5 rounded-2xl glass-panel">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-pink-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                <i class="fa-solid font-bold fa-cubes text-xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="font-orbitron font-black text-lg sm:text-2xl bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-300 to-cyan-400 tracking-wider">
+                    CUBE CRASH
+                </h1>
+                <p class="text-[10px] sm:text-xs text-purple-300/70 -mt-1 font-semibold tracking-widest uppercase">ULTRA EDITION</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Sound Toggle Button -->
+            <button id="btn-sound" title="Toggle Sound" class="glass-button w-10 h-10 rounded-xl flex items-center justify-center text-purple-200">
+                <i id="icon-sound" class="fa-solid fa-volume-high text-lg"></i>
+            </button>
+            <!-- Help/Info Button -->
+            <button id="btn-help" title="How to play" class="glass-button w-10 h-10 rounded-xl flex items-center justify-center text-purple-200">
+                <i class="fa-solid fa-circle-question text-lg"></i>
+            </button>
+            <!-- Récord Badge -->
+            <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl glass-panel border-amber-500/30">
+                <i class="fa-solid fa-trophy text-amber-400 text-sm"></i>
+                <div class="flex flex-col">
+                    <span class="text-[9px] uppercase tracking-wider text-amber-300/70">Récord</span>
+                    <span id="high-score-val" class="font-orbitron text-xs font-bold text-amber-300">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT GRID -->
+    <main class="w-full max-w-5xl flex-1 flex flex-col lg:flex-row gap-4 items-center justify-center">
+
+        <!-- LEFT / SIDEBAR PANEL: STATS & POWERUPS -->
+        <aside class="w-full lg:w-72 flex flex-col gap-3 order-2 lg:order-1">
+            
+            <!-- Level & Score Container -->
+            <div class="glass-panel p-4 rounded-2xl flex flex-col gap-3 relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <!-- Level & Progress Bar -->
+                <div>
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="text-xs uppercase tracking-wider text-purple-300/80 font-bold">Level</span>
+                        <span id="stat-level" class="font-orbitron text-xl font-bold text-cyan-300 neon-text-cyan">1</span>
+                    </div>
+                    <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden p-0.5 border border-white/10">
+                        <div id="level-progress-bar" class="bg-gradient-to-r from-cyan-500 to-purple-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Score Display -->
+                <div class="bg-slate-900/60 rounded-xl p-3 border border-purple-500/20">
+                    <span class="text-[10px] uppercase tracking-wider text-purple-300/70 font-semibold block mb-0.5">Puntaje total</span>
+                    <div id="stat-score" class="font-orbitron text-2xl sm:text-3xl font-black text-purple-200 neon-text-purple tracking-wide">
+                        0
+                    </div>
+                </div>
+
+                <!-- Stats Grid (Remaining blocks & Target) -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-slate-900/40 rounded-xl p-2.5 border border-white/5 text-center">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 block mb-1">Cubos restantes</span>
+                        <span id="stat-blocks-left" class="font-orbitron text-lg font-bold text-pink-400">120</span>
+                    </div>
+                    <div class="bg-slate-900/40 rounded-xl p-2.5 border border-white/5 text-center">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 block mb-1">Meta del nivel</span>
+                        <span id="stat-target-score" class="font-orbitron text-lg font-bold text-amber-400">1,500</span>
+                    </div>
+                </div>
+
+                <!-- Selection Hover Preview Card -->
+                <div id="hover-preview-card" class="bg-purple-950/40 border border-purple-500/30 rounded-xl p-2.5 flex items-center justify-between opacity-50 transition-all">
+                    <div class="flex items-center gap-2">
+                        <div id="hover-color-indicator" class="w-4 h-4 rounded-md bg-slate-700 shadow-sm"></div>
+                        <span id="hover-count-text" class="text-xs font-semibold text-purple-200">Select cubes</span>
+                    </div>
+                    <span id="hover-score-text" class="font-orbitron text-xs font-bold text-emerald-400">+0 pts</span>
+                </div>
+            </div>
+
+            <!-- POWER-UPS & CONTROLS PANEL -->
+            <div class="glass-panel p-4 rounded-2xl flex flex-col gap-3">
+                <span class="text-xs uppercase tracking-wider text-purple-300/80 font-bold block mb-1">Power-Ups & Actions</span>
+                
+                <div class="grid grid-cols-3 gap-2">
+                    <!-- Undo Button -->
+                    <button id="btn-undo" class="glass-button p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 group relative">
+                        <i class="fa-solid fa-rotate-left text-amber-400 text-base group-hover:scale-110 transition-transform"></i>
+                        <span class="text-[10px] font-bold text-slate-300">Undo</span>
+                        <span id="badge-undo" class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center">1</span>
+                    </button>
+
+                    <!-- Bomb Power-up -->
+                    <button id="btn-bomb" class="glass-button p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 group relative">
+                        <i class="fa-solid fa-bomb text-red-400 text-base group-hover:scale-110 transition-transform"></i>
+                        <span class="text-[10px] font-bold text-slate-300">Bomb</span>
+                        <span id="badge-bomb" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center">2</span>
+                    </button>
+
+                    <!-- Shuffle Power-up -->
+                    <button id="btn-shuffle" class="glass-button p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 group relative">
+                        <i class="fa-solid fa-shuffle text-cyan-400 text-base group-hover:scale-110 transition-transform"></i>
+                        <span class="text-[10px] font-bold text-slate-300">Shuffle</span>
+                        <span id="badge-shuffle" class="absolute -top-1 -right-1 bg-cyan-500 text-slate-950 text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center">1</span>
+                    </button>
+                </div>
+
+                <!-- Primary Action Buttons -->
+                <div class="flex gap-2 mt-1">
+                    <button id="btn-restart" class="flex-1 glass-button py-2.5 rounded-xl font-semibold text-xs text-purple-200 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrows-rotate text-purple-400"></i> Nueva partida
+                    </button>
+                </div>
+            </div>
+            <div class="glass-panel level-controls">
+                <strong>NIVELES INFINITOS</strong>
+                <label>Tamaño del tablero<select id="board-size"><option value="18,10">Amplio · 18 × 10</option><option value="24,14">Grande · 24 × 14</option><option value="30,18">Gigante · 30 × 18</option><option value="10,12">Original · 10 × 12</option></select></label>
+                <label>Semilla de la partida<input id="seed-input" maxlength="40" aria-label="Semilla"></label>
+                <button id="btn-seed" class="glass-button">Jugar esta semilla desde nivel 1</button>
+                <button id="btn-retry" class="glass-button">Reintentar este nivel</button>
+                <div id="level-description"></div>
+                <small>Alcanzá la meta con los puntos de este nivel. Misma semilla y tamaño = mismos tableros. Nueva partida cambia la semilla.</small>
+            </div>
+        </aside>
+
+        <!-- CENTER CANVAS BOARD -->
+        <section class="order-1 lg:order-2 flex-1 flex items-center justify-center w-full">
+            <div class="relative p-2.5 sm:p-3 rounded-3xl glass-panel neon-glow-purple flex items-center justify-center">
+                <!-- Canvas Element -->
+                <canvas id="game-canvas" class="rounded-2xl shadow-2xl bg-slate-950/90 border border-white/10"></canvas>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- GAME OVER / LEVEL WIN MODAL -->
+    <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div id="modal-card" class="glass-panel max-w-md w-full p-6 rounded-3xl border border-purple-500/30 text-center flex flex-col items-center gap-4 shadow-2xl modal-enter">
+            
+            <!-- Trophy or Icon Banner -->
+            <div id="modal-icon-wrapper" class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-purple-600 to-cyan-400 flex items-center justify-center text-4xl text-white shadow-lg shadow-purple-500/40 -mt-10 border-2 border-white/20">
+                <i id="modal-icon" class="fa-solid fa-trophy"></i>
+            </div>
+
+            <div class="space-y-1">
+                <h2 id="modal-title" class="font-orbitron text-2xl sm:text-3xl font-black text-white tracking-wide">
+                    LEVEL COMPLETED!
+                </h2>
+                <p id="modal-subtitle" class="text-xs text-purple-300/80 font-medium">
+                    Awesome job! You've reached the target.
+                </p>
+            </div>
+
+            <!-- Stats breakdown box -->
+            <div class="w-full bg-slate-900/80 rounded-2xl p-4 border border-white/10 flex flex-col gap-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Level Reached</span>
+                    <span id="modal-stat-level" class="font-orbitron font-bold text-cyan-300">1</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Total Score</span>
+                    <span id="modal-stat-score" class="font-orbitron font-bold text-purple-300 text-sm">0</span>
+                </div>
+                <div id="modal-bonus-row" class="flex justify-between items-center text-xs text-emerald-400 hidden">
+                    <span>Perfect Clear Bonus</span>
+                    <span id="modal-stat-bonus" class="font-orbitron font-bold">+2,000</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Blocks Remaining</span>
+                    <span id="modal-stat-blocks" class="font-orbitron font-bold text-pink-400">0</span>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex gap-3 w-full mt-2">
+                <button id="modal-btn-restart" class="flex-1 glass-button py-3 rounded-2xl font-bold text-xs text-purple-200 uppercase tracking-wider">
+                    Reintentar
+                </button>
+                <button id="modal-btn-next" class="flex-1 bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white py-3 rounded-2xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/30 transition-all">
+                    Siguiente nivel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HOW TO PLAY MODAL -->
+    <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-panel max-w-md w-full p-6 rounded-3xl border border-purple-500/30 flex flex-col gap-4 text-slate-200">
+            <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                <h3 class="font-orbitron text-xl font-bold text-purple-300 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-cyan-400"></i> How to Play
+                </h3>
+                <button id="btn-close-help" class="text-slate-400 hover:text-white p-1 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <ul class="space-y-2.5 text-xs text-slate-300">
+                <li class="flex items-start gap-2.5">
+                    <span class="bg-purple-500/20 text-purple-300 rounded-md w-5 h-5 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">1</span>
+                    <span>Click on groups of <strong>2 or more connected cubes</strong> of the same color to break them.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                    <span class="bg-purple-500/20 text-purple-300 rounded-md w-5 h-5 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">2</span>
+                    <span>Larger groups give <strong>quadratically more points</strong>! (Score = Count² × 10).</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                    <span class="bg-purple-500/20 text-purple-300 rounded-md w-5 h-5 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">3</span>
+                    <span>Cubes fall down due to gravity, and empty columns slide left to fill gaps.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                    <span class="bg-purple-500/20 text-purple-300 rounded-md w-5 h-5 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">4</span>
+                    <span>Use Power-Ups like <strong>Bomb</strong> to blast 3x3 areas, <strong>Shuffle</strong> to mix cubes, or <strong>Undo</strong> if you made a mistake.</span>
+                </li>
+            </ul>
+
+            <button id="btn-got-it" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-3 rounded-xl mt-2">
+                Got it, Let's Play!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /* WEB AUDIO API SYNTHESIZER ENGINE */
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) {
+                        this.ctx = new AudioCtx();
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playPop(comboSize = 2) {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                // Pitch scales with combo size
+                const baseFreq = 220 + Math.min(comboSize * 25, 600);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(baseFreq, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.8, this.ctx.currentTime + 0.08);
+
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.12);
+            }
+
+            playExplosion() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                // Sub bass burst
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.25);
+
+                gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
+            }
+
+            playSlide() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(120, this.ctx.currentTime + 0.15);
+
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+
+            playShuffle() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        this.playPop(i * 2 + 2);
+                    }, i * 40);
+                }
+            }
+
+            playLevelWin() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const notes = [261.63, 329.63, 392.00, 523.25, 659.25]; // C Major arpeggio
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
+
+                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.08 + 0.3);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + idx * 0.08);
+                    osc.stop(this.ctx.currentTime + idx * 0.08 + 0.3);
+                });
+            }
+
+            playGameOver() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const notes = [311.13, 293.66, 277.18, 261.63]; // Descending minor
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.12);
+
+                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime + idx * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.12 + 0.25);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + idx * 0.12);
+                    osc.stop(this.ctx.currentTime + idx * 0.12 + 0.25);
+                });
+            }
+        }
+
+        const soundEngine = new SoundEngine();
+
+        /* CUBE COLOR PALETTES */
+        const CUBE_COLORS = [
+            { name: 'Cyan', main: '#06b6d4', top: '#67e8f9', shadow: '#0e7490', glow: 'rgba(6, 182, 212, 0.6)' },
+            { name: 'Emerald', main: '#10b981', top: '#6ee7b7', shadow: '#047857', glow: 'rgba(16, 185, 129, 0.6)' },
+            { name: 'Purple', main: '#a855f7', top: '#d8b4fe', shadow: '#7e22ce', glow: 'rgba(168, 85, 247, 0.6)' },
+            { name: 'Orange', main: '#f97316', top: '#fdba74', shadow: '#c2410c', glow: 'rgba(249, 115, 22, 0.6)' },
+            { name: 'Red', main: '#ef4444', top: '#fca5a5', shadow: '#b91c1c', glow: 'rgba(239, 68, 68, 0.6)' },
+            { name: 'Gold', main: '#eab308', top: '#fef08a', shadow: '#a16207', glow: 'rgba(234, 179, 8, 0.6)' }
+        ];
+
+        /* GAME CONFIGURATION & STATE */
+        let COLS = 18, ROWS = 10;
+        let runSeed = '', levelStartScore = 0, levelFinished = false, statusTimer;
+        const patternNames = ['Lluvia de cubos', 'Islas de color', 'Franjas fragmentadas'];
+        function seededRandom(text) {
+            let a = 2166136261;
+            for (const ch of text) a = Math.imul(a ^ ch.charCodeAt(0), 16777619);
+            return () => { a += 0x6D2B79F5; let t = a;
+                t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+                return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+        }
+        // A legal greedy playthrough gives a reachable reference score, without power-ups.
+        function reachableScore(board) {
+            let b = board.map(col => col.map(v => v.colorIdx)), total = 0;
+            while (b.length) {
+                let best = [], seen = new Set();
+                for (let c=0;c<b.length;c++) for(let r=0;r<ROWS;r++) {
+                    const key=c+','+r;
+                    if(b[c][r]===null || seen.has(key)) continue;
+                    const group=[], stack=[[c,r]], color=b[c][r]; seen.add(key);
+                    while(stack.length) {
+                        const [x,y]=stack.pop(); group.push([x,y]);
+                        for(const [nx,ny] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1]]) {
+                            const k=nx+','+ny;
+                            if(nx>=0 && nx<b.length && ny>=0 && ny<ROWS && !seen.has(k) && b[nx][ny]===color) {seen.add(k); stack.push([nx,ny]);}
+                        }
+                    }
+                    if(group.length>best.length) best=group;
+                }
+                if(best.length<2) break;
+                total+=best.length**2*10;
+                for(const [c,r] of best) b[c][r]=null;
+                b=b.map(col=>{const live=col.filter(v=>v!==null);return Array(ROWS-live.length).fill(null).concat(live)}).filter(col=>col.some(v=>v!==null));
+            }
+            return total;
+        }
+        
+        let canvas, ctx;
+        let cellSize = 42;
+        let padding = 3;
+
+        let grid = []; // 2D Array: grid[col][row] = Block or null
+        let particles = [];
+        let scoreFloaters = [];
+
+        let score = 0;
+        let level = 1;
+        let highScore = parseInt(localStorage.getItem('cube_crash_highscore') || '0');
+        let blocksLeft = COLS * ROWS;
+        let targetScore = 1500;
+
+        let undoState = null;
+        let bombCount = 2;
+        let shuffleCount = 1;
+        let undoCount = 1;
+
+        let hoveredGroup = [];
+        let isBombMode = false;
+        let isAnimating = false;
+        let mousePos = { x: -1, y: -1, col: -1, row: -1 };
+
+        /* BLOCK CLASS */
+        class Block {
+            constructor(colorIdx, col, row) {
+                this.colorIdx = colorIdx;
+                this.col = col;
+                this.row = row;
+                this.x = col;
+                this.y = row;
+                this.targetX = col;
+                this.targetY = row;
+                this.scale = 1;
+                this.alpha = 1;
+                this.pulse = Math.random() * Math.PI;
+            }
+
+            update() {
+                // Smooth movement towards target position
+                this.x += (this.targetX - this.x) * 0.25;
+                this.y += (this.targetY - this.y) * 0.25;
+                this.pulse += 0.05;
+            }
+        }
+
+        /* PARTICLE SYSTEM FOR EXPLOSIONS */
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8 - 2;
+                this.size = Math.random() * 6 + 3;
+                this.color = color;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.03 + 0.02;
+                this.gravity = 0.2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.alpha -= this.decay;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                ctx.fillStyle = this.color.main;
+                ctx.shadowColor = this.color.main;
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        /* FLOATING SCORE TEXT */
+        class ScoreFloater {
+            constructor(x, y, text, color) {
+                this.x = x;
+                this.y = y;
+                this.text = text;
+                this.color = color;
+                this.alpha = 1;
+                this.vy = -2;
+            }
+
+            update() {
+                this.y += this.vy;
+                this.alpha -= 0.025;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                ctx.font = '900 16px "Orbitron", sans-serif';
+                ctx.fillStyle = this.color;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 10;
+                ctx.textAlign = 'center';
+                ctx.fillText(this.text, this.x, this.y);
+                ctx.restore();
+            }
+        }
+
+        /* INIT GAME ENGINE */
+        window.onload = function() {
+            canvas = document.getElementById('game-canvas');
+            ctx = canvas.getContext('2d');
+
+            setupEventListeners();
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            document.getElementById('high-score-val').innerText = highScore.toLocaleString();
+
+            startNewGame();
+            requestAnimationFrame(gameLoop);
+        };
+
+        function resizeCanvas() {
+            const availableWidth = Math.max(100, canvas.parentElement.clientWidth - 22);
+            const availableHeight = Math.max(260, window.innerHeight - 115);
+            cellSize = Math.min(availableWidth / COLS, availableHeight / ROWS);
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = Math.round(COLS * cellSize * dpr);
+            canvas.height = Math.round(ROWS * cellSize * dpr);
+            canvas.style.width = (COLS * cellSize) + 'px';
+            canvas.style.height = (ROWS * cellSize) + 'px';
+            padding = Math.max(1, Math.min(3, cellSize * .065));
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            particles = []; scoreFloaters = [];
+        }
+
+        function getNumColorsForLevel(lvl) { return Math.min(6, 3 + Math.floor((lvl-1)/3)); }
+
+        function startNewGame(keepScoreAndLevel = false, repeat = false) {
+            clearTimeout(statusTimer);
+            if (!keepScoreAndLevel) {
+                score = 0; level = 1;
+                if (!repeat) runSeed = Math.random().toString(36).slice(2,10).toUpperCase();
+            } else if (repeat) score = levelStartScore;
+            levelStartScore = score;
+            levelFinished = false; isAnimating = false;
+            bombCount = 2; shuffleCount = 1; undoCount = 1;
+            [COLS, ROWS] = document.getElementById('board-size').value.split(',').map(Number);
+            document.getElementById('seed-input').value = runSeed;
+            const random = seededRandom(runSeed + ':' + level + ':' + COLS + ':' + ROWS);
+            const numColors = getNumColorsForLevel(level), pattern = (level-1)%3;
+            grid = [];
+            for (let c=0;c<COLS;c++) {
+                grid[c]=[];
+                for(let r=0;r<ROWS;r++) {
+                    let colorIdx = Math.floor(random()*numColors);
+                    if(pattern===1 && random()<.38) {
+                        if(c>0) colorIdx=grid[c-1][r].colorIdx;
+                        else if(r>0) colorIdx=grid[c][r-1].colorIdx;
+                    }
+                    if(pattern===2 && random()<.55) colorIdx=(Math.floor(r/2)+Math.floor(c/4))%numColors;
+                    grid[c][r]=new Block(colorIdx,c,r);
+                }
+            }
+            // Always start with at least one legal group.
+            grid[1][0].colorIdx=grid[0][0].colorIdx;
+            const reference = reachableScore(grid);
+            targetScore = Math.max(40, Math.floor(reference * Math.min(.8,.5+level*.015)/10)*10);
+            blocksLeft=COLS*ROWS; undoState=null; isBombMode=false; hoveredGroup=[];
+            mousePos={x:-1,y:-1,col:-1,row:-1};
+            document.getElementById('btn-bomb').classList.remove('active-powerup-bomb');
+            document.getElementById('level-description').textContent = patternNames[pattern] + ' · ' + numColors + ' colores · ' + COLS + ' × ' + ROWS;
+            resizeCanvas(); updateHoverPreview([]); updateUI();
+        }
+
+        function saveUndoState() {
+            // Save deep copy of grid and stats
+            const gridCopy = [];
+            for (let c = 0; c < COLS; c++) {
+                gridCopy[c] = [];
+                for (let r = 0; r < ROWS; r++) {
+                    if (grid[c][r]) {
+                        gridCopy[c][r] = new Block(grid[c][r].colorIdx, c, r);
+                    } else {
+                        gridCopy[c][r] = null;
+                    }
+                }
+            }
+            undoState = {
+                grid: gridCopy,
+                score: score,
+                blocksLeft: blocksLeft
+            };
+            document.getElementById('btn-undo').disabled = undoCount <= 0;
+        }
+
+        /* FLOOD FILL ALGORITHM FOR CONNECTED BLOCKS */
+        function getConnectedGroup(startCol, startRow) {
+            if (startCol < 0 || startCol >= COLS || startRow < 0 || startRow >= ROWS) return [];
+            const targetBlock = grid[startCol][startRow];
+            if (!targetBlock) return [];
+
+            const targetColor = targetBlock.colorIdx;
+            const visited = Array(COLS).fill(0).map(() => Array(ROWS).fill(false));
+            const queue = [{ col: startCol, row: startRow }];
+            const group = [];
+
+            visited[startCol][startRow] = true;
+
+            while (queue.length > 0) {
+                const { col, row } = queue.shift();
+                group.push({ col, row });
+
+                // Check 4 orthogonal neighbors
+                const neighbors = [
+                    { col: col + 1, row: row },
+                    { col: col - 1, row: row },
+                    { col: col, row: row + 1 },
+                    { col: col, row: row - 1 }
+                ];
+
+                for (const n of neighbors) {
+                    if (n.col >= 0 && n.col < COLS && n.row >= 0 && n.row < ROWS) {
+                        if (!visited[n.col][n.row] && grid[n.col][n.row] && grid[n.col][n.row].colorIdx === targetColor) {
+                            visited[n.col][n.row] = true;
+                            queue.push(n);
+                        }
+                    }
+                }
+            }
+
+            return group;
+        }
+
+        /* BOMB AREA SELECTION (3x3) */
+        function getBombArea(centerCol, centerRow) {
+            const area = [];
+            for (let c = centerCol - 1; c <= centerCol + 1; c++) {
+                for (let r = centerRow - 1; r <= centerRow + 1; r++) {
+                    if (c >= 0 && c < COLS && r >= 0 && r < ROWS && grid[c][r]) {
+                        area.push({ col: c, row: r });
+                    }
+                }
+            }
+            return area;
+        }
+
+        /* POPPING AND GRAVITY LOGIC */
+        function popGroup(group) {
+            if (group.length === 0 || isAnimating || levelFinished) return;
+            isAnimating = true;
+
+            saveUndoState();
+
+            // Calculate exponential points
+            const points = group.length * group.length * 10;
+            score += points;
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('cube_crash_highscore', highScore.toString());
+                document.getElementById('high-score-val').innerText = highScore.toLocaleString();
+            }
+
+            // Spawn Particles & Floating Text
+            let avgX = 0, avgY = 0;
+            group.forEach(({ col, row }) => {
+                const block = grid[col][row];
+                if (block) {
+                    const color = CUBE_COLORS[block.colorIdx];
+                    const px = col * cellSize + cellSize / 2;
+                    const py = row * cellSize + cellSize / 2;
+
+                    avgX += px;
+                    avgY += py;
+
+                    for (let i = 0; i < 6; i++) {
+                        particles.push(new Particle(px, py, color));
+                    }
+                }
+                grid[col][row] = null;
+            });
+
+            avgX /= group.length;
+            avgY /= group.length;
+
+            scoreFloaters.push(new ScoreFloater(avgX, avgY, `+${points}`, '#34d399'));
+
+            // Play Synth Audio
+            if (isBombMode) {
+                soundEngine.playExplosion();
+                bombCount--;
+                isBombMode = false;
+                document.getElementById('btn-bomb').classList.remove('active-powerup-bomb');
+            } else {
+                soundEngine.playPop(group.length);
+            }
+
+            hoveredGroup = [];
+
+            // Apply Gravity & Column Collapse
+            applyGravityAndCollapse();
+            updateUI();
+        }
+
+        function applyGravityAndCollapse() {
+            // Step 1: Vertical Gravity (blocks fall down)
+            let shifted = false;
+            for (let c = 0; c < COLS; c++) {
+                let writeRow = ROWS - 1;
+                for (let r = ROWS - 1; r >= 0; r--) {
+                    if (grid[c][r] !== null) {
+                        if (r !== writeRow) {
+                            grid[c][writeRow] = grid[c][r];
+                            grid[c][writeRow].targetY = writeRow;
+                            grid[c][writeRow].row = writeRow;
+                            grid[c][r] = null;
+                            shifted = true;
+                        }
+                        writeRow--;
+                    }
+                }
+            }
+
+            // Step 2: Horizontal Column Shift (empty columns collapse left)
+            let writeCol = 0;
+            for (let c = 0; c < COLS; c++) {
+                const isColumnEmpty = grid[c].every(cell => cell === null);
+                if (!isColumnEmpty) {
+                    if (c !== writeCol) {
+                        grid[writeCol] = grid[c];
+                        for (let r = 0; r < ROWS; r++) {
+                            if (grid[writeCol][r]) {
+                                grid[writeCol][r].targetX = writeCol;
+                                grid[writeCol][r].col = writeCol;
+                            }
+                        }
+                        grid[c] = Array(ROWS).fill(null);
+                        shifted = true;
+                    }
+                    writeCol++;
+                }
+            }
+
+            if (shifted) {
+                setTimeout(() => soundEngine.playSlide(), 100);
+            }
+
+            // Recalculate remaining blocks
+            countRemainingBlocks();
+
+            // Check Game End or Level Win conditions after gravity settles
+            clearTimeout(statusTimer);
+            statusTimer = setTimeout(() => { isAnimating=false; checkGameStatus(); }, 300);
+        }
+
+        function countRemainingBlocks() {
+            let count = 0;
+            for (let c = 0; c < COLS; c++) {
+                for (let r = 0; r < ROWS; r++) {
+                    if (grid[c][r] !== null) count++;
+                }
+            }
+            blocksLeft = count;
+            return count;
+        }
+
+        /* GAME STATUS VALIDATION */
+        function checkGameStatus() {
+            if (levelFinished) return;
+            const won = score-levelStartScore >= targetScore || blocksLeft === 0;
+            if (won || !checkForValidMoves()) {
+                levelFinished = true;
+                const bonus = blocksLeft===0 ? 2000 : 0;
+                score += bonus;
+                if(score>highScore) { highScore=score; localStorage.setItem('cube_crash_highscore',String(highScore)); document.getElementById('high-score-val').innerText=highScore.toLocaleString(); }
+                updateUI();
+                if(won) soundEngine.playLevelWin(); else soundEngine.playGameOver();
+                showModal(won, bonus);
+            }
+        }
+
+        function checkForValidMoves() {
+            if(blocksLeft===0) return false;
+            if(bombCount>0) return true;
+            const counts = new Map();
+            for(let c=0;c<COLS;c++) for(let r=0;r<ROWS;r++) {
+                const v=grid[c][r]; if(!v) continue;
+                counts.set(v.colorIdx,(counts.get(v.colorIdx)||0)+1);
+                if(c+1<COLS && grid[c+1][r]?.colorIdx===v.colorIdx) return true;
+                if(r+1<ROWS && grid[c][r+1]?.colorIdx===v.colorIdx) return true;
+            }
+            return shuffleCount>0 && [...counts.values()].some(n=>n>=2);
+        }
+
+        /* POWER-UPS LOGIC */
+        function handleBombToggle() {
+            if (bombCount <= 0 || isAnimating || levelFinished) return;
+            isBombMode = !isBombMode;
+            const btn = document.getElementById('btn-bomb');
+            if (isBombMode) {
+                btn.classList.add('active-powerup-bomb');
+            } else {
+                btn.classList.remove('active-powerup-bomb');
+            }
+            updateHoverGroup();
+        }
+
+        function handleShuffle() {
+            if (shuffleCount <= 0 || isAnimating || levelFinished) return;
+
+            saveUndoState();
+            shuffleCount--;
+
+            // Collect all remaining blocks
+            const remaining = [];
+            for (let c = 0; c < COLS; c++) {
+                for (let r = 0; r < ROWS; r++) {
+                    if (grid[c][r]) {
+                        remaining.push(grid[c][r].colorIdx);
+                    }
+                }
+            }
+
+            // Shuffle array
+            for (let i = remaining.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+            }
+
+            // Repopulate grid bottom-up
+            let idx = 0;
+            for (let c = 0; c < COLS; c++) {
+                for (let r = ROWS - 1; r >= 0; r--) {
+                    if (grid[c][r]) {
+                        grid[c][r].colorIdx = remaining[idx++];
+                    }
+                }
+            }
+
+            soundEngine.playShuffle();
+            hoveredGroup=[]; updateHoverPreview([]);
+            updateUI(); checkGameStatus();
+        }
+
+        function handleUndo() {
+            if (!undoState || undoCount <= 0 || isAnimating || levelFinished) return;
+
+            grid = undoState.grid;
+            score = undoState.score;
+            blocksLeft = undoState.blocksLeft;
+
+            undoCount--;
+            undoState = null;
+            hoveredGroup=[]; updateHoverPreview([]);
+
+            soundEngine.playSlide();
+            updateUI();
+        }
+
+        /* UI STATE UPDATES */
+        function updateUI() {
+            document.getElementById('stat-score').innerText = score.toLocaleString();
+            document.getElementById('stat-level').innerText = level;
+            document.getElementById('stat-blocks-left').innerText = blocksLeft;
+            document.getElementById('stat-target-score').innerText = (score-levelStartScore).toLocaleString() + ' / ' + targetScore.toLocaleString();
+            document.getElementById('stat-target-score').style.fontSize='12px';
+
+            const progressPct = Math.min(100, ((score-levelStartScore) / targetScore) * 100);
+            document.getElementById('level-progress-bar').style.width = progressPct + '%';
+
+            document.getElementById('badge-bomb').innerText = bombCount;
+            document.getElementById('badge-shuffle').innerText = shuffleCount;
+            document.getElementById('badge-undo').innerText = undoCount;
+
+            document.getElementById('btn-bomb').disabled = bombCount <= 0;
+            document.getElementById('btn-shuffle').disabled = shuffleCount <= 0;
+            document.getElementById('btn-undo').disabled = !undoState || undoCount <= 0;
+        }
+
+        function updateHoverPreview(group) {
+            const card = document.getElementById('hover-preview-card');
+            const colorInd = document.getElementById('hover-color-indicator');
+            const countTxt = document.getElementById('hover-count-text');
+            const scoreTxt = document.getElementById('hover-score-text');
+
+            if (group.length >= 2 || (isBombMode && group.length > 0)) {
+                card.classList.remove('opacity-50');
+                card.classList.add('opacity-100');
+
+                const sampleBlock = grid[group[0].col][group[0].row];
+                if (sampleBlock) {
+                    colorInd.style.backgroundColor = CUBE_COLORS[sampleBlock.colorIdx].main;
+                }
+
+                if (isBombMode) {
+                    countTxt.innerText = `Blast ${group.length} cubes`;
+                    scoreTxt.innerText = `+${group.length * group.length * 10} pts`;
+                } else {
+                    countTxt.innerText = `${group.length} Cubes`;
+                    scoreTxt.innerText = `+${group.length * group.length * 10} pts`;
+                }
+            } else {
+                card.classList.remove('opacity-100');
+                card.classList.add('opacity-50');
+                colorInd.style.backgroundColor = '#334155';
+                countTxt.innerText = 'Select cubes';
+                scoreTxt.innerText = '+0 pts';
+            }
+        }
+
+        /* RENDER LOOP & CANVAS DRAWING */
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Background Grid Lines
+            drawGridBackground();
+
+            // Draw Blocks
+            for (let c = 0; c < COLS; c++) {
+                for (let r = 0; r < ROWS; r++) {
+                    const block = grid[c][r];
+                    if (block) {
+                        block.update();
+                        const isHovered = hoveredGroup.some(g => g.col === c && g.row === r);
+                        drawBlock(block, isHovered);
+                    }
+                }
+            }
+
+            // Draw Particles & Floating Scores
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw(ctx);
+                if (p.alpha <= 0) particles.splice(index, 1);
+            });
+
+            scoreFloaters.forEach((f, index) => {
+                f.update();
+                f.draw(ctx);
+                if (f.alpha <= 0) scoreFloaters.splice(index, 1);
+            });
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function drawGridBackground() {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.lineWidth = 1;
+            for (let c = 0; c <= COLS; c++) {
+                ctx.beginPath();
+                ctx.moveTo(c * cellSize, 0);
+                ctx.lineTo(c * cellSize, ROWS * cellSize);
+                ctx.stroke();
+            }
+            for (let r = 0; r <= ROWS; r++) {
+                ctx.beginPath();
+                ctx.moveTo(0, r * cellSize);
+                ctx.lineTo(COLS * cellSize, r * cellSize);
+                ctx.stroke();
+            }
+        }
+
+        function drawBlock(block, isHovered) {
+            const x = block.x * cellSize + padding;
+            const y = block.y * cellSize + padding;
+            const w = cellSize - padding * 2;
+            const h = cellSize - padding * 2;
+            const radius = Math.min(8, cellSize*.2);
+
+            const color = CUBE_COLORS[block.colorIdx];
+
+            ctx.save();
+
+            // Hover Pulse Scale & Glow Effect
+            if (isHovered) {
+                ctx.shadowColor = isBombMode ? '#ef4444' : color.main;
+                ctx.shadowBlur = 16;
+                const scale = 1.05 + Math.sin(block.pulse * 2) * 0.03;
+                ctx.translate(x + w / 2, y + h / 2);
+                ctx.scale(scale, scale);
+                ctx.translate(-(x + w / 2), -(y + h / 2));
+            }
+
+            // Rounded rectangle path
+            ctx.beginPath();
+            ctx.roundRect(x, y, w, h, radius);
+
+            // Block 3D Gradient Fill
+            const grad = ctx.createLinearGradient(x, y, x, y + h);
+            grad.addColorStop(0, color.top);
+            grad.addColorStop(0.4, color.main);
+            grad.addColorStop(1, color.shadow);
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // Glossy Top Highlight Arc
+            ctx.beginPath();
+            ctx.roundRect(x + 2, y + 2, w - 4, (h - 4) * 0.45, [radius - 2, radius - 2, 2, 2]);
+            const topGrad = ctx.createLinearGradient(x, y, x, y + h * 0.5);
+            topGrad.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
+            topGrad.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+            ctx.fillStyle = topGrad;
+            ctx.fill();
+
+            // Hover border glow overlay
+            if (isHovered) {
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = isBombMode ? '#fca5a5' : '#ffffff';
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        /* EVENT LISTENERS & INPUT HANDLERS */
+        function setupEventListeners() {
+            canvas.addEventListener('mousemove', handlePointerMove);
+            canvas.addEventListener('mouseleave', () => {
+                hoveredGroup = [];
+                updateHoverPreview([]);
+            });
+            canvas.addEventListener('click', handlePointerClick);
+
+            // Mobile Touch Support
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+
+                const col = Math.floor(x / cellSize);
+                const row = Math.floor(y / cellSize);
+
+                if (col >= 0 && col < COLS && row >= 0 && row < ROWS) {
+                    if (isBombMode) {
+                        const area = getBombArea(col, row);
+                        popGroup(area);
+                    } else {
+                        const group = getConnectedGroup(col, row);
+                        if (group.length >= 2) {
+                            popGroup(group);
+                        }
+                    }
+                }
+            }, { passive: false });
+
+            document.getElementById('btn-seed').addEventListener('click', () => {
+                runSeed=document.getElementById('seed-input').value.trim() || 'CUBES'; startNewGame(false,true);
+            });
+            document.getElementById('board-size').addEventListener('change',()=>startNewGame(false,true));
+            document.getElementById('btn-retry').addEventListener('click',()=>startNewGame(true,true));
+            // Button Click Bindings
+            document.getElementById('btn-sound').addEventListener('click', toggleSound);
+            document.getElementById('btn-restart').addEventListener('click', () => startNewGame(false));
+            document.getElementById('btn-bomb').addEventListener('click', handleBombToggle);
+            document.getElementById('btn-shuffle').addEventListener('click', handleShuffle);
+            document.getElementById('btn-undo').addEventListener('click', handleUndo);
+
+            // Modals
+            document.getElementById('btn-help').addEventListener('click', () => toggleHelpModal(true));
+            document.getElementById('btn-close-help').addEventListener('click', () => toggleHelpModal(false));
+            document.getElementById('btn-got-it').addEventListener('click', () => toggleHelpModal(false));
+
+            document.getElementById('modal-btn-restart').addEventListener('click', () => {
+                hideModal();
+                startNewGame(true, true);
+            });
+
+            document.getElementById('modal-btn-next').addEventListener('click', () => {
+                hideModal();
+                level++;
+                startNewGame(true);
+            });
+        }
+
+        function handlePointerMove(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const col = Math.floor(x / cellSize);
+            const row = Math.floor(y / cellSize);
+
+            if (col !== mousePos.col || row !== mousePos.row) {
+                mousePos = { x, y, col, row };
+                updateHoverGroup();
+            }
+        }
+
+        function updateHoverGroup() {
+            if (mousePos.col >= 0 && mousePos.col < COLS && mousePos.row >= 0 && mousePos.row < ROWS) {
+                if (isBombMode) {
+                    hoveredGroup = getBombArea(mousePos.col, mousePos.row);
+                } else {
+                    const group = getConnectedGroup(mousePos.col, mousePos.row);
+                    hoveredGroup = group.length >= 2 ? group : [];
+                }
+            } else {
+                hoveredGroup = [];
+            }
+            updateHoverPreview(hoveredGroup);
+        }
+
+        function handlePointerClick() {
+            if (hoveredGroup.length >= 2 || (isBombMode && hoveredGroup.length > 0)) {
+                popGroup(hoveredGroup);
+            }
+        }
+
+        function toggleSound() {
+            soundEngine.muted = !soundEngine.muted;
+            const icon = document.getElementById('icon-sound');
+            if (soundEngine.muted) {
+                icon.className = 'fa-solid fa-volume-xmark text-lg text-red-400';
+            } else {
+                icon.className = 'fa-solid fa-volume-high text-lg text-purple-200';
+            }
+        }
+
+        /* MODAL CONTROLLER FUNCTIONS */
+        function showModal(isWin, bonus) {
+            const container = document.getElementById('modal-container');
+            const card = document.getElementById('modal-card');
+            const title = document.getElementById('modal-title');
+            const subtitle = document.getElementById('modal-subtitle');
+            const icon = document.getElementById('modal-icon');
+            const iconWrapper = document.getElementById('modal-icon-wrapper');
+
+            document.getElementById('modal-stat-level').innerText = level;
+            document.getElementById('modal-stat-score').innerText = score.toLocaleString();
+            document.getElementById('modal-stat-blocks').innerText = blocksLeft;
+
+            const bonusRow = document.getElementById('modal-bonus-row');
+            if (bonus > 0) {
+                bonusRow.classList.remove('hidden');
+                document.getElementById('modal-stat-bonus').innerText = `+${bonus.toLocaleString()}`;
+            } else {
+                bonusRow.classList.add('hidden');
+            }
+
+            if (isWin) {
+                title.innerText = '¡NIVEL SUPERADO!';
+                subtitle.innerText = `Meta alcanzada. Te espera el nivel ${level + 1}.`;
+                icon.className = 'fa-solid fa-trophy';
+                iconWrapper.className = 'w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-4xl text-slate-950 shadow-lg shadow-amber-500/40 -mt-10 border-2 border-white/20';
+                document.getElementById('modal-btn-next').classList.remove('hidden');
+            } else {
+                title.innerText = '¡SIN MOVIMIENTOS!';
+                subtitle.innerText = `Podés reintentar el mismo tablero y probar otra estrategia.`;
+                icon.className = 'fa-solid fa-skull';
+                iconWrapper.className = 'w-20 h-20 rounded-2xl bg-gradient-to-tr from-red-600 to-pink-500 flex items-center justify-center text-4xl text-white shadow-lg shadow-red-500/40 -mt-10 border-2 border-white/20';
+                document.getElementById('modal-btn-next').classList.add('hidden');
+            }
+
+            container.classList.remove('hidden');
+            setTimeout(() => {
+                container.classList.remove('opacity-0');
+                card.classList.add('modal-enter-active');
+            }, 10);
+        }
+
+        function hideModal() {
+            const container = document.getElementById('modal-container');
+            const card = document.getElementById('modal-card');
+            container.classList.add('opacity-0');
+            card.classList.remove('modal-enter-active');
+            setTimeout(() => {
+                container.classList.add('hidden');
+            }, 300);
+        }
+
+        function toggleHelpModal(show) {
+            const modal = document.getElementById('help-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+                setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            } else {
+                modal.classList.add('opacity-0');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        }
+    </script>
+</body>
+</html>
