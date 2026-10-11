@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>River Raid - Retro Commodore 64 Edition</title>
+    <style>
+        :root {
+            --bg-color: #0d0f12;
+            --arcade-frame: #1e222d;
+            --neon-green: #39ff14;
+            --neon-yellow: #ffe600;
+            --neon-red: #ff2a2a;
+            --neon-blue: #00d9ff;
+            --c64-blue: #3528be;
+            --c64-river: #4052fe;
+            --c64-land: #438e38;
+            --c64-yellow: #ded84c;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+            touch-action: manipulation;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            padding: 10px;
+        }
+
+        .game-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 100%;
+        }
+
+        .arcade-cabinet {
+            position: relative;
+            background: linear-gradient(145deg, #232834, #12151c);
+            border: 4px solid #3a4154;
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .screen-container {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9);
+            border: 3px solid #111;
+            background-color: #000;
+        }
+
+        canvas {
+            display: block;
+            background-color: var(--c64-land);
+            image-rendering: pixelated;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .crt-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.03),
+                rgba(0, 255, 0, 0.01),
+                rgba(0, 0, 255, 0.03)
+            );
+            background-size: 100% 4px, 6px 100%;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .crt-overlay.disabled {
+            opacity: 0;
+        }
+
+        .controls-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding: 6px 12px;
+            background: #181b24;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .btn {
+            background: linear-gradient(180deg, #3a4153, #242938);
+            color: #fff;
+            border: 1px solid #525c75;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 3px 0 #141720;
+            transition: all 0.1s;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #141720;
+        }
+
+        .btn-danger {
+            background: linear-gradient(180deg, #d32f2f, #8e0000);
+            border-color: #f44336;
+            box-shadow: 0 3px 0 #5f0000;
+        }
+
+        .overlay-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 12, 18, 0.88);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            z-index: 10;
+            backdrop-filter: blur(2px);
+        }
+
+        .overlay-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 10px rgba(254, 216, 76, 0.6), 3px 3px 0 #000;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+
+        .instructions {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #d1d5db;
+            max-width: 360px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .instructions ul {
+            padding-left: 18px;
+        }
+
+        .mobile-controls {
+            display: none;
+            width: 100%;
+            margin-top: 12px;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px), (pointer: coarse) {
+            .mobile-controls {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .dpad-container {
+            display: grid;
+            grid-template-columns: repeat(3, 46px);
+            grid-template-rows: repeat(3, 46px);
+            gap: 4px;
+        }
+
+        .touch-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .touch-btn:active {
+            background: rgba(57, 255, 20, 0.4);
+        }
+
+        .fire-btn {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ff2a2a, #b30000);
+            border: 3px solid #ff6b6b;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(255, 42, 42, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fire-btn:active {
+            transform: scale(0.95);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-wrapper">
+        <div class="arcade-cabinet">
+            <div class="screen-container">
+                <canvas id="gameCanvas" width="440" height="580"></canvas>
+                <div id="crtOverlay" class="crt-overlay"></div>
+
+                <!-- Start Screen Overlay -->
+                <div id="startOverlay" class="overlay-screen">
+                    <div class="overlay-title">RIVER RAID</div>
+                    <div style="color: var(--neon-blue); font-size: 12px; margin-bottom: 15px; font-weight: bold;">C64 RETRO EDITION</div>
+                    
+                    <div class="instructions">
+                        <strong>CONTROLES:</strong><br>
+                        • <strong>Flechas / WASD:</strong> Mover nave<br>
+                        • <strong>Arriba / Abajo:</strong> Acelerar / Frenar<br>
+                        • <strong>ESPACIO:</strong> Disparar Misil<br>
+                        • <strong>P:</strong> Pausa<br><br>
+                        <strong>REGLAS:</strong><br>
+                        • Vuela sobre los tanques <strong>FUEL</strong> para recargar.<br>
+                        • Destruye puentes, barcos y helicópteros.<br>
+                        • ¡Evita chocar contra las orillas de tierra!
+                    </div>
+
+                    <button id="startBtn" class="btn" style="padding: 12px 30px; font-size: 16px;">¡INICIAR JUEGO!</button>
+                </div>
+
+                <!-- Game Over Overlay -->
+                <div id="gameOverOverlay" class="overlay-screen hidden">
+                    <div class="overlay-title" style="color: var(--neon-red);">GAME OVER</div>
+                    <div id="causeOfDeath" style="color: #aaa; margin-bottom: 15px; font-size: 13px;"></div>
+                    
+                    <div style="background: rgba(0,0,0,0.6); padding: 15px 25px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444;">
+                        <div style="font-size: 14px; color: #888;">PUNTAJE FINAL</div>
+                        <div id="finalScore" style="font-size: 28px; color: var(--neon-yellow); font-weight: bold;">0</div>
+                        <div style="font-size: 12px; color: #888; margin-top: 8px;">MÁXIMO RÉCORD</div>
+                        <div id="finalHighScore" style="font-size: 18px; color: var(--neon-green);">0</div>
+                    </div>
+
+                    <button id="restartBtn" class="btn btn-danger" style="padding: 10px 24px;">REINTENTAR</button>
+                </div>
+
+                <!-- Pause Overlay -->
+                <div id="pauseOverlay" class="overlay-screen hidden">
+                    <div class="overlay-title">PAUSA</div>
+                    <p style="color: #aaa; margin-bottom: 20px;">Presiona P o haz clic para reanudar</p>
+                    <button id="resumeBtn" class="btn">CONTINUAR</button>
+                </div>
+            </div>
+
+            <!-- Arcade Controls Panel -->
+            <div class="controls-bar">
+                <button id="toggleCrtBtn" class="btn" style="font-size: 10px;">CRT: ON</button>
+                <button id="toggleSoundBtn" class="btn" style="font-size: 10px;">SONIDO: ON</button>
+                <button id="pauseBtn" class="btn" style="font-size: 10px;">PAUSA</button>
+            </div>
+        </div>
+
+        <!-- Touch Controls for Mobile devices -->
+        <div class="mobile-controls">
+            <div class="dpad-container">
+                <div></div>
+                <div class="touch-btn" id="btnUp">▲</div>
+                <div></div>
+                <div class="touch-btn" id="btnLeft">◄</div>
+                <div class="touch-btn" id="btnDown">▼</div>
+                <div class="touch-btn" id="btnRight">►</div>
+            </div>
+            <button class="fire-btn" id="btnFire">DISPARO</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Overlay Elements
+        const startOverlay = document.getElementById('startOverlay');
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const pauseOverlay = document.getElementById('pauseOverlay');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const toggleCrtBtn = document.getElementById('toggleCrtBtn');
+        const toggleSoundBtn = document.getElementById('toggleSoundBtn');
+        const crtOverlay = document.getElementById('crtOverlay');
+        const finalScoreEl = document.getElementById('finalScore');
+        const finalHighScoreEl = document.getElementById('finalHighScore');
+        const causeOfDeathEl = document.getElementById('causeOfDeath');
+
+        // Game Constants & Dimensions
+        const CANVAS_WIDTH = 440;
+        const CANVAS_HEIGHT = 580;
+        const HUD_HEIGHT = 70;
+        const PLAY_AREA_HEIGHT = CANVAS_HEIGHT - HUD_HEIGHT;
+
+        // Game States
+        const STATE_MENU = 0;
+        const STATE_PLAYING = 1;
+        const STATE_PAUSED = 2;
+        const STATE_GAMEOVER = 3;
+        let gameState = STATE_MENU;
+
+        // Settings & Audio
+        let soundEnabled = true;
+        let crtEnabled = true;
+        let highScore = localStorage.getItem('river_raid_highscore') || 0;
+
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        this.ctx = new AudioContext();
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playShoot() {
+                if (!soundEnabled || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.12);
+                
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.12);
+            }
+
+            playExplosion() {
+                if (!soundEnabled || !this.ctx) return;
+                const bufferSize = this.ctx.sampleRate * 0.35;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const output = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+
+                const whiteNoise = this.ctx.createBufferSource();
+                whiteNoise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1000, this.ctx.currentTime);
+                filter.frequency.linearRampToValueAtTime(100, this.ctx.currentTime + 0.35);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.35);
+
+                whiteNoise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                whiteNoise.start();
+            }
+
+            playRefuel() {
+                if (!soundEnabled || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(520, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(880, this.ctx.currentTime + 0.08);
+
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+
+            playLowFuel() {
+                if (!soundEnabled || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+        }
+
+        const audio = new SoundEngine();
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 6;
+                this.vy = (Math.random() - 0.5) * 6;
+                this.size = Math.random() * 4 + 2;
+                this.color = color;
+                this.life = 1.0;
+                this.decay = Math.random() * 0.04 + 0.02;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life -= this.decay;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.life);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        let particles = [];
+        let screenShake = 0;
+
+        function addExplosion(x, y, color = '#ff5500', count = 20) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y, i % 2 === 0 ? color : '#ffe600'));
+            }
+            screenShake = 12;
+            audio.playExplosion();
+        }
+
+        class RiverMap {
+            constructor() {
+                this.sliceHeight = 10;
+                this.numSlices = Math.ceil(PLAY_AREA_HEIGHT / this.sliceHeight) + 4;
+                this.slices = [];
+                this.offsetY = 0;
+                this.distance = 0;
+                this.nextBridgeDistance = 1200;
+                this.bridgeActive = false;
+                this.initMap();
+            }
+
+            initMap() {
+                this.slices = [];
+                let currentWidth = 220;
+                let currentCenterX = CANVAS_WIDTH / 2;
+
+                for (let i = 0; i < this.numSlices; i++) {
+                    this.slices.push({
+                        left: currentCenterX - currentWidth / 2,
+                        right: currentCenterX + currentWidth / 2,
+                        isBridge: false
+                    });
+                }
+            }
+
+            update(speed) {
+                this.offsetY += speed;
+                this.distance += speed;
+
+                while (this.offsetY >= this.sliceHeight) {
+                    this.offsetY -= this.sliceHeight;
+                    this.slices.pop();
+
+                    // Generate new top river slice
+                    let prev = this.slices[0];
+                    let center = (prev.left + prev.right) / 2;
+                    let width = prev.right - prev.left;
+
+                    let isBridgeSlice = false;
+
+                    // Bridge logic trigger
+                    if (this.distance >= this.nextBridgeDistance && !this.bridgeActive) {
+                        this.bridgeActive = true;
+                        this.bridgeLengthCount = 18; // length of bridge section
+                    }
+
+                    if (this.bridgeActive) {
+                        isBridgeSlice = true;
+                        // Center and lock width for bridge
+                        center += (CANVAS_WIDTH / 2 - center) * 0.2;
+                        width += (180 - width) * 0.2;
+
+                        this.bridgeLengthCount--;
+                        if (this.bridgeLengthCount <= 0) {
+                            this.bridgeActive = false;
+                            this.nextBridgeDistance = this.distance + Math.random() * 1200 + 1000;
+                            
+                            // Spawn Bridge entity
+                            spawnBridge((center - width / 2), (center + width / 2));
+                        }
+                    } else {
+                        // Procedural river curves
+                        let shift = (Math.random() - 0.5) * 14;
+                        center = Math.max(90, Math.min(CANVAS_WIDTH - 90, center + shift));
+
+                        let widthDelta = (Math.random() - 0.5) * 10;
+                        width = Math.max(110, Math.min(270, width + widthDelta));
+                    }
+
+                    let left = center - width / 2;
+                    let right = center + width / 2;
+
+                    this.slices.unshift({ left, right, isBridge: isBridgeSlice });
+                }
+            }
+
+            getRiverBoundsAt(y) {
+                let index = Math.floor((y + this.offsetY) / this.sliceHeight);
+                index = Math.max(0, Math.min(this.slices.length - 1, index));
+                return this.slices[index];
+            }
+
+            draw(ctx) {
+                // Land Background
+                ctx.fillStyle = '#438e38'; // C64 Green
+                ctx.fillRect(0, 0, CANVAS_WIDTH, PLAY_AREA_HEIGHT);
+
+                // River Water
+                ctx.fillStyle = '#4052fe'; // C64 Blue
+                ctx.beginPath();
+                
+                for (let i = 0; i < this.slices.length; i++) {
+                    let y = i * this.sliceHeight - this.offsetY;
+                    let slice = this.slices[i];
+                    if (i === 0) {
+                        ctx.moveTo(slice.left, y);
+                    } else {
+                        ctx.lineTo(slice.left, y);
+                    }
+                }
+
+                for (let i = this.slices.length - 1; i >= 0; i--) {
+                    let y = i * this.sliceHeight - this.offsetY;
+                    let slice = this.slices[i];
+                    ctx.lineTo(slice.right, y);
+                }
+
+                ctx.closePath();
+                ctx.fill();
+
+                // River Bank Borders (Detail)
+                ctx.strokeStyle = '#2b6323';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+            }
+        }
+
+        class Player {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = CANVAS_WIDTH / 2;
+                this.y = PLAY_AREA_HEIGHT - 90;
+                this.width = 24;
+                this.height = 28;
+                this.speedX = 0;
+                this.fuel = 100;
+                this.lives = 3;
+                this.score = 0;
+                this.alive = true;
+                this.respawnTimer = 0;
+                this.lastShoot = 0;
+            }
+
+            update(keys, river) {
+                if (!this.alive) {
+                    this.respawnTimer++;
+                    if (this.respawnTimer > 90) {
+                        if (this.lives > 0) {
+                            this.alive = true;
+                            this.x = CANVAS_WIDTH / 2;
+                            this.fuel = 100;
+                        } else {
+                            endGame("TE HAS QUEDADO SIN VIDAS");
+                        }
+                    }
+                    return;
+                }
+
+                // Throttle / Scroll Control
+                let speedFactor = 1.0;
+                if (keys.ArrowUp || keys.w || keys.W || keys.touchUp) speedFactor = 1.8;
+                if (keys.ArrowDown || keys.s || keys.S || keys.touchDown) speedFactor = 0.5;
+
+                // Lateral Movement
+                this.speedX = 0;
+                if (keys.ArrowLeft || keys.a || keys.A || keys.touchLeft) this.speedX = -3.8;
+                if (keys.ArrowRight || keys.d || keys.D || keys.touchRight) this.speedX = 3.8;
+
+                this.x += this.speedX;
+
+                // Consume Fuel
+                this.fuel -= 0.045 * speedFactor;
+                if (this.fuel <= 0) {
+                    this.fuel = 0;
+                    this.explode("¡TE QUEDASTE SIN COMBUSTIBLE!");
+                    return;
+                }
+
+                // Low Fuel Alert Sound Tick
+                if (this.fuel < 20 && Math.floor(this.fuel * 10) % 15 === 0) {
+                    audio.playLowFuel();
+                }
+
+                // Land Collision Detection
+                let bounds = river.getRiverBoundsAt(this.y);
+                if (this.x - this.width / 2 < bounds.left || this.x + this.width / 2 > bounds.right) {
+                    this.explode("¡CHOQUE CONTRA LA ORILLA!");
+                    return;
+                }
+
+                // Shooting
+                if ((keys[' '] || keys.touchFire) && Date.now() - this.lastShoot > 220) {
+                    bullets.push(new Bullet(this.x, this.y - 14));
+                    audio.playShoot();
+                    this.lastShoot = Date.now();
+                }
+
+                return speedFactor;
+            }
+
+            explode(reason = "") {
+                if (!this.alive) return;
+                this.alive = false;
+                this.lives--;
+                this.respawnTimer = 0;
+                addExplosion(this.x, this.y, '#fce303', 30);
+                if (this.lives <= 0) {
+                    setTimeout(() => endGame(reason), 1000);
+                }
+            }
+
+            draw(ctx) {
+                if (!this.alive) return;
+
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                // Jet Engine Exhaust Flame
+                ctx.fillStyle = Math.random() > 0.5 ? '#ff2a2a' : '#ffe600';
+                ctx.beginPath();
+                ctx.moveTo(-4, 14);
+                ctx.lineTo(0, 22 + Math.random() * 6);
+                ctx.lineTo(4, 14);
+                ctx.fill();
+
+                // Yellow Retro C64 Jet Wings
+                ctx.fillStyle = '#ded84c'; 
+                
+                // Main Wings
+                ctx.beginPath();
+                ctx.moveTo(0, -14);
+                ctx.lineTo(14, 8);
+                ctx.lineTo(14, 12);
+                ctx.lineTo(4, 10);
+                ctx.lineTo(4, 14);
+                ctx.lineTo(-4, 14);
+                ctx.lineTo(-4, 10);
+                ctx.lineTo(-14, 12);
+                ctx.lineTo(-14, 8);
+                ctx.closePath();
+                ctx.fill();
+
+                // Fuselage / Cockpit
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(-2, -10, 4, 16);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(-2, -4, 4, 4);
+
+                ctx.restore();
+            }
+        }
+
+        class Bullet {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.speed = 10;
+                this.width = 4;
+                this.height = 10;
+                this.active = true;
+            }
+
+            update() {
+                this.y -= this.speed;
+                if (this.y < -20) this.active = false;
+            }
+
+            draw(ctx) {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(this.x - 2, this.y, this.width, this.height);
+                ctx.fillStyle = '#ffe600';
+                ctx.fillRect(this.x - 1, this.y + 4, 2, 6);
+            }
+        }
+
+        class Enemy {
+            constructor(type, x, y) {
+                this.type = type; // 'boat', 'heli', 'jet', 'fuel', 'bridge'
+                this.x = x;
+                this.y = y;
+                this.active = true;
+                this.dir = Math.random() > 0.5 ? 1 : -1;
+
+                if (type === 'boat') {
+                    this.width = 32;
+                    this.height = 14;
+                    this.points = 30;
+                    this.vx = 1.2 * this.dir;
+                } else if (type === 'heli') {
+                    this.width = 26;
+                    this.height = 18;
+                    this.points = 60;
+                    this.vx = 1.8 * this.dir;
+                    this.animFrame = 0;
+                } else if (type === 'jet') {
+                    this.width = 24;
+                    this.height = 20;
+                    this.points = 100;
+                    this.vx = 3.5 * this.dir;
+                } else if (type === 'fuel') {
+                    this.width = 20;
+                    this.height = 32;
+                    this.points = 80;
+                    this.vx = 0;
+                } else if (type === 'bridge') {
+                    this.width = 180;
+                    this.height = 24;
+                    this.points = 500;
+                    this.vx = 0;
+                    this.destroyed = false;
+                }
+            }
+
+            update(scrollSpeed, river) {
+                this.y += scrollSpeed;
+
+                // Horizontal movement for patrol enemies
+                if (this.type === 'boat' || this.type === 'heli' || this.type === 'jet') {
+                    this.x += this.vx;
+                    let bounds = river.getRiverBoundsAt(this.y);
+                    if (this.x - this.width / 2 < bounds.left || this.x + this.width / 2 > bounds.right) {
+                        this.vx *= -1; // Bounce off river bank
+                    }
+                }
+
+                if (this.type === 'heli') {
+                    this.animFrame++;
+                }
+
+                if (this.y > PLAY_AREA_HEIGHT + 40) {
+                    this.active = false;
+                }
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                if (this.type === 'fuel') {
+                    // C64 Style Fuel Depot
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(-10, -16, 20, 32);
+                    ctx.fillStyle = '#d32f2f';
+                    ctx.fillRect(-10, -16, 20, 8);
+                    ctx.fillRect(-10, 8, 20, 8);
+                    
+                    ctx.fillStyle = '#000000';
+                    ctx.font = 'bold 9px Courier New';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('F', 0, -2);
+                    ctx.fillText('U', 0, 6);
+                } 
+                else if (this.type === 'boat') {
+                    // Ship / Boat
+                    ctx.fillStyle = '#b35900';
+                    ctx.beginPath();
+                    ctx.moveTo(-16, 0);
+                    ctx.lineTo(12, -7);
+                    ctx.lineTo(16, 0);
+                    ctx.lineTo(12, 7);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(-6, -4, 10, 8);
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(-2, -2, 4, 4);
+                } 
+                else if (this.type === 'heli') {
+                    // Helicopter
+                    ctx.fillStyle = '#009933';
+                    ctx.fillRect(-10, -6, 20, 12);
+                    ctx.fillRect(8, -2, 6, 4); // Tail
+
+                    // Cockpit window
+                    ctx.fillStyle = '#66ffff';
+                    ctx.fillRect(-8, -4, 6, 8);
+
+                    // Rotating Rotor Blades
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    if (Math.floor(this.animFrame / 3) % 2 === 0) {
+                        ctx.moveTo(-16, -8); ctx.lineTo(16, -8);
+                    } else {
+                        ctx.moveTo(-4, -8); ctx.lineTo(4, -8);
+                    }
+                    ctx.stroke();
+                } 
+                else if (this.type === 'jet') {
+                    // Enemy Fast Jet
+                    ctx.fillStyle = '#00d9ff';
+                    ctx.beginPath();
+                    ctx.moveTo(0, 10);
+                    ctx.lineTo(12, -6);
+                    ctx.lineTo(0, -10);
+                    ctx.lineTo(-12, -6);
+                    ctx.closePath();
+                    ctx.fill();
+                } 
+                else if (this.type === 'bridge') {
+                    // Road Bridge Barrier
+                    if (!this.destroyed) {
+                        ctx.fillStyle = '#777777';
+                        ctx.fillRect(-this.width / 2, -12, this.width, 24);
+                        
+                        // Yellow Road Center Line
+                        ctx.strokeStyle = '#ffe600';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([8, 6]);
+                        ctx.beginPath();
+                        ctx.moveTo(-this.width / 2, 0);
+                        ctx.lineTo(this.width / 2, 0);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                    } else {
+                        // Destroyed Bridge Gap
+                        ctx.fillStyle = '#777777';
+                        ctx.fillRect(-this.width / 2, -12, 50, 24);
+                        ctx.fillRect(this.width / 2 - 50, -12, 50, 24);
+                    }
+                }
+
+                ctx.restore();
+            }
+        }
+
+        // Global Game Entities
+        let river = new RiverMap();
+        let player = new Player();
+        let bullets = [];
+        let enemies = [];
+        let keys = {};
+
+        function spawnBridge(leftBank, rightBank) {
+            let width = rightBank - leftBank;
+            let centerX = (leftBank + rightBank) / 2;
+            let bridge = new Enemy('bridge', centerX, -10);
+            bridge.width = width + 20;
+            enemies.push(bridge);
+        }
+
+        window.addEventListener('keydown', e => {
+            keys[e.key] = true;
+            if (e.key === 'p' || e.key === 'P') {
+                togglePause();
+            }
+            audio.init();
+        });
+
+        window.addEventListener('keyup', e => {
+            keys[e.key] = false;
+        });
+
+        // Touch Control Listeners
+        const setupTouch = (id, keyName) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; audio.init(); });
+            el.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+        };
+
+        setupTouch('btnUp', 'touchUp');
+        setupTouch('btnDown', 'touchDown');
+        setupTouch('btnLeft', 'touchLeft');
+        setupTouch('btnRight', 'touchRight');
+        setupTouch('btnFire', 'touchFire');
+
+        function checkCollisions() {
+            if (!player.alive) return;
+
+            // Player vs Enemies / Fuel / Bridges
+            for (let enemy of enemies) {
+                if (!enemy.active) continue;
+
+                let dx = Math.abs(player.x - enemy.x);
+                let dy = Math.abs(player.y - enemy.y);
+
+                if (dx < (player.width + enemy.width) / 2 - 4 && dy < (player.height + enemy.height) / 2 - 4) {
+                    if (enemy.type === 'fuel') {
+                        // Refuel Mechanism
+                        if (player.fuel < 100) {
+                            player.fuel = Math.min(100, player.fuel + 0.8);
+                            audio.playRefuel();
+                        }
+                    } else if (enemy.type === 'bridge') {
+                        if (!enemy.destroyed) {
+                            player.explode("¡CHOQUESTE CONTRA EL PUENTE!");
+                        }
+                    } else {
+                        player.explode("¡CHOQUE CONTRA UN ENEMIGO!");
+                        enemy.active = false;
+                        addExplosion(enemy.x, enemy.y, '#ff3300');
+                    }
+                }
+            }
+
+            // Bullets vs Enemies
+            for (let b of bullets) {
+                if (!b.active) continue;
+
+                for (let enemy of enemies) {
+                    if (!enemy.active) continue;
+
+                    let dx = Math.abs(b.x - enemy.x);
+                    let dy = Math.abs(b.y - enemy.y);
+
+                    if (dx < (b.width + enemy.width) / 2 && dy < (b.height + enemy.height) / 2) {
+                        b.active = false;
+
+                        if (enemy.type === 'bridge') {
+                            if (!enemy.destroyed) {
+                                enemy.destroyed = true;
+                                player.score += enemy.points;
+                                addExplosion(enemy.x, enemy.y, '#ffdd00', 35);
+                            }
+                        } else {
+                            enemy.active = false;
+                            player.score += enemy.points;
+                            addExplosion(enemy.x, enemy.y, enemy.type === 'fuel' ? '#00e676' : '#ff5500');
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        function spawnEnemies() {
+            if (Math.random() < 0.022) {
+                let bounds = river.getRiverBoundsAt(0);
+                let riverWidth = bounds.right - bounds.left;
+                if (riverWidth > 80) {
+                    let spawnX = bounds.left + 20 + Math.random() * (riverWidth - 40);
+                    let types = ['boat', 'heli', 'fuel', 'jet'];
+                    let weights = [0.35, 0.3, 0.25, 0.1];
+                    
+                    let rand = Math.random();
+                    let cumulative = 0;
+                    let selectedType = 'boat';
+
+                    for (let i = 0; i < types.length; i++) {
+                        cumulative += weights[i];
+                        if (rand <= cumulative) {
+                            selectedType = types[i];
+                            break;
+                        }
+                    }
+
+                    enemies.push(new Enemy(selectedType, spawnX, -20));
+                }
+            }
+        }
+
+        function drawHUD() {
+            // HUD Panel Background
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, PLAY_AREA_HEIGHT, CANVAS_WIDTH, HUD_HEIGHT);
+            
+            ctx.strokeStyle = '#ded84c';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(2, PLAY_AREA_HEIGHT + 2, CANVAS_WIDTH - 4, HUD_HEIGHT - 4);
+
+            // Scores display
+            ctx.fillStyle = '#ded84c'; // C64 Yellow
+            ctx.font = 'bold 14px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText(`SCORE: ${player.score.toString().padStart(6, '0')}`, 16, PLAY_AREA_HEIGHT + 22);
+
+            ctx.textAlign = 'right';
+            ctx.fillText(`HI: ${highScore.toString().padStart(6, '0')}`, CANVAS_WIDTH - 16, PLAY_AREA_HEIGHT + 22);
+
+            // Lives Icons
+            ctx.textAlign = 'left';
+            ctx.fillText(`VIDAS:`, 16, PLAY_AREA_HEIGHT + 50);
+            for (let i = 0; i < player.lives; i++) {
+                ctx.fillStyle = '#ded84c';
+                ctx.fillRect(80 + i * 18, PLAY_AREA_HEIGHT + 40, 12, 12);
+            }
+
+            // Fuel Gauge Display
+            let gaugeX = 220;
+            let gaugeY = PLAY_AREA_HEIGHT + 38;
+            let gaugeWidth = 180;
+            let gaugeHeight = 16;
+
+            ctx.fillStyle = '#222';
+            ctx.fillRect(gaugeX, gaugeY, gaugeWidth, gaugeHeight);
+
+            // Fuel Level Color
+            let fuelPct = Math.max(0, player.fuel / 100);
+            if (fuelPct > 0.4) {
+                ctx.fillStyle = '#39ff14'; // Green
+            } else if (fuelPct > 0.2) {
+                ctx.fillStyle = '#ffe600'; // Yellow
+            } else {
+                // Flashing Red Warning
+                ctx.fillStyle = Math.floor(Date.now() / 200) % 2 === 0 ? '#ff2a2a' : '#880000';
+            }
+
+            ctx.fillRect(gaugeX + 2, gaugeY + 2, (gaugeWidth - 4) * fuelPct, gaugeHeight - 4);
+
+            // Fuel Gauge Labels (E - 1/2 - F)
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 11px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText('E    1/2    F', gaugeX + gaugeWidth / 2, gaugeY - 4);
+
+            // Fuel Low Text Overlay
+            if (player.fuel < 20 && Math.floor(Date.now() / 300) % 2 === 0) {
+                ctx.fillStyle = '#ff2a2a';
+                ctx.font = 'bold 12px Courier New';
+                ctx.fillText('¡LOW FUEL!', gaugeX + gaugeWidth / 2, gaugeY + 12);
+            }
+        }
+
+        let lastTime = performance.now();
+
+        function gameLoop(now) {
+            let dt = (now - lastTime) / 1000;
+            lastTime = now;
+
+            if (gameState === STATE_PLAYING) {
+                // Screen shake effect reduction
+                if (screenShake > 0) screenShake -= 0.8;
+
+                ctx.save();
+                if (screenShake > 0) {
+                    ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
+                }
+
+                // Update & Render Map
+                let speedFactor = player.update(keys, river) || 1.0;
+                let scrollSpeed = 2.2 * speedFactor;
+
+                river.update(scrollSpeed);
+                river.draw(ctx);
+
+                // Spawn and Update Entities
+                spawnEnemies();
+
+                bullets.forEach(b => b.update());
+                enemies.forEach(e => e.update(scrollSpeed, river));
+                particles.forEach(p => p.update());
+
+                // Filter inactive entities
+                bullets = bullets.filter(b => b.active);
+                enemies = enemies.filter(e => e.active);
+                particles = particles.filter(p => p.life > 0);
+
+                // Check Collisions
+                checkCollisions();
+
+                // Render Entities
+                enemies.forEach(e => e.draw(ctx));
+                bullets.forEach(b => b.draw(ctx));
+                player.draw(ctx);
+                particles.forEach(p => p.draw(ctx));
+
+                ctx.restore();
+
+                // Draw HUD On Top
+                drawHUD();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            audio.init();
+            player.reset();
+            river.initMap();
+            bullets = [];
+            enemies = [];
+            particles = [];
+            gameState = STATE_PLAYING;
+
+            startOverlay.classList.add('hidden');
+            gameOverOverlay.classList.add('hidden');
+            pauseOverlay.classList.add('hidden');
+        }
+
+        function endGame(reason) {
+            gameState = STATE_GAMEOVER;
+            if (player.score > highScore) {
+                highScore = player.score;
+                localStorage.setItem('river_raid_highscore', highScore);
+            }
+
+            causeOfDeathEl.innerText = reason || "¡NAVE DESTRUIDA!";
+            finalScoreEl.innerText = player.score;
+            finalHighScoreEl.innerText = highScore;
+
+            gameOverOverlay.classList.remove('hidden');
+        }
+
+        function togglePause() {
+            if (gameState === STATE_PLAYING) {
+                gameState = STATE_PAUSED;
+                pauseOverlay.classList.remove('hidden');
+            } else if (gameState === STATE_PAUSED) {
+                gameState = STATE_PLAYING;
+                pauseOverlay.classList.add('hidden');
+            }
+        }
+
+        // Button Event Bindings
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+        resumeBtn.addEventListener('click', togglePause);
+        pauseBtn.addEventListener('click', togglePause);
+
+        toggleCrtBtn.addEventListener('click', () => {
+            crtEnabled = !crtEnabled;
+            if (crtEnabled) {
+                crtOverlay.classList.remove('disabled');
+                toggleCrtBtn.innerText = "CRT: ON";
+            } else {
+                crtOverlay.classList.add('disabled');
+                toggleCrtBtn.innerText = "CRT: OFF";
+            }
+        });
+
+        toggleSoundBtn.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            toggleSoundBtn.innerText = soundEnabled ? "SONIDO: ON" : "SONIDO: OFF";
+        });
+
+        // Initialize Loop
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

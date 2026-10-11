@@ -1,0 +1,4562 @@
+# Proyecto concatenado el 2026-10-11 01:59 · raíz: D:\sala-de-juegos-2025
+# Parte 2 de 3
+
+================================================================================
+ARCHIVO: .\src\app\gen-game\gen-game.component.ts
+================================================================================
+
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { DragDropModule, CdkDragDrop, transferArrayItem } from '@angular/cdk/drag-drop';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { SupabaseService } from '../services/supabase.service';
+import Swal from 'sweetalert2';
+
+interface Concepto {
+  id: string;
+  texto: string;
+}
+
+interface DefinicionSlot {
+  id: string;
+  definicion: string;
+  conceptoAnclado: Concepto[];
+}
+
+@Component({
+  selector: 'app-gen-game',
+  standalone: true,
+  imports: [CommonModule, DragDropModule, MatCardModule, MatButtonModule],
+  templateUrl: './gen-game.component.html',
+  styleUrls: ['./gen-game.component.scss']
+})
+export class GenGameComponent implements OnInit {
+
+  private todosLosConceptos: any[] = [];
+
+  conceptosDisponibles: Concepto[] = [];
+  definiciones: DefinicionSlot[] = [];
+  dropListIds: string[] = [];
+
+  constructor(private sb: SupabaseService) {}
+
+  async ngOnInit() {
+    await this.cargarConceptosDesdeBD();
+  }
+
+  async cargarConceptosDesdeBD() {
+    try {
+
+      const { data, error } = await this.sb.client
+        .schema('esquema_juegos')
+        .from('conceptos_biologia')
+        .select('*');
+
+      if (error) throw error;
+
+      this.todosLosConceptos = data || [];
+
+      this.iniciarJuego();
+
+    } catch (error) {
+      console.error('Error al cargar conceptos desde Supabase:', error);
+      Swal.fire('Error', 'No se pudieron cargar los conceptos del juego.', 'error');
+    }
+  }
+
+  iniciarJuego() {
+    if (this.todosLosConceptos.length === 0) return;
+
+    const conceptosMezclados = [...this.todosLosConceptos].sort(() => Math.random() - 0.5);
+    const conceptosSeleccionados = conceptosMezclados.slice(0, 5);
+
+    this.conceptosDisponibles = [...conceptosSeleccionados]
+      .sort(() => Math.random() - 0.5)
+
+      .map(c => ({ id: c.codigo, texto: c.concepto }));
+
+    this.definiciones = conceptosSeleccionados.map(c => ({
+      id: c.codigo,
+      definicion: c.definicion,
+      conceptoAnclado: []
+    }));
+
+    this.dropListIds = ['lista-conceptos', ...this.definiciones.map(d => 'slot-' + d.id)];
+  }
+
+  drop(event: CdkDragDrop<Concepto[]>, slotEsperadoId?: string) {
+    if (event.previousContainer === event.container) {
+
+      return;
+    }
+
+    const conceptoArrastrado = event.previousContainer.data[event.previousIndex];
+
+    if (slotEsperadoId) {
+
+      if (conceptoArrastrado.id === slotEsperadoId) {
+        transferArrayItem(
+          event.previousContainer.data,
+          event.container.data,
+          event.previousIndex,
+          event.currentIndex
+        );
+        this.verificarVictoria();
+      } else {
+
+        this.mostrarFeedbackError();
+      }
+    }
+
+    else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+    }
+  }
+
+  mostrarFeedbackError() {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    });
+    Toast.fire({ icon: 'error', title: 'Concepto incorrecto. ¡Pensalo bien!' });
+  }
+
+  async verificarVictoria() {
+
+    if (this.conceptosDisponibles.length === 0) {
+      Swal.fire({
+        title: '¡Genial, Nacho!',
+        text: 'Demostraste excelentes conocimientos de Biología.',
+        icon: 'success',
+        confirmButtonText: 'Guardar Puntaje'
+      }).then(async (result: { isConfirmed: any; }) => {
+        if (result.isConfirmed) {
+          try {
+
+            await this.sb.saveResult('gen_game', 100, { dificultad: 'Básica', temas: 'Biología General' });
+            Swal.fire('Guardado', 'Puntaje registrado en la base de datos', 'success');
+          } catch (error) {
+            console.error(error);
+          }
+        }
+      });
+    }
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\guards\admin.guard.ts
+================================================================================
+
+import { Injectable } from '@angular/core';
+import { CanActivate, Router, UrlTree } from '@angular/router';
+import { SupabaseService } from '../services/supabase.service';
+
+@Injectable({ providedIn: 'root' })
+export class AdminGuard implements CanActivate {
+  constructor(
+    private readonly supa: SupabaseService,
+    private readonly router: Router
+  ) {}
+
+  async canActivate(): Promise<boolean | UrlTree> {
+    const session = await this.supa.getSession();
+    const user = session?.user;
+    if (!user) {
+      return this.router.parseUrl('/login');
+    }
+
+    const { data, error } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('usuarios')
+      .select('es_admin')
+      .eq('supabase_uid', user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('[AdminGuard] Error verificando rol admin:', error);
+      return this.router.parseUrl('/home');
+    }
+
+    return data?.es_admin ? true : this.router.parseUrl('/home');
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\guards\auth.guard.ts
+================================================================================
+
+import { Injectable } from '@angular/core';
+import { CanActivate, Router, UrlTree } from '@angular/router';
+import { SupabaseService } from '../services/supabase.service';
+import { environment } from '../../environments/environment';
+
+@Injectable({ providedIn: 'root' })
+export class AuthGuard implements CanActivate {
+
+  constructor(private supa: SupabaseService, private router: Router) {}
+
+  async canActivate(): Promise<boolean | UrlTree> {
+
+    if (environment.bypassLogin) {
+      console.warn('[AuthGuard] Bypass local activo: acceso permitido sin sesión.');
+      return true;
+    }
+
+    const session = await this.supa.getSession();
+    return session ? true : this.router.parseUrl('/login');
+  }
+
+}
+
+================================================================================
+ARCHIVO: .\src\app\hanoi\hanoi.component.html
+================================================================================
+
+<p>hanoi works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Torre de Hanói</h1>
+    <div class="stats">Movimientos: <span>{{ movimientos }}</span></div>
+  </header>
+
+  <div class="difficulty-selector">
+    <button mat-stroked-button [color]="discosTotal === 3 ? 'primary' : ''" (click)="iniciarJuego(3)">3 Anillos</button>
+    <button mat-stroked-button [color]="discosTotal === 4 ? 'primary' : ''" (click)="iniciarJuego(4)">4 Anillos</button>
+    <button mat-stroked-button [color]="discosTotal === 5 ? 'primary' : ''" (click)="iniciarJuego(5)">5 Anillos</button>
+    <button mat-stroked-button [color]="discosTotal === 6 ? 'warn' : ''" (click)="iniciarJuego(6)">6 Anillos (Difícil)</button>
+  </div>
+
+  <div class="hanoi-board">
+
+    <div class="tower-container"
+         *ngFor="let torre of torres; let i = index"
+         (click)="seleccionarTorre(i)"
+         [class.selected]="torreSeleccionada === i">
+
+      <div class="pillar"></div>
+
+      <div class="disks-container">
+        <div class="disk"
+             *ngFor="let disco of torre; let last = last"
+             [ngClass]="getColorClase(disco)"
+             [class.top-selected]="last && torreSeleccionada === i"
+             [style.width.%]="(disco / discosTotal) * 90 + 10">
+        </div>
+      </div>
+
+      <div class="base"></div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button mat-flat-button color="primary" (click)="iniciarJuego(discosTotal)">
+      <i class="fas fa-redo"></i> Reiniciar Nivel
+    </button>
+  </div>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\hanoi\hanoi.component.scss
+================================================================================
+
+$bg-dark: #09121c;
+
+.game-container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 30px;
+  background: $bg-dark;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(0, 210, 255, 0.1);
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  color: white;
+}
+
+.game-header {
+  margin-bottom: 20px;
+  h1 {
+    color: #00d2ff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+    margin-bottom: 5px;
+  }
+  .stats { font-size: 1.2rem; span { color: #39ff14; font-weight: bold; } }
+}
+
+.difficulty-selector {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.hanoi-board {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  min-height: 250px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.tower-container {
+  position: relative;
+  width: 30%;
+  height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover .pillar { background: rgba(255, 255, 255, 0.1); }
+
+  &.selected .pillar {
+    background: rgba(0, 210, 255, 0.15);
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+  }
+}
+
+.pillar {
+  position: absolute;
+  bottom: 10px;
+  width: 12px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  z-index: 1;
+  transition: all 0.3s;
+}
+
+.base {
+  width: 80%;
+  height: 10px;
+  background: #1a2a3a;
+  border-radius: 5px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+  z-index: 2;
+}
+
+.disks-container {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  z-index: 3;
+}
+
+.disk {
+  height: 24px;
+  border-radius: 12px;
+  margin-bottom: 4px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  &.top-selected {
+    transform: translateY(-30px) scale(1.05);
+  }
+}
+
+.neon-blue { background: #00d2ff; box-shadow: 0 0 10px #00d2ff; }
+.neon-pink { background: #ff00ff; box-shadow: 0 0 10px #ff00ff; }
+.neon-green { background: #39ff14; box-shadow: 0 0 10px #39ff14; }
+.neon-yellow { background: #ffff00; box-shadow: 0 0 10px #ffff00; }
+.neon-orange { background: #ff8c00; box-shadow: 0 0 10px #ff8c00; }
+.neon-purple { background: #8a2be2; box-shadow: 0 0 10px #8a2be2; }
+
+.actions { margin-top: 30px; }
+
+================================================================================
+ARCHIVO: .\src\app\hanoi\hanoi.component.ts
+================================================================================
+
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import Swal from 'sweetalert2';
+import { SupabaseService } from '../services/supabase.service';
+
+@Component({
+  selector: 'app-hanoi',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule],
+  templateUrl: './hanoi.component.html',
+  styleUrls: ['./hanoi.component.scss']
+})
+export class HanoiComponent implements OnInit {
+
+  torres: number[][] = [[], [], []];
+
+  discosTotal = 5;
+  movimientos = 0;
+
+  torreSeleccionada: number | null = null;
+  juegoTerminado = false;
+
+  constructor(private sb: SupabaseService) {}
+
+  ngOnInit() {
+    this.iniciarJuego(this.discosTotal);
+  }
+
+  iniciarJuego(cantidadDiscos: number) {
+    this.discosTotal = cantidadDiscos;
+    this.movimientos = 0;
+    this.juegoTerminado = false;
+    this.torreSeleccionada = null;
+
+    this.torres = [[], [], []];
+
+    for (let i = this.discosTotal; i > 0; i--) {
+      this.torres[0].push(i);
+    }
+  }
+
+  seleccionarTorre(index: number) {
+    if (this.juegoTerminado) return;
+
+    if (this.torreSeleccionada === null) {
+      if (this.torres[index].length > 0) {
+        this.torreSeleccionada = index;
+      }
+      return;
+    }
+
+    if (this.torreSeleccionada === index) {
+      this.torreSeleccionada = null;
+      return;
+    }
+
+    this.intentarMover(this.torreSeleccionada, index);
+  }
+
+  intentarMover(origen: number, destino: number) {
+    const torreOrigen = this.torres[origen];
+    const torreDestino = this.torres[destino];
+
+    const discoAMover = torreOrigen[torreOrigen.length - 1];
+    const discoDestinoTop = torreDestino.length > 0 ? torreDestino[torreDestino.length - 1] : null;
+
+    if (discoDestinoTop === null || discoDestinoTop > discoAMover) {
+      torreOrigen.pop();
+      torreDestino.push(discoAMover);
+      this.movimientos++;
+      this.verificarVictoria();
+    }
+
+    this.torreSeleccionada = null;
+  }
+
+  verificarVictoria() {
+
+    if (this.torres[1].length === this.discosTotal || this.torres[2].length === this.discosTotal) {
+      this.juegoTerminado = true;
+
+      const movimientosIdeales = Math.pow(2, this.discosTotal) - 1;
+
+      Swal.fire({
+        title: '¡Resolución Perfecta!',
+        text: `Lo lograste en ${this.movimientos} movimientos. (El mínimo posible era ${movimientosIdeales})`,
+        icon: 'success',
+        confirmButtonText: 'Guardar Puntaje'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+
+          const penalidad = Math.max(0, this.movimientos - movimientosIdeales);
+          const puntajeBase = this.discosTotal * 20;
+          const puntajeFinal = Math.max(10, puntajeBase - (penalidad * 2));
+
+          await this.sb.saveResult('hanoi', puntajeFinal, {
+            movimientos: this.movimientos,
+            dificultad: `${this.discosTotal} discos`
+          });
+          Swal.fire('Guardado', 'Tu intelecto quedó registrado.', 'success');
+        }
+      });
+    }
+  }
+
+  getColorClase(tamanio: number): string {
+    const colores = ['neon-blue', 'neon-pink', 'neon-green', 'neon-yellow', 'neon-orange', 'neon-purple'];
+    return colores[(tamanio - 1) % colores.length];
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\home-fab\home-fab.component.css
+================================================================================
+
+.home-fab{
+  position: fixed;
+  left: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 1400;
+
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+
+  padding: .6rem .9rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.18);
+  color: #e5e7eb;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  transition: transform .15s ease, filter .15s ease;
+}
+.home-fab:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+
+================================================================================
+ARCHIVO: .\src\app\home-fab\home-fab.component.html
+================================================================================
+
+<a *ngIf="visible" class="home-fab" [routerLink]="['/home']" aria-label="Volver al Home">
+  ← Home
+</a>
+
+================================================================================
+ARCHIVO: .\src\app\home-fab\home-fab.component.ts
+================================================================================
+
+import { NgIf } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { Router, NavigationEnd, RouterLink } from '@angular/router';
+import { filter } from 'rxjs/operators';
+
+@Component({
+  selector: 'app-home-fab',
+  standalone: true,
+  imports: [RouterLink, NgIf],
+  templateUrl: './home-fab.component.html',
+  styleUrls: ['./home-fab.component.css']
+})
+export class HomeFabComponent {
+  private router = inject(Router);
+  private hidden = ['/home', '/login', '/register'];
+
+  visible = true;
+
+  constructor() {
+
+    this.visible = !this.hidden.some(p => this.router.url.startsWith(p));
+
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe((e: any) => {
+        const url = e.urlAfterRedirects ?? e.url ?? '';
+        this.visible = !this.hidden.some(p => url.startsWith(p));
+      });
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\homeX\home\home.css
+================================================================================
+
+.quick-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  margin: 12px 0 20px;
+}
+
+.panel {
+  background: #15171c;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-weight: 600;
+  margin-bottom: .5rem;
+}
+
+.panel-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .06);
+}
+
+.panel-stats .panel-header {
+  color: #ffd24a;
+}
+
+.panel-chat .panel-header {
+  color: #cdd7ff;
+}
+
+.panel-actions {
+  display: grid;
+  gap: .5rem;
+}
+
+.btn.wide {
+  width: 100%;
+  justify-content: center;
+}
+
+.welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  margin: 16px 0 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid #1f2937;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .35);
+  backdrop-filter: blur(6px);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, .08);
+  color: #e5e7eb;
+  font-weight: 800;
+}
+
+.muted {
+  color: #94a3b8;
+  margin: 2px 0 0;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .55rem .9rem;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(255, 255, 255, .08);
+  color: #e5e7eb;
+  text-decoration: none;
+  font-weight: 700;
+  transition: filter .15s ease, transform .15s ease;
+}
+
+.btn:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.btn.outline {
+  background: transparent;
+}
+
+.btn.danger {
+  background: linear-gradient(180deg, #ff6b6b, #ef4444);
+  border-color: transparent;
+  color: #fff;
+}
+
+:host {
+  display: block;
+  min-height: 100dvh;
+  background:
+    radial-gradient(1200px 600px at 0% 0%, #1f2937 0, #0b0f17 40%, #080b12 100%);
+  color: #e5e7eb;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .35);
+  backdrop-filter: blur(6px);
+}
+
+.hero h1 {
+  font-size: clamp(28px, 4vw, 44px);
+  margin: 0;
+  letter-spacing: .5px;
+  background: linear-gradient(90deg, #8b5cf6, #06b6d4, #22c55e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero p {
+  margin: 6px 0 0;
+  color: #94a3b8;
+}
+
+.search {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.search input {
+  flex: 1;
+  height: 44px;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #e5e7eb;
+  border: 1px solid #1f2937;
+  padding: 0 14px;
+  outline: none;
+}
+
+.search input:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, .15);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 24px;
+}
+
+.chips button {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #0f172a;
+  color: #cbd5e1;
+  border: 1px solid #1f2937;
+  cursor: pointer;
+  transition: .15s ease;
+}
+
+.chips button.active,
+.chips button:hover {
+  border-color: #22c55e;
+  color: #22c55e;
+  transform: translateY(-1px);
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.game-card {
+  position: relative;
+  background: #0b1220;
+  border: 1px solid #1f2937;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease,
+    border-color .2s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+  border-color: #22c55e55;
+}
+
+.game-thumb {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  object-fit: cover;
+  background: #111827;
+  display: block;
+}
+
+.game-info {
+  padding: 12px 14px 16px;
+}
+
+.game-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #f1f5f9;
+}
+
+.game-desc {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 12px;
+  background: linear-gradient(90deg, #22c55e, #06b6d4);
+  color: #061114;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.card-link {
+  position: absolute;
+  inset: 0;
+}
+
+@media (max-width: 600px) {
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\homeX\home\home.html
+================================================================================
+
+<div class="container">
+
+  <ng-container *ngIf="user$ | async as user; else loggedOut">
+    <section class="welcome">
+      <div class="user-info">
+        <div class="avatar" aria-hidden="true">{{ user.email?.charAt(0) | uppercase }}</div>
+        <div>
+          <h2>¡Hola!</h2>
+          <p class="muted">{{ user.email }}</p>
+        </div>
+      </div>
+      <button class="btn danger" (click)="logout()">Cerrar sesión</button>
+    </section>
+  </ng-container>
+
+  <section class="quick-panels" *ngIf="user$ | async as user">
+
+    <div class="panel panel-stats">
+      <header class="panel-header">
+        <span class="panel-icon" aria-hidden="true">📊</span>
+        <h3>Mis Estadísticas</h3>
+      </header>
+      <div class="panel-actions">
+
+        <a class="btn outline wide" [routerLink]="['/resultados']" [queryParams]="{ me: 1 }">
+          Ver Resultados
+        </a>
+        <a class="btn outline wide" routerLink="/encuesta">
+          Encuesta
+        </a>
+        <a class="btn outline wide" routerLink="/encuesta/respuestas" *ngIf="esAdmin()" style="background: rgba(63, 81, 181, 0.1); border-color: #3f51b5;">
+          📊 Ver Respuestas (Admin)
+        </a>
+      </div>
+    </div>
+
+    <div class="panel panel-chat">
+      <header class="panel-header">
+        <span class="panel-icon" aria-hidden="true">💬</span>
+        <h3>Chat</h3>
+      </header>
+      <div class="panel-actions">
+        <a class="btn outline wide" routerLink="/chat">
+          Ir al Chat
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <ng-template #loggedOut>
+    <section class="welcome">
+      <div class="user-info">
+        <div class="avatar" aria-hidden="true">?</div>
+        <div>
+          <h2>Bienvenido</h2>
+          <p class="muted">Iniciá sesión para guardar tus partidas</p>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="btn" routerLink="/login">Iniciar sesión</a>
+        <a class="btn outline" routerLink="/register">Registrarme</a>
+      </div>
+    </section>
+  </ng-template>
+
+  <section class="hero">
+    <div>
+      <h1>Sala de Juegos</h1>
+      <p>Juegos rápidos y livianos. Elegí, buscá y jugá.</p>
+
+      <div class="search" role="search">
+        <input type="search" placeholder="Buscar por nombre o tag…" [(ngModel)]="search" aria-label="Buscar juegos" />
+      </div>
+
+      <div class="chips" role="tablist" aria-label="Categorías de juegos">
+        <button *ngFor="let cat of categories" (click)="setCategory(cat)" [class.active]="activeCategory === cat"
+          role="tab" [attr.aria-selected]="activeCategory === cat">
+          {{ cat }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section aria-live="polite">
+    <div class="games-grid" *ngIf="filteredGames.length; else emptyList">
+      <article class="game-card" *ngFor="let game of filteredGames; trackBy: trackByTitle">
+        <img class="game-thumb" [src]="game.thumb" [alt]="game.title" loading="lazy" />
+        <div *ngIf="game.badge" class="badge">{{ game.badge }}</div>
+
+        <div class="game-info">
+          <h4 class="game-title">{{ game.title }}</h4>
+          <p class="game-desc">{{ game.description }}</p>
+        </div>
+
+        <a class="card-link" [routerLink]="game.route" [attr.aria-label]="'Abrir ' + game.title"></a>
+      </article>
+    </div>
+
+    <ng-template #emptyList>
+      <p style="opacity:.8; padding:16px">
+        No hay juegos que coincidan con tu búsqueda.
+      </p>
+    </ng-template>
+  </section>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\homeX\home\home.ts
+================================================================================
+
+import { Component, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+
+import { Observable } from 'rxjs';
+import { AuthService, User } from '../../services/auth.service';
+import { SupabaseService } from '../../services/supabase.service';
+import { LogsJuegosService } from '../../services/logs-juegos.service';
+
+type Category = 'Todos' | 'Arcade' | 'Puzzles' | 'Trivia' | 'Cartas' | 'Clásicos';
+
+interface Game {
+  title: string;
+  route: string | any[];
+  thumb: string;
+  category: Category | string;
+  description?: string;
+  tags?: string[];
+  badge?: 'Nuevo' | 'Popular' | 'Actualizado' | string;
+}
+
+@Component({
+  selector: 'app-home',
+  standalone: true,
+  imports: [CommonModule, RouterModule, FormsModule],
+  templateUrl: './home.html',
+  styleUrl: './home.css'
+})
+export class HomeComponent implements OnInit {
+  search = '';
+  activeCategory: Category = 'Todos';
+  categories: Category[] = ['Todos', 'Arcade', 'Puzzles', 'Trivia', 'Cartas', 'Clásicos'];
+
+  user$!: Observable<User | null>;
+  esAdmin = signal(false);
+
+  constructor(
+    private auth: AuthService,
+    private supa: SupabaseService,
+    private logService: LogsJuegosService
+  ) {
+    this.user$ = this.auth.user$;
+  }
+
+  async ngOnInit() {
+    await this.verificarAdmin();
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder',
+      true,
+      'HomeComponent',
+      'ngOnInit',
+      'Ingresó a la página principal'
+    );
+
+  }
+
+  async verificarAdmin() {
+    const session = await this.supa.getSession();
+    if (!session?.user) {
+      this.esAdmin.set(false);
+      return;
+    }
+
+    const { data, error } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('usuarios')
+      .select('es_admin')
+      .eq('supabase_uid', session.user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('[Home] Error verificando admin:', error);
+      this.esAdmin.set(false);
+      return;
+    }
+
+    this.esAdmin.set(data?.es_admin ?? false);
+  }
+
+  logout() { this.auth.logout(); }
+
+  games: Game[] = [
+    {
+      title: 'Ahorcado',
+      route: '/games/ahorcado',
+      thumb: 'assets/games/ahorcado.jpg',
+      category: 'Puzzles',
+      description: 'Adivina la palabra antes de que sea tarde.',
+      tags: ['ahorcado', 'palabras'],
+      badge: 'Popular'
+    },
+    {
+      title: 'Mayor o Menor',
+      route: '/games/mayor-menor',
+      thumb: 'assets/games/mayor-menor.jpg',
+      category: 'Cartas',
+      description: '¿Mayor o menor? Probá tu intuición.',
+      tags: ['cartas', 'azar']
+    },
+    {
+      title: 'Preguntados DBZ',
+      route: '/games/preguntados-dbz',
+      thumb: 'assets/games/preguntados-dbz.jpg',
+      category: 'Trivia',
+      description: 'Demostrá cuánto sabés de Dragon Ball Z.',
+      tags: ['trivia', 'dbz', 'anime'],
+      badge: 'Nuevo'
+    },
+    {
+      title: 'Flow Free',
+      route: '/games/flowfree',
+      thumb: 'assets/games/flowfree.jpg',
+      category: 'Puzzles',
+      description: 'Conectá pares sin cruzar caminos.',
+      tags: ['puzzle', 'rutas']
+    },
+
+    {
+      title: 'BioMatch',
+      route: '/games/gen-game',
+      thumb: 'assets/games/biomatch.jpg',
+      category: 'Ciencia',
+      description: 'Uní conceptos de biología y genética evolutiva.',
+      tags: ['biología', 'genética', 'unq', 'ciencia', 'drag-drop'],
+      badge: 'Propio'
+    },
+
+    {
+      title: 'Calculo Mental',
+      route: '/games/math-game',
+      thumb: 'assets/games/calc.jpg',
+      category: 'Matemáticas',
+      description: 'Ejercita tu mente con operaciones matemáticas rápidas.',
+      tags: ['matemáticas', 'mental', 'cálculo'],
+
+      badge: 'Propio'
+    },
+
+    {
+      title: 'Water Sort',
+      route: '/games/water-sort',
+      thumb: 'assets/games/water-sort.jpg',
+      category: 'Puzzles',
+      description: 'Ordená los líquidos fluorescentes por color en los tubos de ensayo.',
+      tags: ['puzzle', 'lógica', 'colores', 'laboratorio'],
+      badge: 'Propio'
+    },
+
+    {
+      title: 'Pac-Man Neon',
+      route: '/games/pacman',
+      thumb: 'assets/games/pacman.jpg',
+      category: 'Arcade',
+      description: 'El clásico comecocos rediseñado desde cero con estética cyber-neon.',
+      tags: ['arcade', 'clásico', 'laberinto', 'fantasmas'],
+      badge: 'Propio'
+    },
+
+    {
+      title: 'Snake Neon',
+      route: '/games/snake',
+      thumb: 'assets/games/snake.jpg',
+      category: 'Arcade',
+      description: 'El clásico juego de la viborita rediseñado con un estilo retro-futurista.',
+      tags: ['arcade', 'clásico', 'serpiente', 'retro'],
+      badge: 'Propio'
+    },
+    {
+      title: 'Hanói Neon',
+      route: '/games/hanoi',
+      thumb: 'assets/games/hanoi.jpg',
+      category: 'Puzzles',
+      description: 'El clásico rompecabezas matemático de la Torre de Hanói con anillos holográficos.',
+      tags: ['puzzle', 'lógica', 'matemática', 'clásico'],
+      badge: 'Propio'
+    },
+
+    {
+      title: 'Auto-Tetris IA',
+      route: '/games/tetris',
+      thumb: 'assets/games/tetris.jpg',
+      category: 'Arcade',
+      description: 'Observá a un algoritmo heurístico jugar al Tetris de forma autónoma calculando la mejor jugada.',
+      tags: ['tetris', 'ia', 'algoritmo', 'arcade'],
+      badge: 'Bot'
+    }
+
+  ];
+
+  get filteredGames(): Game[] {
+    const byCat = this.activeCategory === 'Todos'
+      ? this.games
+      : this.games.filter(g => g.category === this.activeCategory);
+
+    const term = this.search.trim().toLowerCase();
+    if (!term) return byCat;
+
+    return byCat.filter(g =>
+      g.title.toLowerCase().includes(term) ||
+      g.tags?.some(t => t.toLowerCase().includes(term))
+    );
+  }
+
+  setCategory(cat: Category) {
+    this.activeCategory = cat;
+  }
+
+  trackByTitle(_i: number, g: Game) {
+    return g.title;
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\login\login.css
+================================================================================
+
+:host {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 22px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+
+h3 {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-top: 10px;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.login-input::placeholder { color: var(--muted); }
+
+.login-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.login-button {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: .2px;
+  transition: transform .06s ease, box-shadow .15s ease, opacity .15s;
+  box-shadow: 0 8px 24px rgba(99,102,241,.35);
+}
+
+.login-button:hover { transform: translateY(-1px); }
+.login-button:active { transform: translateY(0); }
+.login-button:disabled { opacity: .6; cursor: not-allowed; }
+
+.error {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 70%, transparent);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+  border-radius: 12px;
+  font-size: .95rem;
+}
+
+.register-link-container {
+  margin-top: 12px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.register-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+.register-link:hover { text-decoration: underline; }
+
+.quick-access {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.quick-title {
+  color: var(--muted, #888);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.quick-grid {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.quick-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #fff;
+
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-btn .icon {
+  font-size: 1.1rem;
+}
+
+.quick-btn:hover {
+
+  background: rgba(0, 255, 128, 0.1);
+  border-color: #00ff80;
+
+  box-shadow: 0 0 15px rgba(0, 255, 128, 0.5), inset 0 0 10px rgba(0, 255, 128, 0.2);
+
+  transform: translateY(-2px);
+  text-shadow: 0 0 5px rgba(0, 255, 128, 0.8);
+}
+
+.quick-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 0 5px rgba(0, 255, 128, 0.5);
+}
+
+.hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted, #666);
+  line-height: 1.4;
+  margin-top: 10px;
+}
+
+================================================================================
+ARCHIVO: .\src\app\login\login.html
+================================================================================
+
+<div class="login-container">
+  <h3>Iniciar Sesión</h3>
+
+  <label for="correo">Email:</label>
+  <input
+    id="correo"
+    type="email"
+    placeholder="Email"
+    [(ngModel)]="formulario.correo"
+    class="login-input"
+  />
+
+  <label for="contrasenia">Contraseña:</label>
+  <input
+    id="contrasenia"
+    type="password"
+    placeholder="Contraseña"
+    [(ngModel)]="formulario.contrasenia"
+    class="login-input"
+  />
+
+  <button (click)="ingresar()" class="login-button" [disabled]="cargando">
+    {{ cargando ? 'Ingresando…' : 'Ingresar' }}
+  </button>
+
+  <p *ngIf="mensajeDeError" class="error">{{ mensajeDeError }}</p>
+
+  <div class="quick-access" *ngIf="mostrarAccesoRapido && usuariosAccesoRapido?.length">
+    <div class="quick-title">Acceso rápido:</div>
+
+    <div class="quick-grid">
+      <button
+        type="button"
+        class="quick-btn"
+        *ngFor="let u of usuariosAccesoRapido"
+        (click)="autocompletarAccesoRapido(u)"
+        [disabled]="cargando"
+        [attr.aria-label]="'Completar con ' + u.etiqueta">
+        <span class="icon">👤</span>
+        <span>{{ u.etiqueta }}</span>
+      </button>
+    </div>
+    <small class="hint">Los botones completan email y contraseña. Luego presioná <b>Ingresar</b>.</small>
+  </div>
+
+  <div class="register-link-container">
+    <a routerLink="/register" class="register-link">¿No tienes cuenta? Regístrate</a>
+  </div>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\login\login.ts
+================================================================================
+
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../services/auth.service';
+import { SupabaseService } from '../services/supabase.service';
+import { environment } from '../../environments/environment';
+import { LogsJuegosService } from '../services/logs-juegos.service';
+
+type UsuarioAccesoRapido = { etiqueta: string; correo: string; contrasenia: string };
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [FormsModule, CommonModule, RouterLink],
+  templateUrl: './login.html',
+  styleUrls: ['./login.css'],
+})
+export class LoginComponent {
+  formulario = { correo: '', contrasenia: '' };
+  mensajeDeError = '';
+  cargando = false;
+
+  usuariosAccesoRapido: UsuarioAccesoRapido[] = environment.demoUsers;
+  get mostrarAccesoRapido(): boolean { return !!environment.accesoRapidoHabilitado; }
+
+  constructor(
+    private enrutador: Router,
+    private servicioAuth: AuthService,
+    private supabaseSvc: SupabaseService,
+    private logService: LogsJuegosService
+  ) {}
+
+  autocompletarAccesoRapido(u: UsuarioAccesoRapido) {
+    this.formulario.correo = u.correo;
+    this.formulario.contrasenia = u.contrasenia;
+  }
+
+  async ingresar() {
+    this.mensajeDeError = '';
+    this.cargando = true;
+
+    const { data, error } = await this.servicioAuth.signIn(
+      this.formulario.correo.trim(),
+      this.formulario.contrasenia.trim()
+    );
+
+    if (error) {
+      console.log({
+        name: error.name,
+        code: (error as any).code,
+        status: (error as any).status,
+        msg: error.message
+      });
+
+      switch ((error as any).code) {
+        case 'invalid_credentials':
+          this.mensajeDeError = 'Email o contraseña inválidos.';
+          break;
+        case 'email_not_confirmed':
+          this.mensajeDeError = 'Tenés que confirmar tu email antes de ingresar.';
+          break;
+        default:
+          this.mensajeDeError = error.message;
+          break;
+      }
+      this.cargando = false;
+
+        this.logService.registrarLog(
+          'supa-uid-placeholder',
+          false,
+          'LoginComponent',
+          'ingresar',
+          `Intentó ingresar con ${this.formulario.correo} - Error: ${this.mensajeDeError}`
+        );
+
+      return;
+    }
+
+    const usuario = data.user;
+    if (usuario) {
+      try {
+
+        let usuarioId = await this.supabaseSvc.getUsuarioIdFromSupabaseUid(usuario.id);
+
+        if (!usuarioId) {
+          const nombre = usuario.email?.split('@')[0] || 'Usuario';
+          usuarioId = await this.supabaseSvc.createUsuarioInEsquemaJuegos(
+            nombre,
+            null,
+            usuario.email || '',
+            null,
+            usuario.id
+          );
+        }
+
+        if (usuarioId) {
+          await this.supabaseSvc.logLogin(usuario.id);
+        }
+
+        this.logService.registrarLog(
+          usuario.id,
+          true,
+          'LoginComponent',
+          'ingresar',
+          `Ingresó exitosamente con ${usuario.email}`
+        );
+
+      } catch (error: any) {
+        console.warn('Error al verificar/crear usuario o registrar login:', error);
+
+      }
+    }
+
+    await this.enrutador.navigate(['/home']);
+    this.cargando = false;
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\logs-list\logs-list.component.css
+================================================================================
+
+.logs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+
+  .logs-table th,
+  .logs-table td {
+    border: 1px solid #ccc;
+    padding: 0.5rem 1rem;
+    text-align: left;
+  }
+
+  .logs-table thead {
+    background-color: #f0f0f0;
+  }
+
+  .logs-table tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+
+  .logs-table th {
+    font-weight: bold;
+  }
+
+================================================================================
+ARCHIVO: .\src\app\logs-list\logs-list.component.html
+================================================================================
+
+<h2>Historial de Ingresos</h2>
+<div *ngIf="error" class="error">{{ error }}</div>
+<ul *ngIf="!error">
+    <li *ngFor="let log of logs">
+        <b>{{ log.email || '(sin email)' }}</b>
+        <small>— {{ log.created_at | date:'short' }}</small>
+    </li>
+</ul>
+
+<div class="mt-3">
+    <a routerLink="/home" class="btn btn-outline-primary">Volver al Home</a>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\logs-list\logs-list.component.ts
+================================================================================
+
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { LoginLog, SupabaseService } from '../services/supabase.service';
+
+export interface LogEntry {
+  id: string;
+  uid: string;
+  email: string;
+  fecha: any;
+}
+
+@Component({
+  selector: 'app-logs-list',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './logs-list.component.html',
+  styleUrls: ['./logs-list.component.css']
+})
+export class LogsListComponent implements OnInit {
+  logs: LoginLog[] = [];
+  error: string | null = null;
+
+  constructor(private supa: SupabaseService) {}
+
+  async ngOnInit() {
+    try {
+      this.logs = await this.supa.getLoginLogs(100);
+    } catch (e: any) {
+      this.error = e?.message ?? 'Error al cargar logs';
+    }
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\mastermind\mastermind.component.html
+================================================================================
+
+<p>mastermind works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Hack-O-Matic <small>(Mastermind)</small></h1>
+    <p>Intentos: {{ historialIntentos.length }} / {{ intentosMaximos }}</p>
+  </header>
+
+  <div class="board">
+    <div class="row" *ngFor="let intento of historialIntentos; let i = index">
+      <div class="turn-number">{{ i + 1 }}</div>
+
+      <div class="pegs-container">
+        <div class="peg" *ngFor="let color of intento.adivinanza" [ngClass]="color"></div>
+      </div>
+
+      <div class="hints-grid">
+        <div class="hint-dot"
+             *ngFor="let tipo of obtenerArrayPistas(intento.pistas.exactos, intento.pistas.parciales)"
+             [ngClass]="tipo">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="current-turn-panel" *ngIf="!juegoTerminado">
+    <h3>Secuencia Actual:</h3>
+    <div class="current-pegs">
+      <div class="peg"
+           *ngFor="let item of [0,1,2,3]"
+           [ngClass]="intentoActual[item] || 'empty'"
+           (click)="removerColor(item)">
+      </div>
+    </div>
+
+    <button mat-flat-button color="primary"
+            class="btn-check"
+            [disabled]="intentoActual.length < 4"
+            (click)="comprobarIntento()">
+      <i class="fas fa-microchip"></i> Hackear
+    </button>
+  </div>
+
+  <div class="color-picker" *ngIf="!juegoTerminado">
+    <div class="peg clickable"
+         *ngFor="let color of coloresDisponibles"
+         [ngClass]="color"
+         (click)="agregarColor(color)">
+    </div>
+  </div>
+
+  <div class="actions" *ngIf="juegoTerminado">
+    <button mat-stroked-button color="primary" (click)="iniciarJuego()">
+      <i class="fas fa-redo"></i> Nueva Partida
+    </button>
+  </div>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\mastermind\mastermind.component.scss
+================================================================================
+
+$bg-dark: #09121c;
+
+.game-container {
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 25px;
+  background: $bg-dark;
+  border-radius: 16px;
+  border: 2px solid #1a2a3a;
+  box-shadow: 0 0 30px rgba(0, 210, 255, 0.1);
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  color: #e2e8f0;
+}
+
+.game-header {
+  margin-bottom: 25px;
+  h1 {
+    color: #00d2ff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+    small { font-size: 0.5em; opacity: 0.7; }
+  }
+}
+
+.board {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 15px;
+  border-radius: 8px;
+}
+
+.turn-number {
+  color: #64748b;
+  font-weight: bold;
+  width: 20px;
+}
+
+.pegs-container {
+  display: flex;
+  gap: 12px;
+}
+
+.peg {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+  transition: transform 0.2s;
+
+  &.empty {
+    background: transparent;
+    border: 2px dashed #334155;
+    box-shadow: none;
+    cursor: pointer;
+  }
+  &.clickable { cursor: pointer; &:hover { transform: scale(1.1); } }
+}
+
+.hints-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  width: 24px;
+}
+
+.hint-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #1e293b;
+
+  &.exacto {
+    background: #39ff14;
+    box-shadow: 0 0 8px #39ff14;
+  }
+  &.parcial {
+    background: #ffffff;
+    box-shadow: 0 0 8px #ffffff;
+  }
+}
+
+.current-turn-panel {
+  background: rgba(0, 210, 255, 0.05);
+  border: 1px dashed #00d2ff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+
+  h3 { margin-bottom: 15px; font-size: 1rem; color: #00d2ff; }
+}
+
+.current-pegs {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.color-picker {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+}
+
+.neon-blue { background: #00d2ff; box-shadow: 0 0 12px #00d2ff; }
+.neon-pink { background: #ff00ff; box-shadow: 0 0 12px #ff00ff; }
+.neon-green { background: #39ff14; box-shadow: 0 0 12px #39ff14; }
+.neon-yellow { background: #ffff00; box-shadow: 0 0 12px #ffff00; }
+.neon-orange { background: #ff8c00; box-shadow: 0 0 12px #ff8c00; }
+.neon-purple { background: #8a2be2; box-shadow: 0 0 12px #8a2be2; }
+
+.btn-check { font-size: 1.1rem; letter-spacing: 1px; }
+
+================================================================================
+ARCHIVO: .\src\app\mastermind\mastermind.component.ts
+================================================================================
+
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import Swal from 'sweetalert2';
+import { SupabaseService } from '../services/supabase.service';
+
+interface Intento {
+  adivinanza: string[];
+  pistas: { exactos: number; parciales: number };
+}
+
+@Component({
+  selector: 'app-mastermind',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule],
+  templateUrl: './mastermind.component.html',
+  styleUrls: ['./mastermind.component.scss']
+})
+export class MastermindComponent implements OnInit {
+
+  coloresDisponibles = ['neon-blue', 'neon-pink', 'neon-green', 'neon-yellow', 'neon-orange', 'neon-purple'];
+
+  codigoSecreto: string[] = [];
+  intentosMaximos = 10;
+  historialIntentos: Intento[] = [];
+  intentoActual: string[] = [];
+
+  juegoTerminado = false;
+  victoria = false;
+
+  constructor(private sb: SupabaseService) {}
+
+  ngOnInit() {
+    this.iniciarJuego();
+  }
+
+  iniciarJuego() {
+    this.historialIntentos = [];
+    this.intentoActual = [];
+    this.juegoTerminado = false;
+    this.victoria = false;
+    this.generarCodigoSecreto();
+  }
+
+  generarCodigoSecreto() {
+    this.codigoSecreto = [];
+    for (let i = 0; i < 4; i++) {
+      const colorAlAzar = this.coloresDisponibles[Math.floor(Math.random() * this.coloresDisponibles.length)];
+      this.codigoSecreto.push(colorAlAzar);
+    }
+
+  }
+
+  agregarColor(color: string) {
+    if (this.juegoTerminado || this.intentoActual.length >= 4) return;
+    this.intentoActual.push(color);
+  }
+
+  removerColor(index: number) {
+    if (this.juegoTerminado) return;
+    this.intentoActual.splice(index, 1);
+  }
+
+  comprobarIntento() {
+    if (this.intentoActual.length !== 4) return;
+
+    const pistas = this.calcularPistas(this.intentoActual, this.codigoSecreto);
+
+    this.historialIntentos.push({
+      adivinanza: [...this.intentoActual],
+      pistas: pistas
+    });
+
+    this.intentoActual = [];
+
+    if (pistas.exactos === 4) {
+      this.finalizarPartida(true);
+    } else if (this.historialIntentos.length >= this.intentosMaximos) {
+      this.finalizarPartida(false);
+    }
+  }
+
+  calcularPistas(adivinanza: string[], secreto: string[]) {
+    let exactos = 0;
+    let parciales = 0;
+
+    const secretoUsado = [false, false, false, false];
+    const adivinanzaUsada = [false, false, false, false];
+
+    for (let i = 0; i < 4; i++) {
+      if (adivinanza[i] === secreto[i]) {
+        exactos++;
+        secretoUsado[i] = true;
+        adivinanzaUsada[i] = true;
+      }
+    }
+
+    for (let i = 0; i < 4; i++) {
+      if (!adivinanzaUsada[i]) {
+        for (let j = 0; j < 4; j++) {
+          if (!secretoUsado[j] && adivinanza[i] === secreto[j]) {
+            parciales++;
+            secretoUsado[j] = true;
+            break;
+          }
+        }
+      }
+    }
+
+    return { exactos, parciales };
+  }
+
+  obtenerArrayPistas(exactos: number, parciales: number) {
+    const pistas = [];
+    for (let i = 0; i < exactos; i++) pistas.push('exacto');
+    for (let i = 0; i < parciales; i++) pistas.push('parcial');
+
+    while (pistas.length < 4) pistas.push('vacio');
+    return pistas;
+  }
+
+  async finalizarPartida(gano: boolean) {
+    this.juegoTerminado = true;
+    this.victoria = gano;
+
+    const titulo = gano ? '¡Sistema Hackeado!' : '¡Acceso Denegado!';
+    const icono = gano ? 'success' : 'error';
+    const puntos = gano ? Math.max(10, 100 - (this.historialIntentos.length * 5)) : 0;
+
+    Swal.fire({
+      title: titulo,
+      html: `El código era:<br>
+             <div style="display:flex; justify-content:center; gap:10px; margin-top:15px;">
+               ${this.codigoSecreto.map(c => `<div style="width:25px; height:25px; border-radius:50%; background:var(--${c}-color, ${this.getColorCode(c)})"></div>`).join('')}
+             </div>`,
+      icon: icono,
+      confirmButtonText: gano ? 'Guardar Puntaje' : 'Intentar de nuevo'
+    }).then(async (result) => {
+      if (result.isConfirmed && gano) {
+        await this.sb.saveResult('mastermind', puntos, { intentos: this.historialIntentos.length });
+        Swal.fire('Guardado', 'Tu récord fue registrado.', 'success');
+      } else if (!gano) {
+        this.iniciarJuego();
+      }
+    });
+  }
+
+  getColorCode(clase: string) {
+    const mapa: any = { 'neon-blue': '#00d2ff', 'neon-pink': '#ff00ff', 'neon-green': '#39ff14', 'neon-yellow': '#ffff00', 'neon-orange': '#ff8c00', 'neon-purple': '#8a2be2' };
+    return mapa[clase] || 'gray';
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\math-game\math-game.component.html
+================================================================================
+
+<p>math-game works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Cálculo Rápido</h1>
+    <p>Resolvé la mayor cantidad de operaciones en 60 segundos.</p>
+  </header>
+
+  <div class="start-screen" *ngIf="!jugando">
+    <div class="score-display" *ngIf="puntaje > 0">
+      Último puntaje: <strong>{{ puntaje }}</strong>
+    </div>
+    <button mat-flat-button color="primary" class="btn-jugar" (click)="iniciarJuego()">
+      <i class="fas fa-play"></i> ¡Comenzar!
+    </button>
+  </div>
+
+  <div class="play-screen" *ngIf="jugando">
+
+    <div class="stats-bar">
+      <div class="score">Puntos: <span>{{ puntaje }}</span></div>
+      <div class="time" [class.danger]="tiempoRestante <= 10">
+        <i class="fas fa-clock"></i> {{ tiempoRestante }}s
+      </div>
+    </div>
+
+    <mat-progress-bar mode="determinate" [value]="(tiempoRestante / 60) * 100" [color]="tiempoRestante <= 10 ? 'warn' : 'primary'"></mat-progress-bar>
+
+    <div class="equation-board">
+      <h2 class="equation">{{ preguntaActual.texto }}</h2>
+    </div>
+
+    <div class="options-grid">
+      <button
+        *ngFor="let opcion of preguntaActual.opciones"
+        mat-flat-button
+        class="option-btn"
+        (click)="responder(opcion)">
+        {{ opcion }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\math-game\math-game.component.scss
+================================================================================
+
+$bg-dark: #09121c;
+$panel-bg: #111e2d;
+$neon-blue: #00d2ff;
+$neon-blue-glow: rgba(0, 210, 255, 0.4);
+$neon-green: #39ff14;
+$neon-green-glow: rgba(57, 255, 20, 0.4);
+$neon-red: #ff073a;
+$neon-red-glow: rgba(255, 7, 58, 0.4);
+$text-light: #e2e8f0;
+
+.game-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+  background: $bg-dark;
+  border: 2px solid #1a2a3a;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(0, 210, 255, 0.1);
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  color: $text-light;
+}
+
+.game-header {
+  margin-bottom: 30px;
+  h1 {
+    color: $neon-blue;
+    font-weight: 800;
+    font-size: 2.5rem;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px $neon-blue-glow;
+  }
+  p { color: #94a3b8; font-size: 1.1rem; }
+}
+
+.start-screen {
+  padding: 40px 0;
+
+  .score-display {
+    font-size: 1.2rem;
+    color: $text-light;
+    margin-bottom: 25px;
+    strong {
+      color: $neon-green;
+      font-size: 1.8rem;
+      text-shadow: 0 0 10px $neon-green-glow;
+    }
+  }
+
+  .btn-jugar {
+    font-size: 1.2rem;
+    padding: 10px 30px;
+    border-radius: 30px;
+    background: rgba(0, 210, 255, 0.1) !important;
+    color: $neon-blue !important;
+    border: 2px solid $neon-blue;
+    box-shadow: inset 0 0 10px $neon-blue-glow, 0 0 10px $neon-blue-glow;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(0, 210, 255, 0.2) !important;
+      box-shadow: inset 0 0 20px $neon-blue-glow, 0 0 20px $neon-blue-glow;
+      transform: scale(1.05);
+    }
+  }
+}
+
+.play-screen {
+  .stats-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: $text-light;
+
+    .score span {
+      color: $neon-green;
+      font-size: 1.4rem;
+      text-shadow: 0 0 8px $neon-green-glow;
+    }
+
+    .time {
+      color: $neon-blue;
+      text-shadow: 0 0 8px $neon-blue-glow;
+
+      &.danger {
+        color: $neon-red;
+        text-shadow: 0 0 10px $neon-red-glow;
+        animation: pulse 1s infinite;
+      }
+    }
+  }
+
+  mat-progress-bar {
+    height: 6px;
+    border-radius: 3px;
+    margin-bottom: 40px;
+    opacity: 0.8;
+  }
+
+  .equation-board {
+    background: $panel-bg;
+    border: 2px dashed rgba(0, 210, 255, 0.4);
+    border-radius: 12px;
+    padding: 40px 20px;
+    margin-bottom: 40px;
+    box-shadow: inset 0 0 20px rgba(0, 210, 255, 0.1);
+
+    .equation {
+      font-size: 4rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+      letter-spacing: 2px;
+      text-shadow: 0 0 15px $neon-blue;
+    }
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+
+    .option-btn {
+      height: 70px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      border-radius: 12px;
+      background: rgba(0, 210, 255, 0.05) !important;
+      color: $neon-blue !important;
+      border: 2px solid $neon-blue;
+      box-shadow: inset 0 0 10px $neon-blue-glow, 0 0 10px $neon-blue-glow;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(0, 210, 255, 0.15) !important;
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        box-shadow: inset 0 0 20px $neon-blue-glow, 0 0 20px $neon-blue-glow;
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+================================================================================
+ARCHIVO: .\src\app\math-game\math-game.component.ts
+================================================================================
+
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import Swal from 'sweetalert2';
+import { SupabaseService } from '../services/supabase.service';
+
+interface PreguntaMatematica {
+  texto: string;
+  opciones: any[];
+  respuestaCorrecta: any;
+}
+
+@Component({
+  selector: 'app-math-game',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, MatProgressBarModule],
+  templateUrl: './math-game.component.html',
+  styleUrls: ['./math-game.component.scss']
+})
+export class MathGameComponent implements OnInit, OnDestroy {
+  jugando = false;
+  puntaje = 0;
+  tiempoRestante = 60;
+  preguntaActual!: PreguntaMatematica;
+
+  private timer: any;
+
+  constructor(private sb: SupabaseService) { }
+
+  ngOnInit(): void { }
+
+  ngOnDestroy(): void {
+    this.detenerTimer();
+  }
+
+  iniciarJuego() {
+    this.jugando = true;
+    this.puntaje = 0;
+    this.tiempoRestante = 60;
+    this.generarPregunta();
+
+    this.timer = setInterval(() => {
+      this.tiempoRestante--;
+      if (this.tiempoRestante <= 0) {
+        this.finalizarJuego();
+      }
+    }, 1000);
+  }
+
+  detenerTimer() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  }
+
+  generarPregunta() {
+    const operadores = ['+', '-', '*', '/'];
+    const operador = operadores[Math.floor(Math.random() * operadores.length)];
+    let a = 0, b = 0;
+
+    let respuestaCorrecta: number | string = 0;
+
+    switch (operador) {
+      case '+':
+        a = this.randomInt(1, 50);
+        b = this.randomInt(1, 50);
+        respuestaCorrecta = a + b;
+        break;
+      case '-':
+        a = this.randomInt(20, 100);
+        b = this.randomInt(1, a);
+        respuestaCorrecta = a - b;
+        break;
+      case '*':
+        a = this.randomInt(2, 12);
+        b = this.randomInt(2, 12);
+        respuestaCorrecta = a * b;
+        break;
+      case '/':
+        b = this.randomInt(2, 12);
+        respuestaCorrecta = this.randomInt(2, 12);
+        a = b * respuestaCorrecta;
+        break;
+    }
+
+    const tipoPregunta = Math.random() > 0.3 ? 'resultado' : 'operador';
+    let texto = '';
+    let opciones: any[] = [];
+
+    if (tipoPregunta === 'resultado') {
+      texto = `${a} ${operador} ${b} = ?`;
+      opciones = this.generarOpcionesNumericas(respuestaCorrecta);
+    } else {
+      texto = `${a} ? ${b} = ${respuestaCorrecta}`;
+      opciones = ['+', '-', '*', '/'];
+      respuestaCorrecta = operador;
+    }
+
+    this.preguntaActual = { texto, opciones, respuestaCorrecta };
+  }
+
+  generarOpcionesNumericas(correcta: number): number[] {
+    const opciones = new Set<number>();
+    opciones.add(correcta);
+
+    while (opciones.size < 4) {
+
+      const desvio = this.randomInt(-10, 10);
+      const opcionFalsa = correcta + desvio;
+      if (opcionFalsa !== correcta && opcionFalsa >= 0) {
+        opciones.add(opcionFalsa);
+      }
+    }
+
+    return Array.from(opciones).sort(() => Math.random() - 0.5);
+  }
+
+  responder(opcionSeleccionada: any) {
+    if (opcionSeleccionada === this.preguntaActual.respuestaCorrecta) {
+      this.puntaje += 10;
+    } else {
+
+      this.puntaje = Math.max(0, this.puntaje - 5);
+    }
+    this.generarPregunta();
+  }
+
+  async finalizarJuego() {
+    this.jugando = false;
+    this.detenerTimer();
+
+    Swal.fire({
+      title: '¡Tiempo agotado!',
+      text: `Conseguiste ${this.puntaje} puntos.`,
+      icon: 'info',
+      confirmButtonText: 'Guardar Puntaje'
+    }).then(async (result) => {
+      if (result.isConfirmed && this.puntaje > 0) {
+        try {
+
+          await this.sb.saveResult('calculo_rapido', this.puntaje, { tiempo: 60 });
+          Swal.fire('Guardado', 'Tu puntaje fue registrado', 'success');
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    });
+  }
+
+  private randomInt(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\mayor-menor\mayor-menor.component.css
+================================================================================
+
+:host {
+
+  --bg-2: #0d2e26;
+  --panel-bg: rgba(255, 255, 255, 0.88);
+  --panel-border: rgba(0, 0, 0, 0.08);
+  --text: #0b1a16;
+  --muted: #2a3f39;
+
+  --ok: hsl(142 72% 35%);
+  --ok-ink: white;
+  --warn: hsl(0 72% 45%);
+  --warn-ink: white;
+  --mid: hsl(220 10% 50%);
+  --mid-ink: white;
+
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(0,0,0,.25);
+
+  display: block;
+  min-height: 100dvh;
+  background: radial-gradient(1200px 800px at 30% 20%, var(--bg-1), var(--bg-2));
+  color: var(--text);
+}
+
+.game-container {
+  min-height: 100dvh;
+  padding: 24px clamp(16px, 4vw, 32px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 24px;
+  align-items: start;
+}
+
+.scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #e8f3ef;
+  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+}
+
+.scoreboard span {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.1);
+  padding: 8px 12px;
+  border-radius: 999px;
+  backdrop-filter: blur(2px);
+}
+
+.card-area {
+  display: grid;
+  place-items: center;
+  margin-inline: auto;
+  width: min(92vw, 520px);
+  padding: clamp(16px, 3vw, 24px);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(3px);
+}
+
+.card {
+  width: min(70vw, 280px);
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgba(0,0,0,.25);
+  image-rendering: auto;
+  object-fit: contain;
+  transition: transform .12s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: min(92vw, 520px);
+  margin: 0 auto;
+}
+
+.controls button {
+  appearance: none;
+  border: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: clamp(14px, 2.4vw, 16px);
+  letter-spacing: .2px;
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
+  cursor: pointer;
+  transition: transform .08s ease, filter .08s ease, opacity .2s ease;
+}
+
+.controls button:nth-child(1) {
+  background: var(--ok);
+  color: var(--ok-ink);
+}
+.controls button:nth-child(2) {
+  background: var(--mid);
+  color: var(--mid-ink);
+}
+.controls button:nth-child(3) {
+  background: var(--warn);
+  color: var(--warn-ink);
+}
+
+.controls button:hover { filter: brightness(1.05); }
+.controls button:active { transform: translateY(1px); }
+.controls button:focus-visible {
+  outline: 3px solid rgba(255,255,255,.7);
+  outline-offset: 2px;
+}
+.controls button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.game-over {
+  min-height: 100dvh;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+}
+
+.go-card {
+  width: min(92vw, 440px);
+  background: var(--panel-bg, rgba(255,255,255,0.95));
+  border: 1px solid var(--panel-border, rgba(0,0,0,0.08));
+  border-radius: var(--radius, 16px);
+  box-shadow: var(--shadow, 0 10px 30px rgba(0,0,0,.25));
+  padding: 22px;
+  color: var(--text, #0b1a16);
+}
+
+.go-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.go-header h2 {
+  margin: 0;
+  font-size: clamp(20px, 3.6vw, 28px);
+}
+
+.go-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: .2px;
+  color: white;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  box-shadow: 0 4px 10px rgba(22,163,74,.35);
+}
+
+.go-stats {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 6px 0 18px;
+}
+
+.go-stat {
+  text-align: center;
+  background: rgba(0,0,0,.04);
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 12px;
+  padding: 12px 10px;
+}
+
+.go-label {
+  display: block;
+  font-size: 12px;
+  color: #5b6b66;
+  margin-bottom: 4px;
+}
+.go-value {
+  font-size: clamp(22px, 5vw, 28px);
+  font-weight: 800;
+}
+
+.go-sep {
+  width: 1px;
+  height: 46px;
+  background: rgba(0,0,0,.08);
+  border-radius: 1px;
+}
+
+.go-button {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  background: var(--ok, #169c53);
+  color: var(--ok-ink, #fff);
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
+  cursor: pointer;
+}
+.go-button:hover { filter: brightness(1.05); }
+.go-button:active { transform: translateY(1px); }
+.go-button:focus-visible {
+  outline: 3px solid rgba(0,0,0,.18);
+  outline-offset: 2px;
+}
+
+@media (max-width: 420px) {
+  .scoreboard span { font-size: 13px; }
+  .controls { gap: 10px; }
+  .controls button { padding: 10px 12px; }
+}
+
+@media (min-width: 900px) {
+  .card { width: 320px; }
+}
+
+================================================================================
+ARCHIVO: .\src\app\mayor-menor\mayor-menor.component.html
+================================================================================
+
+<div class="game-container" *ngIf="!juegoTerminado">
+  <div class="scoreboard">
+    <span>💖 Vidas: {{ vidas }}</span>
+    <span>⭐ Puntuación: {{ puntaje }}</span>
+    <span>🏆 Récord: {{ mejorPuntaje }}</span>
+  </div>
+
+  <div class="card-area">
+    <img
+      [src]="obtenerImagenCarta(cartaActual)"
+      alt="Carta actual"
+      class="card"
+    />
+  </div>
+
+  <div class="controls">
+    <button (click)="hacerAdivinanza('mayor')">Mayor ↑</button>
+    <button (click)="hacerAdivinanza('igual')">Igual =</button>
+    <button (click)="hacerAdivinanza('menor')">Menor ↓</button>
+  </div>
+</div>
+
+<div class="game-over" *ngIf="juegoTerminado">
+  <div class="go-card">
+    <div class="go-header">
+      <h2>¡Fin del juego!</h2>
+      <span *ngIf="nuevoRecord" class="go-badge">¡Nuevo récord!</span>
+    </div>
+
+    <div class="go-stats">
+      <div class="go-stat">
+        <span class="go-label">Puntuación</span>
+        <span class="go-value">{{ puntaje }}</span>
+      </div>
+      <div class="go-sep" aria-hidden="true"></div>
+      <div class="go-stat">
+        <span class="go-label">Récord</span>
+        <span class="go-value">{{ mejorPuntaje }}</span>
+      </div>
+    </div>
+
+    <button class="go-button" (click)="iniciarJuego()">Jugar de nuevo</button>
+  </div>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\mayor-menor\mayor-menor.component.ts
+================================================================================
+
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ScoreService } from '../services/score.service';
+import { pointsMayorMenor } from '../models/score-utils';
+import { LogsJuegosService } from '../services/logs-juegos.service';
+
+export interface Carta {
+  palo: 'oro' | 'espada' | 'copa' | 'basto';
+  valor: number;
+  etiqueta: string;
+}
+
+type Adivinanza = 'mayor' | 'menor' | 'igual';
+
+@Component({
+  selector: 'app-mayor-menor',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './mayor-menor.component.html',
+  styleUrls: ['./mayor-menor.component.css']
+})
+export class MayorMenorComponent implements OnInit {
+
+  private jerarquiaPalo: Record<Carta['palo'], number> = {
+    basto: 1,
+    copa: 2,
+    espada: 3,
+    oro: 4,
+  };
+
+  mazo: Carta[] = [];
+  cartaActual!: Carta;
+  cartaSiguiente!: Carta;
+
+  puntaje = 0;
+  vidas = 3;
+  mejorPuntaje = 0;
+  juegoTerminado = false;
+  nuevoRecord = false;
+
+  t0 = performance.now();
+  rachaMax = 0;
+
+  private rachaActual = 0;
+  private scoreGuardado = false;
+
+  constructor(private score: ScoreService,
+              private logService: LogsJuegosService
+  ) { }
+
+  ngOnInit() {
+
+    const legacy = localStorage.getItem('bestScore');
+    const actual = localStorage.getItem('mejorPuntaje');
+
+    if (actual !== null) {
+      this.mejorPuntaje = Number(actual);
+    } else if (legacy !== null) {
+      this.mejorPuntaje = Number(legacy);
+      localStorage.setItem('mejorPuntaje', this.mejorPuntaje.toString());
+    } else {
+      this.mejorPuntaje = 0;
+    }
+
+    this.iniciarJuego();
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder',
+      true,
+      'MayorMenorComponent',
+      'ngOnInit',
+      'Inició una partida de Mayor o Menor'
+    );
+
+  }
+
+  iniciarJuego() {
+    this.juegoTerminado = false;
+    this.scoreGuardado = false;
+    this.puntaje = 0;
+    this.vidas = 3;
+    this.rachaActual = 0;
+    this.rachaMax = 0;
+    this.t0 = performance.now();
+
+    this.construirMazo();
+    this.barajarMazo();
+
+    this.cartaActual = this.robarCarta();
+    this.cartaSiguiente = this.robarCarta();
+
+    console.log(`Carta actual: ${this.cartaActual.etiqueta} de ${this.cartaActual.palo}`);
+    console.log(`Próxima carta: ${this.cartaSiguiente.etiqueta} de ${this.cartaSiguiente.palo}`);
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder',
+      true,
+      'MayorMenorComponent',
+      'iniciarJuego',
+      'Inició una partida de Mayor o Menor'
+      );
+
+  }
+
+  hacerAdivinanza(opcion: Adivinanza) {
+    if (this.juegoTerminado) return;
+
+    const valAct = this.cartaActual.valor;
+    const valSig = this.cartaSiguiente.valor;
+    let acierto = false;
+
+    if (opcion === 'mayor') {
+      if (valSig > valAct) acierto = true;
+      else if (valSig === valAct && this.jerarquiaPalo[this.cartaSiguiente.palo] > this.jerarquiaPalo[this.cartaActual.palo]) acierto = true;
+    } else if (opcion === 'menor') {
+      if (valSig < valAct) acierto = true;
+      else if (valSig === valAct && this.jerarquiaPalo[this.cartaSiguiente.palo] < this.jerarquiaPalo[this.cartaActual.palo]) acierto = true;
+    } else {
+      if (valSig === valAct && this.cartaSiguiente.palo === this.cartaActual.palo) acierto = true;
+    }
+
+    this.cartaActual = this.cartaSiguiente;
+    if (this.mazo.length > 0) {
+      this.cartaSiguiente = this.robarCarta();
+    }
+
+    if (acierto) {
+      this.puntaje++;
+      this.rachaActual++;
+      if (this.rachaActual > this.rachaMax) {
+        this.rachaMax = this.rachaActual;
+      }
+    } else {
+      this.rachaActual = 0;
+      this.vidas--;
+      if (this.vidas <= 0) this.finalizarJuego();
+    }
+
+    if (!this.juegoTerminado && this.mazo.length === 0) {
+      this.finalizarJuego();
+    }
+
+    console.log(`Carta actual: ${this.cartaActual.etiqueta} de ${this.cartaActual.palo}`);
+    console.log(`Próxima carta: ${this.cartaSiguiente.etiqueta} de ${this.cartaSiguiente.palo}`);
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder',
+      true,
+      'MayorMenorComponent',
+      'hacerAdivinanza',
+      `Hizo una adivinanza "${opcion}" - ${acierto ? 'Acierto' : 'Fallo'}`
+    );
+
+  }
+
+  finalizarJuego() {
+    this.juegoTerminado = true;
+    this.nuevoRecord = this.puntaje > this.mejorPuntaje;
+
+    if (this.nuevoRecord) {
+      this.mejorPuntaje = this.puntaje;
+      localStorage.setItem('mejorPuntaje', this.mejorPuntaje.toString());
+      localStorage.setItem('bestScore', this.mejorPuntaje.toString());
+    }
+
+    if (!this.scoreGuardado) {
+      this.terminar();
+      this.scoreGuardado = true;
+    }
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder',
+      true,
+      'MayorMenorComponent',
+      'finalizarJuego',
+      `Finalizó la partida - Puntaje: ${this.puntaje}, Nuevo récord: ${this.nuevoRecord ? 'Sí' : 'No'}`
+    );
+  }
+
+  terminar() {
+    const duracionSec = Math.round((performance.now() - this.t0) / 1000);
+    const pts = pointsMayorMenor({ rachaMax: this.rachaMax, duracionSec });
+    this.score.recordScore({
+      gameCode: 'mayor_menor',
+      points: pts,
+      durationSec: duracionSec,
+      metaJson: { rachaMax: this.rachaMax }
+    }).catch(console.error);
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder',
+      true,
+      'MayorMenorComponent',
+      'terminar',
+      `Registró el puntaje - Points: ${pts}, Duración: ${duracionSec}s, Racha Máxima: ${this.rachaMax}`
+    );
+  }
+
+  construirMazo() {
+    this.mazo = [];
+    const palos: Carta['palo'][] = ['oro', 'espada', 'copa', 'basto'];
+    const definiciones = [
+      { valor: 1, etiqueta: '1' },
+      { valor: 2, etiqueta: '2' },
+      { valor: 3, etiqueta: '3' },
+      { valor: 4, etiqueta: '4' },
+      { valor: 5, etiqueta: '5' },
+      { valor: 6, etiqueta: '6' },
+      { valor: 7, etiqueta: '7' },
+      { valor: 10, etiqueta: '10' },
+      { valor: 11, etiqueta: '11' },
+      { valor: 12, etiqueta: '12' },
+    ];
+
+    for (const palo of palos) {
+      for (const def of definiciones) {
+        this.mazo.push({ palo, valor: def.valor, etiqueta: def.etiqueta });
+      }
+    }
+  }
+
+  barajarMazo() {
+    for (let i = this.mazo.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.mazo[i], this.mazo[j]] = [this.mazo[j], this.mazo[i]];
+    }
+  }
+
+  robarCarta(): Carta {
+    const carta = this.mazo.pop();
+    if (!carta) throw new Error('No quedan más cartas');
+    return carta;
+  }
+
+  obtenerImagenCarta(carta: Carta): string {
+
+    return `assets/cards/${carta.etiqueta}_${carta.palo}.JPG`;
+  }
+
+}
+
+================================================================================
+ARCHIVO: .\src\app\models\preguntados-dbz.model.ts
+================================================================================
+
+export interface Personaje {
+  id: number;
+  name: string;
+  ki?: string;
+  maxKi?: string;
+  race?: string;
+  gender?: string;
+  description?: string | null;
+  image: string | null;
+  affiliation?: string;
+}
+
+export interface OpcionPregunta {
+  id: number;
+  name: string;
+}
+
+export interface Pregunta {
+  imageUrl: string;
+  correct: OpcionPregunta;
+  options: OpcionPregunta[];
+}
+
+================================================================================
+ARCHIVO: .\src\app\models\question.model.ts
+================================================================================
+
+export interface Question {
+  theme: string;
+  imageUrl: string;
+  questionText: string;
+  correctAnswer: string;
+  incorrectAnswers: string[];
+}
+
+================================================================================
+ARCHIVO: .\src\app\models\result.models.ts
+================================================================================
+
+export interface GameResult {
+  id?: string;
+  userId: string;
+  userEmail: string;
+  game: string;
+  score: number;
+  date: Date;
+}
+
+================================================================================
+ARCHIVO: .\src\app\models\resultados.ts
+================================================================================
+
+export type GameCode = 'ahorcado' | 'mayor_menor' | 'flow_free' | 'preguntados_dbz';
+
+export interface Profile {
+  id: string;
+  displayName: string;
+  avatarUrl?: string;
+  createdAt: string;
+}
+
+export interface Score {
+  id: string;
+  userId: string;
+  gameCode: GameCode;
+  points: number;
+  durationSec?: number;
+  createdAt: string;
+  metaJson?: Record<string, unknown>;
+}
+
+export interface ScoreWithUser extends Score {
+  userDisplayName: string;
+  userAvatarUrl?: string;
+}
+
+================================================================================
+ARCHIVO: .\src\app\models\score-utils.ts
+================================================================================
+
+export const clamp0 = (x: number) => Math.max(0, Math.floor(x));
+
+export const penalTiempo = (seg: number) => Math.floor(seg || 0);
+
+export function pointsAhorcado({ errores, duracionSec }: { errores: number; duracionSec: number; }) {
+  return clamp0(1000 - errores * 100 - penalTiempo(duracionSec));
+}
+
+export function pointsMayorMenor({ rachaMax, duracionSec }: { rachaMax: number; duracionSec: number; }) {
+  return clamp0(rachaMax * 100 - penalTiempo(duracionSec));
+}
+
+export function pointsFlowFree({ niveles, pistasUsadas, duracionSec }: { niveles: number; pistasUsadas: number; duracionSec: number; }) {
+  return clamp0(niveles * 200 - pistasUsadas * 50 - penalTiempo(duracionSec));
+}
+
+export function pointsPreguntados({ correctas, incorrectas, bonusRacha, duracionSec }:
+  { correctas: number; incorrectas: number; bonusRacha: number; duracionSec: number; }) {
+  return clamp0(correctas * 100 - incorrectas * 25 + bonusRacha - penalTiempo(duracionSec));
+}
+
+================================================================================
+ARCHIVO: .\src\app\models\user.model.ts
+================================================================================
+
+import { AppUser } from '../models/user.models';
+
+export const MOCK_USERS: AppUser[] = [
+  {
+    id: 'u1',
+    firstName: 'Nacho',
+    lastName: 'Monllor',
+    email: 'nacho@example.com',
+    age: 44,
+    gamePlays: {
+      'ahorcado': { sessions: 12, wins: 7, losses: 5, bestScore: 8, lastPlayedAt: '2025-09-21T22:10:00Z' },
+      'mayor-menor': { sessions: 4, wins: 1, losses: 3 }
+    }
+  },
+  {
+    id: 'u2',
+    firstName: 'Ariel',
+    lastName: 'Pérez',
+    email: 'ariel@example.com',
+    gamePlays: {
+      'preguntados': { sessions: 20, wins: 11, losses: 9, bestScore: 18 }
+    }
+  },
+  {
+    id: 'u3',
+    firstName: 'Andrea',
+    lastName: 'García',
+    email: 'andrea@example.com',
+    gamePlays: {
+      'flowfree': { sessions: 9, wins: 9, losses: 0, bestScore: 100 }
+    }
+  }
+];
+
+================================================================================
+ARCHIVO: .\src\app\models\user.models.ts
+================================================================================
+
+export type GameKey = 'ahorcado' | 'mayor-menor' | 'preguntados' | 'flowfree';
+
+export interface GameSessions {
+  sessions: number;
+  wins: number;
+  losses: number;
+  bestScore?: number;
+  lastPlayedAt?: string;
+}
+
+export interface AppUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  age?: number;
+  avatarUrl?: string;
+  createdAt?: string;
+  gamePlays?: Partial<Record<GameKey, GameSessions>>;
+}
+
+================================================================================
+ARCHIVO: .\src\app\nature-park\nature-park.component.html
+================================================================================
+
+<p>nature-park works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Prototipo: Match-3</h1>
+    <div class="score">Puntos: <span>{{ puntaje }}</span></div>
+  </header>
+
+  <div class="board">
+    <div class="row" *ngFor="let fila of tablero; let y = index">
+
+      <div class="cell" *ngFor="let celda of fila; let x = index">
+
+        <div class="block" *ngIf="celda !== 0" [ngClass]="getClaseColor(celda)"></div>
+
+        <div class="block active-block" *ngIf="esPiezaActiva(x, y) !== 0" [ngClass]="getClaseColor(esPiezaActiva(x, y))"></div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <div class="actions">
+    <button *ngIf="!jugando" mat-flat-button color="primary" (click)="iniciarJuego()">
+      <i class="fas fa-play"></i> Iniciar Prototipo
+    </button>
+  </div>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\nature-park\nature-park.component.scss
+================================================================================
+
+$bg-dark: #09121c;
+
+.game-container {
+  max-width: 400px;
+  margin: 30px auto;
+  padding: 20px;
+  background: $bg-dark;
+  border-radius: 12px;
+  border: 2px solid #1a2a3a;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.game-header {
+  margin-bottom: 20px;
+  h1 { color: white; font-size: 1.5rem; margin-bottom: 5px; }
+  .score { color: #00d2ff; font-weight: bold; font-size: 1.2rem; }
+}
+
+.board {
+  display: inline-block;
+  background: #000;
+  border: 4px solid #334155;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.block {
+  width: 90%;
+  height: 90%;
+  border-radius: 4px;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.3);
+
+  &.active-block {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255,255,255,0.5);
+  }
+}
+
+.color-rojo { background-color: #ef4444; }
+.color-azul { background-color: #3b82f6; }
+.color-verde { background-color: #10b981; }
+.color-amarillo { background-color: #f59e0b; }
+.color-violeta { background-color: #8b5cf6; }
+
+.actions { margin-top: 20px; }
+
+================================================================================
+ARCHIVO: .\src\app\nature-park\nature-park.component.ts
+================================================================================
+
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import Swal from 'sweetalert2';
+import { SupabaseService } from '../services/supabase.service';
+
+const COLUMNAS = 8;
+const FILAS = 14;
+const COLORES = 5;
+const VACIO = 0;
+
+interface BloqueActivo {
+  x: number;
+  y: number;
+  colorArriba: number;
+  colorAbajo: number;
+}
+
+@Component({
+  selector: 'app-nature-park',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule],
+  templateUrl: './nature-park.component.html',
+  styleUrls: ['./nature-park.component.scss']
+})
+export class NatureParkComponent implements OnInit, OnDestroy {
+
+  tablero: number[][] = [];
+
+  piezaActiva: BloqueActivo | null = null;
+  gameLoop: any;
+  jugando = false;
+  puntaje = 0;
+
+  constructor(private sb: SupabaseService) {
+    this.crearTableroVacio();
+  }
+
+  ngOnInit() {}
+
+  ngOnDestroy() {
+    this.detenerJuego();
+  }
+
+  crearTableroVacio() {
+    this.tablero = Array(FILAS).fill(0).map(() => Array(COLUMNAS).fill(VACIO));
+  }
+
+  iniciarJuego() {
+    this.crearTableroVacio();
+    this.puntaje = 0;
+    this.jugando = true;
+    this.generarNuevaPieza();
+    this.gameLoop = setInterval(() => this.tick(), 500);
+  }
+
+  detenerJuego() {
+    if (this.gameLoop) clearInterval(this.gameLoop);
+    this.jugando = false;
+  }
+
+  generarNuevaPieza() {
+    this.piezaActiva = {
+      x: Math.floor(COLUMNAS / 2),
+      y: 1,
+      colorArriba: Math.floor(Math.random() * COLORES) + 1,
+      colorAbajo: Math.floor(Math.random() * COLORES) + 1
+    };
+
+    if (this.tablero[this.piezaActiva.y][this.piezaActiva.x] !== VACIO ||
+        this.tablero[this.piezaActiva.y - 1][this.piezaActiva.x] !== VACIO) {
+      this.finalizarPartida();
+    }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  manejarTeclado(event: KeyboardEvent) {
+    if (!this.jugando || !this.piezaActiva) return;
+
+    if (event.key === 'ArrowLeft') this.moverPieza(-1, 0);
+    if (event.key === 'ArrowRight') this.moverPieza(1, 0);
+    if (event.key === 'ArrowDown') this.tick();
+
+    if (['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  moverPieza(dx: number, dy: number) {
+    if (!this.piezaActiva) return;
+
+    const nuevaX = this.piezaActiva.x + dx;
+    const nuevaY = this.piezaActiva.y + dy;
+
+    if (nuevaX >= 0 && nuevaX < COLUMNAS && nuevaY < FILAS) {
+      if (this.tablero[nuevaY][nuevaX] === VACIO && this.tablero[nuevaY - 1][nuevaX] === VACIO) {
+        this.piezaActiva.x = nuevaX;
+        this.piezaActiva.y = nuevaY;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  tick() {
+    if (!this.piezaActiva) return;
+
+    const pudoBajar = this.moverPieza(0, 1);
+
+    if (!pudoBajar) {
+      this.fijarPieza();
+    }
+  }
+
+  fijarPieza() {
+    if (!this.piezaActiva) return;
+
+    this.tablero[this.piezaActiva.y][this.piezaActiva.x] = this.piezaActiva.colorAbajo;
+    this.tablero[this.piezaActiva.y - 1][this.piezaActiva.x] = this.piezaActiva.colorArriba;
+
+    this.piezaActiva = null;
+
+    this.buscarCoincidencias();
+  }
+
+  buscarCoincidencias() {
+    let bloquesAEliminar = new Set<string>();
+
+    for (let y = 0; y < FILAS; y++) {
+      for (let x = 0; x < COLUMNAS; x++) {
+        const color = this.tablero[y][x];
+        if (color !== VACIO) {
+          const conectados = this.obtenerConectados(x, y, color, new Set<string>());
+          if (conectados.size >= 3) {
+            conectados.forEach(coord => bloquesAEliminar.add(coord));
+          }
+        }
+      }
+    }
+
+    if (bloquesAEliminar.size > 0) {
+
+      bloquesAEliminar.forEach(coord => {
+        const [x, y] = coord.split(',').map(Number);
+        this.tablero[y][x] = VACIO;
+      });
+
+      this.puntaje += bloquesAEliminar.size * 10;
+
+      setTimeout(() => this.generarNuevaPieza(), 200);
+    } else {
+      this.generarNuevaPieza();
+    }
+  }
+
+  obtenerConectados(x: number, y: number, color: number, visitados: Set<string>): Set<string> {
+    const coord = `${x},${y}`;
+    if (x < 0 || x >= COLUMNAS || y < 0 || y >= FILAS || this.tablero[y][x] !== color || visitados.has(coord)) {
+      return visitados;
+    }
+
+    visitados.add(coord);
+
+    this.obtenerConectados(x + 1, y, color, visitados);
+    this.obtenerConectados(x - 1, y, color, visitados);
+    this.obtenerConectados(x, y + 1, color, visitados);
+    this.obtenerConectados(x, y - 1, color, visitados);
+
+    return visitados;
+  }
+
+  async finalizarPartida() {
+    this.detenerJuego();
+    Swal.fire({
+      title: '¡Tablero Lleno!',
+      text: `Conseguiste ${this.puntaje} puntos.`,
+      icon: 'info',
+      confirmButtonText: 'Guardar Puntaje'
+    }).then(async (result) => {
+      if (result.isConfirmed && this.puntaje > 0) {
+        await this.sb.saveResult('nature_park', this.puntaje, {});
+        Swal.fire('Guardado', 'Puntaje registrado.', 'success');
+      }
+    });
+  }
+
+  getClaseColor(valor: number): string {
+    const clases = ['', 'color-rojo', 'color-azul', 'color-verde', 'color-amarillo', 'color-violeta'];
+    return clases[valor] || '';
+  }
+
+  esPiezaActiva(x: number, y: number): number {
+    if (!this.piezaActiva) return 0;
+    if (this.piezaActiva.x === x && this.piezaActiva.y === y) return this.piezaActiva.colorAbajo;
+    if (this.piezaActiva.x === x && this.piezaActiva.y - 1 === y) return this.piezaActiva.colorArriba;
+    return 0;
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\pacman\pacman.component.html
+================================================================================
+
+<p>pacman works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Pac-Man</h1>
+    <div class="score-board">
+      Puntos: <span>{{ puntaje }}</span>
+    </div>
+  </header>
+
+  <div class="board" *ngIf="mapa.length > 0">
+    <div class="row" *ngFor="let row of mapa; let y = index">
+
+      <div class="cell" *ngFor="let cell of row; let x = index"
+           [class.wall]="esMuro(y, x)"
+           [class.pellet]="esPunto(y, x)">
+
+        <div *ngIf="esPacman(y, x)"
+             class="pacman"
+             [style.transform]="getRotacionPacman()">
+        </div>
+
+        <div *ngIf="obtenerFantasma(y, x) as fantasma"
+             class="ghost"
+             [ngClass]="fantasma.color">
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <div class="actions">
+    <button *ngIf="!jugando && !juegoTerminado" mat-flat-button color="primary" (click)="comenzar()">
+      <i class="fas fa-play"></i> Iniciar
+    </button>
+    <button *ngIf="juegoTerminado" mat-stroked-button color="primary" (click)="iniciarNivel()">
+      <i class="fas fa-redo"></i> Jugar de nuevo
+    </button>
+  </div>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\pacman\pacman.component.scss
+================================================================================
+
+$bg-dark: #09121c;
+$neon-blue: #00d2ff;
+$neon-yellow: #ffea00;
+$neon-red: #ff073a;
+$neon-orange: #ff8c00;
+
+.game-container {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 20px;
+  background: $bg-dark;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(0, 210, 255, 0.1);
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.game-header {
+  margin-bottom: 20px;
+  h1 {
+    color: $neon-yellow;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 15px rgba(255, 234, 0, 0.5);
+    margin-bottom: 5px;
+  }
+  .score-board {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    span { color: $neon-blue; text-shadow: 0 0 10px $neon-blue; }
+  }
+}
+
+.board {
+  display: inline-block;
+  background: black;
+  border: 4px solid $neon-blue;
+  box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  &.wall {
+    background: transparent;
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    box-shadow: inset 0 0 5px $neon-blue;
+    border-radius: 4px;
+    transform: scale(0.9);
+  }
+
+  &.pellet::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #ffb8ae;
+    border-radius: 50%;
+    box-shadow: 0 0 5px white;
+  }
+}
+
+.pacman {
+  width: 80%;
+  height: 80%;
+  background: $neon-yellow;
+  border-radius: 50%;
+  box-shadow: 0 0 15px $neon-yellow;
+  position: absolute;
+  z-index: 10;
+
+  clip-path: polygon(100% 74%, 44% 48%, 100% 21%, 100% 0, 0 0, 0 100%, 100% 100%);
+  animation: chomp 0.4s infinite alternate;
+}
+
+@keyframes chomp {
+  0% { clip-path: polygon(100% 74%, 44% 48%, 100% 21%, 100% 0, 0 0, 0 100%, 100% 100%); }
+  100% { clip-path: polygon(100% 50%, 44% 48%, 100% 50%, 100% 0, 0 0, 0 100%, 100% 100%); }
+}
+
+.ghost {
+  width: 80%;
+  height: 80%;
+  border-radius: 50% 50% 10% 10%;
+  position: absolute;
+  z-index: 5;
+
+  &.ghost-red {
+    background: $neon-red;
+    box-shadow: 0 0 15px $neon-red;
+  }
+  &.ghost-orange {
+    background: $neon-orange;
+    box-shadow: 0 0 15px $neon-orange;
+  }
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    background: white;
+    width: 30%;
+    height: 30%;
+    border-radius: 50%;
+    top: 20%;
+  }
+  &::before { left: 15%; }
+  &::after { right: 15%; }
+}
+
+.actions { margin-top: 25px; }
+
+================================================================================
+ARCHIVO: .\src\app\pacman\pacman.component.ts
+================================================================================
+
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import Swal from 'sweetalert2';
+import { SupabaseService } from '../services/supabase.service';
+
+const MURO = 1;
+const PUNTO = 2;
+const VACIO = 0;
+
+@Component({
+  selector: 'app-pacman',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule],
+  templateUrl: './pacman.component.html',
+  styleUrls: ['./pacman.component.scss']
+})
+export class PacmanComponent implements OnInit, OnDestroy {
+
+  mapaInicial = [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,2,2,2,2,2,2,1,2,2,2,2,2,2,1],
+    [1,2,1,1,1,1,2,1,2,1,1,1,1,2,1],
+    [1,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+    [1,2,1,1,1,1,2,1,2,1,1,1,1,2,1],
+    [1,2,2,2,2,2,2,1,2,2,2,2,2,2,1],
+    [1,1,1,1,1,1,2,1,2,1,1,1,1,1,1],
+    [0,0,0,0,0,1,2,2,2,1,0,0,0,0,0],
+    [1,1,1,1,1,1,2,1,2,1,1,1,1,1,1],
+    [1,2,2,2,2,2,2,1,2,2,2,2,2,2,1],
+    [1,2,1,1,1,1,2,1,2,1,1,1,1,2,1],
+    [1,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+    [1,2,1,1,1,1,2,1,2,1,1,1,1,2,1],
+    [1,2,2,2,2,2,2,1,2,2,2,2,2,2,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ];
+
+  mapa: number[][] = [];
+
+  pacman = { x: 7, y: 11, dirX: 0, dirY: 0, nextDirX: 0, nextDirY: 0 };
+
+  fantasmas = [
+    { x: 6, y: 7, color: 'red', dirX: 1, dirY: 0 },
+    { x: 8, y: 7, color: 'orange', dirX: -1, dirY: 0 }
+  ];
+
+  puntaje = 0;
+  puntosTotales = 0;
+  jugando = false;
+  juegoTerminado = false;
+  gameLoop: any;
+
+  constructor(private sb: SupabaseService) {}
+
+  ngOnInit() {
+    this.iniciarNivel();
+  }
+
+  ngOnDestroy() {
+    this.detenerJuego();
+  }
+
+  iniciarNivel() {
+
+    this.mapa = this.mapaInicial.map(row => [...row]);
+
+    this.puntosTotales = this.mapa.flat().filter(celda => celda === PUNTO).length;
+
+    this.pacman = { x: 7, y: 11, dirX: 0, dirY: 0, nextDirX: 0, nextDirY: 0 };
+    this.fantasmas = [
+      { x: 6, y: 7, color: 'ghost-red', dirX: 1, dirY: 0 },
+      { x: 8, y: 7, color: 'ghost-orange', dirX: -1, dirY: 0 }
+    ];
+
+    this.puntaje = 0;
+    this.jugando = false;
+    this.juegoTerminado = false;
+  }
+
+  comenzar() {
+    this.jugando = true;
+    this.pacman.dirX = -1;
+
+    this.gameLoop = setInterval(() => this.tick(), 200);
+  }
+
+  detenerJuego() {
+    if (this.gameLoop) clearInterval(this.gameLoop);
+    this.jugando = false;
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyDown(event: KeyboardEvent) {
+    if (!this.jugando) return;
+
+    if (event.key === 'ArrowUp') { this.pacman.nextDirX = 0; this.pacman.nextDirY = -1; }
+    if (event.key === 'ArrowDown') { this.pacman.nextDirX = 0; this.pacman.nextDirY = 1; }
+    if (event.key === 'ArrowLeft') { this.pacman.nextDirX = -1; this.pacman.nextDirY = 0; }
+    if (event.key === 'ArrowRight') { this.pacman.nextDirX = 1; this.pacman.nextDirY = 0; }
+
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  tick() {
+    this.moverPacman();
+    this.moverFantasmas();
+    this.chequearColisiones();
+  }
+
+  moverPacman() {
+
+    let tryX = this.pacman.x + this.pacman.nextDirX;
+    let tryY = this.pacman.y + this.pacman.nextDirY;
+
+    if (tryX < 0) tryX = this.mapa[0].length - 1;
+    if (tryX >= this.mapa[0].length) tryX = 0;
+
+    if (this.mapa[tryY] && this.mapa[tryY][tryX] !== MURO) {
+      this.pacman.dirX = this.pacman.nextDirX;
+      this.pacman.dirY = this.pacman.nextDirY;
+    }
+
+    let newX = this.pacman.x + this.pacman.dirX;
+    let newY = this.pacman.y + this.pacman.dirY;
+
+    if (newX < 0) newX = this.mapa[0].length - 1;
+    if (newX >= this.mapa[0].length) newX = 0;
+
+    if (this.mapa[newY] && this.mapa[newY][newX] !== MURO) {
+      this.pacman.x = newX;
+      this.pacman.y = newY;
+    }
+
+    if (this.mapa[this.pacman.y][this.pacman.x] === PUNTO) {
+      this.mapa[this.pacman.y][this.pacman.x] = VACIO;
+      this.puntaje += 10;
+      this.puntosTotales--;
+
+      if (this.puntosTotales === 0) {
+        this.finalizarPartida(true);
+      }
+    }
+  }
+
+  moverFantasmas() {
+
+    const direcciones = [ {x:0, y:-1}, {x:0, y:1}, {x:-1, y:0}, {x:1, y:0} ];
+
+    this.fantasmas.forEach(fantasma => {
+      let newX = fantasma.x + fantasma.dirX;
+      let newY = fantasma.y + fantasma.dirY;
+
+      if (!this.mapa[newY] || this.mapa[newY][newX] === MURO) {
+        let opcionesValidas = direcciones.filter(d => {
+          let tx = fantasma.x + d.x;
+          let ty = fantasma.y + d.y;
+          return this.mapa[ty] && this.mapa[ty][tx] !== MURO;
+        });
+
+        if (opcionesValidas.length > 0) {
+          let eleccion = opcionesValidas[Math.floor(Math.random() * opcionesValidas.length)];
+          fantasma.dirX = eleccion.x;
+          fantasma.dirY = eleccion.y;
+        }
+      } else {
+        fantasma.x = newX;
+        fantasma.y = newY;
+      }
+    });
+  }
+
+  chequearColisiones() {
+    const choco = this.fantasmas.some(f => f.x === this.pacman.x && f.y === this.pacman.y);
+    if (choco) {
+      this.finalizarPartida(false);
+    }
+  }
+
+  async finalizarPartida(victoria: boolean) {
+    this.detenerJuego();
+    this.juegoTerminado = true;
+
+    const titulo = victoria ? '¡Nivel Limpio!' : '¡Te atraparon!';
+    const icono = victoria ? 'success' : 'error';
+
+    Swal.fire({
+      title: titulo,
+      text: `Puntaje final: ${this.puntaje}`,
+      icon: icono,
+      confirmButtonText: 'Guardar y Salir'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await this.sb.saveResult('pacman', this.puntaje, { victoria });
+        Swal.fire('Guardado', 'Puntaje registrado.', 'success');
+      }
+    });
+  }
+
+  esMuro(y: number, x: number) { return this.mapa[y][x] === MURO; }
+  esPunto(y: number, x: number) { return this.mapa[y][x] === PUNTO; }
+  esPacman(y: number, x: number) { return this.pacman.y === y && this.pacman.x === x; }
+  obtenerFantasma(y: number, x: number) { return this.fantasmas.find(f => f.y === y && f.x === x); }
+
+  getRotacionPacman() {
+    if (this.pacman.dirX === 1) return 'rotate(0deg)';
+    if (this.pacman.dirX === -1) return 'rotate(180deg)';
+    if (this.pacman.dirY === 1) return 'rotate(90deg)';
+    if (this.pacman.dirY === -1) return 'rotate(-90deg)';
+    return 'rotate(0deg)';
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\preguntados-dbz_II\preguntados-dbz.css
+================================================================================
+
+.image-box {
+
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: min(420px, 52vh);
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+
+  padding: .75rem;
+  background: radial-gradient(1200px 300px at 50% -20%, rgba(96,165,250,.18), transparent 60%);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.05);
+}
+
+.image-box::after{
+  content:"";
+  position:absolute;
+  inset: 6px;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+  pointer-events:none;
+}
+
+.image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 40%;
+  display: block;
+
+  transform: scale(.96);
+  transform-origin: center;
+}
+
+@media (max-width: 640px) {
+  .image-box { max-height: 300px; }
+}
+
+.image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.image-box.cover img {
+  object-fit: cover;
+  object-position: 50% 35%;
+  transform: none;
+}
+
+:host {
+  display: block;
+  padding: 1rem;
+}
+
+.wrapper {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .75rem;
+  color: #e5e7eb;
+  font-weight: 500;
+}
+
+.card {
+  background: rgba(20, 22, 28, .9);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,.4);
+  backdrop-filter: blur(6px);
+}
+
+.card h2 {
+  margin: .25rem 0 1rem;
+  font-size: 1.25rem;
+  color: #f3f4f6;
+}
+
+.options {
+  display: grid;
+  gap: .5rem;
+  margin: 1rem 0 .25rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.btn {
+  appearance: none;
+  border: 0;
+  padding: .75rem .9rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform .06s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+}
+
+.btn.option {
+  background: rgba(31, 41, 55, .9);
+  color: #f1f5f9;
+  border: 1px solid rgba(255,255,255,.06);
+}
+.btn.option:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0,0,0,.35);
+}
+
+.btn.primary {
+  background: #2563eb;
+  color: white;
+}
+.btn.primary:hover { filter: brightness(1.05); }
+
+.btn:disabled {
+  opacity: .7;
+  cursor: not-allowed;
+}
+
+.option.correct {
+  background: rgba(16, 185, 129, .18);
+  border-color: rgba(16, 185, 129, .6);
+  color: #d1fae5;
+}
+.option.wrong {
+  background: rgba(239, 68, 68, .18);
+  border-color: rgba(239, 68, 68, .6);
+  color: #fee2e2;
+}
+
+.feedback {
+  margin-top: .5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #e5e7eb;
+}
+
+.loading, .error {
+  max-width: 760px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: rgba(31, 41, 55, .8);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  color: #f3f4f6;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .image-box { max-height: 300px; }
+}
+
+================================================================================
+ARCHIVO: .\src\app\preguntados-dbz_II\preguntados-dbz.html
+================================================================================
+
+<section class="wrapper" *ngIf="!finalizada(); else tplResumen">
+  <ng-container *ngIf="!cargando(); else tplCargando">
+    <ng-container *ngIf="pregunta() as p; else tplError">
+      <header class="hud">
+        <div><strong>Pregunta:</strong> {{ totalPreguntas() }} / {{ LIMITE_RONDA }}</div>
+        <div><strong>Puntaje:</strong> {{ puntaje() }} / {{ LIMITE_RONDA }}</div>
+        <button type="button" class="btn ghost" (click)="nuevaPartida()">Reiniciar</button>
+      </header>
+
+      <div class="card">
+        <h2>¿Quién es este personaje?</h2>
+
+        <div class="image-box">
+          <img [src]="p.imageUrl" [alt]="p.correct.name" loading="eager" />
+        </div>
+
+        <div class="options">
+          <button
+            *ngFor="let opcion of p.options"
+            type="button"
+            class="btn option"
+            [class.correct]="respondida() && opcion.id === p.correct.id"
+            [class.wrong]="respondida() && opcion.id === idSeleccionado() && opcion.id !== p.correct.id"
+            [disabled]="respondida()"
+            (click)="elegir(opcion.id)">
+            {{ opcion.name }}
+          </button>
+        </div>
+
+        <div class="feedback" *ngIf="respondida()">
+          <p *ngIf="esCorrecta(); else tplIncorrecta">✅ ¡Correcto! Era <strong>{{ p.correct.name }}</strong>.</p>
+          <ng-template #tplIncorrecta>
+            <p>❌ Incorrecto. La respuesta era <strong>{{ p.correct.name }}</strong>.</p>
+          </ng-template>
+
+          <button type="button" class="btn primary" (click)="siguientePregunta()">
+            {{ totalPreguntas() >= LIMITE_RONDA ? 'Finalizar' : 'Siguiente' }}
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</section>
+
+<ng-template #tplCargando>
+  <div class="loading">Cargando pregunta…</div>
+</ng-template>
+
+<ng-template #tplError>
+  <div class="error">
+    No fue posible cargar la pregunta. Intenta nuevamente.
+    <button type="button" class="btn primary" (click)="siguientePregunta()">Reintentar</button>
+  </div>
+</ng-template>
+
+<ng-template #tplResumen>
+  <div class="card" style="max-width:760px;margin:0 auto;">
+    <h2>¡Partida finalizada!</h2>
+    <p>Tu puntaje: <strong>{{ puntaje() }}</strong> / {{ LIMITE_RONDA }}</p>
+
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;">
+      <button class="btn primary" (click)="nuevaPartida()" [disabled]="guardando()">Jugar otra partida</button>
+
+    </div>
+
+    <p *ngIf="guardando()" style="margin-top:.5rem;opacity:.8;">Guardando resultado…</p>
+  </div>
+</ng-template>
+
+================================================================================
+ARCHIVO: .\src\app\preguntados-dbz_II\preguntados-dbz.ts
+================================================================================
+
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs/operators';
+
+import { Pregunta } from '../models/preguntados-dbz.model';
+import { ResultadosService } from '../services/resultados.service';
+import { PersonajesDbzService } from '../services/personajes-dbz';
+import { LogsJuegosService } from '../services/logs-juegos.service';
+
+@Component({
+  selector: 'app-preguntados-dbz',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './preguntados-dbz.html',
+  styleUrls: ['./preguntados-dbz.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class PreguntadosDbzComponent {
+  readonly LIMITE_RONDA = 10;
+
+  cargando = signal(true);
+  guardando = signal(false);
+  finalizada = signal(false);
+
+  private inicioMs = signal<number>(Date.now());
+
+  pregunta = signal<Pregunta | null>(null);
+  idSeleccionado = signal<number | null>(null);
+
+  puntaje = signal(0);
+  totalPreguntas = signal(0);
+
+  respondida = computed(() => this.idSeleccionado() !== null);
+  esCorrecta = computed(() =>
+    this.respondida() && this.idSeleccionado() === this.pregunta()?.correct.id
+  );
+
+  constructor(
+    private servicio: PersonajesDbzService,
+    private resultadosSrv: ResultadosService,
+    private logService: LogsJuegosService
+  ) {
+    this.inicioMs.set(Date.now());
+    this.siguientePregunta();
+  }
+
+  private async finalizarPartida(): Promise<void> {
+    if (this.finalizada()) return;
+    this.finalizada.set(true);
+
+    try {
+      this.guardando.set(true);
+      const dur = Math.round((Date.now() - this.inicioMs()) / 1000);
+
+      const res = await this.resultadosSrv.guardarScore({
+        game_code: 'preguntados_dbz',
+        points: this.puntaje(),
+        duration_sec: dur,
+        meta: { preguntas: this.LIMITE_RONDA }
+      });
+
+      console.log('[DBZ] guardarScore ->', res);
+
+      if (!res.ok) {
+        console.error('[DBZ] Error al guardar puntaje:', res.reason || res.error);
+
+      } else {
+        console.log('[DBZ] Puntaje guardado correctamente');
+
+        this.logService.registrarLog(
+          'supa-uid-placeholder',
+          true,
+          'PreguntadosDbzComponent',
+          'finalizarPartida',
+          `Guardó el puntaje - Puntaje: ${this.puntaje()}, Duración: ${dur}s`
+        );
+      }
+
+    } catch (error) {
+      console.error('[DBZ] Excepción al guardar puntaje:', error);
+
+      this.logService.registrarLog(
+        'supa-uid-placeholder',
+        false,
+        'PreguntadosDbzComponent',
+        'finalizarPartida',
+        `Intentó guardar el puntaje pero ocurrió un error: ${error instanceof Error ? error.message : String(error)}`
+      );
+
+    } finally {
+      this.guardando.set(false);
+    }
+  }
+
+  siguientePregunta(): void {
+    if (this.totalPreguntas() >= this.LIMITE_RONDA) {
+      this.finalizarPartida();
+      return;
+    }
+    this.cargando.set(true);
+    this.idSeleccionado.set(null);
+
+    this.servicio.obtenerPreguntaAleatoria$(4)
+      .pipe(finalize(() => this.cargando.set(false)))
+      .subscribe({
+        next: (q) => { this.pregunta.set(q); this.totalPreguntas.update(t => t + 1); },
+        error: (err) => { console.error('Error al armar la pregunta:', err); this.pregunta.set(null); }
+      });
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder',
+      true,
+      'PreguntadosDbzComponent',
+      'siguientePregunta',
+      `Cargó la siguiente pregunta - Total preguntas: ${this.totalPreguntas() + 1}`
+    );
+  }
+
+  elegir(id: number): void {
+    if (this.respondida()) return;
+    this.idSeleccionado.set(id);
+    if (this.esCorrecta()) this.puntaje.update(p => p + 1);
+  }
+
+  nuevaPartida(): void {
+    this.finalizada.set(false);
+    this.puntaje.set(0);
+    this.totalPreguntas.set(0);
+    this.pregunta.set(null);
+    this.idSeleccionado.set(null);
+    this.inicioMs.set(Date.now());
+    this.siguientePregunta();
+
+    this.logService.registrarLog(
+      'supa-uid-placeholder',
+      true,
+      'PreguntadosDbzComponent',
+      'nuevaPartida',
+      'Inició una nueva partida de Preguntados DBZ'
+    );
+
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\quien-soy\quien-soy.component.css
+================================================================================
+
+.card { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+    h2, h3 { text-align: center; }
+    ul { list-style: none; padding-left: 0; }
+    ul li::before { content: "• "; color: #007bff; }
+
+================================================================================
+ARCHIVO: .\src\app\quien-soy\quien-soy.component.html
+================================================================================
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-info text-white text-center">
+            <h2>Quién Soy</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+
+                <div class="col-md-4 text-center">
+                    <img src="assets/monllor.JPG" alt="Foto de Ignacio" class="img-fluid rounded-circle mb-3">
+                </div>
+
+                <div class="col-md-8">
+                    <h3>Ignacio Monllor</h3>
+                    <p><strong>Datos Personales:</strong></p>
+                    <ul>
+                        <li>Tecnicatura Universitaria En Programación</li>
+                        <li>Turno noche</li>
+                        <li>UTN</li>
+                    </ul>
+                    <p><strong>Descripción del Juego:</strong></p>
+                    <p>
+                        Mi versión del juego FlowFree consiste en conectar puntos del mismo color sin que las líneas se
+                        crucen o toquen otros puntos.
+                        El objetivo es encontrar una ruta que cumpla estas condiciones y llenar toda la
+                        cuadrícula.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\quien-soy\quien-soy.component.ts
+================================================================================
+
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { LogsJuegosService } from '../services/logs-juegos.service';
+
+@Component({
+  selector: 'app-quien-soy',
+  standalone: true,
+  imports: [RouterModule],
+  templateUrl: './quien-soy.component.html',
+  styleUrl: './quien-soy.component.css'
+})
+export class QuienSoyComponent {
+
+  constructor(private logService: LogsJuegosService) { }
+
+  ngOnInit(): void {
+    this.logService.registrarLog(
+      'supa-uid-placeholder',
+      true,
+      'QuienSoyComponent',
+      'ngOnInit',
+      'Ingresó a la página "Quién Soy"'
+    );
+  }
+
+}
+
+================================================================================
+ARCHIVO: .\src\app\quien-soy-fab\quien-soy-fab.component.css
+================================================================================
+
+.quien-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 1000;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px 16px;
+  border-radius: 9999px;
+  background: #0ea5e9;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: .2px;
+
+  box-shadow: 0 8px 24px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.12);
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+
+.quien-fab:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(0,0,0,.22), 0 3px 10px rgba(0,0,0,.14);
+}
+
+.quien-fab:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 480px) {
+  .quien-fab { padding: 10px 14px; }
+}
+
+================================================================================
+ARCHIVO: .\src\app\quien-soy-fab\quien-soy-fab.component.html
+================================================================================
+
+<a *ngIf="visible"
+   class="quien-fab"
+   [routerLink]="['/quien-soy']"
+   aria-label="Ir a Quién soy">
+  ¿Quién soy?
+</a>
+
+================================================================================
+ARCHIVO: .\src\app\quien-soy-fab\quien-soy-fab.component.ts
+================================================================================
+
+import { NgIf } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { Router, NavigationEnd, RouterLink } from '@angular/router';
+import { filter } from 'rxjs/operators';
+
+@Component({
+  selector: 'app-quien-soy-fab',
+  standalone: true,
+  imports: [RouterLink, NgIf],
+  templateUrl: './quien-soy-fab.component.html',
+  styleUrls: ['./quien-soy-fab.component.css']
+})
+export class QuienSoyFabComponent {
+  private router = inject(Router);
+
+  private hidden = ['/quien-soy', '/login', '/register'];
+
+  visible = true;
+
+  constructor() {
+
+    this.visible = !this.hidden.some(p => this.router.url.startsWith(p));
+
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe((e: any) => {
+        const url = e.urlAfterRedirects ?? e.url ?? '';
+        this.visible = !this.hidden.some(p => url.startsWith(p));
+      });
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\register\register.css
+================================================================================
+
+:host {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.contenedor-registro {
+  width: 100%;
+  max-width: 520px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 22px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+
+h3 {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.campo-registro {
+  width: 100%;
+  padding: 12px 14px;
+  margin-top: 10px;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.campo-registro::placeholder { color: var(--muted); }
+
+.campo-registro:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.campo-registro[type="file"] {
+  padding: 10px;
+  border-style: dashed;
+  cursor: pointer;
+}
+.campo-registro[type="file"]::file-selector-button {
+  margin-right: 12px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.boton-registro {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: .2px;
+  transition: transform .06s ease, box-shadow .15s ease, opacity .15s;
+  box-shadow: 0 8px 24px rgba(99,102,241,.35);
+}
+.boton-registro:hover { transform: translateY(-1px); }
+.boton-registro:active { transform: translateY(0); }
+.boton-registro:disabled { opacity: .6; cursor: not-allowed; }
+
+.mensaje-error {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 70%, transparent);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+  border-radius: 12px;
+  font-size: .95rem;
+}
+
+.contenedor-enlace-inicio {
+  margin-top: 12px;
+  text-align: center;
+  color: var(--muted);
+}
+.enlace-inicio {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+.enlace-inicio:hover { text-decoration: underline; }
+
+.previsualizacion-avatar {
+  margin-top: 12px;
+  width: 96px; height: 96px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  object-fit: cover;
+}
+
+================================================================================
+ARCHIVO: .\src\app\register\register.html
+================================================================================
+
+<div class="contenedor-registro">
+  <h3>Registro</h3>
+
+  <input type="email" placeholder="Correo electrónico"
+         [(ngModel)]="formulario.email" class="campo-registro" />
+  <input type="password" placeholder="Contraseña"
+         [(ngModel)]="formulario.contrasenia" class="campo-registro" />
+
+  <input type="text" placeholder="Nombre"
+         [(ngModel)]="formulario.nombre" class="campo-registro" />
+  <input type="text" placeholder="Apellido"
+         [(ngModel)]="formulario.apellido" class="campo-registro" />
+  <input type="date" placeholder="Fecha de nacimiento"
+         [(ngModel)]="formulario.fechaNacimiento" class="campo-registro" />
+
+  <button (click)="registrarse()" class="boton-registro" [disabled]="cargando">
+    {{ cargando ? 'Registrando…' : 'Registrarse' }}
+  </button>
+
+  <p *ngIf="mensajeInformativo" class="mensaje-info">{{ mensajeInformativo }}</p>
+  <p *ngIf="mensajeDeError" class="mensaje-error">{{ mensajeDeError }}</p>
+
+  <div class="contenedor-enlace-inicio">
+    <a routerLink="/login" class="enlace-inicio">Iniciar sesión</a>
+  </div>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\register\register.ts
+================================================================================
+
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../services/auth.service';
+import { SupabaseService } from '../services/supabase.service';
+import { LogsJuegosService } from '../services/logs-juegos.service';
+
+@Component({
+  standalone: true,
+  selector: 'app-register',
+  imports: [FormsModule, RouterLink, CommonModule],
+  templateUrl: './register.html',
+  styleUrls: ['./register.css']
+})
+export class RegisterComponent {
+  formulario = {
+    email: '',
+    contrasenia: '',
+    nombre: '',
+    apellido: '',
+    fechaNacimiento: ''
+  };
+
+  cargando = false;
+  mensajeDeError = '';
+  mensajeInformativo = '';
+
+  constructor(
+    private enrutador: Router,
+    private autenticacion: AuthService,
+    private supabaseSvc: SupabaseService,
+    private logService: LogsJuegosService
+  ) {}
+
+  async registrarse() {
+    if (this.cargando) return;
+
+    this.cargando = true;
+    this.mensajeDeError = '';
+    this.mensajeInformativo = '';
+
+    if (!this.formulario.email?.trim()) {
+      this.mensajeDeError = 'Ingresá un correo electrónico.';
+      this.cargando = false; return;
+    }
+    if (!this.formulario.contrasenia || this.formulario.contrasenia.length < 6) {
+      this.mensajeDeError = 'La contraseña debe tener al menos 6 caracteres.';
+      this.cargando = false; return;
+    }
+
+    try {
+      const { data, error } = await this.autenticacion.client.auth.signUp({
+        email: this.formulario.email.trim(),
+        password: this.formulario.contrasenia,
+        options: { emailRedirectTo: window.location.origin + '/login' }
+      });
+      if (error) throw error;
+
+      const usuario = data.user ?? null;
+
+      if (!usuario) {
+        this.mensajeInformativo =
+          'Revisá tu correo para confirmar la cuenta. Luego podés iniciar sesión.';
+        await this.enrutador.navigate(['/login']);
+
+        this.logService.registrarLog(
+          'supa-uid-placeholder',
+          true,
+          'RegisterComponent',
+          'registrarse',
+          `Inició el proceso de registro con email: ${this.formulario.email}`
+        );
+
+        return;
+      }
+
+      try {
+        await this.supabaseSvc.createUsuarioInEsquemaJuegos(
+          this.formulario.nombre.trim(),
+          this.formulario.apellido.trim() || null,
+          this.formulario.email.trim(),
+          this.formulario.fechaNacimiento || null,
+          usuario.id
+        );
+
+        this.logService.registrarLog(
+          usuario.id,
+          true,
+          'RegisterComponent',
+          'registrarse',
+          'Usuario registrado exitosamente y creado en esquema_juegos'
+        );
+
+      } catch (createError: any) {
+        console.error('Error al crear usuario en esquema_juegos:', createError);
+
+      }
+
+      await this.enrutador.navigate(['/home']);
+    } catch (e: any) {
+      console.error(e);
+      this.mensajeDeError = this.traducirErrorRegistro(e);
+
+        this.logService.registrarLog(
+          'supa-uid-placeholder',
+          false,
+          'RegisterComponent',
+          'registrarse',
+          `Intentó registrarse con ${this.formulario.email} - Error: ${this.mensajeDeError}`
+        );
+
+    } finally {
+      this.cargando = false;
+    }
+  }
+
+  private traducirErrorRegistro(e: any): string {
+    const msg = (e?.message || '').toLowerCase();
+    const code = (e as any)?.code?.toString().toLowerCase?.() ?? '';
+    const status = Number((e as any)?.status ?? 0);
+
+    if (
+      code.includes('user_already_exists') ||
+      msg.includes('already registered') ||
+      msg.includes('already exists') ||
+      status === 422
+    ) {
+      return 'Ese correo ya está registrado. Probá iniciar sesión o recuperar la contraseña.';
+    }
+
+    if (msg.includes('invalid email') || msg.includes('email not valid')) {
+      return 'El correo no es válido.';
+    }
+
+    if (msg.includes('at least 6') || msg.includes('password should') || msg.includes('weak password')) {
+      return 'La contraseña debe tener al menos 6 caracteres.';
+    }
+
+    if (msg.includes('too many') || msg.includes('rate limit') || status === 429) {
+      return 'Demasiados intentos. Intentá nuevamente en unos minutos.';
+    }
+
+    if (status >= 500) {
+      return 'Servidor temporalmente no disponible. Probá más tarde.';
+    }
+    if (msg.includes('network') || msg.includes('fetch') || msg.includes('failed to fetch')) {
+      return 'No hay conexión. Verificá tu internet e intentá de nuevo.';
+    }
+
+    return 'No se pudo completar el registro.';
+  }
+
+  private calcularEdad(fechaIso: string): number {
+    const d = new Date(fechaIso);
+    const ahora = new Date();
+    let edad = ahora.getFullYear() - d.getFullYear();
+    const mes = ahora.getMonth() - d.getMonth();
+    if (mes < 0 || (mes === 0 && ahora.getDate() < d.getDate())) edad--;
+    return edad;
+  }
+}

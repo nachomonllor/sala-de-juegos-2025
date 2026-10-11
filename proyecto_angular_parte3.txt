@@ -1,0 +1,3631 @@
+# Proyecto concatenado el 2026-10-11 01:59 · raíz: D:\sala-de-juegos-2025
+# Parte 3 de 3
+
+================================================================================
+ARCHIVO: .\src\app\results-list\results-list.component.css
+================================================================================
+
+:host {
+  --bg: #0b0f1a;
+  --surface: #0f1829;
+  --surface-2: #0d1526;
+  --outline: rgba(180, 200, 230, .12);
+  --outline-strong: rgba(180, 200, 230, .18);
+  --text-1: #eaf2ff;
+  --text-2: #a9b6c6;
+  --grad-a: #9a6bff;
+  --grad-b: #19d1e2;
+  --chip-ok: #22c55e;
+}
+
+.res-card {
+  overflow: hidden;
+  border-radius: 16px;
+  color: var(--text-1);
+  background: linear-gradient(180deg, rgba(15,24,41,.96), rgba(11,15,26,.96));
+  box-shadow: 0 12px 32px rgba(0,0,0,.5);
+  border: 1px solid var(--outline);
+}
+
+.res-toolbar {
+  background: transparent;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--outline);
+}
+
+.titulo.grad-text{
+  font-weight: 800;
+  letter-spacing: .3px;
+  background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.filtros{
+  display:grid;
+  grid-template-columns: 240px auto 1fr;
+  gap:.75rem; padding:1rem;
+  background: var(--surface-2);
+  border-bottom:1px solid var(--outline);
+}
+
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-outline-color: var(--outline);
+  --mdc-outlined-text-field-label-text-color: var(--text-2);
+  --mdc-outlined-text-field-input-text-color: var(--text-1);
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-flex{
+  background: #0e1b32;
+  border-radius: 12px;
+}
+.mat-mdc-select-arrow, .mat-mdc-icon-button .mat-icon { color: var(--text-2); }
+
+.mdc-checkbox__background{ border-color: var(--outline) !important; }
+.mat-mdc-checkbox .mdc-form-field{ color: var(--text-2); }
+
+.tabla-wrap{ padding:.5rem 1rem 1rem; }
+
+table{ width:100%; border-radius:12px; overflow:hidden; }
+
+.mat-mdc-table .mat-mdc-header-row{
+  background: rgba(255,255,255,.04);
+}
+.mat-mdc-header-cell{
+  color: var(--text-1);
+  font-weight: 700;
+  border-bottom: 1px solid var(--outline-strong);
+}
+.mat-mdc-row .mat-mdc-cell{
+  color: var(--text-1);
+  background: transparent;
+  border-bottom: 1px solid var(--outline);
+}
+.mat-mdc-row:nth-child(even) .mat-mdc-cell{
+  background: rgba(255,255,255,.02);
+}
+.mat-mdc-row:hover .mat-mdc-cell{
+  background: rgba(255,255,255,.05);
+}
+
+th.num, td.num { text-align:right; }
+
+.mat-sort-header-arrow { color: var(--text-2); }
+
+.mat-mdc-paginator{
+  background: transparent;
+  color: var(--text-2);
+  border-top: 1px solid var(--outline);
+}
+
+.vacio, .error{
+  display:flex; align-items:center; gap:.6rem;
+  padding:1rem; color: var(--text-2);
+}
+.vacio{
+  justify-content:center; flex-direction:column; text-align:center;
+}
+.vacio mat-icon{ opacity:.7; }
+
+.flex-espaciador{ flex:1 1 auto; }
+.w-240{ width:240px; }
+.flex-1{ width:100%; }
+
+.tabla-wrap{
+  padding: .5rem 1rem 1rem;
+  background: rgba(15,24,41,.92);
+  border: 1px solid rgba(180,200,230,.12);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.45);
+}
+
+.dark-table,
+.dark-table .mat-mdc-header-row,
+.dark-table .mat-mdc-row,
+.dark-table .mat-mdc-footer-row,
+.dark-table .mat-mdc-cell,
+.dark-table .mat-mdc-header-cell {
+  background: transparent !important;
+}
+
+.dark-table .mdc-data-table__content,
+.dark-table .mdc-data-table__table {
+  background: transparent !important;
+}
+
+.dark-table .mat-mdc-header-cell{
+  color: #eaf2ff;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(180,200,230,.18);
+}
+.dark-table .mat-mdc-cell{
+  color: #eaf2ff;
+  border-bottom: 1px solid rgba(180,200,230,.12);
+}
+
+.dark-table .mat-mdc-row:nth-child(even) .mat-mdc-cell{
+  background: rgba(255,255,255,.02) !important;
+}
+.dark-table .mat-mdc-row:hover .mat-mdc-cell{
+  background: rgba(255,255,255,.05) !important;
+}
+
+.mat-sort-header-arrow { color: #a9b6c6; }
+.mat-mdc-paginator{
+  background: transparent;
+  color: #a9b6c6;
+  border-top: 1px solid rgba(180,200,230,.12);
+}
+
+:host{
+  --mat-table-background-color: transparent;
+  --mat-table-row-item-container-color: transparent;
+}
+
+.titulo.grad-text{
+  background: linear-gradient(90deg, #9a6bff, #19d1e2);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; font-weight: 800;
+}
+
+@media (max-width: 720px){
+  .filtros{ grid-template-columns:1fr; }
+}
+
+.chips-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.filtro-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-left: 4px;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 16px;
+}
+
+mat-chip-option {
+  --mdc-chip-label-text-color: #e0e0e0;
+}
+
+mat-chip-option[aria-selected="true"] {
+  font-weight: 500;
+}
+
+:host ::ng-deep mat-checkbox label {
+    color: white !important;
+}
+
+:host ::ng-deep mat-checkbox .mdc-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+================================================================================
+ARCHIVO: .\src\app\results-list\results-list.component.html
+================================================================================
+
+<mat-card class="res-card solid">
+  <mat-toolbar class="res-toolbar" color="primary">
+    <span class="titulo grad-text">Resultados recientes</span>
+    <span class="flex-espaciador"></span>
+
+    <button mat-icon-button (click)="refrescar()" [disabled]="cargando()" matTooltip="Actualizar">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="filtros">
+
+    <div class="chips-container">
+      <span class="filtro-label">Filtrar por juego:</span>
+
+      <mat-chip-listbox aria-label="Selección de juego" selectable>
+
+        <mat-chip-option color="accent" [selected]="juegoSeleccionado() === 'todos'"
+          (click)="onJuegoChangeSelect('todos')">
+          Todos
+        </mat-chip-option>
+
+        <mat-chip-option *ngFor="let j of juegos" color="accent" [selected]="juegoSeleccionado() === j"
+          (click)="onJuegoChangeSelect(j)">
+          {{ j | titlecase }}
+        </mat-chip-option>
+
+      </mat-chip-listbox>
+    </div>
+
+    <mat-checkbox [checked]="soloMios()" (change)="soloMios.set($event.checked)">
+      Solo mis resultados
+    </mat-checkbox>
+
+    <mat-form-field appearance="outline" class="flex-1">
+      <mat-label>Buscar (jugador, juego, puntos…)</mat-label>
+      <input matInput (input)="onTextoFiltro($event)" placeholder="Filtrar en la tabla">
+      <button *ngIf="textoFiltro()" matSuffix mat-icon-button aria-label="Limpiar" (click)="limpiarFiltro()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  <mat-progress-bar *ngIf="cargando()" mode="indeterminate"></mat-progress-bar>
+
+  <div class="tabla-wrap" *ngIf="!cargando()">
+
+    <table mat-table [dataSource]="dataSource" matSort class="dark-table">
+
+      <ng-container matColumnDef="createdAt">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</th>
+        <td mat-cell *matCellDef="let r">{{ r.createdAt | date:'short' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="userDisplayName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Jugador</th>
+        <td mat-cell *matCellDef="let r">{{ r.userDisplayName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="gameCode">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Juego</th>
+        <td mat-cell *matCellDef="let r">{{ r.gameCode }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="points">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="num">Puntos</th>
+        <td mat-cell *matCellDef="let r" class="num">{{ r.points }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="durationSec">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="num">Duración (s)</th>
+        <td mat-cell *matCellDef="let r" class="num">{{ r.durationSec || '—' }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+      <tr mat-row *matRowDef="let fila; columns: columnas;"></tr>
+    </table>
+
+    <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,25,50]" showFirstLastButtons
+      aria-label="Selector de páginas">
+    </mat-paginator>
+  </div>
+
+  <div class="vacio" *ngIf="!cargando() && dataSource.data.length === 0 && !error()">
+    <mat-icon>hourglass_empty</mat-icon>
+    <p>Aún no hay resultados para este filtro.</p>
+  </div>
+
+  <div class="error" *ngIf="error()">
+    <mat-icon color="warn">error</mat-icon>
+    <span>{{ error() }}</span>
+  </div>
+
+</mat-card>
+
+================================================================================
+ARCHIVO: .\src\app\results-list\results-list.component.ts
+================================================================================
+
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+import { Component, signal, computed, effect, ViewChild, AfterViewInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+
+import { ScoreService } from '../services/score.service';
+import { SupabaseService } from '../services/supabase.service';
+import { GameCode, ScoreWithUser } from '../models/resultados';
+import { MatChipsModule } from '@angular/material/chips';
+import { LogsJuegosService } from '../services/logs-juegos.service';
+
+@Component({
+  selector: 'app-results-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+
+    MatCardModule, MatToolbarModule, MatTableModule, MatPaginatorModule, MatSortModule,
+    MatFormFieldModule, MatSelectModule, MatCheckboxModule, MatInputModule,
+    MatIconModule, MatButtonModule, MatProgressBarModule,
+    MatChipsModule
+  ],
+  templateUrl: './results-list.component.html',
+  styleUrls: ['./results-list.component.css']
+})
+export class ResultsListComponent implements AfterViewInit {
+
+  juegos: GameCode[] = ['ahorcado', 'mayor_menor', 'flow_free', 'preguntados_dbz'];
+  juegoSeleccionado = signal<GameCode | 'todos'>('todos');
+
+  cargando = signal(false);
+  error = signal<string | null>(null);
+
+  soloMios = signal(false);
+  currentUserId = signal<string | null>(null);
+
+  textoFiltro = signal<string>('');
+
+  private todos = signal<ScoreWithUser[]>([]);
+
+  resultados = computed(() => {
+    const filtroJuego = this.juegoSeleccionado();
+    const mios = this.soloMios();
+    const uid = this.currentUserId();
+    return this.todos().filter(r =>
+      (filtroJuego === 'todos' || r.gameCode === filtroJuego) &&
+      (!mios || (uid !== null && r.userId === uid))
+    );
+  });
+
+  columnas: (keyof ScoreWithUser)[] = ['createdAt', 'userDisplayName', 'gameCode', 'points', 'durationSec'];
+  dataSource = new MatTableDataSource<ScoreWithUser>([]);
+
+modoFondo: 'solid' | 'glass' = 'solid';
+
+toggleFondo() {
+  this.modoFondo = this.modoFondo === 'solid' ? 'glass' : 'solid';
+}
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  constructor(
+    private scores: ScoreService,
+    private route: ActivatedRoute,
+    private supa: SupabaseService,
+
+  ) {
+
+    this.route.queryParamMap.subscribe(p => {
+      const me = p.get('me');
+      this.soloMios.set(me === '1' || me === 'true');
+    });
+
+    this.supa.client.auth.getUser().then(({ data: { user } }) => {
+      this.currentUserId.set(user?.id ?? null);
+    });
+
+    effect(() => {
+      this.dataSource.data = this.resultados();
+
+      this.dataSource.filter = this.textoFiltro().trim().toLowerCase();
+    });
+
+    this.dataSource.filterPredicate = (data, filter) => {
+      const blob =
+        `${data.userDisplayName} ${data.gameCode} ${data.points} ${data.durationSec ?? ''} ${data.createdAt}`
+        .toString()
+        .toLowerCase();
+      return blob.includes(filter);
+    };
+
+    this.refrescar();
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  onJuegoChangeSelect(val: GameCode | 'todos') {
+    this.juegoSeleccionado.set(val);
+
+    if (this.paginator) this.paginator.firstPage();
+
+  }
+
+  onTextoFiltro(ev: Event) {
+    const value = (ev.target as HTMLInputElement).value ?? '';
+    this.textoFiltro.set(value);
+    if (this.paginator) this.paginator.firstPage();
+  }
+
+  limpiarFiltro() {
+    this.textoFiltro.set('');
+  }
+
+  async refrescar() {
+    this.cargando.set(true);
+    this.error.set(null);
+    try {
+      const all = await this.scores.listRecent(200);
+      this.todos.set(all);
+    } catch (e: any) {
+      console.error(e);
+      this.error.set(e?.message ?? 'Error al cargar resultados');
+    } finally {
+      this.cargando.set(false);
+    }
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\services\auth.service.ts
+================================================================================
+
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { SupabaseService } from './supabase.service';
+import type { Session, User as SupaUser, AuthChangeEvent } from '@supabase/supabase-js';
+
+export type User = SupaUser;
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private readonly _user$ = new BehaviorSubject<User | null>(null);
+  public readonly user$ = this._user$.asObservable();
+
+  private unsubscribeAuthChange?: () => void;
+
+  constructor(private readonly supa: SupabaseService) {
+    this.init();
+  }
+
+  private async init(): Promise<void> {
+    const session = await this.supa.getSession();
+    this._user$.next(session?.user ?? null);
+
+    this.unsubscribeAuthChange = this.supa.onAuthChange(
+      (_event: AuthChangeEvent, newSession: Session | null) => {
+        this._user$.next(newSession?.user ?? null);
+      }
+    );
+  }
+
+  async login(email: string, password: string) {
+
+    return this.signIn(email, password);
+  }
+
+  async register(email: string, password: string) {
+
+    return this.signUp(email, password);
+  }
+
+  async logout(): Promise<void> {
+    await this.supa.signOut();
+  }
+
+  async signIn(email: string, password: string) {
+    try {
+      const data = await this.supa.signInWithPassword(email, password);
+      return { data, error: null as any };
+    } catch (err: any) {
+      return { data: null as any, error: err };
+    }
+  }
+
+  async signUp(email: string, password: string) {
+    try {
+      const data = await this.supa.signUp(email, password);
+      return { data, error: null as any };
+    } catch (err: any) {
+      return { data: null as any, error: err };
+    }
+  }
+
+  get client() {
+    return this.supa.client;
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\services\dragon-ball.ts
+================================================================================
+
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { Character, PaginatedResponse, Question } from '../preguntados-dbz/preguntados-dbz.model';
+
+@Injectable({ providedIn: 'root' })
+export class DragonBallService {
+  private readonly http = inject(HttpClient);
+
+  private readonly baseUrl = '/dbz';
+
+  getCharacters(params: { page?: number; limit?: number; name?: string } = {}):
+    Observable<PaginatedResponse<Character>> {
+    let httpParams = new HttpParams()
+      .set('page', String(params.page ?? 1))
+      .set('limit', String(params.limit ?? 20));
+
+    if (params.name && params.name.trim()) {
+      httpParams = httpParams.set('name', params.name.trim());
+    }
+
+    return this.http.get<PaginatedResponse<Character>>(
+      `${this.baseUrl}/characters`,
+      { params: httpParams }
+    );
+  }
+
+  getRandomQuestion(nOptions = 4, poolLimit = 100): Observable<Question> {
+    return this.getCharacters({ limit: poolLimit }).pipe(
+
+      map(res => res.items.filter(c => !!c.image && !!c.name)),
+      map(items => {
+
+        const pool = shuffle(items);
+        const pick = uniqueFirstNById(pool, nOptions);
+        if (pick.length < nOptions) {
+          throw new Error('No se encontraron suficientes personajes con imagen para crear opciones.');
+        }
+        const correct = pick[Math.floor(Math.random() * pick.length)];
+        return {
+          imageUrl: correct.image as string,
+          correct: { id: correct.id, name: correct.name },
+          options: shuffle(pick.map(p => ({ id: p.id, name: p.name })))
+        } as Question;
+      })
+    );
+  }
+}
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function uniqueFirstNById<T extends { id: number }>(arr: T[], n: number): T[] {
+  const seen = new Set<number>();
+  const out: T[] = [];
+  for (const item of arr) {
+    if (!seen.has(item.id)) {
+      seen.add(item.id);
+      out.push(item);
+      if (out.length === n) break;
+    }
+  }
+  return out;
+}
+
+================================================================================
+ARCHIVO: .\src\app\services\encuesta-respuestas.service.ts
+================================================================================
+
+import { Injectable } from '@angular/core';
+import { SupabaseService } from './supabase.service';
+
+export interface RespuestaPreguntaDetalle {
+  id: number;
+  preguntaId: number;
+  textoPregunta: string;
+  tipoControl: string | null;
+  valorLibre: string | null;
+  opcionTexto: string | null;
+  opcionValor: string | null;
+}
+
+export interface EncuestaRespuestaAdmin {
+  id: number;
+  encuestaId: number;
+  nombreApellido: string;
+  edad: number;
+  telefono: string;
+  completadaEn: string;
+  usuario?: {
+    nombre: string | null;
+    apellido: string | null;
+    email: string | null;
+  };
+  respuestas: RespuestaPreguntaDetalle[];
+}
+
+@Injectable({ providedIn: 'root' })
+export class EncuestaRespuestasService {
+  constructor(private readonly supa: SupabaseService) {}
+
+  async listRespuestas(limit = 100): Promise<EncuestaRespuestaAdmin[]> {
+    const { data, error } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('respuestas_encuesta')
+      .select(`
+        id,
+        encuesta_id,
+        usuario_id,
+        nombre_apellido,
+        edad,
+        telefono,
+        completada_en,
+        usuarios:usuario_id (
+          nombre,
+          apellido,
+          email
+        ),
+        respuestas:respuestas_pregunta (
+          id,
+          pregunta_id,
+          opcion_id,
+          valor_texto,
+          pregunta:preguntas_encuesta (
+            texto,
+            tipo_control
+          ),
+          opcion:opciones_pregunta (
+            texto,
+            valor
+          )
+        )
+      `)
+      .order('completada_en', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('[EncuestaRespuestasService] Error listando respuestas:', error);
+      throw error;
+    }
+
+    return (data ?? []).map((row: any) => ({
+      id: row.id,
+      encuestaId: row.encuesta_id,
+      nombreApellido: row.nombre_apellido,
+      edad: row.edad,
+      telefono: row.telefono,
+      completadaEn: row.completada_en,
+      usuario: row.usuarios
+        ? {
+            nombre: row.usuarios.nombre ?? null,
+            apellido: row.usuarios.apellido ?? null,
+            email: row.usuarios.email ?? null
+          }
+        : undefined,
+      respuestas: (row.respuestas ?? []).map((resp: any) => ({
+        id: resp.id,
+        preguntaId: resp.pregunta_id,
+        textoPregunta: resp.pregunta?.texto ?? '(Pregunta no disponible)',
+        tipoControl: resp.pregunta?.tipo_control ?? null,
+        valorLibre: resp.valor_texto ?? null,
+        opcionTexto: resp.opcion?.texto ?? null,
+        opcionValor: resp.opcion?.valor ?? null,
+      })) as RespuestaPreguntaDetalle[],
+    }));
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\services\logs-juegos.service.ts
+================================================================================
+
+import { Injectable } from '@angular/core';
+import { SupabaseService } from './supabase.service';
+
+export interface LoginLog {
+  id: number;
+  user_id: string | null;
+  email: string | null;
+  created_at: string;
+  exito: boolean;
+  componente?: string | null;
+  funcion?: string | null;
+  descripcion?: string | null;
+  ip?: string | null;
+  user_agent?: string | null;
+}
+
+@Injectable({ providedIn: 'root' })
+export class LogsJuegosService {
+
+  constructor(private readonly supa: SupabaseService) {}
+
+  async registrarLog(
+    supabaseUid: string,
+    exito: boolean = true,
+    componente?: string,
+    funcion?: string,
+    descripcion?: string
+  ): Promise<void> {
+    try {
+
+      const usuarioId = await this.supa.getUsuarioIdFromSupabaseUid(supabaseUid);
+
+      if (!usuarioId) {
+        console.warn('[LogsJuegos] No se encontró el usuario en esquema_juegos para registrar el log.');
+        return;
+      }
+
+      const { error } = await this.supa.client
+        .schema('esquema_juegos')
+        .from('log_logins')
+        .insert({
+          usuario_id: usuarioId,
+          exito,
+          componente: componente ?? null,
+          funcion: funcion ?? null,
+          descripcion: descripcion ?? null,
+          user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null
+        });
+
+      if (error) {
+        console.error('[LogsJuegos] Error al insertar en log_logins', error);
+      }
+    } catch (e) {
+      console.error('[LogsJuegos] Excepción al registrar log', e);
+    }
+  }
+
+  async obtenerLogs(limit = 100): Promise<LoginLog[]> {
+    const { data, error } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('log_logins')
+      .select('*, usuarios(email)')
+      .order('fecha_ingreso', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('[LogsJuegos] Error al consultar log_logins', error);
+      throw error;
+    }
+
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      user_id: row.usuario_id?.toString() || null,
+      email: row.usuarios?.email || 'Desconocido',
+      created_at: row.fecha_ingreso,
+      exito: row.exito,
+      componente: row.componente,
+      funcion: row.funcion,
+      descripcion: row.descripcion,
+      ip: row.ip,
+      user_agent: row.user_agent
+    })) as LoginLog[];
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\services\personajes-dbz.ts
+================================================================================
+
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom, from, Observable } from 'rxjs';
+import { OpcionPregunta, Pregunta } from '../models/preguntados-dbz.model';
+
+import { environment } from '../../environments/environment';
+
+@Injectable({ providedIn: 'root' })
+export class PersonajesDbzService {
+  private http = inject(HttpClient);
+
+  private readonly TOTAL = 58;
+  private readonly LIMITE = 20;
+
+  private url(page: number, limit: number) {
+    return `${environment.dbzBaseUrl}/characters?page=${page}&limit=${limit}`;
+  }
+
+  private toArray(resp: any): any[] {
+    if (Array.isArray(resp)) return resp;
+    if (Array.isArray(resp?.items)) return resp.items;
+    if (Array.isArray(resp?.data)) return resp.data;
+    return [];
+  }
+
+  private shuffle<T>(arr: T[]): T[] {
+    return [...arr].sort(() => Math.random() - 0.5);
+  }
+
+  async obtenerPreguntaAleatoria(cantidadOpciones = 4): Promise<Pregunta> {
+    const paginas = Math.max(1, Math.ceil(this.TOTAL / this.LIMITE));
+    const pagina = 1 + Math.floor(Math.random() * paginas);
+
+    const resp = await firstValueFrom(this.http.get<any>(this.url(pagina, this.LIMITE)));
+    const personajes = this
+      .toArray(resp)
+      .filter((p: any) => !!p?.name)
+      .map((p: any) => ({
+        id: Number(p.id),
+        name: String(p.name),
+        image: p.image ?? p.img ?? p.avatar ?? null
+      }));
+
+    if (personajes.length < cantidadOpciones) {
+      throw new Error('No hay suficientes personajes para armar la pregunta.');
+    }
+
+    const idxs = new Set<number>();
+    while (idxs.size < cantidadOpciones) {
+      idxs.add(Math.floor(Math.random() * personajes.length));
+    }
+    const ids = Array.from(idxs);
+
+    const correcto = personajes[ids[0]];
+    const opciones: OpcionPregunta[] = this.shuffle(
+      ids.map(i => ({ id: personajes[i].id, name: personajes[i].name }))
+    );
+
+    return {
+      imageUrl: correcto.image || 'assets/dbz/correcto.jpg',
+      correct: { id: correcto.id, name: correcto.name },
+      options: opciones
+    };
+  }
+
+  obtenerPreguntaAleatoria$(cantidadOpciones = 4): Observable<Pregunta> {
+    return from(this.obtenerPreguntaAleatoria(cantidadOpciones));
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\services\question.service.ts
+================================================================================
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { Question } from '../models/question.model';
+
+@Injectable({ providedIn: 'root' })
+export class QuestionService {
+
+  private fileUrl = 'assets/questions.json';
+
+  constructor(private http: HttpClient) {}
+
+  getQuestion(theme: string): Observable<Question> {
+    return this.http.get<Question[]>(this.fileUrl).pipe(
+
+      map(list => list.filter(q => q.theme === theme)),
+
+      map(list => {
+        if (!list.length) {
+          throw new Error(`No hay preguntas para el tema "${theme}"`);
+        }
+        const idx = Math.floor(Math.random() * list.length);
+        return list[idx];
+      })
+    );
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\services\resultados.service.ts
+================================================================================
+
+import { Injectable, inject } from '@angular/core';
+import { SupabaseService } from './supabase.service';
+
+type Json = Record<string, any> | null;
+
+interface GuardarScoreArgs {
+  game_code: string;
+  points: number;
+  duration_sec?: number;
+  meta?: Json;
+}
+
+@Injectable({ providedIn: 'root' })
+export class ResultadosService {
+  private supabase = inject(SupabaseService);
+
+  async guardarScore({ game_code, points, duration_sec, meta }: GuardarScoreArgs) {
+    const { data: { session }, error: sErr } = await this.supabase.client.auth.getSession();
+    if (sErr || !session?.user) {
+      console.warn('[resultados] no session; omitiendo guardado');
+      return { ok: false as const, reason: 'no-session' as const };
+    }
+
+    const usuarioId = await this.supabase.getUsuarioIdFromSupabaseUid(session.user.id);
+    if (!usuarioId) {
+      console.warn('[resultados] usuario no encontrado en esquema_juegos.usuarios');
+      return { ok: false as const, reason: 'usuario-no-encontrado' as const };
+    }
+
+    const { data: juego, error: juegoError } = await this.supabase.client
+      .schema('esquema_juegos')
+      .from('juegos')
+      .select('id')
+      .eq('codigo', game_code)
+      .maybeSingle();
+
+    if (juegoError) {
+      console.error('[resultados] error buscando juego:', juegoError);
+      return { ok: false as const, error: juegoError };
+    }
+    if (!juego) {
+      console.warn(`[resultados] juego '${game_code}' no encontrado`);
+      return { ok: false as const, reason: 'juego-no-encontrado' as const };
+    }
+
+    const datosExtra: any = meta || {};
+    if (duration_sec !== undefined) {
+      datosExtra.duration_sec = duration_sec;
+    }
+
+    const { error } = await this.supabase.client
+      .schema('esquema_juegos')
+      .from('partidas')
+      .insert({
+        usuario_id: usuarioId,
+        juego_id: juego.id,
+        puntaje: points,
+        datos_extra: Object.keys(datosExtra).length > 0 ? datosExtra : null,
+        gano: null
+      });
+
+    if (error) {
+      console.error('[resultados] insert error:', error);
+      return { ok: false as const, error };
+    }
+    return { ok: true as const };
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\services\results.service.ts
+================================================================================
+
+import { Injectable } from '@angular/core';
+import { SupabaseService, ResultRow } from './supabase.service';
+import { from, Observable } from 'rxjs';
+
+@Injectable({ providedIn: 'root' })
+export class ResultsService {
+  constructor(private supa: SupabaseService) {}
+
+  save(game: string, score: number, meta: any = null): Promise<void> {
+    return this.supa.saveResult(game, score, meta);
+  }
+
+  listMy(): Promise<ResultRow[]> {
+    return this.supa.listResultsByUser();
+  }
+
+  getAllResults(limit = 100): Observable<ResultRow[]> {
+    return from(this.supa.listAllResults(limit));
+  }
+
+}
+
+================================================================================
+ARCHIVO: .\src\app\services\score.service.ts
+================================================================================
+
+import { Injectable } from '@angular/core';
+import { SupabaseService } from './supabase.service';
+import { GameCode, Score, ScoreWithUser } from '../models/resultados';
+
+@Injectable({ providedIn: 'root' })
+export class ScoreService {
+  constructor(private supa: SupabaseService) { }
+
+  async recordScore(params: {
+    gameCode: GameCode;
+    points: number;
+    durationSec?: number;
+    metaJson?: Record<string, unknown>;
+  }): Promise<Score> {
+    const { data: { user }, error: userErr } = await this.supa.client.auth.getUser();
+    if (userErr) throw userErr;
+    if (!user) throw new Error('No hay usuario logueado');
+
+    const usuarioId = await this.supa.getUsuarioIdFromSupabaseUid(user.id);
+    if (!usuarioId) {
+      throw new Error('Usuario no encontrado en esquema_juegos.usuarios');
+    }
+
+    const { data: juego, error: juegoError } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('juegos')
+      .select('id')
+      .eq('codigo', params.gameCode)
+      .maybeSingle();
+
+    if (juegoError) throw juegoError;
+    if (!juego) {
+      throw new Error(`Juego con código '${params.gameCode}' no encontrado`);
+    }
+
+    const metaData: any = params.metaJson || {};
+    if (params.durationSec !== undefined) {
+      metaData.duration_sec = params.durationSec;
+    }
+
+    const { data, error } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('partidas')
+      .insert({
+        usuario_id: usuarioId,
+        juego_id: juego.id,
+        puntaje: params.points,
+        datos_extra: Object.keys(metaData).length > 0 ? metaData : null,
+        gano: null
+      })
+      .select('*')
+      .single();
+
+    if (error) throw error;
+
+    return {
+      id: data.id,
+      userId: user.id,
+      gameCode: params.gameCode,
+      points: Number(data.puntaje),
+      durationSec: params.durationSec,
+      createdAt: data.fecha_partida,
+      metaJson: data.datos_extra ?? undefined,
+    };
+  }
+
+  async listRecent(limit = 100): Promise<ScoreWithUser[]> {
+
+    const { data: partidas, error } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('partidas')
+      .select(`
+        id, usuario_id, juego_id, puntaje, datos_extra, fecha_partida,
+        usuarios:usuario_id ( nombre, apellido, email, supabase_uid ),
+        juegos:juego_id ( codigo, nombre )
+      `)
+      .order('fecha_partida', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('[score.service] Error al obtener partidas:', error);
+      throw error;
+    }
+
+    if (!partidas || partidas.length === 0) {
+      return [];
+    }
+
+    const juegoIds = [...new Set(partidas.map((p: any) => p.juego_id).filter(Boolean))];
+    const usuarioIds = [...new Set(partidas.map((p: any) => p.usuario_id).filter(Boolean))];
+
+    let juegosMap: Map<number, any> = new Map();
+    if (juegoIds.length > 0) {
+      const juegosConCodigo = partidas.filter((p: any) => p.juegos?.codigo);
+      if (juegosConCodigo.length < partidas.length) {
+
+        const { data: juegos, error: juegosError } = await this.supa.client
+          .schema('esquema_juegos')
+          .from('juegos')
+          .select('id, codigo, nombre')
+          .in('id', juegoIds);
+
+        if (!juegosError && juegos) {
+          juegos.forEach((j: any) => juegosMap.set(j.id, j));
+        }
+      } else {
+
+        partidas.forEach((p: any) => {
+          if (p.juegos && p.juego_id) {
+            juegosMap.set(p.juego_id, p.juegos);
+          }
+        });
+      }
+    }
+
+    let usuariosMap: Map<number, any> = new Map();
+    if (usuarioIds.length > 0) {
+      const usuariosConSupabaseUid = partidas.filter((p: any) => p.usuarios?.supabase_uid);
+      if (usuariosConSupabaseUid.length < partidas.length) {
+
+        const { data: usuarios, error: usuariosError } = await this.supa.client
+          .schema('esquema_juegos')
+          .from('usuarios')
+          .select('id, nombre, apellido, email, supabase_uid')
+          .in('id', usuarioIds);
+
+        if (!usuariosError && usuarios) {
+          usuarios.forEach((u: any) => usuariosMap.set(u.id, u));
+        }
+      } else {
+
+        partidas.forEach((p: any) => {
+          if (p.usuarios && p.usuario_id) {
+            usuariosMap.set(p.usuario_id, p.usuarios);
+          }
+        });
+      }
+    }
+
+    return partidas.map((r: any) => {
+      const meta = r.datos_extra || {};
+
+      const usuario = r.usuarios || usuariosMap.get(r.usuario_id);
+      const displayName = usuario
+        ? `${usuario.nombre} ${usuario.apellido || ''}`.trim()
+        : '—';
+      const supabaseUid = usuario?.supabase_uid || null;
+
+      const juego = r.juegos || juegosMap.get(r.juego_id);
+      const gameCode = juego?.codigo || null;
+
+      if (!gameCode) {
+        console.warn(`[score.service] No se pudo obtener código del juego para juego_id=${r.juego_id}`);
+      }
+
+      return {
+        id: r.id?.toString() || '',
+        userId: supabaseUid,
+        gameCode: gameCode as any,
+        points: Number(r.puntaje || 0),
+        durationSec: meta.duration_sec ?? undefined,
+        createdAt: r.fecha_partida,
+        metaJson: r.datos_extra ?? undefined,
+        userDisplayName: displayName,
+        userAvatarUrl: undefined,
+      };
+    });
+  }
+
+  async leaderboard(game: GameCode, limit = 10) {
+
+    const { data: juego, error: juegoError } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('juegos')
+      .select('id')
+      .eq('codigo', game)
+      .maybeSingle();
+
+    if (juegoError) throw juegoError;
+    if (!juego) {
+      throw new Error(`Juego con código '${game}' no encontrado`);
+    }
+
+    const { data, error } = await this.supa.client
+      .schema('esquema_juegos')
+      .from('partidas')
+      .select(`
+        usuario_id, puntaje,
+        usuarios:usuario_id ( nombre, apellido, email )
+      `)
+      .eq('juego_id', juego.id)
+      .order('puntaje', { ascending: false })
+      .limit(limit * 2);
+
+    if (error) throw error;
+
+    const userBest: Map<number, any> = new Map();
+    (data || []).forEach((r: any) => {
+      const userId = r.usuario_id;
+      const currentBest = userBest.get(userId);
+      if (!currentBest || r.puntaje > currentBest.puntaje) {
+        userBest.set(userId, {
+          user_id: userId,
+          game_code: game,
+          best_points: r.puntaje,
+          display_name: r.usuarios
+            ? `${r.usuarios.nombre} ${r.usuarios.apellido || ''}`.trim()
+            : '—'
+        });
+      }
+    });
+
+    return Array.from(userBest.values())
+      .sort((a, b) => b.best_points - a.best_points)
+      .slice(0, limit);
+  }
+
+}
+
+================================================================================
+ARCHIVO: .\src\app\services\supabase.service.ts
+================================================================================
+
+import { Injectable } from '@angular/core';
+import {
+  createClient,
+  type SupabaseClient,
+  type AuthChangeEvent,
+  type Session,
+  type User as SupaUser,
+} from '@supabase/supabase-js';
+import { environment } from '../../environments/environment';
+
+export interface Profile {
+  id: string;
+  email: string | null;
+  display_name: string | null;
+  role?: 'user' | 'admin' | null;
+  avatar_url?: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface ChatMessage {
+  id: number;
+  room: string;
+  usuario_id?: number | null;
+  display_name: string | null;
+  mensaje?: string;
+  enviado_en?: string;
+
+  user_id?: string | null;
+  message?: string;
+  created_at?: string;
+  uid?: string | null;
+  email?: string | null;
+  text?: string;
+  timestamp?: string;
+}
+
+export interface LoginLog {
+  id: number;
+  user_id: string | null;
+  email: string | null;
+  created_at: string;
+
+  componente?: string | null;
+  funcion?: string | null;
+  descripcion?: string | null;
+}
+
+export interface ResultRow {
+  id: number;
+  user_id: string | null;
+  game: string;
+  score: number;
+  meta: any | null;
+  created_at: string;
+}
+
+declare global {
+  interface Window { __supabaseClient__?: SupabaseClient }
+}
+
+@Injectable({ providedIn: 'root' })
+export class SupabaseService {
+  public readonly client: SupabaseClient;
+
+  constructor() {
+    if (!window.__supabaseClient__) {
+      window.__supabaseClient__ = createClient(
+        environment.supabaseUrl,
+        environment.supabaseKey,
+        {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+
+            storageKey: 'sb-taswckilspgrlcrdouxb-auth-token-sdj2025',
+          },
+        }
+      );
+    }
+    this.client = window.__supabaseClient__!;
+
+    this.hacerPing();
+  }
+
+  async listChatMessages(room: string, limit = 50): Promise<ChatMessage[]> {
+    const { data, error } = await this.client
+      .schema('esquema_juegos')
+      .from('mensajes_chat')
+      .select('*')
+      .eq('room', room)
+      .order('enviado_en', { ascending: true })
+      .limit(limit);
+
+    if (error) throw error;
+
+    return (data || []).map((row: any) => ({
+      ...row,
+      message: row.mensaje,
+      created_at: row.enviado_en,
+      user_id: row.usuario_id?.toString() || null
+    })) as ChatMessage[];
+  }
+
+  async addChatMessage(room: string, message: string): Promise<ChatMessage> {
+    const { data: { session } } = await this.client.auth.getSession();
+    const user = session?.user;
+    if (!user) throw new Error('Debes iniciar sesión para chatear.');
+
+    const display_name = user.email?.split('@')[0] ?? 'Anónimo';
+
+    const usuarioId = await this.getUsuarioIdFromSupabaseUid(user.id);
+    if (!usuarioId) {
+      throw new Error('Usuario no encontrado. Debes registrarte primero.');
+    }
+
+    const { data, error } = await this.client
+      .schema('esquema_juegos')
+      .from('mensajes_chat')
+      .insert({
+        usuario_id: usuarioId,
+        room,
+        mensaje: message,
+        display_name
+      })
+      .select('*')
+      .single();
+
+    if (error) throw error;
+
+    const mapped = {
+      ...data,
+      message: data.mensaje,
+      created_at: data.enviado_en,
+      user_id: data.usuario_id?.toString() || null
+    };
+    return mapped as ChatMessage;
+  }
+
+  async createUsuarioInEsquemaJuegos(
+    nombre: string,
+    apellido: string | null,
+    email: string,
+    fechaNacimiento: string | null,
+    supabaseUid: string
+  ): Promise<number> {
+    const { data, error } = await this.client
+      .schema('esquema_juegos')
+      .from('usuarios')
+      .insert({
+        supabase_uid: supabaseUid,
+        email,
+        nombre,
+        apellido: apellido || null,
+        fecha_nacimiento: fechaNacimiento || null
+      })
+      .select('id')
+      .single();
+
+    if (error) throw error;
+    return data.id;
+  }
+
+  async getUsuarioIdFromSupabaseUid(supabaseUid: string): Promise<number | null> {
+    const { data, error } = await this.client
+      .schema('esquema_juegos')
+      .from('usuarios')
+      .select('id')
+      .eq('supabase_uid', supabaseUid)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data?.id ?? null;
+  }
+
+  subscribeToChat(room: string, onNew: (m: ChatMessage) => void): () => void {
+    const channel = this.client
+      .channel(`room:${room}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'esquema_juegos',
+          table: 'mensajes_chat',
+          filter: `room=eq.${room}`
+        },
+        (payload) => {
+
+          const newMsg = payload.new as any;
+          const mapped = {
+            ...newMsg,
+            message: newMsg.mensaje,
+            created_at: newMsg.enviado_en,
+            user_id: newMsg.usuario_id?.toString() || null
+          };
+          onNew(mapped as ChatMessage);
+        }
+      )
+      .subscribe();
+    return () => this.client.removeChannel(channel);
+  }
+
+  connectTyping(
+    room: string,
+    onRemoteTyping: (payload: { user_id: string; name: string; t: number }) => void
+  ) {
+    const channel = this.client
+      .channel(`typing:${room}`)
+      .on('broadcast', { event: 'typing' }, (p: any) => onRemoteTyping(p.payload))
+      .subscribe();
+
+    return {
+      notifyTyping: (name: string, user_id: string) => {
+        channel.send({ type: 'broadcast', event: 'typing', payload: { user_id, name, t: Date.now() } });
+      },
+      unsubscribe: () => this.client.removeChannel(channel),
+    };
+  }
+
+  async getSession(): Promise<Session | null> {
+    const { data, error } = await this.client.auth.getSession();
+    if (error) throw error;
+    return data.session;
+  }
+
+  onAuthChange(
+    cb: (event: AuthChangeEvent, session: Session | null) => void
+  ): () => void {
+    const { data } = this.client.auth.onAuthStateChange((event, session) => cb(event, session));
+    return () => data.subscription.unsubscribe();
+  }
+
+  async getUser(): Promise<SupaUser | null> {
+    const { data, error } = await this.client.auth.getUser();
+    if (error) {
+
+      if (error.message?.toLowerCase().includes('session')) return null;
+      throw error;
+    }
+    return data.user;
+  }
+
+  async signIn(email: string, password: string) {
+    const { data, error } = await this.client.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  }
+
+  async signInWithPassword(email: string, password: string) {
+    return this.signIn(email, password);
+  }
+
+  async signUp(email: string, password: string) {
+    const { data, error } = await this.client.auth.signUp({ email, password });
+    if (error) throw error;
+    return data;
+  }
+
+  async signOut(): Promise<void> {
+    const { error } = await this.client.auth.signOut();
+    if (error) throw error;
+  }
+
+  async logLogin(
+    supabaseUid: string,
+    componente?: string,
+    funcion?: string,
+    descripcion?: string
+  ): Promise<void> {
+    const usuarioId = await this.getUsuarioIdFromSupabaseUid(supabaseUid);
+    if (!usuarioId) {
+      throw new Error('Usuario no encontrado en esquema_juegos.usuarios');
+    }
+
+    const { error } = await this.client
+      .schema('esquema_juegos')
+      .from('log_logins')
+      .insert({
+        usuario_id: usuarioId,
+        componente: componente ?? null,
+        funcion: funcion ?? null,
+        descripcion: descripcion ?? null,
+        user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null
+      });
+
+    if (error) throw error;
+  }
+
+  async getLoginLogs(limit = 100): Promise<LoginLog[]> {
+    const { data, error } = await this.client
+      .schema('esquema_juegos')
+      .from('log_logins')
+
+      .select('*, usuarios(email)')
+      .order('fecha_ingreso', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      user_id: row.usuario_id?.toString() || null,
+      email: row.usuarios?.email || 'Desconocido',
+      created_at: row.fecha_ingreso,
+      componente: row.componente,
+      funcion: row.funcion,
+      descripcion: row.descripcion
+    })) as LoginLog[];
+  }
+
+  async saveResult(game: string, score: number, meta: any = null): Promise<void> {
+    const { data: { user } } = await this.client.auth.getUser();
+    if (!user) throw new Error('No hay usuario logueado');
+
+    const usuarioId = await this.getUsuarioIdFromSupabaseUid(user.id);
+    if (!usuarioId) {
+      throw new Error('Usuario no encontrado en esquema_juegos.usuarios');
+    }
+
+    const { data: juego, error: juegoError } = await this.client
+      .schema('esquema_juegos')
+      .from('juegos')
+      .select('id')
+      .eq('codigo', game)
+      .maybeSingle();
+
+    if (juegoError) throw juegoError;
+    if (!juego) {
+      throw new Error(`Juego con código '${game}' no encontrado`);
+    }
+
+    const { error } = await this.client
+      .schema('esquema_juegos')
+      .from('partidas')
+      .insert({
+        usuario_id: usuarioId,
+        juego_id: juego.id,
+        puntaje: score,
+        datos_extra: meta,
+        gano: null
+      });
+    if (error) throw error;
+  }
+
+  async listResultsByUser(supabaseUid?: string): Promise<ResultRow[]> {
+    let usuarioId: number | null = null;
+
+    if (supabaseUid) {
+      usuarioId = await this.getUsuarioIdFromSupabaseUid(supabaseUid);
+    } else {
+      const { data: { user } } = await this.client.auth.getUser();
+      if (user) {
+        usuarioId = await this.getUsuarioIdFromSupabaseUid(user.id);
+      }
+    }
+
+    if (!usuarioId) {
+      return [];
+    }
+
+    const { data, error } = await this.client
+      .schema('esquema_juegos')
+      .from('partidas')
+
+      .select('*, juegos(codigo, nombre)')
+      .eq('usuario_id', usuarioId)
+      .order('fecha_partida', { ascending: false });
+
+    if (error) throw error;
+
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      user_id: row.usuario_id?.toString() || null,
+
+      game: row.juegos?.nombre || row.juegos?.codigo || 'Desconocido',
+      score: row.puntaje || 0,
+      meta: row.datos_extra,
+      created_at: row.fecha_partida
+    })) as ResultRow[];
+  }
+
+  async listAllResults(limit = 100) {
+    const { data, error } = await this.client
+      .schema('esquema_juegos')
+      .from('partidas')
+
+      .select('*, juegos(codigo, nombre), usuarios(email)')
+      .order('fecha_partida', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      user_id: row.usuario_id?.toString() || null,
+
+      game: row.juegos?.nombre || row.juegos?.codigo || 'Desconocido',
+      email: row.usuarios?.email || 'Anónimo',
+      score: row.puntaje || 0,
+      meta: row.datos_extra,
+      created_at: row.fecha_partida
+    })) as ResultRow[];
+  }
+
+  get sdk(): SupabaseClient {
+    return this.client;
+  }
+
+  public iniciarKeepAlive(): void {
+
+    this.hacerPing();
+
+    setInterval(() => {
+      this.hacerPing();
+    }, 7200000);
+  }
+
+  private async hacerPing(): Promise<void> {
+    try {
+
+      const { error } = await this.client
+        .schema('esquema_juegos')
+        .from('ping_keep_alive')
+        .upsert({
+          id: 1,
+          ultimo_ping: new Date().toISOString(),
+          origen: 'Angular Sala de Juegos'
+        });
+
+      if (error) throw error;
+      console.log('⚡ [Supabase] Ping Keep-Alive enviado con éxito (Sala de Juegos).');
+    } catch (err) {
+      console.warn('⚠️ [Supabase] Error en Ping Keep-Alive:', err);
+    }
+  }
+
+}
+
+================================================================================
+ARCHIVO: .\src\app\services\users.service.ts
+================================================================================
+
+import { SupabaseService, type Profile } from './supabase.service';
+import { AppUser } from '../models/user.models';
+import { Injectable } from '@angular/core';
+import { from, Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
+import { MOCK_USERS } from '../models/user.model';
+
+@Injectable({ providedIn: 'root' })
+export class UsersService {
+  constructor(private supa: SupabaseService) { }
+
+   getUsers(): Observable<AppUser[]> {
+
+    return of(MOCK_USERS).pipe(delay(300));
+  }
+
+}
+
+================================================================================
+ARCHIVO: .\src\app\services_pista\word.ts
+================================================================================
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+export interface WordEntry {
+  text: string;
+  hint: string;
+  category: string;
+  display?: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class WordService {
+  private readonly url = '/assets/data/palabras.json';
+
+  constructor(private http: HttpClient) {}
+
+  getRandomWord(): Observable<WordEntry> {
+    return this.http.get<{palabras: WordEntry[]}>(this.url).pipe(
+      map(db => {
+        const idx = Math.floor(Math.random() * db.palabras.length);
+        return db.palabras[idx];
+      })
+    );
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\services_word\word.ts
+================================================================================
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+export interface WordEntry {
+  text: string;
+  hint: string;
+  category: string;
+  display?: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class WordService {
+  private readonly url = '/assets/data/palabras.json';
+
+  constructor(private http: HttpClient) {}
+
+  getRandomWord(): Observable<WordEntry> {
+    return this.http.get<{palabras: WordEntry[]}>(this.url).pipe(
+      map(db => {
+        const idx = Math.floor(Math.random() * db.palabras.length);
+        return db.palabras[idx];
+      })
+    );
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\simple-form\simple-form.component.css
+================================================================================
+
+
+
+================================================================================
+ARCHIVO: .\src\app\simple-form\simple-form.component.html
+================================================================================
+
+<form>
+    <label for="letters">Ingresa solo letras (máximo 10 caracteres):</label>
+    <input id="letters" [formControl]="lettersControl"
+           maxlength="10"
+           (keypress)="onKeyPress($event)"
+           placeholder="Solo letras" />
+
+    <div *ngIf="lettersControl.touched && lettersControl.invalid">
+      <div *ngIf="lettersControl.errors?.['pattern']">
+        Error: Solo se permiten letras y espacios.
+      </div>
+      <div *ngIf="lettersControl.errors?.['maxlength']">
+        Error: Máximo 10 caracteres.
+      </div>
+    </div>
+  </form>
+
+================================================================================
+ARCHIVO: .\src\app\simple-form\simple-form.component.ts
+================================================================================
+
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+
+@Component({
+  selector: 'app-simple-form',
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  templateUrl: './simple-form.component.html',
+  styleUrl: './simple-form.component.css'
+
+})
+export class SimpleFormComponent {
+
+  lettersControl = new FormControl('', [
+    Validators.pattern('^[a-zA-Z ]*$'),
+    Validators.maxLength(10)
+  ]);
+
+  onKeyPress(event: KeyboardEvent) {
+    const allowedPattern = /[a-zA-Z ]/;
+    const inputChar = event.key;
+    if (!allowedPattern.test(inputChar)) {
+      event.preventDefault();
+    }
+  }
+
+}
+
+================================================================================
+ARCHIVO: .\src\app\snake\snake.component.html
+================================================================================
+
+<p>snake works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Snake Neon</h1>
+    <div class="score-board">
+      Puntos: <span>{{ puntaje }}</span>
+    </div>
+  </header>
+
+  <div class="board-container">
+    <div class="board" [style.grid-template-columns]="'repeat(' + gridSize + ', 1fr)'" [style.grid-template-rows]="'repeat(' + gridSize + ', 1fr)'">
+
+      <div class="food"
+           [style.grid-column]="comida.x + 1"
+           [style.grid-row]="comida.y + 1">
+      </div>
+
+      <div *ngFor="let segmento of snake; let isHead = first"
+           class="snake-segment"
+           [class.head]="isHead"
+           [style.grid-column]="segmento.x + 1"
+           [style.grid-row]="segmento.y + 1">
+      </div>
+
+    </div>
+
+    <div class="overlay" *ngIf="!jugando">
+      <h2 *ngIf="juegoTerminado" class="game-over-text">CRASH!</h2>
+      <button mat-flat-button color="primary" class="btn-start" (click)="comenzar()">
+        <i class="fas" [ngClass]="juegoTerminado ? 'fa-redo' : 'fa-play'"></i>
+        {{ juegoTerminado ? 'Reintentar' : 'Jugar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\snake\snake.component.scss
+================================================================================
+
+$bg-dark: #09121c;
+$neon-green: #39ff14;
+$neon-green-glow: rgba(57, 255, 20, 0.6);
+$neon-pink: #ff007f;
+$neon-pink-glow: rgba(255, 0, 127, 0.8);
+$board-bg: #050a10;
+
+.game-container {
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 20px;
+  background: $bg-dark;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(57, 255, 20, 0.1);
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.game-header {
+  margin-bottom: 20px;
+  h1 {
+    color: $neon-green;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 15px $neon-green-glow;
+    margin-bottom: 5px;
+  }
+  .score-board {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    span { color: $neon-green; text-shadow: 0 0 10px $neon-green-glow; }
+  }
+}
+
+.board-container {
+  position: relative;
+  display: inline-block;
+  border: 3px solid rgba(57, 255, 20, 0.4);
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  background: $board-bg;
+}
+
+.board {
+  display: grid;
+  width: 400px;
+  height: 400px;
+
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.snake-segment {
+  background: $neon-green;
+  box-shadow: 0 0 10px $neon-green-glow;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.5);
+  transform: scale(0.9);
+
+  &.head {
+    background: #ffffff;
+    box-shadow: 0 0 15px $neon-green, 0 0 5px white;
+    border-radius: 6px;
+  }
+}
+
+.food {
+  background: $neon-pink;
+  border-radius: 50%;
+  box-shadow: 0 0 15px $neon-pink-glow;
+  transform: scale(0.8);
+  animation: pulse 0.8s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.7); box-shadow: 0 0 10px $neon-pink-glow; }
+  100% { transform: scale(0.9); box-shadow: 0 0 20px $neon-pink-glow; }
+}
+
+.overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+
+  .game-over-text {
+    color: #ff073a;
+    font-size: 3rem;
+    text-shadow: 0 0 20px rgba(255, 7, 58, 0.8);
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+
+  .btn-start {
+    font-size: 1.2rem;
+    padding: 10px 30px;
+    background: rgba(57, 255, 20, 0.1) !important;
+    color: $neon-green !important;
+    border: 2px solid $neon-green;
+    box-shadow: inset 0 0 10px $neon-green-glow, 0 0 10px $neon-green-glow;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(57, 255, 20, 0.3) !important;
+      transform: scale(1.05);
+    }
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\snake\snake.component.ts
+================================================================================
+
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import Swal from 'sweetalert2';
+import { SupabaseService } from '../services/supabase.service';
+
+interface Coordenada {
+  x: number;
+  y: number;
+}
+
+@Component({
+  selector: 'app-snake',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule],
+  templateUrl: './snake.component.html',
+  styleUrls: ['./snake.component.scss']
+})
+export class SnakeComponent implements OnInit, OnDestroy {
+
+  gridSize = 20;
+  snake: Coordenada[] = [];
+  comida: Coordenada = { x: 0, y: 0 };
+
+  direccion: Coordenada = { x: 0, y: -1 };
+  proximaDireccion: Coordenada = { x: 0, y: -1 };
+
+  puntaje = 0;
+  jugando = false;
+  juegoTerminado = false;
+
+  gameLoop: any;
+  velocidadBase = 150;
+
+  constructor(private sb: SupabaseService) {}
+
+  ngOnInit() {
+    this.iniciarNivel();
+  }
+
+  ngOnDestroy() {
+    this.detenerJuego();
+  }
+
+  iniciarNivel() {
+
+    this.snake = [
+      { x: 10, y: 10 },
+      { x: 10, y: 11 },
+      { x: 10, y: 12 }
+    ];
+    this.direccion = { x: 0, y: -1 };
+    this.proximaDireccion = { x: 0, y: -1 };
+    this.puntaje = 0;
+    this.juegoTerminado = false;
+    this.generarComida();
+  }
+
+  comenzar() {
+    this.jugando = true;
+    this.juegoTerminado = false;
+    this.iniciarNivel();
+    this.actualizarLoop();
+  }
+
+  detenerJuego() {
+    if (this.gameLoop) clearInterval(this.gameLoop);
+    this.jugando = false;
+  }
+
+  actualizarLoop() {
+    if (this.gameLoop) clearInterval(this.gameLoop);
+
+    const velocidadActual = Math.max(50, this.velocidadBase - Math.floor(this.puntaje / 50) * 10);
+    this.gameLoop = setInterval(() => this.tick(), velocidadActual);
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyDown(event: KeyboardEvent) {
+    if (!this.jugando) return;
+
+    if (event.key === 'ArrowUp' && this.direccion.y !== 1) {
+      this.proximaDireccion = { x: 0, y: -1 };
+    } else if (event.key === 'ArrowDown' && this.direccion.y !== -1) {
+      this.proximaDireccion = { x: 0, y: 1 };
+    } else if (event.key === 'ArrowLeft' && this.direccion.x !== 1) {
+      this.proximaDireccion = { x: -1, y: 0 };
+    } else if (event.key === 'ArrowRight' && this.direccion.x !== -1) {
+      this.proximaDireccion = { x: 1, y: 0 };
+    }
+
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  tick() {
+    this.direccion = { ...this.proximaDireccion };
+    const nuevaCabeza = {
+      x: this.snake[0].x + this.direccion.x,
+      y: this.snake[0].y + this.direccion.y
+    };
+
+    if (
+      nuevaCabeza.x < 0 || nuevaCabeza.x >= this.gridSize ||
+      nuevaCabeza.y < 0 || nuevaCabeza.y >= this.gridSize
+    ) {
+      this.finalizarPartida();
+      return;
+    }
+
+    if (this.snake.some(segmento => segmento.x === nuevaCabeza.x && segmento.y === nuevaCabeza.y)) {
+      this.finalizarPartida();
+      return;
+    }
+
+    this.snake.unshift(nuevaCabeza);
+
+    if (nuevaCabeza.x === this.comida.x && nuevaCabeza.y === this.comida.y) {
+      this.puntaje += 10;
+      this.generarComida();
+      this.actualizarLoop();
+    } else {
+
+      this.snake.pop();
+    }
+  }
+
+  generarComida() {
+    let nuevaPosicion: Coordenada;
+    let sobreSerpiente = true;
+
+    while (sobreSerpiente) {
+      nuevaPosicion = {
+        x: Math.floor(Math.random() * this.gridSize),
+        y: Math.floor(Math.random() * this.gridSize)
+      };
+
+      sobreSerpiente = this.snake.some(s => s.x === nuevaPosicion.x && s.y === nuevaPosicion.y);
+    }
+
+    this.comida = nuevaPosicion!;
+  }
+
+  async finalizarPartida() {
+    this.detenerJuego();
+    this.juegoTerminado = true;
+
+    Swal.fire({
+      title: '¡Game Over!',
+      text: `Conseguiste ${this.puntaje} puntos.`,
+      icon: 'error',
+      confirmButtonText: 'Guardar Puntaje'
+    }).then(async (result) => {
+      if (result.isConfirmed && this.puntaje > 0) {
+        await this.sb.saveResult('snake', this.puntaje, { longitud: this.snake.length });
+        Swal.fire('Guardado', 'Puntaje registrado en la base de datos', 'success');
+      }
+    });
+  }
+
+  get gridArray() {
+    return Array(this.gridSize).fill(0).map((x, i) => i);
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\tetris\tetris.component.html
+================================================================================
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Auto-Tetris <span class="badge">IA</span></h1>
+    <p>Algoritmo heurístico jugando en tiempo real.</p>
+  </header>
+
+  <div class="timer-panel">
+    <i class="fas fa-stopwatch"></i> Tiempo de supervivencia:
+    <span class="time-display" [class.danger]="tiempoJugado > '05:00'">{{ tiempoJugado }}</span>
+  </div>
+
+  <div class="canvas-wrapper">
+    <canvas #tetrisCanvas></canvas>
+  </div>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\tetris\tetris.component.scss
+================================================================================
+
+$bg-dark: #09121c;
+$neon-blue: #00d2ff;
+
+.game-container {
+  max-width: 450px;
+  margin: 30px auto;
+  padding: 25px;
+  background: $bg-dark;
+  border-radius: 16px;
+  border: 2px solid #1a2a3a;
+  box-shadow: 0 0 30px rgba(0, 210, 255, 0.1);
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  color: #e2e8f0;
+}
+
+.game-header {
+  margin-bottom: 25px;
+
+  h1 {
+    color: $neon-blue;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  p {
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+
+  .badge {
+    background: #ff073a;
+    color: white;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255, 7, 58, 0.6);
+  }
+}
+
+.canvas-wrapper {
+  display: inline-block;
+  background: black;
+  padding: 5px;
+  border: 3px solid $neon-blue;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 210, 255, 0.2), inset 0 0 15px rgba(0, 210, 255, 0.2);
+
+  canvas {
+    display: block;
+    border-radius: 4px;
+  }
+}
+
+.timer-panel {
+  background: rgba(0, 210, 255, 0.05);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  border-radius: 8px;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+  display: inline-block;
+  font-size: 1.1rem;
+  color: #94a3b8;
+
+  i {
+    color: #00d2ff;
+    margin-right: 8px;
+  }
+
+  .time-display {
+    color: #39ff14;
+    font-family: 'Courier New', monospace;
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-left: 10px;
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
+
+    &.danger {
+      color: #ff073a;
+      text-shadow: 0 0 10px rgba(255, 7, 58, 0.6);
+      animation: pulse 1s infinite;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+================================================================================
+ARCHIVO: .\src\app\tetris\tetris.component.ts
+================================================================================
+
+import { Component, OnInit, AfterViewInit, OnDestroy, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+class MejorJugada {
+  rotacion!: number;
+  columna!: number;
+  fila!: number;
+  minHuecos!: number;
+  altura!: number;
+  bumpiness!: number;
+}
+
+class Tetromino {
+  pieza: number[][];
+  posicionPieza: Posicion = new Posicion(0, 0);
+  id: number;
+  colorPieza: string;
+
+  constructor(pieza: number[][], id: number, color: string) {
+    this.pieza = pieza;
+    this.id = id;
+    this.colorPieza = color;
+  }
+
+  clonar(): Tetromino {
+    const nuevaMatriz = this.clonarMatriz(this.pieza);
+    const clon = new Tetromino(nuevaMatriz, this.id, this.colorPieza);
+    clon.posicionPieza = new Posicion(this.posicionPieza.row, this.posicionPieza.col);
+    return clon;
+  }
+
+  private clonarMatriz(matriz: number[][]): number[][] {
+    return matriz.map(fila => [...fila]);
+  }
+
+  rotar(): void {
+    const f = this.pieza.length;
+    const c = this.pieza[0].length;
+
+    const rotada: number[][] = [];
+    for (let i = 0; i < c; i++) {
+      rotada[i] = new Array(f).fill(0);
+    }
+    for (let i = 0; i < f; i++) {
+      for (let j = 0; j < c; j++) {
+        rotada[j][f - 1 - i] = this.pieza[i][j];
+      }
+    }
+    this.pieza = this.clonarMatriz(rotada);
+  }
+}
+
+class Posicion {
+    row: number;
+    col: number;
+
+    constructor(row: number, col: number) {
+      this.row = row;
+      this.col = col;
+    }
+  }
+
+@Component({
+  selector: 'app-tetris',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './tetris.component.html',
+  styleUrl: './tetris.component.scss'
+})
+
+export class TetrisComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  clockTimer: any;
+  startTime: number = 0;
+  tiempoJugado: string = '00:00';
+
+  ngOnInit(): void {
+    this.initializeBoard();
+    this.inicializarPrototipos();
+    this.iniciarPartidaIA();
+  }
+
+  iniciarPartidaIA() {
+    this.startTime = Date.now();
+    this.tiempoJugado = '00:00';
+
+    if (this.timer) clearInterval(this.timer);
+    if (this.clockTimer) clearInterval(this.clockTimer);
+
+    this.generarNuevaPieza();
+
+    this.timer = setInterval(() => this.timerTick(), 50);
+    this.clockTimer = setInterval(() => this.actualizarReloj(), 1000);
+  }
+
+  actualizarReloj() {
+    const diff = Math.floor((Date.now() - this.startTime) / 1000);
+    const minutos = Math.floor(diff / 60).toString().padStart(2, '0');
+    const segundos = (diff % 60).toString().padStart(2, '0');
+    this.tiempoJugado = `${minutos}:${segundos}`;
+  }
+
+  readonly FILAS = 20;
+  readonly COLUMNAS = 10;
+  readonly tamCelda = 30;
+
+  tablero: number[][] = [];
+  piezaActual: Tetromino | null = null;
+  piezasPrototipo: Tetromino[] = [];
+  timer: any;
+
+  colores: string[] = ['black', 'cyan', 'purple', 'yellow', 'orange', 'blue', 'green', 'red'];
+
+  @ViewChild('tetrisCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+  ctx!: CanvasRenderingContext2D;
+
+  constructor() { }
+
+  ngAfterViewInit(): void {
+    const canvas = this.canvasRef.nativeElement;
+    canvas.width = this.COLUMNAS * this.tamCelda;
+    canvas.height = this.FILAS * this.tamCelda;
+    this.ctx = canvas.getContext('2d')!;
+    this.draw();
+  }
+
+  ngOnDestroy(): void {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyDown(event: KeyboardEvent) {
+    switch(event.key) {
+      case 'ArrowUp':
+        this.rotarPieza();
+        break;
+
+    }
+    this.draw();
+  }
+
+  initializeBoard(): void {
+    this.tablero = Array.from({ length: this.FILAS }, () => Array(this.COLUMNAS).fill(0));
+  }
+
+  cloneMatrix(matriz: number[][]): number[][] {
+    return matriz.map(row => [...row]);
+  }
+
+  inicializarPrototipos(): void {
+    this.piezasPrototipo = [];
+
+    const formaI: number[][] = [[1, 1, 1, 1]];
+    this.piezasPrototipo.push(new Tetromino(this.cloneMatrix(formaI), 1, 'cyan'));
+
+    const formaT: number[][] = [
+      [1, 1, 1],
+      [0, 1, 0],
+      [0, 0, 0]
+    ];
+    this.piezasPrototipo.push(new Tetromino(this.cloneMatrix(formaT), 2, 'purple'));
+
+    const formaO: number[][] = [
+      [1, 1],
+      [1, 1]
+    ];
+    this.piezasPrototipo.push(new Tetromino(this.cloneMatrix(formaO), 3, 'yellow'));
+
+    const formaL: number[][] = [
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 1, 0]
+    ];
+    this.piezasPrototipo.push(new Tetromino(this.cloneMatrix(formaL), 4, 'orange'));
+
+    const formaJ: number[][] = [
+      [0, 1, 0],
+      [0, 1, 0],
+      [1, 1, 0]
+    ];
+    this.piezasPrototipo.push(new Tetromino(this.cloneMatrix(formaJ), 5, 'blue'));
+
+    const formaS: number[][] = [
+      [0, 1, 1],
+      [1, 1, 0],
+      [0, 0, 0]
+    ];
+    this.piezasPrototipo.push(new Tetromino(this.cloneMatrix(formaS), 6, 'green'));
+
+    const formaZ: number[][] = [
+      [1, 1, 0],
+      [0, 1, 1],
+      [0, 0, 0]
+    ];
+    this.piezasPrototipo.push(new Tetromino(this.cloneMatrix(formaZ), 7, 'red'));
+  }
+
+  generarNuevaPieza(): void {
+    const indice = Math.floor(Math.random() * this.piezasPrototipo.length);
+    const prototipo = this.piezasPrototipo[indice];
+
+    this.piezaActual = new Tetromino(this.cloneMatrix(prototipo.pieza), prototipo.id, prototipo.colorPieza);
+    this.piezaActual.posicionPieza = new Posicion(0, 0);
+
+    const jugada = this.buscarMejorJugada();
+    if (jugada) {
+
+      for (let r = 0; r < jugada.rotacion; r++) {
+        this.piezaActual.rotar();
+      }
+
+      this.piezaActual.posicionPieza = new Posicion(0, jugada.columna);
+    }
+
+    if (this.colision(this.piezaActual, this.piezaActual.posicionPieza.row, this.piezaActual.posicionPieza.col)) {
+      clearInterval(this.timer);
+      clearInterval(this.clockTimer);
+
+      console.log(`¡Colapso de IA! Sobrevivió: ${this.tiempoJugado}`);
+
+      setTimeout(() => {
+        this.initializeBoard();
+        this.iniciarPartidaIA();
+      }, 2000);
+      return;
+    }
+
+  }
+
+  colision(tetromino: Tetromino, nuevaFila: number, nuevaColumna: number): boolean {
+    const pieza = tetromino.pieza;
+    const fPieza = pieza.length;
+    const cPieza = pieza[0].length;
+    for (let i = 0; i < fPieza; i++) {
+      for (let j = 0; j < cPieza; j++) {
+        if (pieza[i][j] !== 0) {
+          const filaTablero = nuevaFila + i;
+          const colTablero = nuevaColumna + j;
+          if (colTablero < 0 || colTablero >= this.COLUMNAS || filaTablero >= this.FILAS) return true;
+          if (filaTablero >= 0 && this.tablero[filaTablero][colTablero] !== 0) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  timerTick(): void {
+    this.moverAbajo();
+  }
+
+  moverAbajo(): void {
+    if (
+      this.piezaActual &&
+      !this.colision(this.piezaActual, this.piezaActual.posicionPieza.row + 1, this.piezaActual.posicionPieza.col)
+    ) {
+      this.piezaActual.posicionPieza.row++;
+    } else {
+      this.bloquearPieza();
+    }
+    this.draw();
+  }
+
+  bloquearPieza(): void {
+    if (!this.piezaActual) {
+      return;
+    }
+    const pieza = this.piezaActual.pieza;
+    const fPieza = pieza.length;
+    const cPieza = pieza[0].length;
+    for (let i = 0; i < fPieza; i++) {
+      for (let j = 0; j < cPieza; j++) {
+        if (pieza[i][j] !== 0) {
+          const filaTablero = this.piezaActual.posicionPieza.row + i;
+          const colTablero = this.piezaActual.posicionPieza.col + j;
+          if (filaTablero >= 0 && filaTablero < this.FILAS && colTablero >= 0 && colTablero < this.COLUMNAS) {
+            this.tablero[filaTablero][colTablero] = this.piezaActual.id;
+          }
+        }
+      }
+    }
+    this.borrarLineasCompletas();
+    this.generarNuevaPieza();
+  }
+
+  rotarPieza(): void {
+    if (!this.piezaActual) {
+      return;
+    }
+    const formaAnterior = this.cloneMatrix(this.piezaActual.pieza);
+    this.piezaActual.rotar();
+    if (this.colision(this.piezaActual, this.piezaActual.posicionPieza.row, this.piezaActual.posicionPieza.col)) {
+
+      this.piezaActual.pieza = formaAnterior;
+    }
+  }
+
+  fijarPiezaFantasma(tableroFantasma: number[][], tetro: Tetromino): number[][] {
+    const fPieza = tetro.pieza.length;
+    const cPieza = tetro.pieza[0].length;
+    for (let i = 0; i < fPieza; i++) {
+      for (let j = 0; j < cPieza; j++) {
+        if (tetro.pieza[i][j] !== 0) {
+          const filaTablero = tetro.posicionPieza.row + i;
+          const colTablero = tetro.posicionPieza.col + j;
+          if (filaTablero >= 0 && filaTablero < this.FILAS && colTablero >= 0 && colTablero < this.COLUMNAS) {
+            tableroFantasma[filaTablero][colTablero] = tetro.id;
+          }
+        }
+      }
+    }
+    return tableroFantasma;
+  }
+
+  mostrarTablero(tablero: number[][]): void {
+    let sb = '';
+    for (let i = 0; i < tablero.length; i++) {
+      sb += tablero[i].join(' ') + '\n';
+    }
+    alert(sb);
+  }
+
+  buscarMejorJugada(): MejorJugada | null {
+    if (!this.piezaActual) {
+      return null;
+    }
+    let mejorJugada: MejorJugada | null = null;
+    let mejorScore = -Infinity;
+
+    for (let rot = 0; rot < 4; rot++) {
+      let piezaRotada = this.piezaActual.clonar();
+      let cantRotaciones = 0;
+      for (let r = 0; r < rot; r++) {
+        piezaRotada.rotar();
+        cantRotaciones++;
+      }
+
+      const anchoPieza = piezaRotada.pieza[0].length;
+      for (let col = -anchoPieza + 1; col < this.COLUMNAS; col++) {
+        let piezaSimulada = piezaRotada.clonar();
+        piezaSimulada.posicionPieza = new Posicion(0, col);
+
+        if (this.colision(piezaSimulada, piezaSimulada.posicionPieza.row, piezaSimulada.posicionPieza.col)) {
+          continue;
+        }
+
+        while (!this.colision(piezaSimulada, piezaSimulada.posicionPieza.row + 1, piezaSimulada.posicionPieza.col)) {
+          piezaSimulada.posicionPieza.row++;
+        }
+
+        let tableroSimulado = this.clonarTablero(this.tablero);
+        tableroSimulado = this.fijarPiezaFantasma(tableroSimulado, piezaSimulada);
+
+        const { score, huecos, altura, bumpiness } = this.evaluarTablero(tableroSimulado);
+
+        if (score > mejorScore) {
+          mejorScore = score;
+          mejorJugada = {
+            rotacion: cantRotaciones,
+            columna: col,
+            fila: piezaSimulada.posicionPieza.row,
+            minHuecos: huecos,
+            altura: altura,
+            bumpiness: bumpiness
+          };
+        }
+      }
+    }
+    return mejorJugada;
+  }
+
+  evaluarTablero(tableroSimulado: number[][]): { score: number, huecos: number, altura: number, bumpiness: number } {
+    const huecos = this.contarHuecos(tableroSimulado);
+    const alturaAgregada = this.calcularAlturaAgregada(tableroSimulado);
+    const bumpiness = this.calcularBumpiness(tableroSimulado);
+
+    const score = -(huecos * 10 + alturaAgregada * 2 + bumpiness * 3);
+    return { score, huecos, altura: alturaAgregada, bumpiness };
+  }
+
+  contarHuecos(tablero: number[][]): number {
+    let huecos = 0;
+    for (let j = 0; j < this.COLUMNAS; j++) {
+      let bloqueEncontrado = false;
+      for (let i = 0; i < this.FILAS; i++) {
+        if (tablero[i][j] !== 0) {
+          bloqueEncontrado = true;
+        } else if (bloqueEncontrado) {
+          huecos++;
+        }
+      }
+    }
+    return huecos;
+  }
+
+  calcularAlturaAgregada(tablero: number[][]): number {
+    let alturaAgregada = 0;
+    for (let j = 0; j < this.COLUMNAS; j++) {
+      let alturaColumna = 0;
+      for (let i = 0; i < this.FILAS; i++) {
+        if (tablero[i][j] !== 0) {
+          alturaColumna = this.FILAS - i;
+          break;
+        }
+      }
+      alturaAgregada += alturaColumna;
+    }
+    return alturaAgregada;
+  }
+
+  calcularBumpiness(tablero: number[][]): number {
+    let alturas = new Array(this.COLUMNAS).fill(0);
+    for (let j = 0; j < this.COLUMNAS; j++) {
+      let alturaColumna = 0;
+      for (let i = 0; i < this.FILAS; i++) {
+        if (tablero[i][j] !== 0) {
+          alturaColumna = this.FILAS - i;
+          break;
+        }
+      }
+      alturas[j] = alturaColumna;
+    }
+    let bumpiness = 0;
+    for (let j = 0; j < this.COLUMNAS - 1; j++) {
+      bumpiness += Math.abs(alturas[j] - alturas[j + 1]);
+    }
+    return bumpiness;
+  }
+
+  clonarTablero(tablero: number[][]): number[][] {
+    return tablero.map(row => [...row]);
+  }
+
+  borrarLineasCompletas(): void {
+    for (let i = this.FILAS - 1; i >= 0; i--) {
+      let lineaCompleta = true;
+      for (let j = 0; j < this.COLUMNAS; j++) {
+        if (this.tablero[i][j] === 0) {
+          lineaCompleta = false;
+          break;
+        }
+      }
+      if (lineaCompleta) {
+
+        for (let k = i; k > 0; k--) {
+          for (let j = 0; j < this.COLUMNAS; j++) {
+            this.tablero[k][j] = this.tablero[k - 1][j];
+          }
+        }
+
+        for (let j = 0; j < this.COLUMNAS; j++) {
+          this.tablero[0][j] = 0;
+        }
+        i++;
+      }
+    }
+  }
+
+  draw(): void {
+    if (!this.ctx) {
+      return;
+    }
+
+    this.ctx.clearRect(0, 0, this.COLUMNAS * this.tamCelda, this.FILAS * this.tamCelda);
+
+    for (let i = 0; i < this.FILAS; i++) {
+      for (let j = 0; j < this.COLUMNAS; j++) {
+        const idCelda = this.tablero[i][j];
+        this.ctx.fillStyle = idCelda === 0 ? 'black' : this.colores[idCelda];
+        const x = j * this.tamCelda;
+        const y = i * this.tamCelda;
+        this.ctx.fillRect(x, y, this.tamCelda, this.tamCelda);
+        this.ctx.strokeStyle = 'gray';
+        this.ctx.strokeRect(x, y, this.tamCelda, this.tamCelda);
+      }
+    }
+
+    if (this.piezaActual) {
+      const pieza = this.piezaActual.pieza;
+      const fPieza = pieza.length;
+      const cPieza = pieza[0].length;
+      for (let i = 0; i < fPieza; i++) {
+        for (let j = 0; j < cPieza; j++) {
+          if (pieza[i][j] !== 0) {
+            const x = (this.piezaActual.posicionPieza.col + j) * this.tamCelda;
+            const y = (this.piezaActual.posicionPieza.row + i) * this.tamCelda;
+            this.ctx.fillStyle = this.colores[this.piezaActual.id];
+            this.ctx.fillRect(x, y, this.tamCelda, this.tamCelda);
+            this.ctx.strokeStyle = 'gray';
+            this.ctx.strokeRect(x, y, this.tamCelda, this.tamCelda);
+          }
+        }
+      }
+    }
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\user-list\user-list.component.css
+================================================================================
+
+
+
+================================================================================
+ARCHIVO: .\src\app\user-list\user-list.component.html
+================================================================================
+
+<table mat-table [dataSource]="dataSource" matSort>
+  <ng-container matColumnDef="firstName">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+    <td mat-cell *matCellDef="let u">{{ u.firstName }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="lastName">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Apellido</th>
+    <td mat-cell *matCellDef="let u">{{ u.lastName }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="email">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+    <td mat-cell *matCellDef="let u">{{ u.email }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="gamePlays">
+    <th mat-header-cell *matHeaderCellDef>Partidas</th>
+    <td mat-cell *matCellDef="let u">
+      <ng-container *ngIf="getGamePlays(u).length; else sinDatos">
+        <div *ngFor="let p of getGamePlays(u)">
+          <strong>{{ p.key }}:</strong>
+          {{ p.value.sessions }} partidas,
+          {{ p.value.wins }} ganadas,
+          {{ p.value.losses }} perdidas
+          <ng-container *ngIf="p.value.bestScore !== undefined">
+            — mejor: {{ p.value.bestScore }}
+          </ng-container>
+        </div>
+      </ng-container>
+      <ng-template #sinDatos>—</ng-template>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row        *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
+
+<mat-paginator [pageSize]="5" [pageSizeOptions]="[5,10,20]"></mat-paginator>
+
+================================================================================
+ARCHIVO: .\src\app\user-list\user-list.component.ts
+================================================================================
+
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatCardModule } from '@angular/material/card';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { AppUser, GameSessions } from '../models/user.models';
+import { UsersService } from '../services/users.service';
+
+@Component({
+  selector: 'app-user-list',
+  standalone: true,
+  imports: [CommonModule, MatCardModule, MatTableModule, MatPaginatorModule, MatSortModule, MatRippleModule],
+  templateUrl: './user-list.component.html',
+  styleUrls: ['./user-list.component.css']
+})
+export class UserListComponent implements OnInit, AfterViewInit {
+  dataSource = new MatTableDataSource<AppUser>([]);
+  displayedColumns: (keyof AppUser | 'gamePlays')[] = ['firstName', 'lastName', 'email', 'gamePlays'];
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  constructor(private usersService: UsersService) {}
+
+  ngOnInit(): void {
+    this.usersService.getUsers().subscribe((users: AppUser[]) => {
+      this.dataSource.data = users ?? [];
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort      = this.sort;
+  }
+
+  getGamePlays(user: AppUser): Array<{ key: string; value: GameSessions }> {
+    return Object.entries(user.gamePlays ?? {}).map(([key, value]) => ({ key, value }));
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\app\water-sort\water-sort.component.html
+================================================================================
+
+<p>water-sort works!</p>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1>Water Color Sort</h1>
+    <p>Ordená los líquidos de los tubos de ensayo. Movimientos: <span class="badge">{{ movimientos }}</span></p>
+  </header>
+
+  <div class="lab-bench">
+    <div class="tube-container"
+         *ngFor="let tubo of tubos; let i = index"
+         (click)="seleccionarTubo(i)"
+         [class.selected]="tuboSeleccionado === i">
+
+      <div class="test-tube">
+        <div class="liquid-segment"
+             *ngFor="let color of tubo"
+             [ngClass]="color">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button mat-stroked-button color="primary" (click)="iniciarNivel()">
+      <i class="fas fa-redo"></i> Reiniciar Nivel
+    </button>
+  </div>
+</div>
+
+================================================================================
+ARCHIVO: .\src\app\water-sort\water-sort.component.scss
+================================================================================
+
+$bg-dark: #09121c;
+$glass: rgba(255, 255, 255, 0.05);
+$glass-border: rgba(0, 210, 255, 0.4);
+
+.game-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background: $bg-dark;
+  border: 2px solid #1a2a3a;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(0, 210, 255, 0.1);
+  text-align: center;
+  color: #e2e8f0;
+  font-family: 'Inter', sans-serif;
+}
+
+.game-header {
+  margin-bottom: 40px;
+
+  h1 {
+    color: #00d2ff;
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+    margin-bottom: 10px;
+  }
+
+  .badge {
+    color: #39ff14;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+}
+
+.lab-bench {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
+  margin-bottom: 40px;
+  min-height: 250px;
+  align-items: flex-end;
+}
+
+.tube-container {
+  padding-top: 20px;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  &.selected {
+    transform: translateY(-25px);
+    .test-tube {
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), inset 0 0 15px rgba(0, 210, 255, 0.5);
+      border-color: #00d2ff;
+    }
+  }
+}
+
+.test-tube {
+  width: 50px;
+  height: 200px;
+  background: $glass;
+  border: 3px solid $glass-border;
+  border-top: 0;
+  border-bottom-left-radius: 25px;
+  border-bottom-right-radius: 25px;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -5px;
+    right: -5px;
+    height: 6px;
+    background: $glass-border;
+    border-radius: 3px;
+    z-index: 10;
+  }
+}
+
+.liquid-segment {
+  width: 100%;
+  height: 25%;
+  transition: height 0.3s ease;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.neon-blue { background: #00d2ff; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); }
+.neon-green { background: #39ff14; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); }
+.neon-pink { background: #ff00ff; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); }
+.neon-yellow { background: #ffff00; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); }
+
+.actions {
+  margin-top: 20px;
+}
+
+================================================================================
+ARCHIVO: .\src\app\water-sort\water-sort.component.ts
+================================================================================
+
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import Swal from 'sweetalert2';
+import { SupabaseService } from '../services/supabase.service';
+
+@Component({
+  selector: 'app-water-sort',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule],
+  templateUrl: './water-sort.component.html',
+  styleUrls: ['./water-sort.component.scss']
+})
+export class WaterSortComponent implements OnInit {
+
+  capacidadTubo = 4;
+
+  tubos: string[][] = [];
+
+  tuboSeleccionado: number | null = null;
+
+  movimientos = 0;
+  juegoTerminado = false;
+
+  colores = ['neon-blue', 'neon-green', 'neon-pink', 'neon-yellow'];
+
+  constructor(private sb: SupabaseService) {}
+
+  ngOnInit(): void {
+    this.iniciarNivel();
+  }
+
+  iniciarNivel() {
+    this.movimientos = 0;
+    this.juegoTerminado = false;
+    this.tuboSeleccionado = null;
+
+    this.tubos = [
+      ['neon-blue', 'neon-pink', 'neon-green', 'neon-blue'],
+      ['neon-pink', 'neon-green', 'neon-yellow', 'neon-pink'],
+      ['neon-yellow', 'neon-blue', 'neon-yellow', 'neon-green'],
+      [],
+      []
+    ];
+  }
+
+  seleccionarTubo(index: number) {
+    if (this.juegoTerminado) return;
+
+    if (this.tuboSeleccionado === null) {
+      if (this.tubos[index].length > 0) {
+        this.tuboSeleccionado = index;
+      }
+      return;
+    }
+
+    if (this.tuboSeleccionado === index) {
+      this.tuboSeleccionado = null;
+      return;
+    }
+
+    this.intentarVerter(this.tuboSeleccionado, index);
+  }
+
+  intentarVerter(origen: number, destino: number) {
+    const tuboOrigen = this.tubos[origen];
+    const tuboDestino = this.tubos[destino];
+
+    if (tuboDestino.length >= this.capacidadTubo) {
+      this.tuboSeleccionado = null;
+      return;
+    }
+
+    const colorAVerter = tuboOrigen[tuboOrigen.length - 1];
+    const colorDestinoTop = tuboDestino.length > 0 ? tuboDestino[tuboDestino.length - 1] : null;
+
+    if (colorDestinoTop === null || colorDestinoTop === colorAVerter) {
+
+      let cantidadAVerter = 0;
+      for (let i = tuboOrigen.length - 1; i >= 0; i--) {
+        if (tuboOrigen[i] === colorAVerter) cantidadAVerter++;
+        else break;
+      }
+
+      const espacioDisponible = this.capacidadTubo - tuboDestino.length;
+
+      const liquidoARecibir = Math.min(cantidadAVerter, espacioDisponible);
+
+      for (let i = 0; i < liquidoARecibir; i++) {
+        tuboOrigen.pop();
+        tuboDestino.push(colorAVerter);
+      }
+
+      this.movimientos++;
+      this.verificarVictoria();
+    }
+
+    this.tuboSeleccionado = null;
+  }
+
+  verificarVictoria() {
+
+    const gano = this.tubos.every(tubo => {
+      if (tubo.length === 0) return true;
+      if (tubo.length !== this.capacidadTubo) return false;
+      const primerColor = tubo[0];
+      return tubo.every(color => color === primerColor);
+    });
+
+    if (gano) {
+      this.juegoTerminado = true;
+      Swal.fire({
+        title: '¡Nivel Completado!',
+        text: `Lo lograste en ${this.movimientos} movimientos.`,
+        icon: 'success',
+        confirmButtonText: 'Guardar Puntaje'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+
+          const puntaje = Math.max(10, 100 - this.movimientos);
+          await this.sb.saveResult('water_sort', puntaje, { movimientos: this.movimientos });
+          Swal.fire('Guardado', 'Tu progreso ha sido registrado', 'success');
+        }
+      });
+    }
+  }
+}
+
+================================================================================
+ARCHIVO: .\src\assets\questions.json
+================================================================================
+
+[
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/neolitico.JPG",
+    "questionText": "El periodo en el que aparecieron la agricultura y los asentamientos sedentarios se llama",
+    "correctAnswer": "Neolítico",
+    "incorrectAnswers": ["Paleolítico", "Mesolítico", "Calcolítico"]
+  },
+  {
+    "theme": "arte",
+    "imageUrl": "assets/img/noche_estrellada.JPG",
+    "questionText": "¿Qué artista es conocido por su famosa obra 'La noche estrellada'?",
+    "correctAnswer": "Vincent van Gogh",
+    "incorrectAnswers": ["Pablo Picasso", "Claude Monet", "Edvard Munch"]
+  },
+
+   {
+    "theme": "historia",
+    "imageUrl": "assets/img/escritura.JPG",
+    "questionText": "¿Cuándo se inventó la escritura?",
+    "correctAnswer": "En el IV milenio A.C.",
+    "incorrectAnswers": [
+      "En el III milenio A.C.",
+      "En el V milenio A.C.",
+      "En el II milenio A.C."
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/faraones.JPG",
+    "questionText": "¿Cómo se llamaban los gobernantes del antiguo Egipto?",
+    "correctAnswer": "Faraones",
+    "incorrectAnswers": [
+      "Sultanes",
+      "Césares",
+      "Emires"
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/roma_fundacion.JPG",
+    "questionText": "Según las leyendas de la antigüedad, ¿quiénes fundaron a Roma?",
+    "correctAnswer": "Rómulo y Remo",
+    "incorrectAnswers": [
+      "Eneas y Lavinia",
+      "Hércules y Aquiles",
+      "Rómulo y Remo"
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/guerras_medicas.JPG",
+    "questionText": "¿Contra quiénes se enfrentaron los griegos en las Guerras Médicas del siglo V A.C.?",
+    "correctAnswer": "Los persas",
+    "incorrectAnswers": [
+      "Los romanos",
+      "Los cartagineses",
+      "Los fenicios"
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/alexandro_magno.JPG",
+    "questionText": "¿Cuál de estos emperadores fue alumno del filósofo griego Aristóteles?",
+    "correctAnswer": "Alejandro Magno",
+    "incorrectAnswers": [
+      "Julio César",
+      "Marco Aurelio",
+      "Nerón"
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/constantino.JPG",
+    "questionText": "El primer emperador romano que se hizo cristiano fue",
+    "correctAnswer": "Constantino I, el grande",
+    "incorrectAnswers": [
+      "Juliano el Apóstata",
+      "Teodosio I",
+      "Marco Aurelio"
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/islam.JPG",
+    "questionText": "¿En qué siglo nació el Islam y quién fue su principal profeta?",
+    "correctAnswer": "En el siglo VII y su profeta fue Mahoma",
+    "incorrectAnswers": [
+      "En el siglo VI y su profeta fue Mahoma",
+      "En el siglo VII y su profeta fue Isaías",
+      "En el siglo VIII y su profeta fue Mahoma"
+    ]
+  },
+  {
+    "theme": "historia",
+    "imageUrl": "assets/img/polvora.JPG",
+    "questionText": "¿Dónde y cuándo se inventó la pólvora?",
+    "correctAnswer": "En China en el siglo IX.",
+    "incorrectAnswers": [
+      "En Europa en el siglo XIII",
+      "En la India en el siglo VIII",
+      "En Arabia en el siglo X"
+    ]
+  },
+   {
+    "theme": "arte",
+    "imageUrl": "assets/img/fotolitografia_digital.JPG",
+    "questionText": "¿Cuál de las siguientes NO es una técnica de pintura tradicional?",
+    "correctAnswer": "Fotolitografía digital",
+    "incorrectAnswers": [
+      "Óleo sobre lienzo",
+      "Acuarela",
+      "Tempera al huevo"
+    ]
+  },
+  {
+    "theme": "arte",
+    "imageUrl": "assets/img/circulo_cromatico.JPG",
+    "questionText": "El círculo cromático primario está compuesto por:",
+    "correctAnswer": "Rojo, amarillo y azul",
+    "incorrectAnswers": [
+      "Rojo, verde y azul",
+      "Amarillo, verde y violeta",
+      "Azul, rojo y verde"
+    ]
+  },
+  {
+    "theme": "arte",
+    "imageUrl": "assets/img/sfumato.JPG",
+    "questionText": "La técnica del sfumato fue desarrollada y popularizada por:",
+    "correctAnswer": "Leonardo da Vinci",
+    "incorrectAnswers": [
+      "Miguel Ángel",
+      "Rafael Sanzio",
+      "Caravaggio"
+    ]
+  },
+  {
+    "theme": "arte",
+    "imageUrl": "assets/img/surrealismo.JPG",
+    "questionText": "¿Qué es el surrealismo?",
+    "correctAnswer": "Es un movimiento artístico que busca explorar el lado subconsciente de la mente humana, a través de imágenes oníricas",
+    "incorrectAnswers": [
+      "Un estilo que representa fielmente la realidad objetiva",
+      "Una corriente que enfatiza formas abstractas puramente geométricas",
+      "Un movimiento centrado en el expresionismo dramático"
+    ]
+  },
+  {
+    "theme": "arte",
+    "imageUrl": "assets/img/constructivismo.JPG",
+    "questionText": "¿Qué es el constructivismo?",
+    "correctAnswer": "Movimiento artístico que busca la creación de formas y figuras a partir de la aplicación de leyes matemáticas y geometría",
+    "incorrectAnswers": [
+      "Un estilo pictórico basado en el simbolismo religioso",
+      "Una corriente que enfatiza el uso de colores puros sin estructura geométrica",
+      "Un movimiento enfocado en la representación naturalista del paisaje"
+    ]
+  },
+
+   {
+    "theme": "geografia",
+    "imageUrl": "assets/img/rio_tajo.JPG",
+    "questionText": "¿Cuál es el río más largo de la Península Ibérica?",
+    "correctAnswer": "Río Tajo",
+    "incorrectAnswers": [
+      "Río Duero",
+      "Río Ebro",
+      "Río Guadalquivir"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/estado_vaticano.JPG",
+    "questionText": "¿Cuál es el país más pequeño del mundo?",
+    "correctAnswer": "Ciudad o Estado Vaticano",
+    "incorrectAnswers": [
+      "Mónaco",
+      "San Marino",
+      "Liechtenstein"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/oceanos_tierra.JPG",
+    "questionText": "¿Cuántos océanos hay en la Tierra?",
+    "correctAnswer": "5",
+    "incorrectAnswers": [
+      "4",
+      "6",
+      "7"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/poblacion_china.JPG",
+    "questionText": "¿Qué país tiene más habitantes?",
+    "correctAnswer": "China",
+    "incorrectAnswers": [
+      "India",
+      "Estados Unidos",
+      "Rusia"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/rusia.JPG",
+    "questionText": "¿Qué país es el más grande del mundo?",
+    "correctAnswer": "Rusia",
+    "incorrectAnswers": [
+      "Canadá",
+      "China",
+      "Estados Unidos"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/monte_everest.JPG",
+    "questionText": "¿Cuál es la montaña más alta del mundo?",
+    "correctAnswer": "Monte Everest",
+    "incorrectAnswers": [
+      "K2",
+      "Kangchenjunga",
+      "Lhotse"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/rio_nilo.JPG",
+    "questionText": "¿Cuál es el río más largo del mundo?",
+    "correctAnswer": "El Nilo",
+    "incorrectAnswers": [
+      "Río Amazonas",
+      "Río Yangtsé",
+      "Río Mississippi"
+    ]
+  },
+  {
+    "theme": "geografia",
+    "imageUrl": "assets/img/desierto_sahara.JPG",
+    "questionText": "¿Cuál es el desierto más grande del mundo?",
+    "correctAnswer": "El Sahara",
+    "incorrectAnswers": [
+      "Desierto de Gobi",
+      "Desierto de Arabia",
+      "Desierto de Kalahari"
+    ]
+  },
+
+    {
+    "theme": "biologia",
+    "imageUrl": "assets/img/adn.JPG",
+    "questionText": "¿Cuál es la molécula portadora de la información genética en la mayoría de los organismos?",
+    "correctAnswer": "ADN (ácido desoxirribonucleico)",
+    "incorrectAnswers": [
+      "ARN (ácido ribonucleico)",
+      "Proteína",
+      "Lípido"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/nucleo_celular.JPG",
+    "questionText": "¿Dónde se localiza principalmente el ADN dentro de la célula eucariota?",
+    "correctAnswer": "En el núcleo",
+    "incorrectAnswers": [
+      "En la mitocondria",
+      "En el retículo endoplásmico",
+      "En el citoplasma"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/mendel.JPG",
+    "questionText": "¿Quién es considerado el padre de la genética moderna por sus experimentos con guisantes?",
+    "correctAnswer": "Gregor Mendel",
+    "incorrectAnswers": [
+      "Charles Darwin",
+      "Louis Pasteur",
+      "James Watson"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/codigo_genetico.JPG",
+    "questionText": "¿Cómo se llama el conjunto de reglas que traduce la secuencia de nucleótidos en aminoácidos?",
+    "correctAnswer": "Código genético",
+    "incorrectAnswers": [
+      "Código epigenético",
+      "Código cromosómico",
+      "Código proteico"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/mutacion.JPG",
+    "questionText": "¿Qué término describe un cambio permanente en la secuencia de ADN?",
+    "correctAnswer": "Mutación",
+    "incorrectAnswers": [
+      "Recombinación",
+      "Replicación",
+      "Traducción"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/replicacion_adn.JPG",
+    "questionText": "Durante la replicación del ADN, ¿qué enzima sintetiza la nueva hebra complementaria?",
+    "correctAnswer": "ADN polimerasa",
+    "incorrectAnswers": [
+      "ARN polimerasa",
+      "Ligasa",
+      "Helicasa"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/cromosomas.JPG",
+    "questionText": "¿Cómo se llaman las estructuras compuestas de ADN y proteínas que portan la información genética?",
+    "correctAnswer": "Cromosomas",
+    "incorrectAnswers": [
+      "Ribosomas",
+      "Lisosomas",
+      "Centriolos"
+    ]
+  },
+  {
+    "theme": "biologia",
+    "imageUrl": "assets/img/clonacion.JPG",
+    "questionText": "¿Qué término describe la creación de un organismo genéticamente idéntico a otro?",
+    "correctAnswer": "Clonación",
+    "incorrectAnswers": [
+      "Transgénesis",
+      "Meiosis",
+      "Fertilización"
+    ]
+  }
+
+]
+
+================================================================================
+ARCHIVO: .\src\assets\questions_2.json
+================================================================================
+
+{
+  "questions": [
+    {
+      "theme": "historia",
+      "imageUrl": "https://example.com/img/neolitico.jpg",
+      "questionText": "El periodo en el que aparecieron la agricultura y los asentamientos sedentarios se llama",
+      "correctAnswer": "Neolítico",
+      "incorrectAnswers": [
+        "Paleolítico",
+        "Mesolítico",
+        "Calcolítico"
+      ]
+
+    },
+
+    {
+      "theme": "historia",
+      "imageUrl": "https://example.com/img/escritura.jpg",
+      "questionText": "¿Cuándo se inventó la escritura?",
+      "correctAnswer": "En el IV milenio A.C.",
+      "incorrectAnswers": [
+        "En el III milenio A.C.",
+        "En el II milenio A.C.",
+        "En el I milenio A.C."
+      ]
+    },
+    {
+      "theme": "geografia",
+      "imageUrl": "https://example.com/img/rio_tajo.jpg",
+      "questionText": "¿Cuál es el río más largo de la Península Ibérica?",
+      "correctAnswer": "Río Tajo",
+      "incorrectAnswers": [
+        "Río Guadalquivir",
+        "Río Ebro",
+        "Río Duero"
+      ]
+    },
+    {
+      "theme": "arte",
+      "imageUrl": "https://example.com/img/noche_estrellada.jpg",
+      "questionText": "¿Qué artista es conocido por su famosa obra 'La noche estrellada'?",
+      "correctAnswer": "Vincent van Gogh",
+      "incorrectAnswers": [
+        "Pablo Picasso",
+        "Claude Monet",
+        "Edvard Munch"
+      ]
+
+    }
+
+  ]
+}
+
+================================================================================
+ARCHIVO: .\src\assets\data\palabras.json
+================================================================================
+
+{
+  "palabras": [
+    { "text": "abaco", "display": "Ábaco", "hint": "Objeto para contar", "category": "sustantivo", "difficulty": 1, "tags": ["escuela","matemática"] },
+    { "text": "abdomen", "display": "Abdomen", "hint": "Parte del cuerpo", "category": "sustantivo", "difficulty": 1, "tags": ["anatomía"] },
+    { "text": "abeja", "display": "Abeja", "hint": "Insecto que produce miel", "category": "animal", "difficulty": 1 },
+    { "text": "arbol", "display": "Árbol", "hint": "Planta grande y leñosa", "category": "sustantivo", "difficulty": 1 },
+    { "text": "raton", "display": "Ratón", "hint": "Mamífero pequeño o periférico de PC", "category": "sustantivo", "difficulty": 1 },
+    { "text": "teclado", "display": "Teclado", "hint": "Periférico para escribir", "category": "sustantivo", "difficulty": 1 },
+    { "text": "ahorcado", "display": "Ahorcado", "hint": "Juego clásico de letras", "category": "sustantivo", "difficulty": 1 },
+
+    { "text": "programar", "display": "Programar", "hint": "Acción de escribir código", "category": "verbo", "difficulty": 2, "tags": ["informática"] },
+    { "text": "pintar", "display": "Pintar", "hint": "Acción artística con pinceles", "category": "verbo", "difficulty": 1, "tags": ["arte"] },
+    { "text": "correr", "display": "Correr", "hint": "Moverse rápidamente a pie", "category": "verbo", "difficulty": 1 },
+    { "text": "aprender", "display": "Aprender", "hint": "Adquirir conocimiento", "category": "verbo", "difficulty": 1 },
+
+    { "text": "espana", "display": "España", "hint": "País de Europa", "category": "pais de europa", "difficulty": 2, "tags": ["europa"] },
+    { "text": "alemania", "display": "Alemania", "hint": "País de Europa", "category": "pais de europa", "difficulty": 2 },
+    { "text": "francia", "display": "Francia", "hint": "País de Europa", "category": "pais de europa" },
+    { "text": "italia", "display": "Italia", "hint": "País de Europa", "category": "pais de europa" },
+    { "text": "portugal", "display": "Portugal", "hint": "País de Europa", "category": "pais de europa" },
+
+    { "text": "sofia", "display": "Sofía", "hint": "Nombre de persona (femenino)", "category": "nombre de persona" },
+    { "text": "martin", "display": "Martín", "hint": "Nombre de persona (masculino)", "category": "nombre de persona" },
+    { "text": "andrea", "display": "Andrea", "hint": "Nombre de persona (femenino)", "category": "nombre de persona" },
+
+    { "text": "iguazu", "display": "Iguazú", "hint": "Cataratas compartidas por AR/BR", "category": "lugar", "difficulty": 2, "tags": ["turismo"] },
+    { "text": "rio de janeiro", "display": "Río de Janeiro", "hint": "Ciudad famosa de Brasil", "category": "ciudad", "difficulty": 3 },
+    { "text": "buenos aires", "display": "Buenos Aires", "hint": "Capital de Argentina", "category": "ciudad" },
+    { "text": "cordoba", "display": "Córdoba", "hint": "Provincia/Ciudad de Argentina", "category": "ciudad" },
+
+    { "text": "python", "display": "Python", "hint": "Lenguaje de programación", "category": "tecnologia" },
+    { "text": "angular", "display": "Angular", "hint": "Framework frontend", "category": "tecnologia" },
+    { "text": "biotecnologia", "display": "Biotecnología", "hint": "Uso tecnológico de sistemas biológicos", "category": "ciencia" },
+    { "text": "genetica", "display": "Genética", "hint": "Estudio de la herencia", "category": "ciencia" }
+  ]
+}
+
+================================================================================
+ARCHIVO: .\src\environments\environment.prod.ts
+================================================================================
+
+export const environment = {
+
+    production: false,
+
+    supabaseUrl: 'https://tuwlrspqlkpqatnaintx.supabase.co',
+    supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1d2xyc3BxbGtwcWF0bmFpbnR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3NDcyOTEsImV4cCI6MjA3MTMyMzI5MX0.O5eawMd27SKifzyOvKp5fJZcvgBodxXA5LZWZdexRSA',
+
+     accesoRapidoHabilitado: true,
+    demoUsers: [
+
+        { etiqueta: 'Nacho', correo: 'nachomonllor@hotmail.com', contrasenia: '123456' },
+         { etiqueta: 'Juana', correo: 'juana@hotmail.com', contrasenia: '123456' },
+    ],
+
+    dbzBaseUrl: 'https://dragonball-api.com/api'
+
+};
+
+================================================================================
+ARCHIVO: .\src\environments\environment.ts
+================================================================================
+
+export const environment = {
+
+  production: false,
+
+  supabaseUrl: 'https://tuwlrspqlkpqatnaintx.supabase.co',
+  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1d2xyc3BxbGtwcWF0bmFpbnR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3NDcyOTEsImV4cCI6MjA3MTMyMzI5MX0.O5eawMd27SKifzyOvKp5fJZcvgBodxXA5LZWZdexRSA',
+
+  accesoRapidoHabilitado: true,
+  demoUsers: [
+    { etiqueta: 'Nacho', correo: 'nachomonllor@hotmail.com', contrasenia: '123456' },
+    { etiqueta: 'Juana', correo: 'juana@hotmail.com', contrasenia: '123456' },
+
+  ],
+  dbzBaseUrl: '/dbz',
+
+    bypassLogin: true,
+
+};

@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastermind AI Solver & Decision Tree Visualizer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- D3.js CDN for Decision Tree visualization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+        :root {
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --wood-dark: #281305;
+            --wood-mid: #4a2810;
+            --wood-light: #683c19;
+            --wood-grain: #3d200a;
+            --gold-accent: #f59e0b;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(245, 158, 11, 0.08) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(59, 130, 246, 0.08) 0px, transparent 50%);
+        }
+
+        /* Wooden Mastermind Board Styling */
+        .wood-texture {
+            background: linear-gradient(135deg, var(--wood-dark) 0%, var(--wood-mid) 25%, var(--wood-grain) 50%, var(--wood-light) 75%, var(--wood-dark) 100%);
+            border: 10px solid #1a0b02;
+            border-radius: 24px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.7),
+                inset 0 2px 4px rgba(255, 255, 255, 0.15),
+                inset 0 -4px 8px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        .wood-bevel {
+            background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.25) 100%);
+            border-radius: 16px;
+        }
+
+        /* Peg Socket & Inset Shadow */
+        .peg-socket {
+            background: radial-gradient(circle at 50% 50%, #0d0602 0%, #1a0c04 60%, #301708 100%);
+            box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.95), inset -1px -1px 3px rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .peg-socket.active-socket {
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.9), 0 0 12px var(--gold-accent);
+            border: 2px solid rgba(245, 158, 11, 0.8);
+        }
+
+        /* 3D Glossy Peg Styling */
+        .peg-3d {
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 
+                0 4px 8px rgba(0,0,0,0.6),
+                inset -3px -3px 6px rgba(0,0,0,0.45),
+                inset 3px 3px 6px rgba(255,255,255,0.7);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+        }
+
+        .peg-3d:hover {
+            transform: scale(1.12);
+            filter: brightness(1.15);
+        }
+
+        .peg-3d.selected {
+            transform: scale(1.2);
+            box-shadow: 0 0 16px rgba(255, 255, 255, 0.9), 0 4px 10px rgba(0,0,0,0.5);
+            outline: 3px solid #f59e0b;
+            outline-offset: 2px;
+        }
+
+        /* Color Gradients for 3D Pegs */
+        .peg-red { background: radial-gradient(circle at 35% 35%, #fca5a5 0%, #ef4444 50%, #991b1b 100%); }
+        .peg-green { background: radial-gradient(circle at 35% 35%, #86efac 0%, #22c55e 50%, #14532d 100%); }
+        .peg-blue { background: radial-gradient(circle at 35% 35%, #93c5fd 0%, #3b82f6 50%, #1e3a8a 100%); }
+        .peg-yellow { background: radial-gradient(circle at 35% 35%, #fef08a 0%, #eab308 50%, #713f12 100%); }
+        .peg-cyan { background: radial-gradient(circle at 35% 35%, #a5f3fc 0%, #06b6d4 50%, #164e63 100%); }
+        .peg-magenta { background: radial-gradient(circle at 35% 35%, #fbcfe8 0%, #ec4899 50%, #831843 100%); }
+        .peg-white { background: radial-gradient(circle at 35% 35%, #ffffff 0%, #cbd5e1 50%, #475569 100%); }
+        .peg-orange { background: radial-gradient(circle at 35% 35%, #ffedd5 0%, #f97316 50%, #7c2d12 100%); }
+        .peg-black { background: radial-gradient(circle at 35% 35%, #64748b 0%, #1e293b 50%, #020617 100%); }
+
+        /* Key Feedback Peg Sockets & Pegs */
+        .key-socket {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 50% 50%, #080402 0%, #180a03 100%);
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.9);
+        }
+
+        .key-peg-black {
+            background: radial-gradient(circle at 35% 35%, #64748b 0%, #0f172a 60%, #000000 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.8), inset -1px -1px 2px rgba(0,0,0,0.8), inset 1px 1px 2px rgba(255,255,255,0.4);
+        }
+
+        .key-peg-white {
+            background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e2e8f0 60%, #94a3b8 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.6), inset -1px -1px 2px rgba(0,0,0,0.4), inset 1px 1px 2px rgba(255,255,255,0.9);
+        }
+
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.8);
+        }
+
+        /* Decision Tree SVG Styles */
+        .tree-node rect {
+            rx: 8px;
+            ry: 8px;
+            transition: all 0.25s ease;
+        }
+        .tree-node:hover rect {
+            filter: brightness(1.2);
+            cursor: pointer;
+        }
+        .tree-link {
+            fill: none;
+            stroke: #475569;
+            stroke-width: 2px;
+            transition: all 0.25s ease;
+        }
+        .tree-link.active-path {
+            stroke: #f59e0b;
+            stroke-width: 3.5px;
+            stroke-dasharray: 6;
+            animation: dash 1.5s linear infinite;
+        }
+
+        @keyframes dash {
+            to { stroke-dashoffset: -24; }
+        }
+
+        /* Tactile Button Gradient */
+        .btn-gold {
+            background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35), inset 0 1px 1px rgba(255,255,255,0.4);
+        }
+        .btn-gold:hover {
+            background: linear-gradient(180deg, #fcd34d 0%, #b45309 100%);
+        }
+    </style>
+</head>
+<body class="p-2 sm:p-4 md:p-6 text-slate-100 flex flex-col min-h-screen">
+
+    <!-- Top Navigation & Header Controls -->
+    <header class="max-w-7xl mx-auto w-full mb-4 flex flex-col md:flex-row items-center justify-between gap-4 glass-panel p-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-900/40">
+                <i data-lucide="cpu" class="w-6 h-6 text-slate-950"></i>
+            </div>
+            <div>
+                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500">
+                    MASTERMIND AI SOLVER
+                </h1>
+                <p class="text-xs text-slate-400 font-medium">Classic Game Engine & Decision Tree Explainer</p>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto justify-end">
+            <!-- Mode Selector Switcher -->
+            <div class="bg-slate-900/80 p-1 rounded-xl border border-slate-700/60 flex text-xs font-semibold">
+                <button id="modeHumanBtn" onclick="setGameMode('human')" class="px-3 py-1.5 rounded-lg transition-all text-amber-400 bg-slate-800 shadow">
+                    <i data-lucide="user" class="w-3.5 h-3.5 inline mr-1"></i> Human Guesser
+                </button>
+                <button id="modeAIBtn" onclick="setGameMode('ai')" class="px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white">
+                    <i data-lucide="bot" class="w-3.5 h-3.5 inline mr-1"></i> AI Guesser
+                </button>
+                <button id="modePracticeBtn" onclick="setGameMode('practice')" class="px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 inline mr-1"></i> Practice + Hints
+                </button>
+            </div>
+
+            <!-- Sound & Settings Buttons -->
+            <button id="audioToggleBtn" onclick="toggleAudio()" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-amber-400 transition" title="Toggle Audio">
+                <i id="audioIcon" data-lucide="volume-2" class="w-4 h-4"></i>
+            </button>
+
+            <button onclick="openSettingsModal()" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-amber-400 transition" title="Game Settings">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+            </button>
+
+            <button onclick="resetGame()" class="px-4 py-2 rounded-xl btn-gold text-slate-950 font-bold text-xs flex items-center gap-1.5 transition active:scale-95">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i> New Game
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Application Grid Container -->
+    <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
+
+        <!-- LEFT COLUMN: Wooden Mastermind Board (lg:col-span-5) -->
+        <section class="lg:col-span-5 flex flex-col items-center">
+            <div class="wood-texture p-4 sm:p-6 w-full max-w-md flex flex-col items-center">
+                
+                <!-- Secret Code Shield Box -->
+                <div class="w-full bg-stone-900/90 border-2 border-amber-950/80 rounded-xl p-3 mb-5 flex items-center justify-between shadow-inner">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="lock" id="secretLockIcon" class="w-4 h-4 text-amber-500"></i>
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-200/80">Secret Code</span>
+                    </div>
+
+                    <!-- Secret Peg Sockets Container -->
+                    <div id="secretCodeContainer" class="flex gap-2">
+                        <!-- Secret pegs rendered via JS -->
+                    </div>
+
+                    <button id="revealSecretBtn" onclick="toggleRevealSecret()" class="text-xs text-slate-400 hover:text-amber-400 underline font-medium">
+                        Reveal
+                    </button>
+                </div>
+
+                <!-- 10 Playable Rows Container -->
+                <div id="boardRowsContainer" class="w-full flex flex-col gap-2.5 mb-5 wood-bevel p-3">
+                    <!-- Dynamic Rows rendered via JS -->
+                </div>
+
+                <!-- Peg Color Tray & Action Controls -->
+                <div class="w-full bg-stone-950/80 border border-amber-900/60 rounded-xl p-3 flex flex-col items-center gap-3">
+                    <div class="text-[11px] font-bold text-amber-400/90 uppercase tracking-widest flex items-center gap-1">
+                        <i data-lucide="palette" class="w-3.5 h-3.5"></i> Color Selection Palette
+                    </div>
+
+                    <!-- Color Palette Pegs -->
+                    <div id="paletteContainer" class="flex flex-wrap justify-center gap-2 sm:gap-3 py-1">
+                        <!-- Palette Pegs dynamically inserted -->
+                    </div>
+
+                    <!-- Control Action Buttons -->
+                    <div class="flex items-center justify-between w-full pt-1 border-t border-amber-900/40 text-xs">
+                        <button onclick="clearActiveRow()" class="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold border border-stone-700 flex items-center gap-1 transition">
+                            <i data-lucide="eraser" class="w-3.5 h-3.5"></i> Clear
+                        </button>
+                        
+                        <button id="aiHintTriggerBtn" onclick="requestAIHint()" class="hidden px-3 py-1.5 rounded-lg bg-indigo-900/70 hover:bg-indigo-800 text-indigo-200 border border-indigo-600 font-semibold flex items-center gap-1 transition">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i> Get Hint
+                        </button>
+
+                        <button id="submitGuessBtn" onclick="submitCurrentGuess()" class="px-5 py-1.5 rounded-lg btn-gold text-slate-950 font-extrabold flex items-center gap-1.5 shadow transition active:scale-95">
+                            <i data-lucide="check-circle-2" class="w-4 h-4"></i> Submit
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: AI Intelligence & Visualizer Dashboard (lg:col-span-7) -->
+        <section class="lg:col-span-7 flex flex-col gap-4">
+            
+            <!-- Real-Time Metrics & Reduction Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="glass-panel p-3.5 flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Remaining Pool</span>
+                    <div class="flex items-baseline gap-1.5 mt-1">
+                        <span id="statRemainingCandidates" class="text-2xl font-black text-amber-400 font-mono">1,296</span>
+                        <span id="statTotalCandidates" class="text-xs text-slate-500 font-mono">/ 1296</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                        <div id="statReductionBar" class="bg-gradient-to-r from-amber-500 to-amber-300 h-full w-full transition-all duration-500"></div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-3.5 flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Current Round</span>
+                    <div class="text-2xl font-black text-blue-400 font-mono mt-1" id="statRoundCount">1 <span class="text-xs text-slate-500">/ 10</span></div>
+                    <span class="text-[10px] text-slate-400">Attempts made</span>
+                </div>
+
+                <div class="glass-panel p-3.5 flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Max Worst-Case</span>
+                    <div class="text-2xl font-black text-emerald-400 font-mono mt-1" id="statWorstCase">256</div>
+                    <span class="text-[10px] text-slate-400">Guaranteed elimination</span>
+                </div>
+
+                <div class="glass-panel p-3.5 flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Expected Entropy</span>
+                    <div class="text-2xl font-black text-purple-400 font-mono mt-1" id="statEntropy">5.52 <span class="text-xs text-slate-500">bits</span></div>
+                    <span class="text-[10px] text-slate-400">Info gain index</span>
+                </div>
+            </div>
+
+            <!-- Tab Navigation Bar -->
+            <div class="glass-panel p-1.5 flex gap-1 text-xs font-semibold">
+                <button id="tabTreeBtn" onclick="switchTab('tree')" class="flex-1 py-2 rounded-xl transition-all bg-slate-800 text-amber-400 shadow flex items-center justify-center gap-1.5">
+                    <i data-lucide="git-fork" class="w-4 h-4"></i> Decision Tree Visualizer
+                </button>
+                <button id="tabLogicBtn" onclick="switchTab('logic')" class="flex-1 py-2 rounded-xl transition-all text-slate-400 hover:text-white flex items-center justify-center gap-1.5">
+                    <i data-lucide="brain-circuit" class="w-4 h-4"></i> Logic Breakdown
+                </button>
+                <button id="tabMatrixBtn" onclick="switchTab('matrix')" class="flex-1 py-2 rounded-xl transition-all text-slate-400 hover:text-white flex items-center justify-center gap-1.5">
+                    <i data-lucide="grid" class="w-4 h-4"></i> Remaining Candidates
+                </button>
+            </div>
+
+            <!-- Tab Content Container -->
+            <div class="glass-panel p-4 flex-grow flex flex-col min-h-[420px] relative">
+                
+                <!-- TAB 1: Decision Tree SVG Visualizer -->
+                <div id="tabContentTree" class="w-full h-full flex flex-col flex-grow">
+                    <div class="flex items-center justify-between mb-3 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                            <span class="font-bold text-slate-300">Code Candidate Partition Branching</span>
+                        </div>
+                        <span class="text-slate-400 text-[11px]">Click nodes to inspect outcome groups</span>
+                    </div>
+
+                    <!-- Tree Container (Responsive SVG) -->
+                    <div id="treeSvgContainer" class="w-full flex-grow bg-slate-950/70 border border-slate-800 rounded-xl overflow-auto min-h-[340px] relative flex items-center justify-center">
+                        <!-- SVG dynamically rendered here -->
+                    </div>
+                </div>
+
+                <!-- TAB 2: Textual & Graphical Logic Explainer -->
+                <div id="tabContentLogic" class="hidden w-full h-full flex flex-col gap-4">
+                    <div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        <span>AI Strategy Analysis (Knuth Minimax + Shannon Entropy)</span>
+                    </div>
+
+                    <div id="logicExplanationText" class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 text-xs text-slate-300 leading-relaxed font-mono space-y-3">
+                        <!-- Logic breakdown explanation populated via JS -->
+                    </div>
+
+                    <!-- Histogram Partition Chart -->
+                    <div class="flex-grow bg-slate-950/60 border border-slate-800 rounded-xl p-4 flex flex-col">
+                        <span class="text-xs font-bold text-slate-400 uppercase mb-3">Feedback Partition Histogram</span>
+                        <div id="histogramContainer" class="flex-grow flex items-end gap-2 min-h-[140px] border-b border-slate-800 pb-2">
+                            <!-- Bars dynamic -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: Candidates Matrix Explorer -->
+                <div id="tabContentMatrix" class="hidden w-full h-full flex flex-col gap-3">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-300 font-semibold">Valid Secret Codes Remaining</span>
+                        <input type="text" id="matrixSearchInput" oninput="filterMatrixView()" placeholder="Filter colors..." class="bg-slate-950 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500">
+                    </div>
+
+                    <div id="candidatesMatrixGrid" class="flex-grow bg-slate-950/80 border border-slate-800 rounded-xl p-3 overflow-y-auto max-h-[340px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                        <!-- Candidate code pills dynamically inserted -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-5 h-5"></i> Game & Solver Settings
+                </h3>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1.5">Number of Sockets (Peg Positions):</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="pegOpt4" onclick="selectPegCountSetting(4)" class="py-2 rounded-xl border font-bold text-center bg-amber-500/20 border-amber-500 text-amber-300">4 Pegs</button>
+                        <button id="pegOpt5" onclick="selectPegCountSetting(5)" class="py-2 rounded-xl border font-bold text-center bg-slate-800 border-slate-700 text-slate-400">5 Pegs</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1.5">Available Color Palette:</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="colorOpt6" onclick="selectColorCountSetting(6)" class="py-2 rounded-xl border font-bold text-center bg-amber-500/20 border-amber-500 text-amber-300">6 Colors</button>
+                        <button id="colorOpt8" onclick="selectColorCountSetting(8)" class="py-2 rounded-xl border font-bold text-center bg-slate-800 border-slate-700 text-slate-400">8 Colors</button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between py-2 border-t border-b border-slate-800">
+                    <span class="font-semibold text-slate-300">Allow Duplicate Colors in Code:</span>
+                    <input type="checkbox" id="settingAllowDuplicates" checked onchange="toggleDuplicatesSetting()" class="w-4 h-4 accent-amber-500 rounded cursor-pointer">
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="applySettingsAndReset()" class="w-full py-2.5 rounded-xl btn-gold text-slate-950 font-bold text-xs shadow transition">
+                    Apply & Restart Game
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Banner -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 z-50 glass-panel border border-amber-500/50 p-4 rounded-xl shadow-2xl flex items-center gap-3 max-w-sm pointer-events-none">
+        <i id="toastIcon" data-lucide="info" class="w-5 h-5 text-amber-400 flex-shrink-0"></i>
+        <span id="toastMessage" class="text-xs font-semibold text-slate-200"></span>
+    </div>
+
+    <script>
+        
+        // Color Definition Maps
+        const COLOR_DEFINITIONS = [
+            { id: 0, name: 'Red', class: 'peg-red', hex: '#ef4444' },
+            { id: 1, name: 'Green', class: 'peg-green', hex: '#22c55e' },
+            { id: 2, name: 'Blue', class: 'peg-blue', hex: '#3b82f6' },
+            { id: 3, name: 'Yellow', class: 'peg-yellow', hex: '#eab308' },
+            { id: 4, name: 'Cyan', class: 'peg-cyan', hex: '#06b6d4' },
+            { id: 5, name: 'Magenta', class: 'peg-magenta', hex: '#ec4899' },
+            { id: 6, name: 'White', class: 'peg-white', hex: '#f8fafc' },
+            { id: 7, name: 'Orange', class: 'peg-orange', hex: '#f97316' }
+        ];
+
+        // Game Configuration & State
+        let config = {
+            numPegs: 4,
+            numColors: 6,
+            allowDuplicates: true,
+            maxRows: 10
+        };
+
+        let gameState = {
+            mode: 'human', // 'human', 'ai', 'practice'
+            currentRow: 0,
+            secretCode: [],
+            secretRevealed: false,
+            boardHistory: [], // array of { guess: [], feedback: { black, white } }
+            activeGuess: [],
+            selectedColorId: 0,
+            candidatePool: [],
+            allPossibleCodes: [],
+            isGameOver: false,
+            activeTab: 'tree',
+            aiAnalysis: null
+        };
+
+        class WebAudioSynth {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playPegClick() {
+                if (this.muted) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(380, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(140, this.ctx.currentTime + 0.04);
+                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.04);
+            }
+
+            playSubmit() {
+                if (this.muted) return;
+                this.init();
+                [440, 554.37, 659.25].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.04);
+                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime + idx * 0.04);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.04 + 0.18);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + idx * 0.04);
+                    osc.stop(this.ctx.currentTime + idx * 0.04 + 0.18);
+                });
+            }
+
+            playWin() {
+                if (this.muted) return;
+                this.init();
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.09);
+                    gain.gain.setValueAtTime(0.25, this.ctx.currentTime + idx * 0.09);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.09 + 0.35);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + idx * 0.09);
+                    osc.stop(this.ctx.currentTime + idx * 0.09 + 0.35);
+                });
+            }
+
+            playLose() {
+                if (this.muted) return;
+                this.init();
+                const notes = [320, 290, 260, 220];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.12);
+                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime + idx * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.12 + 0.22);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + idx * 0.12);
+                    osc.stop(this.ctx.currentTime + idx * 0.12 + 0.22);
+                });
+            }
+        }
+
+        const sound = new WebAudioSynth();
+
+        function toggleAudio() {
+            sound.muted = !sound.muted;
+            const btn = document.getElementById('audioToggleBtn');
+            const icon = document.getElementById('audioIcon');
+            if (sound.muted) {
+                btn.classList.add('text-red-400');
+                icon.setAttribute('data-lucide', 'volume-x');
+            } else {
+                btn.classList.remove('text-red-400');
+                icon.setAttribute('data-lucide', 'volume-2');
+            }
+            lucide.createIcons();
+        }
+
+        
+        // Evaluate Feedback (Black & White pegs)
+        function calculateFeedback(guess, secret) {
+            let black = 0;
+            let white = 0;
+            const len = guess.length;
+            const gMatched = new Array(len).fill(false);
+            const sMatched = new Array(len).fill(false);
+
+            // Black pegs (Exact position and color)
+            for (let i = 0; i < len; i++) {
+                if (guess[i] === secret[i]) {
+                    black++;
+                    gMatched[i] = true;
+                    sMatched[i] = true;
+                }
+            }
+
+            // White pegs (Color exists in wrong position)
+            for (let i = 0; i < len; i++) {
+                if (!gMatched[i]) {
+                    for (let j = 0; j < len; j++) {
+                        if (!sMatched[j] && guess[i] === secret[j]) {
+                            white++;
+                            sMatched[j] = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return { black, white };
+        }
+
+        // Combinatorics Generator for Secret Codes Space
+        function generateAllCombinations(numPegs, numColors, allowDuplicates) {
+            const results = [];
+            
+            function backtrack(current) {
+                if (current.length === numPegs) {
+                    results.push([...current]);
+                    return;
+                }
+                for (let c = 0; c < numColors; c++) {
+                    if (!allowDuplicates && current.includes(c)) continue;
+                    current.push(c);
+                    backtrack(current);
+                    current.pop();
+                }
+            }
+
+            backtrack([]);
+            return results;
+        }
+
+        // AI Engine: Calculate Distribution & Optimal Minimax / Shannon Entropy Guess
+        function analyzeBestGuess(candidates, allCodes, numPegs) {
+            if (candidates.length === 0) return null;
+
+            if (candidates.length === 1) {
+                return {
+                    bestGuess: candidates[0],
+                    worstCaseRemaining: 1,
+                    entropy: 0,
+                    distribution: { '4_0': [candidates[0]] },
+                    isGuaranteed: true
+                };
+            }
+
+            // Optimizing standard opening moves for speed
+            const totalInitial = gameState.allPossibleCodes.length;
+            if (candidates.length === totalInitial) {
+                const defaultGuess = numPegs === 4 ? [0, 0, 1, 1] : [0, 0, 1, 1, 2];
+                return computeDistributionForGuess(defaultGuess, candidates);
+            }
+
+            // Evaluate pool (or sample if candidates count is huge)
+            const evaluationPool = candidates.length > 800 ? candidates.slice(0, 800) : candidates;
+            let bestGuess = null;
+            let minWorstCase = Infinity;
+            let maxEntropy = -1;
+            let bestDistribution = null;
+
+            for (const candidateGuess of evaluationPool) {
+                const analysis = computeDistributionForGuess(candidateGuess, candidates);
+                
+                // Prioritize minimizing maximum group size (Knuth Minimax), breaking ties with highest entropy
+                if (analysis.worstCaseRemaining < minWorstCase || 
+                   (analysis.worstCaseRemaining === minWorstCase && analysis.entropy > maxEntropy)) {
+                    minWorstCase = analysis.worstCaseRemaining;
+                    maxEntropy = analysis.entropy;
+                    bestGuess = candidateGuess;
+                    bestDistribution = analysis.distribution;
+                }
+            }
+
+            return {
+                bestGuess,
+                worstCaseRemaining: minWorstCase,
+                entropy: maxEntropy,
+                distribution: bestDistribution
+            };
+        }
+
+        function computeDistributionForGuess(guess, candidates) {
+            const distribution = {};
+            
+            for (const cand of candidates) {
+                const fb = calculateFeedback(guess, cand);
+                const key = `${fb.black}_${fb.white}`;
+                if (!distribution[key]) distribution[key] = [];
+                distribution[key].push(cand);
+            }
+
+            let worstCaseRemaining = 0;
+            let entropy = 0;
+            const total = candidates.length;
+
+            for (const key in distribution) {
+                const count = distribution[key].length;
+                if (count > worstCaseRemaining) worstCaseRemaining = count;
+                const p = count / total;
+                entropy -= p * Math.log2(p);
+            }
+
+            return {
+                guess,
+                worstCaseRemaining,
+                entropy: parseFloat(entropy.toFixed(2)),
+                distribution
+            };
+        }
+
+        
+        function initGame() {
+            gameState.allPossibleCodes = generateAllCombinations(config.numPegs, config.numColors, config.allowDuplicates);
+            gameState.candidatePool = [...gameState.allPossibleCodes];
+            gameState.currentRow = 0;
+            gameState.boardHistory = [];
+            gameState.activeGuess = new Array(config.numPegs).fill(null);
+            gameState.isGameOver = false;
+            gameState.secretRevealed = false;
+
+            // Generate Secret Code
+            if (gameState.mode === 'ai') {
+                // Secret code can be selected or random
+                gameState.secretCode = getRandomCode();
+            } else {
+                gameState.secretCode = getRandomCode();
+            }
+
+            renderPalette();
+            renderBoard();
+            renderSecretCode();
+            runAIAnalysis();
+            updateStatsUI();
+
+            if (gameState.mode === 'ai') {
+                showToast("AI Guesser Mode initialized! Click 'AI Next Step' to solve.", "info");
+            }
+        }
+
+        function getRandomCode() {
+            const all = gameState.allPossibleCodes;
+            return all[Math.floor(Math.random() * all.length)];
+        }
+
+        function renderPalette() {
+            const container = document.getElementById('paletteContainer');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < config.numColors; i++) {
+                const cDef = COLOR_DEFINITIONS[i];
+                const peg = document.createElement('div');
+                peg.className = `w-9 h-9 sm:w-10 sm:h-10 peg-3d ${cDef.class} ${gameState.selectedColorId === i ? 'selected' : ''}`;
+                peg.setAttribute('title', cDef.name);
+                peg.onclick = () => selectColor(i);
+                container.appendChild(peg);
+            }
+        }
+
+        function selectColor(colorId) {
+            gameState.selectedColorId = colorId;
+            sound.playPegClick();
+            renderPalette();
+        }
+
+        function renderSecretCode() {
+            const container = document.getElementById('secretCodeContainer');
+            const lockIcon = document.getElementById('secretLockIcon');
+            container.innerHTML = '';
+
+            if (gameState.secretRevealed || gameState.isGameOver) {
+                lockIcon.className = "w-4 h-4 text-emerald-400";
+                gameState.secretCode.forEach(cId => {
+                    const cDef = COLOR_DEFINITIONS[cId];
+                    const peg = document.createElement('div');
+                    peg.className = `w-7 h-7 peg-3d ${cDef.class}`;
+                    container.appendChild(peg);
+                });
+            } else {
+                lockIcon.className = "w-4 h-4 text-amber-500";
+                for (let i = 0; i < config.numPegs; i++) {
+                    const socket = document.createElement('div');
+                    socket.className = 'w-7 h-7 peg-socket flex items-center justify-center text-slate-600 font-bold text-xs';
+                    socket.innerText = '?';
+                    container.appendChild(socket);
+                }
+            }
+        }
+
+        function toggleRevealSecret() {
+            gameState.secretRevealed = !gameState.secretRevealed;
+            renderSecretCode();
+        }
+
+        function renderBoard() {
+            const container = document.getElementById('boardRowsContainer');
+            container.innerHTML = '';
+
+            for (let r = config.maxRows - 1; r >= 0; r--) {
+                const isCurrent = (r === gameState.currentRow) && !gameState.isGameOver;
+                const rowData = gameState.boardHistory[r];
+
+                const rowDiv = document.createElement('div');
+                rowDiv.className = `flex items-center justify-between p-2 rounded-xl border transition-all ${
+                    isCurrent 
+                        ? 'bg-amber-950/40 border-amber-500/80 shadow-md shadow-amber-950/50' 
+                        : 'bg-stone-900/60 border-amber-950/40'
+                }`;
+
+                // Row Number Label
+                const numLabel = document.createElement('span');
+                numLabel.className = `text-xs font-mono font-bold w-5 text-center ${isCurrent ? 'text-amber-400' : 'text-stone-500'}`;
+                numLabel.innerText = `${r + 1}`;
+                rowDiv.appendChild(numLabel);
+
+                // Main Peg Sockets Row
+                const pegsWrapper = document.createElement('div');
+                pegsWrapper.className = 'flex gap-2 sm:gap-3';
+
+                for (let p = 0; p < config.numPegs; p++) {
+                    const socket = document.createElement('div');
+                    socket.className = `w-8 h-8 sm:w-9 sm:h-9 peg-socket flex items-center justify-center ${isCurrent ? 'active-socket cursor-pointer' : ''}`;
+
+                    if (rowData) {
+                        // Historical Submitted Row
+                        const cDef = COLOR_DEFINITIONS[rowData.guess[p]];
+                        const peg = document.createElement('div');
+                        peg.className = `w-full h-full peg-3d ${cDef.class}`;
+                        socket.appendChild(peg);
+                    } else if (isCurrent && gameState.activeGuess[p] !== null) {
+                        // Current Active Editing Row
+                        const cDef = COLOR_DEFINITIONS[gameState.activeGuess[p]];
+                        const peg = document.createElement('div');
+                        peg.className = `w-full h-full peg-3d ${cDef.class}`;
+                        peg.onclick = () => removePegFromActiveRow(p);
+                        socket.appendChild(peg);
+                    } else if (isCurrent) {
+                        socket.onclick = () => placePegInActiveRow(p);
+                    }
+
+                    pegsWrapper.appendChild(socket);
+                }
+                rowDiv.appendChild(pegsWrapper);
+
+                // Feedback Key Peg Sockets Grid
+                const feedbackGrid = document.createElement('div');
+                feedbackGrid.className = 'grid grid-cols-2 gap-1 p-1 bg-stone-950/80 rounded-lg border border-amber-950/80 min-w-[38px] justify-items-center';
+
+                if (rowData && rowData.feedback) {
+                    const { black, white } = rowData.feedback;
+                    let bCount = black;
+                    let wCount = white;
+
+                    for (let k = 0; k < config.numPegs; k++) {
+                        const kSocket = document.createElement('div');
+                        kSocket.className = 'key-socket flex items-center justify-center';
+                        if (bCount > 0) {
+                            const keyPeg = document.createElement('div');
+                            keyPeg.className = 'w-full h-full rounded-full key-peg-black';
+                            kSocket.appendChild(keyPeg);
+                            bCount--;
+                        } else if (wCount > 0) {
+                            const keyPeg = document.createElement('div');
+                            keyPeg.className = 'w-full h-full rounded-full key-peg-white';
+                            kSocket.appendChild(keyPeg);
+                            wCount--;
+                        }
+                        feedbackGrid.appendChild(kSocket);
+                    }
+                } else {
+                    for (let k = 0; k < config.numPegs; k++) {
+                        const kSocket = document.createElement('div');
+                        kSocket.className = 'key-socket';
+                        feedbackGrid.appendChild(kSocket);
+                    }
+                }
+
+                rowDiv.appendChild(feedbackGrid);
+                container.appendChild(rowDiv);
+            }
+        }
+
+        
+        function placePegInActiveRow(position) {
+            if (gameState.isGameOver) return;
+            gameState.activeGuess[position] = gameState.selectedColorId;
+            sound.playPegClick();
+            renderBoard();
+        }
+
+        function removePegFromActiveRow(position) {
+            if (gameState.isGameOver) return;
+            gameState.activeGuess[position] = null;
+            sound.playPegClick();
+            renderBoard();
+        }
+
+        function clearActiveRow() {
+            gameState.activeGuess = new Array(config.numPegs).fill(null);
+            sound.playPegClick();
+            renderBoard();
+        }
+
+        function submitCurrentGuess() {
+            if (gameState.isGameOver) return;
+
+            // Check if active guess is complete
+            if (gameState.activeGuess.includes(null)) {
+                showToast("Please fill all peg sockets before submitting!", "warning");
+                return;
+            }
+
+            const currentGuess = [...gameState.activeGuess];
+            const feedback = calculateFeedback(currentGuess, gameState.secretCode);
+
+            // Record move
+            gameState.boardHistory[gameState.currentRow] = {
+                guess: currentGuess,
+                feedback
+            };
+
+            // Filter Candidate Pool
+            gameState.candidatePool = gameState.candidatePool.filter(cand => {
+                const fb = calculateFeedback(currentGuess, cand);
+                return fb.black === feedback.black && fb.white === feedback.white;
+            });
+
+            sound.playSubmit();
+
+            // Check Win/Lose Conditions
+            if (feedback.black === config.numPegs) {
+                gameState.isGameOver = true;
+                gameState.secretRevealed = true;
+                sound.playWin();
+                showToast("🎉 CONGRATULATIONS! You cracked the Mastermind Code!", "success");
+            } else if (gameState.currentRow >= config.maxRows - 1) {
+                gameState.isGameOver = true;
+                gameState.secretRevealed = true;
+                sound.playLose();
+                showToast("GAME OVER! You ran out of attempts.", "error");
+            } else {
+                gameState.currentRow++;
+                gameState.activeGuess = new Array(config.numPegs).fill(null);
+            }
+
+            renderBoard();
+            renderSecretCode();
+            runAIAnalysis();
+            updateStatsUI();
+        }
+
+        
+        function runAIAnalysis() {
+            gameState.aiAnalysis = analyzeBestGuess(gameState.candidatePool, gameState.allPossibleCodes, config.numPegs);
+            renderDecisionTree();
+            renderLogicExplanation();
+            renderCandidateMatrix();
+        }
+
+        function renderDecisionTree() {
+            const container = document.getElementById('treeSvgContainer');
+            container.innerHTML = '';
+
+            if (!gameState.aiAnalysis || !gameState.aiAnalysis.bestGuess) {
+                container.innerHTML = `<span class="text-xs text-slate-500 italic">No remaining candidates match feedback rules. Check feedback accuracy!</span>`;
+                return;
+            }
+
+            const { bestGuess, distribution } = gameState.aiAnalysis;
+            const totalCandidates = gameState.candidatePool.length;
+
+            // Build Tree JSON Structure
+            const treeData = {
+                name: "Current State",
+                guess: bestGuess,
+                candidatesCount: totalCandidates,
+                children: []
+            };
+
+            for (const key in distribution) {
+                const parts = key.split('_');
+                const b = parts[0];
+                const w = parts[1];
+                const group = distribution[key];
+
+                treeData.children.push({
+                    black: parseInt(b),
+                    white: parseInt(w),
+                    count: group.length,
+                    percentage: ((group.length / totalCandidates) * 100).toFixed(1),
+                    sampleCodes: group.slice(0, 3)
+                });
+            }
+
+            // D3 Tree Rendering
+            const width = container.clientWidth || 500;
+            const height = Math.max(340, treeData.children.length * 55 + 60);
+
+            const svg = d3.select('#treeSvgContainer')
+                .append('svg')
+                .attr('width', '100%')
+                .attr('height', height)
+                .attr('viewBox', `0 0 ${width} ${height}`);
+
+            const g = svg.append('g').attr('transform', 'translate(60, 20)');
+
+            // Root Node Box
+            const rootG = g.append('g').attr('transform', `translate(0, ${height / 2 - 20})`);
+            
+            rootG.append('rect')
+                .attr('width', 160)
+                .attr('height', 60)
+                .attr('x', 0)
+                .attr('y', -30)
+                .attr('rx', 12)
+                .attr('fill', '#1e293b')
+                .attr('stroke', '#f59e0b')
+                .attr('stroke-width', 2);
+
+            rootG.append('text')
+                .attr('x', 80)
+                .attr('y', -12)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#f59e0b')
+                .attr('font-size', '11px')
+                .attr('font-weight', 'bold')
+                .text(`Optimal Guess:`);
+
+            // Draw Best Guess Peg Badges in Root Node
+            bestGuess.forEach((cId, idx) => {
+                const cDef = COLOR_DEFINITIONS[cId];
+                rootG.append('circle')
+                    .attr('cx', 45 + idx * 22)
+                    .attr('cy', 10)
+                    .attr('r', 8)
+                    .attr('fill', cDef.hex)
+                    .attr('stroke', '#0f172a')
+                    .attr('stroke-width', 1.5);
+            });
+
+            // Branch Nodes & Lines
+            const childX = width > 500 ? 300 : width - 180;
+            const stepY = (height - 60) / Math.max(1, treeData.children.length);
+
+            treeData.children.forEach((child, idx) => {
+                const childY = 30 + idx * stepY;
+
+                // Connecting Curved Link Path
+                const linkPath = d3.linkHorizontal()({
+                    source: [160, height / 2 - 20],
+                    target: [childX, childY]
+                });
+
+                svg.append('path')
+                    .attr('d', linkPath)
+                    .attr('transform', 'translate(60, 20)')
+                    .attr('class', 'tree-link');
+
+                // Child Node Group
+                const childG = g.append('g')
+                    .attr('transform', `translate(${childX}, ${childY})`)
+                    .attr('class', 'tree-node');
+
+                childG.append('rect')
+                    .attr('width', 150)
+                    .attr('height', 42)
+                    .attr('y', -21)
+                    .attr('rx', 8)
+                    .attr('fill', '#0f172a')
+                    .attr('stroke', '#334155')
+                    .attr('stroke-width', 1.5);
+
+                // Feedback indicators (Black / White Dots)
+                let dotX = 15;
+                for (let i = 0; i < child.black; i++) {
+                    childG.append('circle').attr('cx', dotX).attr('cy', -5).attr('r', 4.5).attr('fill', '#1e293b').attr('stroke', '#64748b');
+                    dotX += 11;
+                }
+                for (let i = 0; i < child.white; i++) {
+                    childG.append('circle').attr('cx', dotX).attr('cy', -5).attr('r', 4.5).attr('fill', '#f8fafc').attr('stroke', '#94a3b8');
+                    dotX += 11;
+                }
+
+                childG.append('text')
+                    .attr('x', 140)
+                    .attr('y', -2)
+                    .attr('text-anchor', 'end')
+                    .attr('fill', '#e2e8f0')
+                    .attr('font-size', '11px')
+                    .attr('font-weight', 'bold')
+                    .text(`${child.count} left (${child.percentage}%)`);
+            });
+        }
+
+        function renderLogicExplanation() {
+            const textContainer = document.getElementById('logicExplanationText');
+            const histogramContainer = document.getElementById('histogramContainer');
+            
+            if (!gameState.aiAnalysis || !gameState.aiAnalysis.bestGuess) {
+                textContainer.innerText = "No mathematical breakdown available.";
+                return;
+            }
+
+            const { bestGuess, worstCaseRemaining, entropy, distribution } = gameState.aiAnalysis;
+            const currentTotal = gameState.candidatePool.length;
+            const guessNames = bestGuess.map(c => COLOR_DEFINITIONS[c].name).join(', ');
+
+            textContainer.innerHTML = `
+                <p><span class="text-amber-400 font-bold">> Selected Optimal Guess:</span> [ ${guessNames} ]</p>
+                <p><span class="text-emerald-400 font-bold">> Minimax Strategy:</span> Partitioned ${currentTotal} candidates into ${Object.keys(distribution).length} discrete feedback groups.</p>
+                <p><span class="text-purple-400 font-bold">> Worst-Case Guarantee:</span> No matter what key pegs are returned, the remaining candidate set will reduce to at most <span class="text-amber-300 font-bold">${worstCaseRemaining}</span> codes.</p>
+                <p><span class="text-blue-400 font-bold">> Information Gain Index:</span> Expected Shannon Entropy = <span class="text-amber-300 font-bold">${entropy} bits</span>.</p>
+            `;
+
+            // Render Histogram
+            histogramContainer.innerHTML = '';
+            const keys = Object.keys(distribution);
+            const maxGroup = Math.max(...keys.map(k => distribution[k].length));
+
+            keys.forEach(key => {
+                const count = distribution[key].length;
+                const heightPct = Math.max(10, (count / maxGroup) * 100);
+
+                const barWrapper = document.createElement('div');
+                barWrapper.className = 'flex-1 flex flex-col items-center h-full justify-end group relative';
+
+                const tooltip = document.createElement('div');
+                tooltip.className = 'absolute -top-8 bg-slate-800 text-[10px] text-amber-300 px-1.5 py-0.5 rounded border border-slate-700 opacity-0 group-hover:opacity-100 transition';
+                tooltip.innerText = `${key}: ${count}`;
+                barWrapper.appendChild(tooltip);
+
+                const bar = document.createElement('div');
+                bar.className = 'w-full bg-gradient-to-t from-amber-600 to-amber-400 rounded-t transition-all duration-300';
+                bar.style.height = `${heightPct}%`;
+                barWrapper.appendChild(bar);
+
+                const label = document.createElement('span');
+                label.className = 'text-[9px] font-mono text-slate-400 mt-1';
+                label.innerText = key;
+                barWrapper.appendChild(label);
+
+                histogramContainer.appendChild(barWrapper);
+            });
+        }
+
+        function renderCandidateMatrix() {
+            const grid = document.getElementById('candidatesMatrixGrid');
+            grid.innerHTML = '';
+
+            const candidates = gameState.candidatePool;
+            const sample = candidates.slice(0, 120); // Render first 120 for UI responsiveness
+
+            sample.forEach(code => {
+                const pill = document.createElement('div');
+                pill.className = 'flex items-center gap-1.5 p-1.5 rounded-lg bg-slate-900 border border-slate-800 justify-center';
+
+                code.forEach(cId => {
+                    const cDef = COLOR_DEFINITIONS[cId];
+                    const dot = document.createElement('div');
+                    dot.className = `w-3.5 h-3.5 rounded-full ${cDef.class}`;
+                    pill.appendChild(dot);
+                });
+
+                grid.appendChild(pill);
+            });
+        }
+
+        function filterMatrixView() {
+            // Matrix filter helper logic
+        }
+
+        function updateStatsUI() {
+            const remaining = gameState.candidatePool.length;
+            const total = gameState.allPossibleCodes.length;
+
+            document.getElementById('statRemainingCandidates').innerText = remaining.toLocaleString();
+            document.getElementById('statTotalCandidates').innerText = `/ ${total}`;
+            document.getElementById('statRoundCount').innerText = gameState.currentRow + 1;
+
+            const reductionPct = (remaining / total) * 100;
+            document.getElementById('statReductionBar').style.width = `${reductionPct}%`;
+
+            if (gameState.aiAnalysis) {
+                document.getElementById('statWorstCase').innerText = gameState.aiAnalysis.worstCaseRemaining;
+                document.getElementById('statEntropy').innerText = gameState.aiAnalysis.entropy;
+            }
+        }
+
+        
+        function requestAIHint() {
+            if (!gameState.aiAnalysis || !gameState.aiAnalysis.bestGuess) return;
+            gameState.activeGuess = [...gameState.aiAnalysis.bestGuess];
+            renderBoard();
+            showToast("AI optimal recommendation populated into row!", "info");
+        }
+
+        function setGameMode(mode) {
+            gameState.mode = mode;
+            
+            document.getElementById('modeHumanBtn').className = mode === 'human' ? 'px-3 py-1.5 rounded-lg transition-all text-amber-400 bg-slate-800 shadow' : 'px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white';
+            document.getElementById('modeAIBtn').className = mode === 'ai' ? 'px-3 py-1.5 rounded-lg transition-all text-amber-400 bg-slate-800 shadow' : 'px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white';
+            document.getElementById('modePracticeBtn').className = mode === 'practice' ? 'px-3 py-1.5 rounded-lg transition-all text-amber-400 bg-slate-800 shadow' : 'px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white';
+
+            const hintBtn = document.getElementById('aiHintTriggerBtn');
+            if (mode === 'practice' || mode === 'ai') {
+                hintBtn.classList.remove('hidden');
+            } else {
+                hintBtn.classList.add('hidden');
+            }
+
+            resetGame();
+        }
+
+        function switchTab(tabName) {
+            gameState.activeTab = tabName;
+            
+            document.getElementById('tabTreeBtn').className = tabName === 'tree' ? 'flex-1 py-2 rounded-xl transition-all bg-slate-800 text-amber-400 shadow flex items-center justify-center gap-1.5' : 'flex-1 py-2 rounded-xl transition-all text-slate-400 hover:text-white flex items-center justify-center gap-1.5';
+            document.getElementById('tabLogicBtn').className = tabName === 'logic' ? 'flex-1 py-2 rounded-xl transition-all bg-slate-800 text-amber-400 shadow flex items-center justify-center gap-1.5' : 'flex-1 py-2 rounded-xl transition-all text-slate-400 hover:text-white flex items-center justify-center gap-1.5';
+            document.getElementById('tabMatrixBtn').className = tabName === 'matrix' ? 'flex-1 py-2 rounded-xl transition-all bg-slate-800 text-amber-400 shadow flex items-center justify-center gap-1.5' : 'flex-1 py-2 rounded-xl transition-all text-slate-400 hover:text-white flex items-center justify-center gap-1.5';
+
+            document.getElementById('tabContentTree').classList.toggle('hidden', tabName !== 'tree');
+            document.getElementById('tabContentLogic').classList.toggle('hidden', tabName !== 'logic');
+            document.getElementById('tabContentMatrix').classList.toggle('hidden', tabName !== 'matrix');
+        }
+
+        
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        function selectPegCountSetting(num) {
+            config.numPegs = num;
+            document.getElementById('pegOpt4').className = num === 4 ? 'py-2 rounded-xl border font-bold text-center bg-amber-500/20 border-amber-500 text-amber-300' : 'py-2 rounded-xl border font-bold text-center bg-slate-800 border-slate-700 text-slate-400';
+            document.getElementById('pegOpt5').className = num === 5 ? 'py-2 rounded-xl border font-bold text-center bg-amber-500/20 border-amber-500 text-amber-300' : 'py-2 rounded-xl border font-bold text-center bg-slate-800 border-slate-700 text-slate-400';
+        }
+
+        function selectColorCountSetting(num) {
+            config.numColors = num;
+            document.getElementById('colorOpt6').className = num === 6 ? 'py-2 rounded-xl border font-bold text-center bg-amber-500/20 border-amber-500 text-amber-300' : 'py-2 rounded-xl border font-bold text-center bg-slate-800 border-slate-700 text-slate-400';
+            document.getElementById('colorOpt8').className = num === 8 ? 'py-2 rounded-xl border font-bold text-center bg-amber-500/20 border-amber-500 text-amber-300' : 'py-2 rounded-xl border font-bold text-center bg-slate-800 border-slate-700 text-slate-400';
+        }
+
+        function toggleDuplicatesSetting() {
+            config.allowDuplicates = document.getElementById('settingAllowDuplicates').checked;
+        }
+
+        function applySettingsAndReset() {
+            closeSettingsModal();
+            resetGame();
+        }
+
+        function resetGame() {
+            initGame();
+            showToast("New Mastermind Game started!", "info");
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toastNotification');
+            const msgEl = document.getElementById('toastMessage');
+            const iconEl = document.getElementById('toastIcon');
+
+            msgEl.innerText = message;
+            if (type === 'success') iconEl.setAttribute('data-lucide', 'check-circle-2');
+            else if (type === 'error') iconEl.setAttribute('data-lucide', 'alert-circle');
+            else iconEl.setAttribute('data-lucide', 'info');
+            lucide.createIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+
+        // Initialize Application on Window Load
+        window.onload = function () {
+            lucide.createIcons();
+            initGame();
+        };
+    </script>
+</body>
+</html>

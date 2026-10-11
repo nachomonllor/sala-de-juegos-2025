@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ribosome Runner: Sintetizador Genético</title>
+    <style>
+        :root {
+            --bg-dark: #0a0f1d;
+            --bg-card: rgba(18, 26, 47, 0.85);
+            --border-glow: rgba(56, 189, 248, 0.3);
+            --primary-cyan: #38bdf8;
+            --primary-magenta: #f43f5e;
+            --primary-amber: #f59e0b;
+            --primary-emerald: #10b981;
+            --primary-purple: #a855f7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-code: 'Courier New', Courier, monospace;
+            --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 60%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* App Container */
+        .app-header {
+            background: rgba(10, 15, 29, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--primary-purple), var(--primary-cyan));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+
+        .brand-title h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #ffffff, var(--primary-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-title p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-cyan);
+            font-family: var(--font-code);
+        }
+
+        .main-layout {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 1.5rem;
+        }
+
+        /* Control / Level Bar */
+        .level-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .level-info h2 {
+            font-size: 1.1rem;
+            color: var(--primary-cyan);
+            margin-bottom: 0.2rem;
+        }
+
+        .level-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-cyan), #0284c7);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
+        /* Ribosome Simulation Stage */
+        .stage-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 380px;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Ribosome Visual Subunits */
+        .ribosome-body {
+            position: relative;
+            width: 480px;
+            height: 240px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .large-subunit {
+            position: absolute;
+            top: 0;
+            width: 440px;
+            height: 120px;
+            background: radial-gradient(circle at 50% 30%, rgba(168, 85, 247, 0.35), rgba(88, 28, 135, 0.7));
+            border: 2px solid var(--primary-purple);
+            border-radius: 120px 120px 30px 30px;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.2);
+            z-index: 2;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding-bottom: 10px;
+        }
+
+        .small-subunit {
+            position: absolute;
+            bottom: 0;
+            width: 400px;
+            height: 90px;
+            background: radial-gradient(circle at 50% 70%, rgba(168, 85, 247, 0.25), rgba(88, 28, 135, 0.6));
+            border: 2px solid var(--primary-purple);
+            border-radius: 20px 20px 90px 90px;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.2);
+            z-index: 2;
+        }
+
+        /* Sites inside ribosome: E, P, A */
+        .site-label {
+            font-size: 0.8rem;
+            font-weight: 800;
+            font-family: var(--font-code);
+            color: rgba(255, 255, 255, 0.4);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            width: 90px;
+            height: 65px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .site-label.active-a {
+            border-color: var(--primary-cyan);
+            color: var(--primary-cyan);
+            background: rgba(56, 189, 248, 0.1);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .site-label.active-p {
+            border-color: var(--primary-emerald);
+            color: var(--primary-emerald);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* mRNA Strand Layer */
+        .mrna-track {
+            position: absolute;
+            top: 112px;
+            width: 100%;
+            height: 48px;
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 2px solid var(--primary-cyan);
+            border-bottom: 2px solid var(--primary-cyan);
+            display: flex;
+            align-items: center;
+            z-index: 3;
+            overflow: hidden;
+        }
+
+        .mrna-strand {
+            display: flex;
+            gap: 12px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .codon-box {
+            width: 90px;
+            height: 38px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-family: var(--font-code);
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            color: #cbd5e1;
+            transition: all 0.3s ease;
+        }
+
+        .codon-box.current-target {
+            border: 2px solid var(--primary-cyan);
+            background: rgba(56, 189, 248, 0.2);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+            transform: scale(1.08);
+        }
+
+        .codon-box.translated {
+            opacity: 0.4;
+            border-color: var(--primary-emerald);
+            color: var(--primary-emerald);
+        }
+
+        /* Polypeptide Chain Display */
+        .protein-chain-container {
+            position: absolute;
+            top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 10;
+        }
+
+        .amino-acid-bead {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #34d399, #059669);
+            border: 2px solid #a7f3d0;
+            color: #064e3b;
+            font-weight: 800;
+            font-size: 0.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .peptide-bond {
+            width: 12px;
+            height: 3px;
+            background: var(--primary-amber);
+            box-shadow: 0 0 8px var(--primary-amber);
+        }
+
+        /* tRNA Selection Deck */
+        .trna-deck-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .deck-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .deck-header h3 {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .trna-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 1rem;
+        }
+
+        .trna-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .trna-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-cyan);
+            background: rgba(56, 189, 248, 0.15);
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.25);
+        }
+
+        .trna-card:active {
+            transform: scale(0.96);
+        }
+
+        .trna-aa-tag {
+            background: var(--primary-emerald);
+            color: #022c22;
+            font-weight: 800;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .trna-clover {
+            width: 42px;
+            height: 48px;
+            border: 2px solid var(--primary-magenta);
+            border-radius: 12px 12px 4px 4px;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 4px;
+            background: rgba(244, 63, 94, 0.1);
+        }
+
+        .trna-anticodon {
+            font-family: var(--font-code);
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--primary-magenta);
+            letter-spacing: 1px;
+        }
+
+        .key-hint {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            font-size: 0.65rem;
+            font-family: var(--font-code);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 5px;
+            border-radius: 4px;
+            color: var(--text-muted);
+        }
+
+        /* Modal & Reference Drawer */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 15, 29, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: #0f172a;
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            max-width: 650px;
+            width: 90%;
+            padding: 2rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.4rem;
+            color: var(--primary-cyan);
+            margin-bottom: 0.75rem;
+        }
+
+        .modal-body {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Folding Canvas View */
+        #folding-canvas {
+            width: 100%;
+            height: 180px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 1rem;
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Feedback Toast */
+        .toast {
+            position: absolute;
+            top: 20px;
+            background: rgba(16, 185, 129, 0.9);
+            color: #022c22;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 50;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.error {
+            background: rgba(244, 63, 94, 0.9);
+            color: #4c0519;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .ribosome-body {
+                transform: scale(0.75);
+            }
+            .app-header {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-icon">R</div>
+            <div class="brand-title">
+                <h1>Ribosome Runner</h1>
+                <p>Sintetizador Genético Molecular</p>
+            </div>
+        </div>
+        <div class="game-stats">
+            <div class="stat-badge">
+                <span class="stat-label">Nivel</span>
+                <span class="stat-value" id="val-level">1</span>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-label">Puntaje</span>
+                <span class="stat-value" id="val-score">0</span>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-label">Racha</span>
+                <span class="stat-value" id="val-streak">0x</span>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-label">Energía ATP</span>
+                <span class="stat-value" id="val-atp">100%</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-layout">
+
+        <!-- Level Info & Code Drawer Button -->
+        <section class="level-card">
+            <div class="level-info">
+                <h2 id="lvl-title">Nivel 1: Iniciación y Traducción Básica</h2>
+                <p id="lvl-desc">Identificá el codón de inicio (AUG) y emparejá los ARNt complementarios correspondientes.</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary" id="btn-code-table">📖 Código Genético</button>
+                <button class="btn btn-secondary" id="btn-restart">🔄 Reiniciar</button>
+            </div>
+        </section>
+
+        <!-- Stage Area: Ribosome & mRNA Simulation -->
+        <section class="stage-container" id="stage">
+            <div class="toast" id="toast">¡Par Complementario Correcto! +150 ATP</div>
+
+            <!-- Protein Chain Layer -->
+            <div class="protein-chain-container" id="protein-chain">
+                <!-- Amino acids appended dynamically -->
+            </div>
+
+            <!-- Ribosome Subunits Structure -->
+            <div class="ribosome-body">
+                <div class="large-subunit">
+                    <div class="site-label">E<span style="font-size:0.6rem; font-weight:normal;">Salida</span></div>
+                    <div class="site-label active-p" id="site-p">P<span style="font-size:0.6rem; font-weight:normal;">Peptidil</span></div>
+                    <div class="site-label active-a" id="site-a">A<span style="font-size:0.6rem; font-weight:normal;">Aminoacil</span></div>
+                </div>
+
+                <!-- mRNA Strand -->
+                <div class="mrna-track">
+                    <div class="mrna-strand" id="mrna-strand">
+                        <!-- Codons injected via JS -->
+                    </div>
+                </div>
+
+                <div class="small-subunit"></div>
+            </div>
+        </section>
+
+        <!-- tRNA Deck / Selection Bar -->
+        <section class="trna-deck-container">
+            <div class="deck-header">
+                <h3>Seleccioná el ARNt con el Anticodón Complementario</h3>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Usa las teclas [1] - [4] o haz clic</span>
+            </div>
+            <div class="trna-cards-grid" id="trna-deck">
+                <!-- tRNA Cards generated here -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for Level Finish & Folding -->
+    <div class="modal-overlay" id="modal-finish">
+        <div class="modal-box">
+            <h2 class="modal-title" id="finish-title">🎉 ¡Traducción Completada!</h2>
+            <div class="modal-body">
+                <p id="finish-desc">La cadena polipeptídica ha sido sintetizada con éxito y está ingresando al proceso de plegamiento tridimensional.</p>
+                <canvas id="folding-canvas"></canvas>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button class="btn" id="btn-next-level">Siguiente Nivel 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Genetic Code Reference Table -->
+    <div class="modal-overlay" id="modal-code">
+        <div class="modal-box" style="max-width: 750px;">
+            <h2 class="modal-title">Tabla del Código Genético (Codón ➔ Aminoácido)</h2>
+            <div class="modal-body" style="max-height: 350px; overflow-y: auto; font-family: var(--font-code); font-size: 0.85rem;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; text-align: center;">
+                    <div style="background: rgba(255,255,255,0.05); padding: 0.4rem; border-radius: 4px;"><b>AUG</b>: Met (Inicio)</div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 0.4rem; border-radius: 4px;"><b>GCU</b>: Ala</div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 0.4rem; border-radius: 4px;"><b>UUU</b>: Phe</div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 0.4rem; border-radius: 4px;"><b>CAU</b>: His</div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 0.4rem; border-radius: 4px;"><b>CAG</b>: Gln</div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 0.4rem; border-radius: 4px;"><b>GGU</b>: Gly</div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 0.4rem; border-radius: 4px;"><b>UAC</b>: Tyr</div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 0.4rem; border-radius: 4px;"><b>UAA / UAG</b>: STOP</div>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">
+                    <b>Regla de Complementariedad ARN:</b> A ⟷ U | C ⟷ G
+                </p>
+            </div>
+            <div style="display: flex; justify-content: flex-end;">
+                <button class="btn btn-secondary" id="btn-close-code">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio Synthesizer (Web Audio API)
+        const AudioFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+            playMatch() {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, this.ctx.currentTime + 0.15); // E5
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.2);
+            },
+            playError() {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(90, this.ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
+            }
+        };
+
+        // Genetic Dictionary & Complement Mapping
+        const GENETIC_CODE = {
+            'AUG': 'Met', 'GCU': 'Ala', 'UUU': 'Phe', 'CAU': 'His',
+            'CAG': 'Gln', 'GGU': 'Gly', 'UAC': 'Tyr', 'UAA': 'STOP', 'UAG': 'STOP'
+        };
+
+        const COMPLEMENT = { 'A': 'U', 'U': 'A', 'C': 'G', 'G': 'C' };
+
+        function getAnticodon(codon) {
+            return codon.split('').map(b => COMPLEMENT[b] || 'A').join('');
+        }
+
+        // Levels Config
+        const LEVELS = [
+            {
+                id: 1,
+                title: "Nivel 1: Iniciación y Traducción Básica",
+                desc: "Reconocé el codón de inicio (AUG) e iniciá la síntesis con los ARNt complementarios.",
+                mrna: ['AUG', 'GCU', 'UUU', 'CAU', 'UAA']
+            },
+            {
+                id: 2,
+                title: "Nivel 2: Elongación Avanzada",
+                desc: "Traducción de cadena continua con mayor diversidad de codones.",
+                mrna: ['AUG', 'CAG', 'GGU', 'GCU', 'UAC', 'UUU', 'UAA']
+            },
+            {
+                id: 3,
+                title: "Nivel 3: Expresión Genética de Proteína Compleja",
+                desc: "Sintetizá una proteína completa optimizando el consumo de ATP.",
+                mrna: ['AUG', 'GCU', 'CAG', 'UUU', 'GGU', 'CAU', 'UAC', 'GCU', 'UAA']
+            }
+        ];
+
+        // Game State Machine
+        let state = {
+            levelIdx: 0,
+            codonIdx: 0,
+            score: 0,
+            streak: 0,
+            atp: 100,
+            proteinChain: [],
+            currentMRNA: [],
+            deckOptions: []
+        };
+
+        // DOM Elements
+        const elValLevel = document.getElementById('val-level');
+        const elValScore = document.getElementById('val-score');
+        const elValStreak = document.getElementById('val-streak');
+        const elValAtp = document.getElementById('val-atp');
+        const elLvlTitle = document.getElementById('lvl-title');
+        const elLvlDesc = document.getElementById('lvl-desc');
+        const elMrnaStrand = document.getElementById('mrna-strand');
+        const elProteinChain = document.getElementById('protein-chain');
+        const elTrnaDeck = document.getElementById('trna-deck');
+        const elToast = document.getElementById('toast');
+        const elModalFinish = document.getElementById('modal-finish');
+        const elModalCode = document.getElementById('modal-code');
+
+        // Init Game
+        function initLevel(lvlIdx) {
+            state.levelIdx = lvlIdx;
+            state.codonIdx = 0;
+            state.proteinChain = [];
+            state.currentMRNA = LEVELS[lvlIdx].mrna;
+
+            elLvlTitle.textContent = LEVELS[lvlIdx].title;
+            elLvlDesc.textContent = LEVELS[lvlIdx].desc;
+            elValLevel.textContent = lvlIdx + 1;
+
+            renderMRNA();
+            renderProteinChain();
+            setupCodonStep();
+        }
+
+        function renderMRNA() {
+            elMrnaStrand.innerHTML = '';
+            state.currentMRNA.forEach((codon, idx) => {
+                const box = document.createElement('div');
+                box.className = `codon-box ${idx === state.codonIdx ? 'current-target' : ''} ${idx < state.codonIdx ? 'translated' : ''}`;
+                box.textContent = codon;
+                elMrnaStrand.appendChild(box);
+            });
+
+            // Slide mRNA position
+            const offset = -(state.codonIdx * 102);
+            elMrnaStrand.style.transform = `translateX(calc(-50% + ${offset}px))`;
+        }
+
+        function renderProteinChain() {
+            elProteinChain.innerHTML = '';
+            state.proteinChain.forEach((aa, idx) => {
+                const bead = document.createElement('div');
+                bead.className = 'amino-acid-bead';
+                bead.textContent = aa;
+                elProteinChain.appendChild(bead);
+
+                if (idx < state.proteinChain.length - 1) {
+                    const bond = document.createElement('div');
+                    bond.className = 'peptide-bond';
+                    elProteinChain.appendChild(bond);
+                }
+            });
+        }
+
+        function setupCodonStep() {
+            if (state.codonIdx >= state.currentMRNA.length) {
+                finishLevel();
+                return;
+            }
+
+            const activeCodon = state.currentMRNA[state.codonIdx];
+            const correctAnticodon = getAnticodon(activeCodon);
+            const correctAA = GENETIC_CODE[activeCodon];
+
+            // Build distractor options
+            const distractorCodons = Object.keys(GENETIC_CODE).filter(c => c !== activeCodon);
+            shuffleArray(distractorCodons);
+
+            const options = [
+                { anticodon: correctAnticodon, aa: correctAA, correct: true }
+            ];
+
+            for (let i = 0; i < 3; i++) {
+                const c = distractorCodons[i];
+                options.push({
+                    anticodon: getAnticodon(c),
+                    aa: GENETIC_CODE[c],
+                    correct: false
+                });
+            }
+
+            shuffleArray(options);
+            state.deckOptions = options;
+            renderDeck();
+            renderMRNA();
+        }
+
+        function renderDeck() {
+            elTrnaDeck.innerHTML = '';
+            state.deckOptions.forEach((opt, idx) => {
+                const card = document.createElement('div');
+                card.className = 'trna-card';
+                card.innerHTML = `
+                    <span class="key-hint">[${idx + 1}]</span>
+                    <div class="trna-aa-tag">${opt.aa}</div>
+                    <div class="trna-clover">
+                        <span class="trna-anticodon">${opt.anticodon}</span>
+                    </div>
+                `;
+                card.addEventListener('click', () => handleOptionSelect(opt));
+                elTrnaDeck.appendChild(card);
+            });
+        }
+
+        function handleOptionSelect(opt) {
+            if (opt.correct) {
+                AudioFX.playMatch();
+                showToast("¡Complementariedad Correcta! +100 PTS", false);
+                state.score += 100 + (state.streak * 20);
+                state.streak++;
+                
+                const activeCodon = state.currentMRNA[state.codonIdx];
+                const aa = GENETIC_CODE[activeCodon];
+                if (aa !== 'STOP') {
+                    state.proteinChain.push(aa);
+                }
+
+                state.codonIdx++;
+                updateStats();
+                renderProteinChain();
+                setupCodonStep();
+            } else {
+                AudioFX.playError();
+                showToast("❌ Mismatch Codón-Anticodon", true);
+                state.streak = 0;
+                state.atp = Math.max(0, state.atp - 15);
+                updateStats();
+                document.getElementById('stage').classList.add('shake');
+                setTimeout(() => document.getElementById('stage').classList.remove('shake'), 400);
+            }
+        }
+
+        function updateStats() {
+            elValScore.textContent = state.score;
+            elValStreak.textContent = `${state.streak}x`;
+            elValAtp.textContent = `${state.atp}%`;
+        }
+
+        function showToast(msg, isError) {
+            elToast.textContent = msg;
+            elToast.className = `toast show ${isError ? 'error' : ''}`;
+            setTimeout(() => elToast.className = 'toast', 1800);
+        }
+
+        function finishLevel() {
+            elModalFinish.classList.add('active');
+            drawProteinFoldingAnimation();
+        }
+
+        function drawProteinFoldingAnimation() {
+            const canvas = document.getElementById('folding-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+
+            let angle = 0;
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+
+                const count = state.proteinChain.length;
+                ctx.beginPath();
+                for (let i = 0; i < count; i++) {
+                    const r = 35 + Math.sin(angle + i) * 15;
+                    const a = (i / count) * Math.PI * 2 + angle * 0.5;
+                    const x = Math.cos(a) * r;
+                    const y = Math.sin(a) * r;
+
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+
+                // Draw beads
+                for (let i = 0; i < count; i++) {
+                    const r = 35 + Math.sin(angle + i) * 15;
+                    const a = (i / count) * Math.PI * 2 + angle * 0.5;
+                    const x = Math.cos(a) * r;
+                    const y = Math.sin(a) * r;
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, 10, 0, Math.PI * 2);
+                    ctx.fillStyle = '#10b981';
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+                angle += 0.03;
+                if (elModalFinish.classList.contains('active')) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('btn-next-level').addEventListener('click', () => {
+            elModalFinish.classList.remove('active');
+            if (state.levelIdx + 1 < LEVELS.length) {
+                initLevel(state.levelIdx + 1);
+            } else {
+                alert("🏆 ¡Felicitaciones Gant! Has completado todos los niveles de síntesis proteica.");
+                initLevel(0);
+            }
+        });
+
+        document.getElementById('btn-restart').addEventListener('click', () => initLevel(state.levelIdx));
+        document.getElementById('btn-code-table').addEventListener('click', () => elModalCode.classList.add('active'));
+        document.getElementById('btn-close-code').addEventListener('click', () => elModalCode.classList.remove('active'));
+
+        // Keyboard Controls (1-4)
+        window.addEventListener('keydown', (e) => {
+            if (['1', '2', '3', '4'].includes(e.key)) {
+                const idx = parseInt(e.key) - 1;
+                if (state.deckOptions[idx]) {
+                    handleOptionSelect(state.deckOptions[idx]);
+                }
+            }
+        });
+
+        // Start
+        initLevel(0);
+    </script>
+</body>
+</html>

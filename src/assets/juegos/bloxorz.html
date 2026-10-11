@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloxorz 3D - Block Escape Puzzle</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bloxorz: {
+                            bg: '#090d16',
+                            card: '#131b2e',
+                            accent: '#f59e0b',
+                            fragile: '#f97316',
+                            goal: '#38bdf8',
+                            bridge: '#06b6d4'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            background-color: #090d16;
+            color: #f8fafc;
+        }
+
+        .font-mono-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: rgba(19, 27, 46, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Touch D-Pad styling */
+        .dpad-btn {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            box-shadow: 3px 3px 8px #05080f, -2px -2px 6px #1e293b;
+        }
+        .dpad-btn:active {
+            box-shadow: inset 2px 2px 5px #05080f, inset -2px -2px 5px #1e293b;
+            transform: scale(0.95);
+        }
+
+        .palette-btn-active {
+            outline: 3px solid #38bdf8;
+            outline-offset: 2px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- Navigation Header -->
+    <header class="glass-panel sticky top-0 z-30 px-4 py-3 border-b border-slate-800 shadow-2xl">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                    <span class="text-2xl">🧱</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-wide bg-gradient-to-r from-amber-400 via-orange-400 to-cyan-400 bg-clip-text text-transparent">
+                        BLOXORZ <span class="text-xs px-2 py-0.5 rounded-full bg-amber-950 border border-amber-700 text-amber-400 ml-1 font-sans">3D ESCAPE</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Puzle 3D de Bloque y Rotación en Cuadrícula</p>
+                </div>
+            </div>
+
+            <!-- Top Controls & View Switcher -->
+            <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <div class="bg-slate-900 border border-slate-800 p-1 rounded-xl flex items-center gap-1">
+                    <button id="tab-play" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-amber-500 text-slate-950 shadow-md">
+                        🎮 Jugar
+                    </button>
+                    <button id="tab-editor" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800">
+                        🛠️ Editor
+                    </button>
+                    <button id="tab-guide" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800">
+                        ❓ Reglas
+                    </button>
+                </div>
+
+                <button id="btn-sound" title="Sonido" class="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors">
+                    <span id="sound-icon" class="text-lg">🔊</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-3 sm:p-5 flex flex-col justify-center">
+
+        <!-- GAME VIEW -->
+        <div id="view-play" class="flex flex-col lg:flex-row gap-5 items-stretch justify-center">
+            
+            <!-- 3D Viewport Container -->
+            <div class="glass-panel rounded-3xl p-4 flex flex-col items-center justify-between shadow-2xl flex-1 relative min-h-[440px]">
+                
+                <!-- HUD Bar -->
+                <div class="w-full flex flex-wrap items-center justify-between gap-2 mb-2 px-2 z-10">
+                    <div class="flex items-center gap-2">
+                        <label for="level-select" class="text-xs font-bold text-slate-400">Nivel:</label>
+                        <select id="level-select" class="bg-slate-900 text-amber-400 font-bold text-sm rounded-xl px-3 py-1.5 border border-slate-700 outline-none focus:border-amber-500 cursor-pointer shadow-inner">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1 text-center">
+                            <span class="text-[10px] text-slate-400 block font-bold uppercase">Movimientos</span>
+                            <span id="hud-moves" class="text-base font-extrabold text-cyan-400 font-mono-code">0</span>
+                        </div>
+                        <div class="bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1 text-center">
+                            <span class="text-[10px] text-slate-400 block font-bold uppercase">Tiempo</span>
+                            <span id="hud-timer" class="text-base font-extrabold text-amber-400 font-mono-code">00:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ThreeJS Canvas Container -->
+                <div id="canvas-container" class="relative w-full flex-1 flex items-center justify-center min-h-[360px] rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
+                    <!-- Canvas inserted by JS -->
+                </div>
+
+                <!-- Bottom Game Toolbar -->
+                <div class="w-full bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 flex items-center justify-between gap-3 shadow-lg mt-3 z-10">
+                    <div class="flex items-center gap-2">
+                        <button id="btn-undo" class="flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-cyan-300 font-bold text-xs rounded-xl border border-slate-700 transition-all shadow-md">
+                            <span>↩️</span>
+                            <span>Deshacer (Z)</span>
+                        </button>
+                        <button id="btn-reset" class="flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-red-950/40 hover:text-red-300 active:scale-95 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 hover:border-red-800/50 transition-all shadow-md">
+                            <span>🔄</span>
+                            <span>Reiniciar (R)</span>
+                        </button>
+                    </div>
+
+                    <div class="text-xs text-slate-500 hidden sm:block italic">
+                        Usa Flechas / WASD para rodar el bloque
+                    </div>
+                </div>
+            </div>
+
+            <!-- Touch D-Pad Sidebar -->
+            <div class="glass-panel rounded-3xl p-5 flex flex-col items-center justify-center gap-4 lg:w-72 shadow-2xl">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Controles Táctiles</h3>
+                
+                <div class="grid grid-cols-3 gap-2 w-48 h-48">
+                    <div></div>
+                    <button id="btn-up" class="dpad-btn rounded-2xl flex items-center justify-center text-2xl text-slate-200 hover:text-white transition-all">▲</button>
+                    <div></div>
+                    <button id="btn-left" class="dpad-btn rounded-2xl flex items-center justify-center text-2xl text-slate-200 hover:text-white transition-all">◀</button>
+                    <div class="flex items-center justify-center text-amber-500 font-extrabold text-xs">BLOXORZ</div>
+                    <button id="btn-right" class="dpad-btn rounded-2xl flex items-center justify-center text-2xl text-slate-200 hover:text-white transition-all">▶</button>
+                    <div></div>
+                    <button id="btn-down" class="dpad-btn rounded-2xl flex items-center justify-center text-2xl text-slate-200 hover:text-white transition-all">▼</button>
+                    <div></div>
+                </div>
+
+                <p class="text-[11px] text-slate-400 text-center leading-relaxed">
+                    Haz caer el bloque <b>VERTICALMENTE</b> sobre el orificio de meta 🎯 sin salirte de la plataforma.
+                </p>
+            </div>
+        </div>
+
+        <!-- LEVEL EDITOR VIEW -->
+        <div id="view-editor" class="hidden flex-col gap-5">
+            <div class="glass-panel rounded-3xl p-5 shadow-2xl flex flex-col gap-4">
+                
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                            <span>🛠️ Creador & Editor de Niveles</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Pinta baldosas, interruptores y la meta para crear tus desafíos</p>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <div class="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-xl border border-slate-800 text-xs">
+                            <span class="text-slate-400 font-bold">Ancho:</span>
+                            <input id="editor-w" type="number" min="6" max="15" value="10" class="w-12 bg-slate-800 text-center font-bold text-amber-300 rounded border border-slate-700 outline-none">
+                            <span class="text-slate-400 font-bold ml-2">Alto:</span>
+                            <input id="editor-h" type="number" min="6" max="15" value="10" class="w-12 bg-slate-800 text-center font-bold text-amber-300 rounded border border-slate-700 outline-none">
+                            <button id="btn-resize-grid" class="ml-2 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded font-bold text-xs">Cambiar Tamaño</button>
+                        </div>
+
+                        <button id="btn-test-level" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/30 transition-all active:scale-95">
+                            ▶ Probar Nivel
+                        </button>
+                        <button id="btn-export-json" class="px-4 py-2 bg-cyan-700 hover:bg-cyan-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all active:scale-95">
+                            📄 Exportar / Importar JSON
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tile Palette Selection -->
+                <div class="flex items-center justify-center gap-2 flex-wrap bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+                    <span class="text-xs font-bold text-slate-400 mr-2">Herramienta:</span>
+                    
+                    <button data-tile="1" class="palette-btn palette-btn-active flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-slate-200">
+                        <span>⬜</span> Normal (1)
+                    </button>
+                    <button data-tile="F" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-orange-400">
+                        <span>🟧</span> Frágil (F)
+                    </button>
+                    <button data-tile="G" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-cyan-400">
+                        <span>🎯</span> Meta (G)
+                    </button>
+                    <button data-tile="O" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-blue-400">
+                        <span>⭕</span> Botón Suave (O)
+                    </button>
+                    <button data-tile="X" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-red-400">
+                        <span>❌</span> Botón Pesado (X)
+                    </button>
+                    <button data-tile="B" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-teal-300">
+                        <span>🌉</span> Puente (B)
+                    </button>
+                    <button data-tile="S" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-amber-400">
+                        <span>🤖</span> Inicio (S)
+                    </button>
+                    <button data-tile="0" class="palette-btn flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-slate-500">
+                        <span>⬛</span> Vacío (0)
+                    </button>
+                </div>
+
+                <!-- 2D Interactive Grid Canvas for Editor -->
+                <div class="flex items-center justify-center my-2">
+                    <canvas id="editor-canvas" class="rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl cursor-pointer"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- GUIDE / RULES VIEW -->
+        <div id="view-guide" class="hidden flex-col gap-5">
+            <div class="glass-panel rounded-3xl p-6 shadow-2xl max-w-3xl mx-auto flex flex-col gap-4">
+                <h2 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-2">📜 Reglas del Juego Bloxorz</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed text-slate-300">
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                        <h3 class="font-bold text-white text-sm mb-1">🎯 El Objetivo</h3>
+                        <p>Haz rodar el bloque de $1 \times 1 \times 2$ por la plataforma hasta hacerlo caer **de pie (verticalmente)** en el orificio de meta 🎯.</p>
+                    </div>
+
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                        <h3 class="font-bold text-orange-400 text-sm mb-1">🟧 Baldozas Frágiles</h3>
+                        <p>Las baldosas naranjas soportan al bloque tumbado horizontalmente. Si el bloque se pone **vertical de pie** sobre una baldosa frágil, se romperá y caerás al vacío.</p>
+                    </div>
+
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                        <h3 class="font-bold text-blue-400 text-sm mb-1">⭕ Botón Suave (Círculo)</h3>
+                        <p>Se activa cuando **cualquier parte** del bloque entra en contacto con él. Alterna el estado de los puentes conectados.</p>
+                    </div>
+
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                        <h3 class="font-bold text-red-400 text-sm mb-1">❌ Botón Pesado (Cruz)</h3>
+                        <p>Requiere todo el peso del bloque: solo se activa cuando el bloque se coloca **verticalmente de pie** directamente sobre él.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Victory Modal -->
+    <div id="win-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-slate-900 border border-amber-500/40 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col items-center text-center transform scale-90 transition-transform duration-300" id="win-card">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center text-4xl mb-4 shadow-xl shadow-amber-500/30 animate-bounce">
+                🏆
+            </div>
+            <h2 class="text-2xl font-black text-white tracking-tight">¡NIVEL COMPLETADO!</h2>
+            <p class="text-sm text-slate-300 mt-2">¡Increíble precisión! El bloque encajó perfectamente en la meta.</p>
+            
+            <div class="w-full bg-slate-950 rounded-2xl p-4 border border-slate-800 my-5 flex justify-around text-xs">
+                <div>
+                    <span class="text-slate-500 block">Movimientos</span>
+                    <span id="win-moves" class="text-xl font-extrabold text-cyan-400 font-mono-code">0</span>
+                </div>
+                <div class="border-r border-slate-800"></div>
+                <div>
+                    <span class="text-slate-500 block">Tiempo</span>
+                    <span id="win-time" class="text-xl font-extrabold text-amber-400 font-mono-code">00:00</span>
+                </div>
+            </div>
+
+            <button id="btn-next-level" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-amber-500/30 transition-all active:scale-95">
+                Siguiente Nivel →
+            </button>
+        </div>
+    </div>
+
+    <!-- JSON Export/Import Modal -->
+    <div id="json-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 max-w-lg w-full shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="text-base font-bold text-cyan-400">Datos del Nivel en Formato JSON</h3>
+                <button id="btn-close-json" class="text-slate-400 hover:text-white font-bold text-lg">✕</button>
+            </div>
+            <textarea id="json-text" class="w-full h-44 bg-slate-950 font-mono-code text-xs text-amber-300 p-3 rounded-xl border border-slate-800 outline-none focus:border-cyan-500" placeholder="Pega el código JSON del nivel aquí..."></textarea>
+            
+            <div class="flex justify-end gap-2">
+                <button id="btn-copy-json" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs rounded-xl border border-slate-700">Copiar</button>
+                <button id="btn-import-json" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs rounded-xl shadow-lg">Importar Nivel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+            }
+
+            playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.08) {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            }
+
+            rollThud() {
+                this.playTone(90, 'triangle', 0.08, 0.12);
+            }
+
+            switchClick() {
+                this.playTone(480, 'sine', 0.1, 0.08);
+            }
+
+            fragileBreak() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                // Descending glass frequencies
+                [400, 320, 200, 120].forEach((f, idx) => {
+                    setTimeout(() => this.playTone(f, 'sawtooth', 0.12, 0.1), idx * 30);
+                });
+            }
+
+            fallWhoosh() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.5);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            }
+
+            winFanfare() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
+                notes.forEach((f, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(f, now + idx * 0.08);
+                    gain.gain.setValueAtTime(0.12, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.3);
+                });
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        const DEFAULT_LEVELS = [
+            {
+                id: 1,
+                name: "Nivel 1: Primeros Pasos",
+                grid: [
+                    "111000",
+                    "111111",
+                    "111111",
+                    "00011G"
+                ],
+                start: { x: 0, z: 0 },
+                bridges: [],
+                switches: []
+            },
+            {
+                id: 2,
+                name: "Nivel 2: Suelo Frágil",
+                grid: [
+                    "111100",
+                    "1FF111",
+                    "111111",
+                    "00111G"
+                ],
+                start: { x: 0, z: 0 },
+                bridges: [],
+                switches: []
+            },
+            {
+                id: 3,
+                name: "Nivel 3: El Puente Suave",
+                grid: [
+                    "1111O1",
+                    "110000",
+                    "11B111",
+                    "00001G"
+                ],
+                start: { x: 0, z: 0 },
+                bridges: [
+                    { id: "b1", x: 2, z: 2, active: false }
+                ],
+                switches: [
+                    { type: "O", x: 4, z: 0, targetBridge: "b1" }
+                ]
+            },
+            {
+                id: 4,
+                name: "Nivel 4: Botón Pesado",
+                grid: [
+                    "111000",
+                    "1X1B11",
+                    "111011",
+                    "00001G"
+                ],
+                start: { x: 0, z: 0 },
+                bridges: [
+                    { id: "b1", x: 3, z: 1, active: false }
+                ],
+                switches: [
+                    { type: "X", x: 1, z: 1, targetBridge: "b1" }
+                ]
+            },
+            {
+                id: 5,
+                name: "Nivel 5: Escape Maestro",
+                grid: [
+                    "11111O",
+                    "1F1000",
+                    "111B11",
+                    "00X011",
+                    "00B01G"
+                ],
+                start: { x: 0, z: 0 },
+                bridges: [
+                    { id: "b1", x: 3, z: 2, active: false },
+                    { id: "b2", x: 2, z: 4, active: false }
+                ],
+                switches: [
+                    { type: "O", x: 5, z: 0, targetBridge: "b1" },
+                    { type: "X", x: 2, z: 3, targetBridge: "b2" }
+                ]
+            }
+        ];
+
+        class Bloxorz3DGame {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+
+                // ThreeJS setup
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x090d16);
+
+                this.camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+                this.container.appendChild(this.renderer.domElement);
+
+                // Game state
+                this.grid = [];
+                this.rows = 0;
+                this.cols = 0;
+                this.blockPos = { x: 0, z: 0 };
+                this.blockState = 'STANDING'; // 'STANDING', 'HORIZONTAL_X', 'HORIZONTAL_Z'
+                
+                this.moves = 0;
+                this.seconds = 0;
+                this.timerInterval = null;
+                this.history = [];
+                this.isAnimating = false;
+                this.isGameOver = false;
+
+                this.tileMeshes = {}; // Key "x,z" -> Mesh
+                this.bridgeStates = {}; // Key "b1" -> boolean
+                this.switches = [];
+
+                this.blockMesh = null;
+                this.pivotGroup = null;
+
+                this.setupLights();
+                this.setupCameraOrbit();
+                this.animateLoop();
+            }
+
+            setupLights() {
+                const ambientLight = new THREE.AmbientLight(0x94a3b8, 0.6);
+                this.scene.add(ambientLight);
+
+                const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+                dirLight.position.set(12, 22, 16);
+                dirLight.castShadow = true;
+                dirLight.shadow.mapSize.width = 1024;
+                dirLight.shadow.mapSize.height = 1024;
+                dirLight.shadow.camera.near = 0.5;
+                dirLight.shadow.camera.far = 50;
+                dirLight.shadow.camera.left = -15;
+                dirLight.shadow.camera.right = 15;
+                dirLight.shadow.camera.top = 15;
+                dirLight.shadow.camera.bottom = -15;
+                this.scene.add(dirLight);
+
+                const pointLight = new THREE.PointLight(0x38bdf8, 0.5, 20);
+                pointLight.position.set(0, 5, 0);
+                this.scene.add(pointLight);
+            }
+
+            setupCameraOrbit() {
+                let isDragging = false;
+                let prevMouseX = 0, prevMouseY = 0;
+                this.camRotY = Math.PI / 4;
+                this.camRotX = Math.PI / 5;
+
+                const dom = this.renderer.domElement;
+                dom.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    prevMouseX = e.clientX;
+                    prevMouseY = e.clientY;
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const dx = e.clientX - prevMouseX;
+                    const dy = e.clientY - prevMouseY;
+                    this.camRotY -= dx * 0.005;
+                    this.camRotX = Math.max(0.2, Math.min(Math.PI / 2.5, this.camRotX - dy * 0.005));
+                    prevMouseX = e.clientX;
+                    prevMouseY = e.clientY;
+                    this.updateCameraPosition();
+                });
+
+                window.addEventListener('mouseup', () => { isDragging = false; });
+            }
+
+            updateCameraPosition() {
+                const radius = Math.max(12, Math.max(this.cols, this.rows) * 1.6);
+                const centerX = (this.cols - 1) / 2;
+                const centerZ = (this.rows - 1) / 2;
+
+                this.camera.position.x = centerX + radius * Math.sin(this.camRotY) * Math.cos(this.camRotX);
+                this.camera.position.y = radius * Math.sin(this.camRotX);
+                this.camera.position.z = centerZ + radius * Math.cos(this.camRotY) * Math.cos(this.camRotX);
+                this.camera.lookAt(centerX, 0, centerZ);
+            }
+
+            loadLevel(levelData) {
+                // Clear existing meshes
+                while (this.scene.children.length > 0) {
+                    this.scene.remove(this.scene.children[0]);
+                }
+                this.setupLights();
+
+                this.grid = typeof levelData.grid === 'string' 
+                    ? levelData.grid.trim().split('\n') 
+                    : levelData.grid;
+
+                this.rows = this.grid.length;
+                this.cols = Math.max(...this.grid.map(r => r.length));
+
+                this.blockPos = { ...levelData.start };
+                this.blockState = 'STANDING';
+                this.moves = 0;
+                this.history = [];
+                this.isAnimating = false;
+                this.isGameOver = false;
+
+                // Reset bridges & switches
+                this.bridgeStates = {};
+                (levelData.bridges || []).forEach(b => {
+                    this.bridgeStates[b.id] = b.active;
+                });
+                this.switches = levelData.switches || [];
+
+                this.tileMeshes = {};
+                this.buildGrid3D(levelData);
+                this.createBlockMesh();
+
+                this.updateCameraPosition();
+                this.resetTimer();
+                this.updateHUD();
+            }
+
+            buildGrid3D(levelData) {
+                const tileGeo = new THREE.BoxGeometry(0.96, 0.2, 0.96);
+
+                for (let r = 0; r < this.rows; r++) {
+                    const line = this.grid[r] || "";
+                    for (let c = 0; c < this.cols; c++) {
+                        const char = line[c] || '0';
+                        if (char === '0') continue; // Void
+
+                        let mat;
+                        let isBridgeTile = false;
+                        let bridgeId = null;
+
+                        if (char === '1' || char === 'S') {
+                            mat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.3, metalness: 0.1 });
+                        } else if (char === 'F') { // Fragile Orange Tile
+                            mat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.4, emissive: 0x7c2d12, emissiveIntensity: 0.3 });
+                        } else if (char === 'G') { // Goal Hole
+                            this.createGoalHole3D(c, r);
+                            continue;
+                        } else if (char === 'B') { // Bridge Tile
+                            isBridgeTile = true;
+                            // Find bridge id from bridges array
+                            const foundB = (levelData.bridges || []).find(b => b.x === c && b.z === r);
+                            bridgeId = foundB ? foundB.id : null;
+                            mat = new THREE.MeshStandardMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.85, roughness: 0.2 });
+                        } else {
+                            mat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.3 });
+                        }
+
+                        const tileMesh = new THREE.Mesh(tileGeo, mat);
+                        tileMesh.position.set(c, -0.1, r);
+                        tileMesh.receiveShadow = true;
+                        tileMesh.castShadow = true;
+
+                        this.scene.add(tileMesh);
+                        this.tileMeshes[`${c},${r}`] = tileMesh;
+
+                        if (isBridgeTile && bridgeId) {
+                            tileMesh.visible = !!this.bridgeStates[bridgeId];
+                            tileMesh.userData = { isBridge: true, bridgeId: bridgeId };
+                        }
+
+                        // Add Switches Overlay
+                        if (char === 'O' || char === 'X') {
+                            this.createSwitch3D(c, r, char);
+                        }
+                    }
+                }
+            }
+
+            createGoalHole3D(c, r) {
+                // Goal Hole Frame
+                const frameGeo = new THREE.BoxGeometry(0.98, 0.05, 0.98);
+                const frameMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.8 });
+                const frameMesh = new THREE.Mesh(frameGeo, frameMat);
+                frameMesh.position.set(c, -0.2, r);
+                this.scene.add(frameMesh);
+
+                // Inner Beam Light
+                const beamGeo = new THREE.CylinderGeometry(0.35, 0.35, 3, 16);
+                const beamMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.25 });
+                const beamMesh = new THREE.Mesh(beamGeo, beamMat);
+                beamMesh.position.set(c, -1.5, r);
+                this.scene.add(beamMesh);
+            }
+
+            createSwitch3D(c, r, type) {
+                if (type === 'O') {
+                    // Soft switch: disc button
+                    const discGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.08, 16);
+                    const discMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.5 });
+                    const disc = new THREE.Mesh(discGeo, discMat);
+                    disc.position.set(c, 0.04, r);
+                    this.scene.add(disc);
+                } else if (type === 'X') {
+                    // Hard switch: cross button
+                    const crossGeo = new THREE.BoxGeometry(0.5, 0.08, 0.18);
+                    const crossMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0x991b1b, emissiveIntensity: 0.6 });
+                    const cross1 = new THREE.Mesh(crossGeo, crossMat);
+                    const cross2 = new THREE.Mesh(crossGeo, crossMat);
+                    cross2.rotation.y = Math.PI / 2;
+                    const group = new THREE.Group();
+                    group.add(cross1);
+                    group.add(cross2);
+                    group.position.set(c, 0.04, r);
+                    this.scene.add(group);
+                }
+            }
+
+            createBlockMesh() {
+                if (this.blockMesh) this.scene.remove(this.blockMesh);
+
+                const blockGeo = new THREE.BoxGeometry(0.92, 1.92, 0.92);
+                const blockMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xd97706, 
+                    roughness: 0.3, 
+                    metalness: 0.2,
+                    emissive: 0x78350f,
+                    emissiveIntensity: 0.2
+                });
+
+                this.blockMesh = new THREE.Mesh(blockGeo, blockMat);
+                this.blockMesh.castShadow = true;
+                this.blockMesh.receiveShadow = true;
+
+                // Add bevel edge lines
+                const edges = new THREE.EdgesGeometry(blockGeo);
+                const lineMat = new THREE.LineBasicMaterial({ color: 0xfef08a, linewidth: 2 });
+                const wireframe = new THREE.LineSegments(edges, lineMat);
+                this.blockMesh.add(wireframe);
+
+                this.scene.add(this.blockMesh);
+                this.updateBlockMeshPosition();
+            }
+
+            updateBlockMeshPosition() {
+                const pos = this.blockPos;
+                const state = this.blockState;
+
+                if (state === 'STANDING') {
+                    this.blockMesh.position.set(pos.x, 1.0, pos.z);
+                    this.blockMesh.rotation.set(0, 0, 0);
+                } else if (state === 'HORIZONTAL_X') {
+                    this.blockMesh.position.set(pos.x + 0.5, 0.5, pos.z);
+                    this.blockMesh.rotation.set(0, 0, Math.PI / 2);
+                } else if (state === 'HORIZONTAL_Z') {
+                    this.blockMesh.position.set(pos.x, 0.5, pos.z + 0.5);
+                    this.blockMesh.rotation.set(Math.PI / 2, 0, 0);
+                }
+            }
+
+            getFootprint(pos, state) {
+                if (state === 'STANDING') {
+                    return [{ x: pos.x, z: pos.z }];
+                } else if (state === 'HORIZONTAL_X') {
+                    return [{ x: pos.x, z: pos.z }, { x: pos.x + 1, z: pos.z }];
+                } else if (state === 'HORIZONTAL_Z') {
+                    return [{ x: pos.x, z: pos.z }, { x: pos.x, z: pos.z + 1 }];
+                }
+            }
+
+            roll(dir) {
+                if (this.isAnimating || this.isGameOver) return;
+
+                const curPos = { ...this.blockPos };
+                const curState = this.blockState;
+
+                let nextPos = { ...curPos };
+                let nextState = curState;
+                let pivotOffset = { x: 0, y: 0, z: 0 };
+                let rotAxis = new THREE.Vector3();
+                let rotAngle = 0;
+
+                if (dir === 'LEFT') {
+                    rotAxis.set(0, 0, 1);
+                    rotAngle = Math.PI / 2;
+                    if (curState === 'STANDING') {
+                        nextState = 'HORIZONTAL_X';
+                        nextPos.x = curPos.x - 2;
+                        pivotOffset = { x: curPos.x - 0.5, y: 0.0, z: curPos.z };
+                    } else if (curState === 'HORIZONTAL_X') {
+                        nextState = 'STANDING';
+                        nextPos.x = curPos.x - 1;
+                        pivotOffset = { x: curPos.x - 0.5, y: 0.0, z: curPos.z };
+                    } else if (curState === 'HORIZONTAL_Z') {
+                        nextState = 'HORIZONTAL_Z';
+                        nextPos.x = curPos.x - 1;
+                        pivotOffset = { x: curPos.x - 0.5, y: 0.0, z: curPos.z + 0.5 };
+                    }
+                } else if (dir === 'RIGHT') {
+                    rotAxis.set(0, 0, 1);
+                    rotAngle = -Math.PI / 2;
+                    if (curState === 'STANDING') {
+                        nextState = 'HORIZONTAL_X';
+                        nextPos.x = curPos.x + 1;
+                        pivotOffset = { x: curPos.x + 0.5, y: 0.0, z: curPos.z };
+                    } else if (curState === 'HORIZONTAL_X') {
+                        nextState = 'STANDING';
+                        nextPos.x = curPos.x + 2;
+                        pivotOffset = { x: curPos.x + 1.5, y: 0.0, z: curPos.z };
+                    } else if (curState === 'HORIZONTAL_Z') {
+                        nextState = 'HORIZONTAL_Z';
+                        nextPos.x = curPos.x + 1;
+                        pivotOffset = { x: curPos.x + 0.5, y: 0.0, z: curPos.z + 0.5 };
+                    }
+                } else if (dir === 'UP') { // -Z
+                    rotAxis.set(1, 0, 0);
+                    rotAngle = -Math.PI / 2;
+                    if (curState === 'STANDING') {
+                        nextState = 'HORIZONTAL_Z';
+                        nextPos.z = curPos.z - 2;
+                        pivotOffset = { x: curPos.x, y: 0.0, z: curPos.z - 0.5 };
+                    } else if (curState === 'HORIZONTAL_Z') {
+                        nextState = 'STANDING';
+                        nextPos.z = curPos.z - 1;
+                        pivotOffset = { x: curPos.x, y: 0.0, z: curPos.z - 0.5 };
+                    } else if (curState === 'HORIZONTAL_X') {
+                        nextState = 'HORIZONTAL_X';
+                        nextPos.z = curPos.z - 1;
+                        pivotOffset = { x: curPos.x + 0.5, y: 0.0, z: curPos.z - 0.5 };
+                    }
+                } else if (dir === 'DOWN') { // +Z
+                    rotAxis.set(1, 0, 0);
+                    rotAngle = Math.PI / 2;
+                    if (curState === 'STANDING') {
+                        nextState = 'HORIZONTAL_Z';
+                        nextPos.z = curPos.z + 1;
+                        pivotOffset = { x: curPos.x, y: 0.0, z: curPos.z + 0.5 };
+                    } else if (curState === 'HORIZONTAL_Z') {
+                        nextState = 'STANDING';
+                        nextPos.z = curPos.z + 2;
+                        pivotOffset = { x: curPos.x, y: 0.0, z: curPos.z + 1.5 };
+                    } else if (curState === 'HORIZONTAL_X') {
+                        nextState = 'HORIZONTAL_X';
+                        nextPos.z = curPos.z + 1;
+                        pivotOffset = { x: curPos.x + 0.5, y: 0.0, z: curPos.z + 0.5 };
+                    }
+                }
+
+                this.saveHistory();
+                this.animateRoll(pivotOffset, rotAxis, rotAngle, nextPos, nextState);
+            }
+
+            animateRoll(pivotPt, axis, totalAngle, nextPos, nextState) {
+                this.isAnimating = true;
+
+                // Create pivot group
+                const pivot = new THREE.Group();
+                pivot.position.set(pivotPt.x, pivotPt.y, pivotPt.z);
+                this.scene.add(pivot);
+
+                // Attach block to pivot
+                this.scene.remove(this.blockMesh);
+                this.blockMesh.position.sub(pivot.position);
+                pivot.add(this.blockMesh);
+
+                const startTime = performance.now();
+                const duration = 160; // ms
+
+                const animate = (now) => {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(1.0, elapsed / duration);
+                    const currentAngle = totalAngle * progress;
+
+                    pivot.rotation.set(0, 0, 0);
+                    if (axis.x !== 0) pivot.rotation.x = currentAngle;
+                    if (axis.z !== 0) pivot.rotation.z = currentAngle;
+
+                    if (progress < 1.0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        // Detach block from pivot and finalize
+                        this.scene.remove(pivot);
+                        this.blockPos = nextPos;
+                        this.blockState = nextState;
+                        this.createBlockMesh();
+
+                        this.moves++;
+                        sound.rollThud();
+                        this.updateHUD();
+
+                        this.isAnimating = false;
+                        this.checkTileRules();
+                    }
+                };
+
+                requestAnimationFrame(animate);
+            }
+
+            checkTileRules() {
+                const footprint = this.getFootprint(this.blockPos, this.blockState);
+                
+                // 1. Check Void Fall
+                let isOffGrid = false;
+                for (const pt of footprint) {
+                    if (pt.x < 0 || pt.x >= this.cols || pt.z < 0 || pt.z >= this.rows) {
+                        isOffGrid = true;
+                        break;
+                    }
+                    const line = this.grid[pt.z] || "";
+                    const char = line[pt.x] || '0';
+
+                    if (char === '0') {
+                        isOffGrid = true;
+                        break;
+                    }
+                    if (char === 'B') {
+                        // Check if bridge is active
+                        const tileKey = `${pt.x},${pt.z}`;
+                        const mesh = this.tileMeshes[tileKey];
+                        if (mesh && !mesh.visible) {
+                            isOffGrid = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isOffGrid) {
+                    this.triggerFallDown();
+                    return;
+                }
+
+                // 2. Check Fragile Orange Tile
+                if (this.blockState === 'STANDING') {
+                    const line = this.grid[this.blockPos.z] || "";
+                    const char = line[this.blockPos.x] || '0';
+
+                    if (char === 'F') {
+                        // Fragile tile breaks under vertical standing block!
+                        sound.fragileBreak();
+                        const tileMesh = this.tileMeshes[`${this.blockPos.x},${this.blockPos.z}`];
+                        if (tileMesh) this.scene.remove(tileMesh);
+
+                        this.triggerFallDown();
+                        return;
+                    }
+
+                    // 3. Check Goal Hole
+                    if (char === 'G') {
+                        this.triggerWin();
+                        return;
+                    }
+                }
+
+                // 4. Check Switches
+                for (const pt of footprint) {
+                    const line = this.grid[pt.z] || "";
+                    const char = line[pt.x] || '0';
+
+                    if (char === 'O') { // Soft switch
+                        this.toggleSwitchesAt(pt.x, pt.z, 'O');
+                    } else if (char === 'X' && this.blockState === 'STANDING') { // Hard switch
+                        this.toggleSwitchesAt(pt.x, pt.z, 'X');
+                    }
+                }
+            }
+
+            toggleSwitchesAt(x, z, type) {
+                const matchSwitches = this.switches.filter(s => s.x === x && s.z === z && s.type === type);
+                if (matchSwitches.length === 0) return;
+
+                sound.switchClick();
+
+                matchSwitches.forEach(sw => {
+                    const targetB = sw.targetBridge;
+                    this.bridgeStates[targetB] = !this.bridgeStates[targetB];
+
+                    // Update bridge meshes in scene
+                    Object.values(this.tileMeshes).forEach(mesh => {
+                        if (mesh.userData && mesh.userData.isBridge && mesh.userData.bridgeId === targetB) {
+                            mesh.visible = this.bridgeStates[targetB];
+                        }
+                    });
+                });
+            }
+
+            triggerFallDown() {
+                this.isGameOver = true;
+                sound.fallWhoosh();
+
+                // Animate block dropping into the void
+                const startY = this.blockMesh.position.y;
+                const startTime = performance.now();
+
+                const dropAnim = (now) => {
+                    const elapsed = (now - startTime) / 1000;
+                    this.blockMesh.position.y = startY - 9.8 * elapsed * elapsed * 2;
+                    this.blockMesh.rotation.x += 0.05;
+
+                    if (elapsed < 0.8) {
+                        requestAnimationFrame(dropAnim);
+                    } else {
+                        // Auto undo or reset prompt
+                        this.undo();
+                        this.isGameOver = false;
+                    }
+                };
+
+                requestAnimationFrame(dropAnim);
+            }
+
+            triggerWin() {
+                this.isGameOver = true;
+                this.stopTimer();
+                sound.winFanfare();
+
+                // Drop block vertically into hole
+                const startTime = performance.now();
+                const dropWin = (now) => {
+                    const elapsed = (now - startTime) / 1000;
+                    this.blockMesh.position.y = 1.0 - elapsed * 4;
+
+                    if (elapsed < 0.5) {
+                        requestAnimationFrame(dropWin);
+                    } else {
+                        showWinModal(this.moves, formatTime(this.seconds));
+                    }
+                };
+
+                requestAnimationFrame(dropWin);
+            }
+
+            saveHistory() {
+                this.history.push({
+                    blockPos: { ...this.blockPos },
+                    blockState: this.blockState,
+                    moves: this.moves,
+                    bridgeStates: { ...this.bridgeStates }
+                });
+            }
+
+            undo() {
+                if (this.history.length === 0 || this.isAnimating) return;
+
+                const last = this.history.pop();
+                this.blockPos = last.blockPos;
+                this.blockState = last.blockState;
+                this.moves = last.moves;
+                this.bridgeStates = last.bridgeStates;
+
+                // Restore bridge mesh visibility
+                Object.values(this.tileMeshes).forEach(mesh => {
+                    if (mesh.userData && mesh.userData.isBridge) {
+                        mesh.visible = !!this.bridgeStates[mesh.userData.bridgeId];
+                    }
+                });
+
+                this.createBlockMesh();
+                this.updateHUD();
+                this.isGameOver = false;
+            }
+
+            resetTimer() {
+                this.stopTimer();
+                this.seconds = 0;
+                this.timerInterval = setInterval(() => {
+                    this.seconds++;
+                    document.getElementById('hud-timer').innerText = formatTime(this.seconds);
+                }, 1000);
+            }
+
+            stopTimer() {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+            }
+
+            updateHUD() {
+                document.getElementById('hud-moves').innerText = this.moves;
+            }
+
+            resizeCanvas() {
+                const w = this.container.clientWidth;
+                const h = this.container.clientHeight;
+                this.camera.aspect = w / h;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(w, h);
+            }
+
+            animateLoop() {
+                requestAnimationFrame(() => this.animateLoop());
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+
+        class LevelEditor {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+
+                this.cols = 10;
+                this.rows = 10;
+                this.tileSize = 38;
+                this.activeTile = '1'; // Normal tile
+
+                this.grid = [];
+                this.startPos = { x: 0, z: 0 };
+                this.isDrawing = false;
+
+                this.initGrid(10, 10);
+                this.setupEvents();
+            }
+
+            initGrid(cols, rows) {
+                this.cols = cols;
+                this.rows = rows;
+                this.grid = [];
+
+                for (let r = 0; r < rows; r++) {
+                    const row = [];
+                    for (let c = 0; c < cols; c++) {
+                        row.push('0');
+                    }
+                    this.grid.push(row);
+                }
+
+                // Default layout center
+                for (let r = 2; r < 6; r++) {
+                    for (let c = 2; c < 6; c++) {
+                        this.grid[r][c] = '1';
+                    }
+                }
+                this.grid[2][2] = 'S';
+                this.grid[5][5] = 'G';
+                this.startPos = { x: 2, z: 2 };
+
+                this.updateCanvasDimensions();
+                this.render();
+            }
+
+            updateCanvasDimensions() {
+                this.canvas.width = this.cols * this.tileSize;
+                this.canvas.height = this.rows * this.tileSize;
+            }
+
+            setupEvents() {
+                const getTileCoords = (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const mx = e.clientX - rect.left;
+                    const my = e.clientY - rect.top;
+                    const c = Math.floor(mx / this.tileSize);
+                    const r = Math.floor(my / this.tileSize);
+                    return { c, r };
+                };
+
+                this.canvas.addEventListener('mousedown', (e) => {
+                    this.isDrawing = true;
+                    const { c, r } = getTileCoords(e);
+                    this.setTile(c, r);
+                });
+
+                this.canvas.addEventListener('mousemove', (e) => {
+                    if (this.isDrawing) {
+                        const { c, r } = getTileCoords(e);
+                        this.setTile(c, r);
+                    }
+                });
+
+                window.addEventListener('mouseup', () => { this.isDrawing = false; });
+            }
+
+            setTile(c, r) {
+                if (c < 0 || c >= this.cols || r < 0 || r >= this.rows) return;
+
+                if (this.activeTile === 'S') {
+                    // Single start position enforcement
+                    for (let row = 0; row < this.rows; row++) {
+                        for (let col = 0; col < this.cols; col++) {
+                            if (this.grid[row][col] === 'S') this.grid[row][col] = '1';
+                        }
+                    }
+                    this.startPos = { x: c, z: r };
+                }
+
+                this.grid[r][c] = this.activeTile;
+                this.render();
+            }
+
+            exportJSON() {
+                const gridStrings = this.grid.map(row => row.join(''));
+                return JSON.stringify({
+                    id: 99,
+                    name: "Nivel Personalizado",
+                    grid: gridStrings,
+                    start: this.startPos,
+                    bridges: [],
+                    switches: []
+                }, null, 2);
+            }
+
+            importJSON(jsonStr) {
+                try {
+                    const data = JSON.parse(jsonStr);
+                    const gridArr = typeof data.grid === 'string' ? data.grid.trim().split('\n') : data.grid;
+                    
+                    this.rows = gridArr.length;
+                    this.cols = Math.max(...gridArr.map(r => r.length));
+                    this.grid = [];
+
+                    for (let r = 0; r < this.rows; r++) {
+                        const row = [];
+                        const line = gridArr[r] || "";
+                        for (let c = 0; c < this.cols; c++) {
+                            row.push(line[c] || '0');
+                        }
+                        this.grid.push(row);
+                    }
+
+                    this.startPos = data.start || { x: 0, z: 0 };
+                    this.updateCanvasDimensions();
+                    this.render();
+                } catch (e) {
+                    console.error("JSON de nivel no válido", e);
+                }
+            }
+
+            render() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                const ts = this.tileSize;
+
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        const tile = this.grid[r][c];
+                        const x = c * ts;
+                        const y = r * ts;
+
+                        this.ctx.fillStyle = '#090d16';
+                        this.ctx.fillRect(x, y, ts, ts);
+                        this.ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                        this.ctx.strokeRect(x, y, ts, ts);
+
+                        if (tile === '1') {
+                            this.ctx.fillStyle = '#cbd5e1';
+                            this.ctx.fillRect(x + 2, y + 2, ts - 4, ts - 4);
+                        } else if (tile === 'F') {
+                            this.ctx.fillStyle = '#f97316';
+                            this.ctx.fillRect(x + 2, y + 2, ts - 4, ts - 4);
+                        } else if (tile === 'G') {
+                            this.ctx.fillStyle = '#38bdf8';
+                            this.ctx.fillRect(x + 4, y + 4, ts - 8, ts - 8);
+                        } else if (tile === 'O') {
+                            this.ctx.fillStyle = '#60a5fa';
+                            this.ctx.beginPath();
+                            this.ctx.arc(x + ts/2, y + ts/2, ts*0.3, 0, Math.PI*2);
+                            this.ctx.fill();
+                        } else if (tile === 'X') {
+                            this.ctx.fillStyle = '#ef4444';
+                            this.ctx.fillRect(x + 6, y + 6, ts - 12, ts - 12);
+                        } else if (tile === 'B') {
+                            this.ctx.fillStyle = '#06b6d4';
+                            this.ctx.fillRect(x + 2, y + 2, ts - 4, ts - 4);
+                        } else if (tile === 'S') {
+                            this.ctx.fillStyle = '#d97706';
+                            this.ctx.fillRect(x + 2, y + 2, ts - 4, ts - 4);
+                        }
+                    }
+                }
+            }
+        }
+
+        let game = null;
+        let editor = null;
+
+        function formatTime(s) {
+            const mins = Math.floor(s / 60);
+            const secs = s % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new Bloxorz3DGame('canvas-container');
+            editor = new LevelEditor('editor-canvas');
+
+            // Populate Level Select
+            const levelSelect = document.getElementById('level-select');
+            DEFAULT_LEVELS.forEach((lvl, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.innerText = lvl.name;
+                levelSelect.appendChild(opt);
+            });
+
+            levelSelect.addEventListener('change', (e) => {
+                game.loadLevel(DEFAULT_LEVELS[parseInt(e.target.value)]);
+            });
+
+            // Initial level load
+            game.loadLevel(DEFAULT_LEVELS[0]);
+            game.resizeCanvas();
+
+            // Keyboard Controls
+            window.addEventListener('keydown', (e) => {
+                if (document.getElementById('view-play').classList.contains('hidden')) return;
+
+                switch (e.key) {
+                    case 'ArrowUp':
+                    case 'w':
+                    case 'W':
+                        e.preventDefault();
+                        game.roll('UP');
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                    case 'S':
+                        e.preventDefault();
+                        game.roll('DOWN');
+                        break;
+                    case 'ArrowLeft':
+                    case 'a':
+                    case 'A':
+                        e.preventDefault();
+                        game.roll('LEFT');
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                    case 'D':
+                        e.preventDefault();
+                        game.roll('RIGHT');
+                        break;
+                    case 'z':
+                    case 'Z':
+                        game.undo();
+                        break;
+                    case 'r':
+                    case 'R':
+                        const selectedIdx = parseInt(levelSelect.value);
+                        if (!isNaN(selectedIdx)) game.loadLevel(DEFAULT_LEVELS[selectedIdx]);
+                        break;
+                }
+            });
+
+            // Touch D-Pad Events
+            document.getElementById('btn-up').addEventListener('click', () => game.roll('UP'));
+            document.getElementById('btn-down').addEventListener('click', () => game.roll('DOWN'));
+            document.getElementById('btn-left').addEventListener('click', () => game.roll('LEFT'));
+            document.getElementById('btn-right').addEventListener('click', () => game.roll('RIGHT'));
+
+            document.getElementById('btn-undo').addEventListener('click', () => game.undo());
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                const selectedIdx = parseInt(levelSelect.value);
+                if (!isNaN(selectedIdx)) game.loadLevel(DEFAULT_LEVELS[selectedIdx]);
+            });
+
+            // Tab Switching Navigation
+            const tabPlay = document.getElementById('tab-play');
+            const tabEditor = document.getElementById('tab-editor');
+            const tabGuide = document.getElementById('tab-guide');
+            const viewPlay = document.getElementById('view-play');
+            const viewEditor = document.getElementById('view-editor');
+            const viewGuide = document.getElementById('view-guide');
+
+            function resetTabs() {
+                tabPlay.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800";
+                tabEditor.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800";
+                tabGuide.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all hover:bg-slate-800";
+                viewPlay.classList.add('hidden');
+                viewEditor.classList.add('hidden');
+                viewGuide.classList.add('hidden');
+            }
+
+            tabPlay.addEventListener('click', () => {
+                resetTabs();
+                tabPlay.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-amber-500 text-slate-950 shadow-md";
+                viewPlay.classList.remove('hidden');
+                game.resizeCanvas();
+            });
+
+            tabEditor.addEventListener('click', () => {
+                resetTabs();
+                tabEditor.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-amber-500 text-slate-950 shadow-md";
+                viewEditor.classList.remove('hidden');
+                editor.render();
+            });
+
+            tabGuide.addEventListener('click', () => {
+                resetTabs();
+                tabGuide.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-amber-500 text-slate-950 shadow-md";
+                viewGuide.classList.remove('hidden');
+            });
+
+            // Sound Toggle
+            document.getElementById('btn-sound').addEventListener('click', () => {
+                sound.enabled = !sound.enabled;
+                document.getElementById('sound-icon').innerText = sound.enabled ? '🔊' : '🔇';
+            });
+
+            // Editor Palette Buttons
+            document.querySelectorAll('.palette-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('palette-btn-active'));
+                    btn.classList.add('palette-btn-active');
+                    editor.activeTile = btn.dataset.tile;
+                });
+            });
+
+            // Resize Grid
+            document.getElementById('btn-resize-grid').addEventListener('click', () => {
+                const w = parseInt(document.getElementById('editor-w').value) || 10;
+                const h = parseInt(document.getElementById('editor-h').value) || 10;
+                editor.initGrid(w, h);
+            });
+
+            // Test Custom Level
+            document.getElementById('btn-test-level').addEventListener('click', () => {
+                const customJSONStr = editor.exportJSON();
+                const customData = JSON.parse(customJSONStr);
+                tabPlay.click();
+
+                let customOpt = document.getElementById('opt-custom');
+                if (!customOpt) {
+                    customOpt = document.createElement('option');
+                    customOpt.id = 'opt-custom';
+                    customOpt.value = 'custom';
+                    customOpt.innerText = '⚙️ Nivel Personalizado';
+                    levelSelect.appendChild(customOpt);
+                }
+                levelSelect.value = 'custom';
+                game.loadLevel(customData);
+            });
+
+            // JSON Export/Import Modal Wiring
+            const jsonModal = document.getElementById('json-modal');
+            const jsonText = document.getElementById('json-text');
+
+            document.getElementById('btn-export-json').addEventListener('click', () => {
+                jsonText.value = editor.exportJSON();
+                jsonModal.classList.remove('opacity-0', 'pointer-events-none');
+            });
+
+            document.getElementById('btn-close-json').addEventListener('click', () => {
+                jsonModal.classList.add('opacity-0', 'pointer-events-none');
+            });
+
+            document.getElementById('btn-copy-json').addEventListener('click', () => {
+                jsonText.select();
+                document.execCommand('copy');
+            });
+
+            document.getElementById('btn-import-json').addEventListener('click', () => {
+                if (jsonText.value.trim().length > 0) {
+                    editor.importJSON(jsonText.value);
+                    jsonModal.classList.add('opacity-0', 'pointer-events-none');
+                }
+            });
+
+            // Next Level Button inside Victory Modal
+            document.getElementById('btn-next-level').addEventListener('click', () => {
+                hideWinModal();
+                const currentVal = parseInt(levelSelect.value);
+                if (!isNaN(currentVal) && currentVal + 1 < DEFAULT_LEVELS.length) {
+                    levelSelect.value = currentVal + 1;
+                    game.loadLevel(DEFAULT_LEVELS[currentVal + 1]);
+                } else {
+                    levelSelect.value = 0;
+                    game.loadLevel(DEFAULT_LEVELS[0]);
+                }
+            });
+
+            // Window Resize Handler
+            window.addEventListener('resize', () => {
+                if (game) game.resizeCanvas();
+            });
+        });
+
+        function showWinModal(moves, timeStr) {
+            document.getElementById('win-moves').innerText = moves;
+            document.getElementById('win-time').innerText = timeStr;
+
+            const modal = document.getElementById('win-modal');
+            const card = document.getElementById('win-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-90');
+            card.classList.add('scale-100');
+        }
+
+        function hideWinModal() {
+            const modal = document.getElementById('win-modal');
+            const card = document.getElementById('win-card');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+        }
+    </script>
+</body>
+</html>
