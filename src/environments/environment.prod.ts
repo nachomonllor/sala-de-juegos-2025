@@ -16,8 +16,10 @@ export const environment = {
     ],
 
     //dbzBaseUrl: 'https://dragonball-api.com'
-    dbzBaseUrl: 'https://dragonball-api.com/api'
-   
+    dbzBaseUrl: 'https://dragonball-api.com/api',
+    
+     bypassLogin: false
+
      
 };
 
