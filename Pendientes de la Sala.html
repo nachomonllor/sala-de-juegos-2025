@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pendientes de la Sala</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style id="estilo">/* Tablero de pendientes: una columna de grupos (un juego por grupo), resumen arriba. */
+:root {
+  --bg: #f4f5f9; --panel: #ffffff; --ink: #1b1f2e; --muted: #5d6478; --line: #dfe2ec;
+  --accent: #c2185b; --accent-soft: #fbe3ee; --done: #13795b; --done-soft: #dcf3ea;
+  --display: 'Rajdhani', 'Arial Narrow', sans-serif; --body: 'Inter', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b0e17; --panel: #131828; --ink: #e8ebf5; --muted: #98a0b8; --line: #252c42;
+  --accent: #ff5c93; --accent-soft: #3a1426; --done: #45d6a3; --done-soft: #10302a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0b0e17; --panel: #131828; --ink: #e8ebf5; --muted: #98a0b8; --line: #252c42;
+  --accent: #ff5c93; --accent-soft: #3a1426; --done: #45d6a3; --done-soft: #10302a; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); }
+.wrap { max-width: 760px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 48px; display: flex; flex-direction: column; gap: 18px; }
+header h1 { font-family: var(--display); font-size: 34px; letter-spacing: 1px; margin: 0; line-height: 1.05; text-wrap: balance; }
+header p { margin: 6px 0 0; color: var(--muted); max-width: 62ch; line-height: 1.5; }
+.resumen { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.barra { flex: 1 1 220px; height: 10px; border-radius: 999px; background: var(--accent-soft); overflow: hidden; }
+.barra i { display: block; height: 100%; background: var(--done); transition: width .3s; }
+.cifra { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); }
+.cifra b { color: var(--ink); font-size: 16px; }
+.resumen label { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); cursor: pointer; }
+.estado-guardado { font-size: 12px; color: var(--muted); min-height: 1em; width: 100%; }
+.grupo { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.grupo h2 { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 0; padding: 12px 16px; font-family: var(--display); font-size: 21px; letter-spacing: .5px; border-bottom: 1px solid var(--line); }
+.grupo h2 .cifra { font-size: 12px; }
+.grupo.completo h2 { color: var(--done); }
+ul { list-style: none; margin: 0; padding: 4px 0; }
+li { display: flex; gap: 12px; align-items: flex-start; padding: 8px 16px; }
+li input[type=checkbox] { margin-top: 3px; width: 17px; height: 17px; accent-color: var(--done); flex-shrink: 0; cursor: pointer; }
+li label { cursor: pointer; line-height: 1.45; min-width: 0; }
+li .nota { display: block; font-size: 12.5px; color: var(--muted); }
+li.hecho label > span:first-child { text-decoration: line-through; text-decoration-color: var(--muted); color: var(--muted); }
+li .borrar { margin-left: auto; border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 6px; }
+li .borrar:hover, li .borrar:focus-visible { color: var(--accent); background: var(--accent-soft); }
+form.nueva { display: flex; gap: 8px; padding: 6px 16px 12px; }
+form.nueva input { flex: 1; min-width: 0; font: inherit; font-size: 13.5px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); }
+form.nueva button { font: inherit; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--accent); color: var(--accent); background: transparent; cursor: pointer; }
+form.nueva button:hover { background: var(--accent-soft); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.oculto-hechos li.hecho { display: none; }
+@media (prefers-reduced-motion: reduce) { .barra i { transition: none; } }
+.acciones { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+.acciones button { font: inherit; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+.acciones button:hover { border-color: var(--accent); }
+.acciones button.principal { border-color: var(--done); color: var(--done); background: var(--done-soft); }
+</style>
+</head>
+<body>
+<div id="raiz" class="wrap"></div>
+<!-- Datos de la lista: se pueden editar a mano. -->
+<script type="application/json" id="estado">
+{
+ "grupos": [
+  {
+   "id": "escultor",
+   "nombre": "Escultor ∪ Plano libre",
+   "tareas": [
+    {
+     "id": "escultor-1",
+     "texto": "Crear más niveles",
+     "hecho": false,
+     "nota": "El Diseñador ya existe"
+    },
+    {
+     "id": "escultor-2",
+     "texto": "Guardar en Supabase los niveles creados",
+     "hecho": false,
+     "nota": ""
+    }
+   ]
+  },
+  {
+   "id": "bloxorz",
+   "nombre": "Bloxorz 3D",
+   "tareas": [
+    {
+     "id": "bloxorz-1",
+     "texto": "Editor de niveles",
+     "hecho": true,
+     "nota": "Ya venía con «probar nivel»"
+    },
+    {
+     "id": "bloxorz-2",
+     "texto": "Guardar los niveles en Supabase",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "bloxorz-3",
+     "texto": "Guardar puntaje",
+     "hecho": true,
+     "nota": "Falta probarlo con sesión iniciada"
+    },
+    {
+     "id": "bloxorz-4",
+     "texto": "Botón «ver solución»",
+     "hecho": false,
+     "nota": "El BFS ya existe dentro del generador"
+    },
+    {
+     "id": "bloxorz-5",
+     "texto": "Revisar el solver para entenderlo",
+     "hecho": false,
+     "nota": ""
+    }
+   ]
+  },
+  {
+   "id": "lightbot",
+   "nombre": "Lightbot 3D",
+   "tareas": [
+    {
+     "id": "lightbot-1",
+     "texto": "Crear niveles (diseñador)",
+     "hecho": true,
+     "nota": ""
+    },
+    {
+     "id": "lightbot-2",
+     "texto": "Guardar puntaje",
+     "hecho": true,
+     "nota": ""
+    },
+    {
+     "id": "lightbot-3",
+     "texto": "Traducir a Angular",
+     "hecho": true,
+     "nota": ""
+    },
+    {
+     "id": "lightbot-4",
+     "texto": "Proyecto separado y deploy en Firebase",
+     "hecho": true,
+     "nota": ""
+    },
+    {
+     "id": "lightbot-5",
+     "texto": "Guardar tableros en Supabase",
+     "hecho": true,
+     "nota": "Hasta 100 × 100"
+    },
+    {
+     "id": "lightbot-6",
+     "texto": "Solver: BFS de recorrido mínimo y compactarlo en bucles y funciones",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "lightbot-7",
+     "texto": "Llamadas entre funciones más claras",
+     "hecho": false,
+     "nota": "Un botón por función, recursión bloqueada al insertar"
+    },
+    {
+     "id": "lightbot-8",
+     "texto": "Zoom y desplazamiento para tableros grandes",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "lightbot-9",
+     "texto": "Sección de admin para publicar tableros",
+     "hecho": false,
+     "nota": ""
+    }
+   ]
+  },
+  {
+   "id": "sokoban",
+   "nombre": "Sokoban",
+   "tareas": [
+    {
+     "id": "sokoban-1",
+     "texto": "Editor de niveles",
+     "hecho": true,
+     "nota": "Carga de mapas en texto ASCII"
+    },
+    {
+     "id": "sokoban-2",
+     "texto": "Guardar los niveles en Supabase",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "sokoban-3",
+     "texto": "Guardar puntaje",
+     "hecho": true,
+     "nota": "Falta probarlo con sesión iniciada"
+    },
+    {
+     "id": "sokoban-4",
+     "texto": "Traducir a Angular, como Lightbot",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "sokoban-5",
+     "texto": "Revisar el juego automático (solver) para entenderlo",
+     "hecho": false,
+     "nota": ""
+    }
+   ]
+  },
+  {
+   "id": "cubemove",
+   "nombre": "Cube Move 3D",
+   "tareas": [
+    {
+     "id": "cubemove-1",
+     "texto": "Crear más niveles",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "cubemove-2",
+     "texto": "Guardar puntaje",
+     "hecho": true,
+     "nota": ""
+    },
+    {
+     "id": "cubemove-3",
+     "texto": "Solver",
+     "hecho": true,
+     "nota": "BFS solveFrom"
+    }
+   ]
+  },
+  {
+   "id": "neon",
+   "nombre": "Neon Slide",
+   "tareas": [
+    {
+     "id": "neon-1",
+     "texto": "Crear más niveles",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "neon-2",
+     "texto": "Guardar puntaje",
+     "hecho": true,
+     "nota": ""
+    },
+    {
+     "id": "neon-3",
+     "texto": "Solver",
+     "hecho": true,
+     "nota": "BFS del botón de pista"
+    }
+   ]
+  },
+  {
+   "id": "neonshapes",
+   "nombre": "Neon Slide Shapes",
+   "tareas": [
+    {
+     "id": "neonshapes-1",
+     "texto": "Crear más niveles",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "neonshapes-2",
+     "texto": "Guardar puntaje",
+     "hecho": true,
+     "nota": ""
+    },
+    {
+     "id": "neonshapes-3",
+     "texto": "Solver",
+     "hecho": true,
+     "nota": "BFS del botón de pista"
+    }
+   ]
+  },
+  {
+   "id": "mastermind",
+   "nombre": "Mastermind IA",
+   "tareas": [
+    {
+     "id": "mastermind-1",
+     "texto": "Guardar puntaje",
+     "hecho": false,
+     "nota": "Es el único sin aviso a la sala"
+    },
+    {
+     "id": "mastermind-2",
+     "texto": "Revisar el solver de Knuth para entenderlo",
+     "hecho": false,
+     "nota": ""
+    }
+   ]
+  },
+  {
+   "id": "rayland",
+   "nombre": "Rayland",
+   "tareas": [
+    {
+     "id": "rayland-1",
+     "texto": "Integrarlo a la sala",
+     "hecho": true,
+     "nota": ""
+    },
+    {
+     "id": "rayland-2",
+     "texto": "Guardar puntaje",
+     "hecho": true,
+     "nota": ""
+    },
+    {
+     "id": "rayland-3",
+     "texto": "Solver: probar las combinaciones de giros",
+     "hecho": false,
+     "nota": "2 posiciones por espejo"
+    }
+   ]
+  },
+  {
+   "id": "riverrun",
+   "nombre": "River Run: piloto automático",
+   "tareas": [
+    {
+     "id": "riverrun-1",
+     "texto": "Entender cómo funciona el piloto actual",
+     "hecho": false,
+     "nota": "Reglas + evaluación de trayectorias"
+    },
+    {
+     "id": "riverrun-2",
+     "texto": "Medir sin pantalla a qué sector llega (promedio y máximo)",
+     "hecho": false,
+     "nota": "Hoy llega a los sectores 25–30"
+    },
+    {
+     "id": "riverrun-3",
+     "texto": "Mejora 1: planificación hacia adelante",
+     "hecho": false,
+     "nota": "Sobre todo el combustible"
+    },
+    {
+     "id": "riverrun-4",
+     "texto": "Mejora 2: redes neuronales con neuroevolución",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "riverrun-5",
+     "texto": "Superar tu récord de más de 100 sectores",
+     "hecho": false,
+     "nota": ""
+    }
+   ]
+  },
+  {
+   "id": "general",
+   "nombre": "Generales",
+   "tareas": [
+    {
+     "id": "general-1",
+     "texto": "Integrar Circuito Electrónico",
+     "hecho": false,
+     "nota": "Falta mandar el archivo"
+    },
+    {
+     "id": "general-2",
+     "texto": "Tabla única de niveles creados por usuarios para todos los juegos",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "general-3",
+     "texto": "Login, roles y sección de admin",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "general-4",
+     "texto": "Tabla de logs: región o coordenadas aproximadas",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "general-5",
+     "texto": "Activar RLS en las tablas de la sala y sacar usuarios demo del repo",
+     "hecho": false,
+     "nota": ""
+    },
+    {
+     "id": "general-6",
+     "texto": "Encabezados de caché en el firebase.json de la sala",
+     "hecho": false,
+     "nota": ""
+    }
+   ]
+  }
+ ],
+ "actualizado": 0
+}
+</script>
+<script id="app">(function () {
+  // Estado: el JSON incrustado en el archivo. Si el navegador tiene una copia más nueva (localStorage), se usa esa.
+  const CLAVE = 'pendientes-sala-estado';
+  const incrustado = JSON.parse(document.getElementById('estado').textContent);
+  let estado = incrustado;
+  try {
+    const local = JSON.parse(localStorage.getItem(CLAVE) || 'null');
+    if (local && local.grupos && (local.actualizado || 0) > (incrustado.actualizado || 0)) estado = local;
+  } catch (e) {}
+  const raiz = document.getElementById('raiz');
+  let ocultarHechos = false, archivo = null, sinGuardarEnArchivo = false;
+  try { ocultarHechos = localStorage.getItem('pendientes-ocultar') === '1'; } catch (e) {}
+
+  function el(tag, attrs, ...hijos) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (k === 'class') n.className = v; else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+      else if (v === true) n.setAttribute(k, ''); else if (v !== false && v != null) n.setAttribute(k, v);
+    }
+    for (const h of hijos) if (h != null) n.append(h);
+    return n;
+  }
+
+  function render() {
+    const todas = estado.grupos.flatMap(g => g.tareas), hechas = todas.filter(t => t.hecho).length;
+    raiz.replaceChildren(
+      el('header', {}, el('h1', {}, 'Pendientes de la Sala de Juegos'),
+        el('p', {}, 'Marcá las tareas al terminarlas y agregá las nuevas. Se guarda solo en este navegador; con «Guardar en el archivo» queda dentro de este mismo HTML.')),
+      el('section', { class: 'resumen', 'aria-label': 'Progreso' },
+        el('span', { class: 'cifra' }, el('b', {}, String(hechas)), ` de ${todas.length} hechas`),
+        el('div', { class: 'barra', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(todas.length), 'aria-valuenow': String(hechas) },
+          el('i', { style: `width:${todas.length ? hechas / todas.length * 100 : 0}%` })),
+        el('label', {}, el('input', { type: 'checkbox', id: 'ocultar', checked: ocultarHechos, onchange: e => { ocultarHechos = e.target.checked; try { localStorage.setItem('pendientes-ocultar', ocultarHechos ? '1' : '0'); } catch (x) {} render(); } }), 'Ocultar las hechas'),
+        el('div', { class: 'acciones' },
+          el('button', { type: 'button', class: 'principal', onclick: guardarEnArchivo }, '💾 Guardar en el archivo'),
+          el('button', { type: 'button', onclick: exportarJSON }, '↓ Exportar JSON'),
+          el('button', { type: 'button', onclick: () => document.getElementById('importar').click() }, '↑ Importar JSON'),
+          el('input', { type: 'file', id: 'importar', accept: '.json,application/json', hidden: true, onchange: importarJSON })),
+        el('p', { class: 'estado-guardado', id: 'guardado', role: 'status' }, sinGuardarEnArchivo ? 'Hay cambios que todavía no guardaste en el archivo.' : '')),
+      el('div', { class: ocultarHechos ? 'oculto-hechos' : '' }, ...estado.grupos.map(grupo))
+    );
+  }
+
+  function grupo(g) {
+    const hechas = g.tareas.filter(t => t.hecho).length;
+    return el('section', { class: 'grupo' + (hechas === g.tareas.length && g.tareas.length ? ' completo' : ''), 'aria-label': g.nombre },
+      el('h2', {}, g.nombre, el('span', { class: 'cifra' }, `${hechas}/${g.tareas.length}`)),
+      el('ul', {}, ...g.tareas.map(t => el('li', { class: t.hecho ? 'hecho' : '' },
+        el('input', { type: 'checkbox', id: 'c-' + t.id, checked: t.hecho, onchange: e => { t.hecho = e.target.checked; cambio(); } }),
+        el('label', { for: 'c-' + t.id }, el('span', {}, t.texto), t.nota ? el('span', { class: 'nota' }, t.nota) : null),
+        el('button', { class: 'borrar', type: 'button', title: 'Quitar tarea', 'aria-label': 'Quitar «' + t.texto + '»', onclick: () => { if (confirm('¿Quitar «' + t.texto + '»?')) { g.tareas = g.tareas.filter(x => x !== t); cambio(); } } }, '✕')))),
+      el('form', { class: 'nueva', onsubmit: e => {
+        e.preventDefault(); const inp = e.target.querySelector('input'); const texto = inp.value.trim(); if (!texto) return;
+        g.tareas.push({ id: g.id + '-' + Date.now().toString(36), texto: texto.slice(0, 200), hecho: false, nota: '' }); cambio();
+        setTimeout(() => document.getElementById('nueva-' + g.id)?.focus());
+      } }, el('input', { id: 'nueva-' + g.id, placeholder: 'Agregar tarea a ' + g.nombre, 'aria-label': 'Nueva tarea para ' + g.nombre, maxlength: '200' }), el('button', { type: 'submit' }, 'Agregar')));
+  }
+
+  function aviso(t) { const p = document.getElementById('guardado'); if (p) p.textContent = t; }
+
+  function cambio() {
+    estado.actualizado = Date.now();
+    sinGuardarEnArchivo = true;
+    try { localStorage.setItem(CLAVE, JSON.stringify(estado)); } catch (e) {}
+    render();
+  }
+
+  // Arma el HTML completo con el estado actual incrustado.
+  function documento() {
+    const css = document.getElementById('estilo').textContent, js = document.getElementById('app').textContent;
+    const datos = JSON.stringify(estado, null, 1).replace(/</g, '\\u003c');
+    return '<!DOCTYPE html>\n<html lang="es">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+      '<title>Pendientes de la Sala</title>\n' +
+      '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">\n' +
+      '<style id="estilo">' + css + '</style>\n</head>\n<body>\n<div id="raiz" class="wrap"></div>\n' +
+      '<!-- Datos de la lista: se pueden editar a mano. -->\n<script type="application/json" id="estado">\n' + datos + '\n<\/script>\n<script id="app">' + js + '<\/script>\n</body>\n</html>\n';
+  }
+
+  function descargar(contenido, nombre, tipo) {
+    const url = URL.createObjectURL(new Blob([contenido], { type: tipo }));
+    const a = el('a', { href: url, download: nombre }); document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function guardarEnArchivo() {
+    const html = documento();
+    try {
+      if (window.showSaveFilePicker) {
+        // Chrome / Edge: escribe directo en el archivo; la primera vez elegís cuál (este mismo HTML).
+        archivo ??= await window.showSaveFilePicker({ suggestedName: 'pendientes-sala.html', types: [{ description: 'Página HTML', accept: { 'text/html': ['.html'] } }] });
+        const w = await archivo.createWritable(); await w.write(html); await w.close();
+        sinGuardarEnArchivo = false; aviso('Guardado en ' + archivo.name + ' ✓');
+      } else {
+        descargar(html, 'pendientes-sala.html', 'text/html');
+        sinGuardarEnArchivo = false; aviso('Se descargó pendientes-sala.html con los cambios: reemplazá con él el archivo anterior.');
+      }
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+      aviso('No se pudo guardar el archivo: ' + (e && e.message || e));
+    }
+  }
+
+  function exportarJSON() { descargar(JSON.stringify(estado, null, 2), 'pendientes-sala.json', 'application/json'); }
+
+  async function importarJSON(e) {
+    const f = e.target.files && e.target.files[0]; e.target.value = '';
+    if (!f) return;
+    try {
+      const datos = JSON.parse(await f.text());
+      if (!datos || !Array.isArray(datos.grupos) || !datos.grupos.every(g => g && typeof g.nombre === 'string' && Array.isArray(g.tareas))) throw new Error('No tiene el formato de esta lista.');
+      estado = datos; cambio(); aviso('JSON importado. Acordate de guardar en el archivo.');
+    } catch (err) { aviso('No se pudo importar: ' + err.message); }
+  }
+
+  window.addEventListener('beforeunload', e => { if (sinGuardarEnArchivo) { e.preventDefault(); e.returnValue = ''; } });
+  render();
+})();
+</script>
+</body>
+</html>
