@@ -294,6 +294,16 @@ export class HomeComponent implements OnInit {
       tags: ['puzzle', 'láser', 'espejos', 'lógica'],
       badge: 'Nuevo'
     },
+    {
+      title: 'Circuito Electrónico',
+      route: '/jugar/circuito',
+      thumb: 'assets/games/circuito.svg',
+      category: 'Puzzles',
+      description: 'Rotá y deslizá las piezas hasta que todas las patas queden conectadas. Con editor y solver.',
+      tags: ['puzzle', 'lógica', 'circuitos', 'editor'],
+      badge: 'Propio'
+    },
+
 
   ];
 

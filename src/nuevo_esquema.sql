@@ -249,3 +249,8 @@ on conflict (codigo) do nothing;
 insert into esquema_juegos.juegos (codigo, nombre, descripcion) 
 values ('tetris', 'Auto-Tetris IA', 'Simulación de Tetris jugada por un algoritmo heurístico') 
 on conflict (codigo) do nothing;
+
+
+insert into esquema_juegos.juegos (codigo, nombre)
+select 'circuito', 'Circuito Electrónico'
+where not exists (select 1 from esquema_juegos.juegos where codigo = 'circuito');

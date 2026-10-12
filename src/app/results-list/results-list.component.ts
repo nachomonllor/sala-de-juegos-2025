@@ -41,7 +41,7 @@ import { LogsJuegosService } from '../services/logs-juegos.service';
 export class ResultsListComponent implements AfterViewInit {
 
   juegos: GameCode[] = ['ahorcado', 'mayor_menor', 'flow_free', 'preguntados_dbz', 'escultor',
-    'bloxorz', 'river_run', 'lightbot', 'sokoban', 'cube_crash', 'cube_move', 'neon_slide', 'neon_shapes', 'rayland'];
+    'bloxorz', 'river_run', 'lightbot', 'sokoban', 'cube_crash', 'cube_move', 'neon_slide', 'neon_shapes', 'rayland', 'circuito'];
   juegoSeleccionado = signal<GameCode | 'todos'>('todos');
 
   cargando = signal(false);

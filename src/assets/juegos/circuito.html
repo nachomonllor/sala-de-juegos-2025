@@ -1,0 +1,534 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Circuito Electrónico • Taller de circuitos</title><style>
+    :root {
+      --bg-color: #0b0e14;
+      --panel-bg: #121824;
+      --board-bg: #07090e;
+      --accent-cyan: #00f0ff;
+      --accent-blue: #0072ff;
+      --accent-glow: rgba(0, 240, 255, 0.4);
+      --chip-bg: #1a2332;
+      --chip-border: #2a384e;
+      --text-main: #e0f0ff;
+      --text-dim: #607596;
+      --success: #00ff88;
+      --warning: #ffaa00;
+      --ai-purple: #b026ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px;
+      overflow-x: hidden;
+    }
+
+    header {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 5px;
+    }
+
+    .level-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-main);
+    }
+
+    .badges {
+      display: flex;
+      gap: 8px;
+    }
+
+    .diff-badge {
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .mode-badge {
+      background: rgba(255, 170, 0, 0.15);
+      border: 1px solid var(--warning);
+      color: var(--warning);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .board-container {
+      position: relative;
+      background: var(--board-bg);
+      border: 2px solid #1e293b;
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(0, 0, 0, 0.9);
+    }
+
+    canvas {
+      display: block;
+      border-radius: 8px;
+      touch-action: none;
+    }
+
+    .status-banner {
+      margin-top: 12px;
+      height: 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      text-align: center;
+      text-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .status-banner.win {
+      color: var(--success);
+      text-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
+    }
+
+    .status-banner.solving {
+      color: var(--ai-purple);
+      text-shadow: 0 0 10px rgba(176, 38, 255, 0.6);
+    }
+
+    /* Panel Inspector Editor */
+    .editor-panel {
+      display: none;
+      width: 100%;
+      max-width: 520px;
+      background: var(--panel-bg);
+      border: 1px solid var(--warning);
+      border-radius: 14px;
+      padding: 12px;
+      margin-top: 10px;
+      box-shadow: 0 0 15px rgba(255, 170, 0, 0.2);
+    }
+
+    .editor-panel h4 {
+      font-size: 0.9rem;
+      color: var(--warning);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .editor-controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .control-group label {
+      color: var(--text-dim);
+      font-size: 0.75rem;
+    }
+
+    .btn-grid {
+      display: flex;
+      gap: 4px;
+    }
+
+    .btn-sub {
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
+      color: var(--text-main);
+      padding: 5px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      flex: 1;
+      text-align: center;
+    }
+
+    .btn-sub.active {
+      background: var(--warning);
+      color: #000;
+      font-weight: bold;
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-editor-act {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .btn-scramble { background: var(--accent-cyan); color: #000; }
+    .btn-clear { background: #3a1c1c; color: #ff6b6b; }
+
+    footer {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 12px 0;
+      margin-top: 10px;
+      background: var(--panel-bg);
+      border-radius: 20px;
+      border: 1px solid #1e2d42;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.3rem;
+      cursor: pointer;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover, .btn:active {
+      color: var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .btn-text {
+      font-size: 0.85rem;
+      font-weight: 700;
+      width: auto;
+      padding: 0 8px;
+    }
+
+    .btn-ai {
+      color: var(--ai-purple);
+      border: 1px solid rgba(176, 38, 255, 0.4);
+      background: rgba(176, 38, 255, 0.08);
+    }
+
+    .btn-ai:hover {
+      color: #fff;
+      background: var(--ai-purple);
+      box-shadow: 0 0 12px var(--ai-purple);
+    }
+
+    /* Modal Generico */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(5px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: var(--panel-bg);
+      border: 1px solid var(--accent-cyan);
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .modal-content h3 {
+      color: var(--accent-cyan);
+      margin-bottom: 12px;
+    }
+
+    .modal-content ul {
+      list-style: none;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .modal-content ul li {
+      margin-bottom: 6px;
+    }
+
+    .close-btn {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      background: var(--accent-cyan);
+      color: #000;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  
+body{justify-content:flex-start;padding:20px;gap:14px}header,main,footer{max-width:1250px}header{padding:0}.level-title{font-size:1.4rem}main{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px;align-items:start}button,input,select{font:inherit}button:disabled{opacity:.4;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:3px}.toolbar,.card{background:var(--panel-bg);border:1px solid #27364b;border-radius:14px;padding:14px}.toolbar{max-width:1250px;width:100%;display:flex;gap:12px;flex-wrap:wrap;align-items:end}.field{display:flex;flex-direction:column;gap:5px;font-size:.8rem;color:#a7bad2}input,select{background:#09111d;color:#e0f0ff;border:1px solid #3b4e67;border-radius:7px;padding:8px;max-width:150px}input[type=number]{width:78px}input[type=range]{width:100px;padding:0}.action{border:1px solid #3b4e67;border-radius:8px;padding:9px 12px;background:#1a293e;color:#e0f0ff;cursor:pointer}.primary{background:#00d9e9;color:#052126;border:0;font-weight:700}.purple{color:#deb3ff;border-color:#9853d0}.board-container{padding:8px;max-width:100%;overflow:auto;max-height:74vh;overscroll-behavior:contain}canvas{touch-action:none}.status-banner{height:auto;min-height:24px;text-align:left;font-size:.9rem;line-height:1.5}.side{display:flex;flex-direction:column;gap:12px}.card h3{font-size:.9rem;margin-bottom:12px;color:var(--accent-cyan)}.buttons{display:flex;flex-wrap:wrap;gap:8px}.muted{color:#9aafc9;font-size:.83rem;line-height:1.6}.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}.stat strong{display:block;font-size:1.5rem;color:#e0f0ff}.editor-panel{padding:0;border:0;box-shadow:none;margin:0}.editor-controls{grid-template-columns:1fr}.editor-actions{flex-wrap:wrap}.editor-actions button{flex:auto}.log{max-height:155px;overflow:auto;font:12px/1.7 monospace;color:#a8c8df;white-space:pre-wrap;user-select:text}.hint{color:#ffaa00}.modal-content{max-width:550px;max-height:85vh;overflow:auto}.legend{margin-top:10px}footer{padding:12px;justify-content:flex-start;gap:12px;margin:0;font-size:.8rem;color:#9aafc9}#selected{min-height:20px}#fileInput{display:none}@media(max-width:850px){main{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.board-container{max-height:65vh}}@media(max-width:540px){body{padding:10px}.side{grid-template-columns:1fr}.toolbar{gap:8px}.level-title{font-size:1.1rem}.diff-badge{font-size:.65rem}.action{padding:8px}.board-container{max-height:60vh}}
+</style></head><body>
+<header><div><div class="level-title">CIRCUITO ELECTRÓNICO</div><div class="muted">Taller de lógica · piezas, patas y movimientos</div></div><div class="diff-badge" id="diffDisplay">Normal</div></header>
+<div class="toolbar">
+<label class="field">Tablero<select id="size"><option value="5">5 × 5</option><option value="8">8 × 8</option><option value="10">10 × 10</option><option value="15" selected>15 × 15</option><option value="20">20 × 20</option><option value="25">25 × 25</option><option value="30">30 × 30</option></select></label>
+<label class="field">Dificultad<select id="difficulty"><option value="1">Fácil</option><option value="2" selected>Normal</option><option value="3">Difícil</option></select></label>
+<label class="field">Piezas<input id="pieces" type="number" min="2" max="224" value="54"></label>
+<label class="field">Semilla<input id="seed" placeholder="Aleatoria" maxlength="80"></label>
+<button class="action primary" id="btnGenerate">Generar tablero</button>
+<button class="action" id="btnNew">Nuevo aleatorio</button>
+<label class="field">Zoom <span id="zoomLabel">100%</span><input type="range" id="zoom" min="30" max="140" value="100"></label>
+<button class="action" id="btnFit">Ajustar</button><button class="action" id="btnHelp">?</button>
+</div>
+<main><section style="min-width:0"><div class="board-container" id="viewport"><canvas id="gameCanvas" aria-label="Tablero del circuito; seleccioná una pieza y usá las flechas o Enter"></canvas></div><div class="status-banner" id="statusBanner" role="status" aria-live="polite"></div><div class="muted legend">◯ Rota solo las patas · ↔ Se mueve por fila · ↕ Por columna · Sin símbolos: fija<br><span style="color:#00ff88">Verde: conexión correcta</span> · <span style="color:#ffaa00">Ámbar: patas sin conectar</span> · Coordenadas desde 1.</div></section>
+<aside class="side">
+<div class="card"><h3 id="levelDisplay">Nivel 1</h3><div class="stats"><div class="stat"><strong id="moves">0</strong><span class="muted">movimientos</span></div><div class="stat"><strong id="loose">0</strong><span class="muted">lados pendientes</span></div></div><div class="muted" id="selected">Seleccioná una pieza</div><div class="buttons" style="margin-top:12px"><button class="action" id="btnUndo">↩ Deshacer</button><button class="action" id="btnReset">↺ Reiniciar</button><button class="action" id="btnHint">Pista</button><button class="action" id="btnEditor">🛠 Crear / editar</button></div></div>
+<div class="card"><h3>Resolución automática</h3><div class="buttons"><button class="action purple" id="btnSolve">Resolver</button><button class="action" id="btnStop" disabled>Detener</button></div><label class="field" style="margin-top:10px">Tiempo por paso<select id="speed"><option value="320">Lento · 320 ms</option><option value="80" selected>Normal · 80 ms</option><option value="10">Rápido · 10 ms</option></select></label><p class="muted" id="solverInfo" style="margin-top:10px">En circuitos grandes se usa la ruta guardada. No garantiza el mínimo de movimientos.</p></div>
+<div class="card"><h3>Guardar y reproducir</h3><div class="buttons"><button class="action" id="btnExport">↓ Partida JSON</button><button class="action" id="btnImport">↑ Cargar JSON</button><button class="action" id="btnReplay">▶ Repetir jugadas</button></div><input type="file" id="fileInput" accept=".json,application/json"><p class="muted" style="margin-top:9px">Incluye tablero inicial, movimientos y ruta de respaldo cuando está disponible.</p><div class="log" id="log"></div></div>
+<div class="card" id="editorCard" hidden><h3>Editor de piezas</h3><div class="editor-panel" style="display:block"><h4 id="editorTitle"></h4><div class="editor-controls" id="editorControls"><div class="control-group"><label>Patas por lado</label><div class="btn-grid"><button class="btn-sub" onclick="cambiarPatasSide(0)">N: <span id="lblN"></span></button><button class="btn-sub" onclick="cambiarPatasSide(1)">E: <span id="lblE"></span></button><button class="btn-sub" onclick="cambiarPatasSide(2)">S: <span id="lblS"></span></button><button class="btn-sub" onclick="cambiarPatasSide(3)">O: <span id="lblO"></span></button></div></div><div class="btn-grid"><button class="btn-sub" id="btnSymCirc" onclick="toggleSimbolo('circulo')">◯ Rota</button><button class="btn-sub" id="btnSymH" onclick="toggleSimbolo('h')">↔ Fila</button><button class="btn-sub" id="btnSymV" onclick="toggleSimbolo('v')">↕ Col</button></div></div><div class="editor-actions"><button class="action primary" onclick="mezclarYJugar()">Mezclar y jugar</button><button class="action" onclick="exportarNivelJSON()">↓ Nivel JSON</button><button class="action" onclick="borrarPieza()">Borrar pieza</button><button class="action" onclick="limpiarTableroEditor()">Vaciar</button></div><p class="muted" style="margin-top:10px">Click en una celda vacía: crea una pieza. Primero armá un circuito resuelto; después mezclalo.</p></div></div>
+</aside></main><footer>U: deshacer · R: reiniciar · N: nuevo · H: pista · 1–3: dificultad · Espacio / Enter: rotar · Esc: detener / cerrar ayuda</footer>
+<div class="modal" id="helpModal"><div class="modal-content"><h3>Cómo jugar</h3><ul><li>Conectá todas las patas: cada lado debe coincidir en cantidad con el lado enfrentado. Ninguna pata puede apuntar a un hueco o salir del tablero.</li><li>Click selecciona y rota 90° antihorario si la pieza tiene círculo. Arrastrar mueve sin rotar. También podés usar las flechas y Espacio / Enter.</li><li>Los símbolos no rotan. Las piezas no atraviesan otras piezas. No es obligatorio formar un único circuito conectado para ganar.</li><li>Generá tamaños de 5 × 5 a 30 × 30. Ajustar muestra todo el tablero; aumentá zoom y usá las barras de desplazamiento para ver detalles.</li><li>La misma semilla, tamaño, cantidad de piezas y dificultad reproducen el mismo tablero.</li><li>Resolver busca una ruta corta con IDDFS para hasta 8 piezas. Si llega al límite, usa la ruta de respaldo si existe. Para más piezas usa directamente esa ruta; en tableros importados sin ella intenta búsqueda limitada.</li><li>La ruta de respaldo deshace tus jugadas y revierte la mezcla. Es legal, pero puede ser larga. Detener conserva lo ya ejecutado.</li><li>Partida JSON guarda el inicio y las jugadas, permitiendo cargarlas y repetirlas. Los JSON antiguos de solo movimientos no contienen el tablero y no pueden reconstruirse solos. Los niveles antiguos como lista de piezas sí se pueden cargar.</li><li>El editor exige al menos dos piezas, patas y un estado resuelto antes de mezclar. Salir del editor inicia una nueva partida con el diseño actual.</li></ul><button class="close-btn" id="btnCloseHelp">Entendido</button></div></div><script>
+'use strict';
+const $=id=>document.getElementById(id);
+const DIFICULTADES={1:{nombre:'Fácil',mezcla:2},2:{nombre:'Normal',mezcla:4},3:{nombre:'Difícil',mezcla:7}};
+let GRID_SIZE=15,CELL_PX=72,PADDING=8,CANVAS_SIZE=1096;
+let modoEditor=false,animandoSolver=false,dificultadActual=2,nivel=1,seedActual='',hint=false;
+let tablero,initial=null,goal=null,backup=null,historial=[],seleccionada=null,worker=null,timerSolver=null,runToken=0;
+
+let reportado=false,usoAyuda=false;
+// Sala de Juegos: si el juego corre dentro de la sala, avisa el puntaje.
+function salaReport(puntaje,detalle){try{if(window.parent!==window)window.parent.postMessage({tipo:'sala-juegos:resultado',juego:'circuito',puntaje:Math.round(puntaje),detalle},window.location.origin);}catch(e){}}
+
+const canvas=$('gameCanvas'),ctx=canvas.getContext('2d');
+class Pieza{
+ constructor(patas=[0,0,0,0],simbolos={circulo:false,h:false,v:false}){this.patas=[...patas];this.simbolos={...simbolos};}
+ rotarAntihorario(){if(this.simbolos.circulo||modoEditor)this.patas=[this.patas[1],this.patas[2],this.patas[3],this.patas[0]];}
+ rotarHorario(){this.patas=[this.patas[3],this.patas[0],this.patas[1],this.patas[2]];}
+ esFija(){return !this.simbolos.circulo&&!this.simbolos.h&&!this.simbolos.v;}
+}
+class Tablero{
+ constructor(n=GRID_SIZE){this.filas=n;this.cols=n;this.grid=Array.from({length:n},()=>Array(n).fill(null));}
+ obtener(r,c){return this.grid[r]?.[c]||null;}
+ colocar(r,c,p){this.grid[r][c]=p;}
+ puedeMover(r,c,nr,nc){const p=this.obtener(r,c);return !!p&&nr>=0&&nc>=0&&nr<this.filas&&nc<this.cols&&!this.obtener(nr,nc)&&((r===nr&&Math.abs(c-nc)===1&&p.simbolos.h)||(c===nc&&Math.abs(r-nr)===1&&p.simbolos.v));}
+ mover(r,c,nr,nc){if(!this.puedeMover(r,c,nr,nc))return false;this.grid[nr][nc]=this.grid[r][c];this.grid[r][c]=null;return true;}
+ pendientes(){let n=0;for(let r=0;r<this.filas;r++)for(let c=0;c<this.cols;c++){const p=this.obtener(r,c);if(p)DIRS.forEach(([dr,dc],i)=>{if(p.patas[i]!== (this.obtener(r+dr,c+dc)?.patas[(i+2)%4]||0))n++;});}return n;}
+ estaResuelto(){return this.grid.some(row=>row.some(p=>p&&p.patas.some(Boolean)))&&this.pendientes()===0;}
+}
+const DIRS=[[-1,0],[0,1],[1,0],[0,-1]];
+function snapshot(t=tablero){return {size:t.filas,piezas:t.grid.flatMap((row,r)=>row.flatMap((p,c)=>p?[{r,c,patas:[...p.patas],simbolos:{...p.simbolos}}]:[]))};}
+function restore(s){const t=new Tablero(s.size);s.piezas.forEach(p=>t.colocar(p.r,p.c,new Pieza(p.patas,p.simbolos)));return t;}
+function rng(seed){let h=2166136261;for(const ch of seed){h=Math.imul(h^ch.charCodeAt(0),16777619);}return ()=>{h+=0x6D2B79F5;let t=h;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;};}
+function randomSeed(){return String(Date.now())+'-'+Math.floor(Math.random()*100000);}
+function legal(t){const moves=[];for(let r=0;r<t.filas;r++)for(let c=0;c<t.cols;c++){const p=t.obtener(r,c);if(!p)continue;if(p.simbolos.circulo&&!p.patas.every(x=>x===p.patas[0]))moves.push({tipo:'rotar',r,c});DIRS.forEach(([dr,dc])=>{if(t.puedeMover(r,c,r+dr,c+dc))moves.push({tipo:'mover',r1:r,c1:c,r2:r+dr,c2:c+dc});});}return moves;}
+function apply(t,m){if(m.tipo==='rotar'){const p=t.obtener(m.r,m.c);if(!p?.simbolos.circulo)return false;p.rotarAntihorario();return true;}if(m.tipo==='mover')return t.mover(m.r1,m.c1,m.r2,m.c2);return false;}
+function inverse(seq){const out=[];for(let i=seq.length-1;i>=0;i--){const m=seq[i];if(m.tipo==='rotar')for(let j=0;j<3;j++)out.push({tipo:'rotar',r:m.r,c:m.c});else out.push({tipo:'mover',r1:m.r2,c1:m.c2,r2:m.r1,c2:m.c1});}return out;}
+function simplify(seq){const out=[];for(const m of seq){const prev=out.at(-1);if(m.tipo==='mover'&&prev?.tipo==='mover'&&m.r1===prev.r2&&m.c1===prev.c2&&m.r2===prev.r1&&m.c2===prev.c1){out.pop();continue;}out.push(m);if(out.length>=4&&out.slice(-4).every(a=>a.tipo==='rotar'&&a.r===m.r&&a.c===m.c))out.splice(-4);}return out;}
+function mix(t,steps,random){const seq=[];let prev=null;for(let i=0;i<steps;i++){let ms=legal(t);if(prev?.tipo==='mover')ms=ms.filter(m=>!(m.tipo==='mover'&&m.r1===prev.r2&&m.c1===prev.c2&&m.r2===prev.r1&&m.c2===prev.c1));if(!ms.length)break;const m=ms[Math.floor(random()*ms.length)];apply(t,m);seq.push(m);prev=m;}if(t.estaResuelto()){const ms=legal(t);for(const m of ms){apply(t,m);seq.push(m);if(!t.estaResuelto())break;}}return simplify(seq);}
+function generate(n,count,diff,seed){const random=rng(seed),t=new Tablero(n),cells=[{r:Math.floor(n/2),c:Math.floor(n/2)}],set=new Set([cells[0].r+','+cells[0].c]);let frontier=[];
+ function add(r,c){DIRS.forEach(([dr,dc])=>{const nr=r+dr,nc=c+dc,k=nr+','+nc;if(nr>=0&&nc>=0&&nr<n&&nc<n&&!set.has(k)){set.add(k);frontier.push({r:nr,c:nc});}});}
+ add(cells[0].r,cells[0].c);while(cells.length<count&&frontier.length){const i=Math.floor(random()*frontier.length),v=frontier.splice(i,1)[0];cells.push(v);add(v.r,v.c);}
+ cells.forEach(({r,c},i)=>{const symbols={circulo:false,h:false,v:false};if(i){const roll=random();symbols.circulo=roll<.45||diff===1;symbols.h=roll>=.3&&roll<.8;symbols.v=roll>=.65;if(random()<.2)symbols.circulo=true;}t.colocar(r,c,new Pieza([0,0,0,0],symbols));});
+ cells.forEach(({r,c})=>{for(const i of [1,2]){const [dr,dc]=DIRS[i],q=t.obtener(r+dr,c+dc);if(q){const num=1+Math.floor(random()*3);t.obtener(r,c).patas[i]=num;q.patas[(i+2)%4]=num;}}});
+ // At least one rotatable asymmetric piece, so even a blocked board can be scrambled.
+ const candidate=cells.slice(1).find(({r,c})=>{const p=t.obtener(r,c);return !p.patas.every(x=>x===p.patas[0]);});if(candidate)t.obtener(candidate.r,candidate.c).simbolos.circulo=true;
+ const solved=snapshot(t),seq=mix(t,count*DIFICULTADES[diff].mezcla,random);return {t,goal:solved,backup:simplify(inverse(seq))};
+}
+function begin(t,g=null,b=null){detenerAnimacionSolver(false);tablero=t;GRID_SIZE=t.filas;initial=snapshot(t);goal=g;backup=b;historial=[];seleccionada=null;hint=false; reportado=false;usoAyuda=false; modoEditor=false;syncUI();resize();actualizarEstadoBanner();dibujar();}
+function iniciarJuego(newSeed=false){const n=Number($('size').value),count=Number($('pieces').value);if(!Number.isInteger(count)||count<2||count>=n*n){message('Elegí entre 2 y '+(n*n-1)+' piezas.');return;}dificultadActual=Number($('difficulty').value);seedActual=(!newSeed&&$('seed').value.trim())||randomSeed();$('seed').value=seedActual;const generated=generate(n,count,dificultadActual,seedActual);begin(generated.t,generated.goal,generated.backup);fit();}
+function syncUI(){$('size').value=GRID_SIZE;$('difficulty').value=dificultadActual;$('pieces').max=GRID_SIZE*GRID_SIZE-1;$('pieces').value=snapshot().piezas.length;$('seed').value=seedActual;$('diffDisplay').textContent=DIFICULTADES[dificultadActual].nombre+' · '+GRID_SIZE+' × '+GRID_SIZE;$('levelDisplay').textContent='Nivel '+nivel;$('editorCard').hidden=!modoEditor;$('btnEditor').textContent=modoEditor?'Salir del editor':'🛠 Crear / editar';}
+function resize(){CELL_PX=72*Number($('zoom').value)/100;CANVAS_SIZE=GRID_SIZE*CELL_PX+2*PADDING;canvas.width=Math.ceil(CANVAS_SIZE);canvas.height=Math.ceil(CANVAS_SIZE);$('zoomLabel').textContent=$('zoom').value+'%';dibujar();}
+function fit(){const w=$('viewport').clientWidth-18;$('zoom').min=10;$('zoom').value=Math.max(10,Math.min(100,Math.floor((w-2*PADDING)/(GRID_SIZE*72)*100)));resize();}
+function message(text){$('statusBanner').textContent=text;$('statusBanner').className='status-banner';}
+function actualizarEstadoBanner(){const solved=tablero.estaResuelto();$('statusBanner').className='status-banner'+(solved&&!modoEditor?' win':'');$('statusBanner').textContent=modoEditor?'EDITOR · Armá un circuito sin patas sueltas antes de mezclar.':animandoSolver?'Resolución / reproducción en curso…':solved?'¡CIRCUITO COMPLETADO! ⚡':'Conectá todas las patas para resolver.';$('moves').textContent=historial.length;$('loose').textContent=tablero.pendientes();$('selected').textContent=seleccionada?`Pieza · fila ${seleccionada.r+1}, columna ${seleccionada.c+1}`:'Seleccioná una pieza';$('btnUndo').disabled=animandoSolver||modoEditor||!historial.length;$('btnStop').disabled=!animandoSolver;$('btnSolve').disabled=animandoSolver||modoEditor;$('log').textContent=historial.slice(-12).map((m,i)=>`${historial.length-Math.min(12,historial.length)+i+1}. `+describe(m)).join('\n');}
+function describe(m){return m.tipo==='rotar'?`Rotar (${m.r+1}, ${m.c+1}) ↺`:`Mover (${m.r1+1}, ${m.c1+1}) → (${m.r2+1}, ${m.c2+1})`;}
+
+
+function play(m){if(!apply(tablero,m))return false;historial.push({...m});seleccionada=m.tipo==='rotar'?{r:m.r,c:m.c}:{r:m.r2,c:m.c2};hint=false;
+ if(!reportado&&!usoAyuda&&!modoEditor&&tablero.estaResuelto()){reportado=true;const piezas=snapshot().piezas.length,par=backup&&backup.length?backup.length:historial.length;
+  salaReport(piezas*10*dificultadActual*Math.min(1,par/Math.max(1,historial.length)),{tablero:GRID_SIZE,piezas,dificultad:dificultadActual,movimientos:historial.length,semilla:seedActual});}
+ actualizarEstadoBanner();dibujar();return true;}
+
+function deshacer(){if(modoEditor||animandoSolver||!historial.length)return;const m=historial.pop();if(m.tipo==='rotar')tablero.obtener(m.r,m.c).rotarHorario();else tablero.mover(m.r2,m.c2,m.r1,m.c1);seleccionada=null;hint=false;actualizarEstadoBanner();dibujar();}
+function reiniciar(){if(modoEditor){message('Salí del editor para reiniciar la partida.');return;}begin(restore(initial),goal,backup);}
+function detenerAnimacionSolver(refresh=true){runToken++;if(worker){worker.terminate();worker=null;}if(timerSolver)clearTimeout(timerSolver);timerSolver=null;animandoSolver=false;if(refresh&&tablero)actualizarEstadoBanner();}
+function animate(seq,label){detenerAnimacionSolver(false);animandoSolver=true; usoAyuda=true; const token=runToken;let idx=0;$('solverInfo').textContent=label+' · '+seq.length+' pasos';actualizarEstadoBanner();function step(){if(token!==runToken)return;if(idx===seq.length){detenerAnimacionSolver();return;}if(!play(seq[idx++])){detenerAnimacionSolver();message('Se detuvo: el próximo movimiento no es válido.');return;}$('solverInfo').textContent=label+` · ${idx} / ${seq.length} pasos`;timerSolver=setTimeout(step,Number($('speed').value));}timerSolver=setTimeout(step,Number($('speed').value));}
+function route(){return backup===null?null:simplify([...inverse(historial),...backup]);}
+function workerSearch(){
+ onmessage=e=>{const {board,maxNodes=100000,maxMs=3500,maxDepth=24}=e.data,n=board.size,grid=Array(n*n).fill(null);board.piezas.forEach(p=>grid[p.r*n+p.c]={p:[...p.patas],s:{...p.simbolos}});let nodes=0,expired=false;const start=performance.now(),path=[];
+ const neighbor=(idx,d)=>{const r=Math.floor(idx/n),c=idx%n;return d===0?(r?idx-n:-1):d===1?(c<n-1?idx+1:-1):d===2?(r<n-1?idx+n:-1):(c?idx-1:-1);};
+ function solved(){let pins=false;for(let i=0;i<grid.length;i++){const p=grid[i];if(!p)continue;for(let d=0;d<4;d++){if(p.p[d])pins=true;const j=neighbor(i,d),q=j>=0?grid[j]:null;if(p.p[d]!== (q?.p[(d+2)%4]||0))return false;}}return pins;}
+ function key(){return grid.map(p=>p?p.p.join('')+Number(p.s.circulo)+Number(p.s.h)+Number(p.s.v):'_').join('|');}
+ for(let limit=0;limit<=maxDepth;limit++){const seen=new Map();function dfs(depth){if(++nodes>maxNodes||performance.now()-start>maxMs){expired=true;return false;}if(solved())return true;if(depth===limit)return false;const k=key();if(seen.has(k)&&seen.get(k)<=depth)return false;seen.set(k,depth);
+ for(let i=0;i<grid.length;i++){const p=grid[i];if(!p)continue;const r=Math.floor(i/n),c=i%n;if(p.s.circulo&&!p.p.every(x=>x===p.p[0])){const old=p.p;p.p=[old[1],old[2],old[3],old[0]];path.push({tipo:'rotar',r,c});if(dfs(depth+1))return true;path.pop();p.p=old;if(expired)return false;}
+ for(let d=0;d<4;d++){if((d%2===0&&!p.s.v)||(d%2===1&&!p.s.h))continue;const j=neighbor(i,d);if(j<0||grid[j])continue;grid[j]=p;grid[i]=null;path.push({tipo:'mover',r1:r,c1:c,r2:Math.floor(j/n),c2:j%n});if(dfs(depth+1))return true;path.pop();grid[i]=p;grid[j]=null;if(expired)return false;}}
+ return false;}
+ if(dfs(0)){postMessage({path,nodes,depth:limit});return;}if(expired)break;}
+ postMessage({path:null,nodes,limited:true});};
+}
+function ejecutarSolverAuto(){if(animandoSolver||modoEditor)return;if(tablero.estaResuelto()){message('El circuito ya está resuelto.');return;}const fallback=route();if(snapshot().piezas.length>8&&fallback!==null){animate(fallback,'Ruta de respaldo (no mínima)');return;}detenerAnimacionSolver(false);animandoSolver=true;actualizarEstadoBanner();message('Buscando con IDDFS en segundo plano… Podés detenerlo.');const token=runToken;
+ function failed(){if(token!==runToken)return;detenerAnimacionSolver();if(fallback!==null)animate(fallback,'Ruta de respaldo (límite de búsqueda)');else message('Búsqueda limitada sin resultado. No demuestra que el tablero sea imposible.');}
+ try{const url=URL.createObjectURL(new Blob(['('+workerSearch.toString()+')()'],{type:'text/javascript'}));worker=new Worker(url);URL.revokeObjectURL(url);worker.onmessage=e=>{if(token!==runToken)return;const result=e.data;detenerAnimacionSolver();if(result.path!==null){animate(result.path,`IDDFS · ${result.nodes} estados · ruta mínima en pasos simples`);}else if(fallback!==null)animate(fallback,'Ruta de respaldo (límite de búsqueda)');else message(`Límite de búsqueda alcanzado (${result.nodes} estados). No se pudo determinar una solución.`);};worker.onerror=failed;worker.postMessage({board:snapshot()});}catch(e){failed();}}
+function pista(){if(modoEditor||animandoSolver)return;if(!goal){message('Este tablero no tiene una solución de referencia guardada. Probá Resolver.');return;}hint=!hint;dibujar();message(hint?'Contornos violetas: posiciones de referencia; números N/E/S/O: patas objetivo. Puede haber otras soluciones.':'Pista oculta.');}
+function dibujar(){if(!tablero)return;ctx.clearRect(0,0,canvas.width,canvas.height);for(let r=0;r<GRID_SIZE;r++)for(let c=0;c<GRID_SIZE;c++){const x=PADDING+c*CELL_PX,y=PADDING+r*CELL_PX;ctx.fillStyle='#0f141d';ctx.fillRect(x+1,y+1,CELL_PX-2,CELL_PX-2);ctx.strokeStyle='#1b2b40';ctx.strokeRect(x+1,y+1,CELL_PX-2,CELL_PX-2);const p=tablero.obtener(r,c);if(p)dibujarPieza(r,c,p,seleccionada?.r===r&&seleccionada?.c===c);}
+ if(hint&&goal){ctx.strokeStyle='#df8bff';ctx.fillStyle='#ffc5ff';ctx.lineWidth=2;ctx.font=`bold ${Math.max(7,CELL_PX*.13)}px monospace`;ctx.textAlign='center';for(const p of goal.piezas){const x=PADDING+p.c*CELL_PX,y=PADDING+p.r*CELL_PX;ctx.strokeRect(x+2,y+2,CELL_PX-4,CELL_PX-4);ctx.fillText(p.patas.join('/'),x+CELL_PX/2,y+CELL_PX-3);}}}
+function dibujarPieza(r, c, pieza, seleccionada) {
+  const x = PADDING + c * CELL_PX;
+  const y = PADDING + r * CELL_PX;
+  const size = CELL_PX * (60/72);
+  const offset = CELL_PX / 12;
+
+  const px = x + offset;
+  const py = y + offset;
+
+  // Patas
+  ctx.fillStyle = '#00f0ff';
+  ctx.shadowColor = '#00f0ff';
+  ctx.shadowBlur = 6;
+
+  DIRS.forEach(([dr,dc],i)=>{const ok=pieza.patas[i]===(tablero.obtener(r+dr,c+dc)?.patas[(i+2)%4]||0);ctx.fillStyle=ok?'#00ff88':'#ffaa00';ctx.shadowColor=ctx.fillStyle;dibujarPatasLado(px,py,size,pieza.patas[i],['N','E','S','O'][i]);});
+
+  ctx.shadowBlur = 0;
+
+  // Cuerpo
+  ctx.beginPath();
+  ctx.roundRect(px, py, size, size, CELL_PX/7);
+  ctx.fillStyle = pieza.esFija() ? '#252e3d' : '#18283b';
+  ctx.fill();
+
+  ctx.lineWidth = seleccionada ? 3 : 2;
+  ctx.strokeStyle = seleccionada ? (modoEditor ? '#ffaa00' : '#00f0ff') : '#2c3e55';
+  if (seleccionada) {
+    ctx.shadowColor = modoEditor ? '#ffaa00' : '#00f0ff';
+    ctx.shadowBlur = 10;
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Símbolos
+  const cx = px + size / 2;
+  const cy = py + size / 2;
+  ctx.strokeStyle = '#00f0ff';
+  ctx.lineWidth = 2;
+
+  if (pieza.simbolos.circulo) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, CELL_PX/6, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  if (pieza.simbolos.h && pieza.simbolos.v) {
+    dibujarFlechas(cx, cy, true, true);
+  } else if (pieza.simbolos.h) {
+    dibujarFlechas(cx, cy, true, false);
+  } else if (pieza.simbolos.v) {
+    dibujarFlechas(cx, cy, false, true);
+  }
+}
+
+function dibujarPatasLado(px, py, size, cant, lado) {
+  if (cant === 0) return;
+  const pinW = Math.max(1,CELL_PX/18);
+  const pinLen = CELL_PX/12;
+
+  for (let i = 0; i < cant; i++) {
+    const step = size / (cant + 1);
+    const pos = (i + 1) * step;
+    let lx, ly, lw, lh;
+
+    if (lado === 'N') { lx = px + pos - pinW / 2; ly = py - pinLen; lw = pinW; lh = pinLen; }
+    else if (lado === 'S') { lx = px + pos - pinW / 2; ly = py + size; lw = pinW; lh = pinLen; }
+    else if (lado === 'O') { lx = px - pinLen; ly = py + pos - pinW / 2; lw = pinLen; lh = pinW; }
+    else if (lado === 'E') { lx = px + size; ly = py + pos - pinW / 2; lw = pinLen; lh = pinW; }
+
+    ctx.fillRect(lx, ly, lw, lh);
+  }
+}
+
+function dibujarFlechas(cx, cy, h, v) {
+  const len = CELL_PX/9;
+  ctx.beginPath();
+  if (h) {
+    ctx.moveTo(cx - len, cy); ctx.lineTo(cx + len, cy);
+    ctx.moveTo(cx - len + 3, cy - 3); ctx.lineTo(cx - len, cy); ctx.lineTo(cx - len + 3, cy + 3);
+    ctx.moveTo(cx + len - 3, cy - 3); ctx.lineTo(cx + len, cy); ctx.lineTo(cx + len - 3, cy + 3);
+  }
+  if (v) {
+    ctx.moveTo(cx, cy - len); ctx.lineTo(cx, cy + len);
+    ctx.moveTo(cx - 3, cy - len + 3); ctx.lineTo(cx, cy - len); ctx.lineTo(cx + 3, cy - len + 3);
+    ctx.moveTo(cx - 3, cy + len - 3); ctx.lineTo(cx, cy + len); ctx.lineTo(cx + 3, cy + len - 3);
+  }
+  ctx.stroke();
+}
+
+function alternarModoEditor(){detenerAnimacionSolver();hint=false;if(modoEditor){begin(tablero,tablero.estaResuelto()?snapshot():null,tablero.estaResuelto()?[]:null);message('Partida iniciada desde el diseño actual.');return;}modoEditor=true;historial=[];initial=snapshot();backup=null;goal=null;seleccionada=null;syncUI();actualizarPanelEditor();actualizarEstadoBanner();dibujar();}
+function actualizarPanelEditor(){const p=seleccionada&&tablero.obtener(seleccionada.r,seleccionada.c);$('editorTitle').textContent=p?`Pieza (${seleccionada.r+1}, ${seleccionada.c+1})`:'Click en una celda para crear o seleccionar';$('editorControls').style.display=p?'grid':'none';if(p){['N','E','S','O'].forEach((x,i)=>$('lbl'+x).textContent=p.patas[i]);[['Circ','circulo'],['H','h'],['V','v']].forEach(([id,key])=>$('btnSym'+id).classList.toggle('active',p.simbolos[key]));}}
+function cambiarPatasSide(i){if(!modoEditor||!seleccionada)return;const p=tablero.obtener(seleccionada.r,seleccionada.c);if(p)p.patas[i]=(p.patas[i]+1)%4;actualizarPanelEditor();actualizarEstadoBanner();dibujar();}
+function toggleSimbolo(k){if(!modoEditor||!seleccionada)return;const p=tablero.obtener(seleccionada.r,seleccionada.c);if(p)p.simbolos[k]=!p.simbolos[k];actualizarPanelEditor();dibujar();}
+function borrarPieza(){if(!modoEditor||!seleccionada)return;tablero.colocar(seleccionada.r,seleccionada.c,null);seleccionada=null;actualizarPanelEditor();actualizarEstadoBanner();dibujar();}
+function limpiarTableroEditor(){if(!modoEditor)return;tablero=new Tablero();seleccionada=null;actualizarPanelEditor();actualizarEstadoBanner();dibujar();}
+function mezclarYJugar(){if(!modoEditor)return;const s=snapshot();if(s.piezas.length<2||!tablero.estaResuelto()){message('No se puede mezclar: necesitás al menos dos piezas y todas las patas conectadas.');return;}const t=restore(s),seq=mix(t,Math.max(10,s.piezas.length*DIFICULTADES[dificultadActual].mezcla),rng(seedActual+'-editor'));if(t.estaResuelto()){message('El diseño no permite desarmar el circuito. Agregá permisos de rotación o movimiento.');return;}begin(t,s,simplify(inverse(seq)));}
+function download(data,name){const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function gameData(){return {juego:'Circuito Electronico',version:2,tipo:'partida',nivel,dificultad:dificultadActual,semilla:seedActual,inicial:initial,movimientos:historial,ruta_respaldo:backup,solucion:goal,resuelto:tablero.estaResuelto()};}
+function descargarMovimientosJSON(){if(modoEditor){exportarNivelJSON();return;}download(gameData(),'circuito-'+GRID_SIZE+'x'+GRID_SIZE+'-partida.json');}
+function exportarNivelJSON(){download({juego:'Circuito Electronico',version:2,tipo:'nivel',inicial:snapshot(),movimientos:[],semilla:seedActual,dificultad:dificultadActual,ruta_respaldo:tablero.estaResuelto()?[]:null,solucion:tablero.estaResuelto()?snapshot():null},'circuito-'+GRID_SIZE+'x'+GRID_SIZE+'-nivel.json');}
+function validateBoard(s){if(!s||!Number.isInteger(s.size)||s.size<2||s.size>30||!Array.isArray(s.piezas)||s.piezas.length>s.size*s.size)throw Error('Tablero inválido: dimensiones entre 2 y 30.');const occupied=new Set();for(const p of s.piezas){if(!p||!Number.isInteger(p.r)||!Number.isInteger(p.c)||p.r<0||p.c<0||p.r>=s.size||p.c>=s.size)throw Error('Coordenadas de pieza inválidas.');const k=p.r+','+p.c;if(occupied.has(k))throw Error('Hay dos piezas en la misma celda.');occupied.add(k);if(!Array.isArray(p.patas)||p.patas.length!==4||p.patas.some(x=>!Number.isInteger(x)||x<0||x>3))throw Error('Cada lado debe tener entre 0 y 3 patas.');if(!p.simbolos||['circulo','h','v'].some(k=>typeof p.simbolos[k]!=='boolean'))throw Error('Permisos inválidos.');}return snapshot(restore(s));}
+function validateMoves(seq,s){if(!Array.isArray(seq)||seq.length>50000)throw Error('Lista de movimientos inválida o demasiado larga.');const t=restore(s),clean=[];for(const m of seq){if(!m||!['rotar','mover'].includes(m.tipo))throw Error('Tipo de movimiento inválido.');const keys=m.tipo==='rotar'?['r','c']:['r1','c1','r2','c2'];if(keys.some(k=>!Number.isInteger(m[k])||m[k]<0||m[k]>=s.size))throw Error('Coordenadas inválidas en un movimiento.');const a={tipo:m.tipo};keys.forEach(k=>a[k]=m[k]);if(!apply(t,a))throw Error('La secuencia contiene movimientos ilegales.');clean.push(a);}return {t,seq:clean};}
+function samePieces(a,b){const signature=p=>{const rotations=[];let pins=p.patas;for(let i=0;i<(p.simbolos.circulo?4:1);i++){rotations.push(pins.join(','));pins=[pins[1],pins[2],pins[3],pins[0]];}return rotations.sort()[0]+JSON.stringify(p.simbolos);};return a.piezas.map(signature).sort().join('|')===b.piezas.map(signature).sort().join('|');}
+function importData(data){if(Array.isArray(data)){const max=Math.max(4,...data.map(p=>Math.max(p.r,p.c)));data={version:2,tipo:'nivel',inicial:{size:max+1,piezas:data},movimientos:[]};}if(data?.version!==2||!data.inicial)throw Error('Este JSON no incluye un tablero inicial compatible. Los archivos antiguos de solo jugadas no se pueden reconstruir.');const s=validateBoard(data.inicial),played=validateMoves(data.movimientos||[],s);let b=null,g=null;if(data.ruta_respaldo!=null){const checked=validateMoves(data.ruta_respaldo,s);if(!checked.t.estaResuelto())throw Error('La ruta de respaldo no termina en un circuito resuelto.');b=checked.seq;g=snapshot(checked.t);}else if(data.solucion!=null){const suggested=validateBoard(data.solucion);if(suggested.size!==s.size||!samePieces(s,suggested)||!restore(suggested).estaResuelto())throw Error('La solución de referencia no corresponde a las piezas.');g=suggested;}
+ dificultadActual=[1,2,3].includes(data.dificultad)?data.dificultad:2;nivel=Number.isInteger(data.nivel)&&data.nivel>0?data.nivel:1;seedActual=typeof data.semilla==='string'?data.semilla.slice(0,80):'';if(![...$('size').options].some(o=>Number(o.value)===s.size))$('size').add(new Option(String(s.size),String(s.size)));begin(restore(s),g,b);tablero=played.t;historial=played.seq;actualizarEstadoBanner();dibujar();fit();message('JSON cargado: '+historial.length+' movimientos. Usá Repetir jugadas para verlos desde el inicio.');}
+function replay(){if(modoEditor||animandoSolver)return;if(!historial.length){message('Todavía no hay jugadas para reproducir.');return;}const seq=historial.map(m=>({...m}));begin(restore(initial),goal,backup);animate(seq,'Reproducción de jugadas');}
+let pointer=null;
+function coords(e){const rect=canvas.getBoundingClientRect();return {r:Math.floor(((e.clientY-rect.top)*canvas.height/rect.height-PADDING)/CELL_PX),c:Math.floor(((e.clientX-rect.left)*canvas.width/rect.width-PADDING)/CELL_PX)};}
+canvas.addEventListener('pointerdown',e=>{if(animandoSolver||e.button!==0)return;const p=coords(e);if(p.r<0||p.c<0||p.r>=GRID_SIZE||p.c>=GRID_SIZE)return;canvas.setPointerCapture(e.pointerId);pointer={x:e.clientX,y:e.clientY,drag:false,id:e.pointerId};hint=false;if(modoEditor&&!tablero.obtener(p.r,p.c))tablero.colocar(p.r,p.c,new Pieza([0,0,0,0],{circulo:true,h:false,v:false}));seleccionada=tablero.obtener(p.r,p.c)?p:null;if(modoEditor)actualizarPanelEditor();actualizarEstadoBanner();dibujar();});
+canvas.addEventListener('pointermove',e=>{if(!pointer||pointer.id!==e.pointerId||animandoSolver)return;if(Math.hypot(e.clientX-pointer.x,e.clientY-pointer.y)>5)pointer.drag=true;if(!pointer.drag||!seleccionada||modoEditor)return;const pos=coords(e);let dr=pos.r-seleccionada.r,dc=pos.c-seleccionada.c;if(dr&&dc){if(Math.abs(dr)>Math.abs(dc))dc=0;else dr=0;}const steps=Math.min(GRID_SIZE,Math.abs(dr||dc));for(let i=0;i<steps;i++){const {r,c}=seleccionada;if(!play({tipo:'mover',r1:r,c1:c,r2:r+Math.sign(dr),c2:c+Math.sign(dc)}))break;}});
+canvas.addEventListener('pointerup',e=>{if(!pointer||pointer.id!==e.pointerId)return;if(!pointer.drag&&!modoEditor&&!animandoSolver&&seleccionada)play({tipo:'rotar',...seleccionada});pointer=null;});canvas.addEventListener('pointercancel',()=>pointer=null);canvas.addEventListener('lostpointercapture',()=>pointer=null);
+window.addEventListener('keydown',e=>{if(['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;const k=e.key.toLowerCase();if(k==='escape'){detenerAnimacionSolver();$('helpModal').style.display='none';return;}if($('helpModal').style.display==='flex')return;if(animandoSolver)return;if([' ','enter','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();if(k==='u')deshacer();else if(k==='r')reiniciar();else if(k==='n'){nivel++;iniciarJuego(true);}else if(k==='h')pista();else if(['1','2','3'].includes(k)){$('difficulty').value=k;iniciarJuego();}else if(seleccionada&&!modoEditor){if(k===' '||k==='enter')play({tipo:'rotar',...seleccionada});else{const d={arrowup:[-1,0],arrowdown:[1,0],arrowleft:[0,-1],arrowright:[0,1]}[k];if(d)play({tipo:'mover',r1:seleccionada.r,c1:seleccionada.c,r2:seleccionada.r+d[0],c2:seleccionada.c+d[1]});}}});
+$('btnGenerate').onclick=()=>iniciarJuego();$('btnNew').onclick=()=>{nivel++;iniciarJuego(true);};$('btnUndo').onclick=deshacer;$('btnReset').onclick=reiniciar;$('btnHint').onclick=pista;$('btnEditor').onclick=alternarModoEditor;$('btnSolve').onclick=ejecutarSolverAuto;$('btnStop').onclick=()=>detenerAnimacionSolver();$('btnReplay').onclick=replay;$('btnExport').onclick=descargarMovimientosJSON;$('btnImport').onclick=()=>$('fileInput').click();$('btnFit').onclick=fit;$('zoom').oninput=resize;$('size').onchange=()=>{const n=Number($('size').value);$('pieces').value=Math.max(4,Math.round(n*n*.24));$('pieces').max=n*n-1;};$('btnHelp').onclick=()=>$('helpModal').style.display='flex';$('btnCloseHelp').onclick=()=>$('helpModal').style.display='none';
+$('fileInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{if(f.size>8*1024*1024)throw Error('El JSON supera 8 MB.');const data=JSON.parse(await f.text());importData(data);}catch(err){message('No se pudo cargar: '+err.message);}e.target.value='';};
+iniciarJuego();
+
+</script></body></html>
