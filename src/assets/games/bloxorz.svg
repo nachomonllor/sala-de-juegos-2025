@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 270" width="480" height="270">
+  <rect width="480" height="270" fill="#151025"/>
+  <g stroke="#334155" stroke-width="2" fill="#cbd5e1" fill-opacity=".25">
+   <rect x="120" y="150" width="50" height="50"/><rect x="170" y="150" width="50" height="50"/><rect x="220" y="150" width="50" height="50"/><rect x="270" y="150" width="50" height="50" fill="#38bdf8" fill-opacity=".6"/></g>
+   <rect x="175" y="50" width="40" height="95" rx="4" fill="#d97706" stroke="#fef08a" stroke-width="3"/>
+  <rect x="0" y="222" width="480" height="48" fill="#000" fill-opacity=".55"/>
+  <text x="20" y="254" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="24" font-weight="700">Bloxorz 3D</text>
+</svg>

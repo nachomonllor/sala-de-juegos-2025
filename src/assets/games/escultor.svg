@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 270" width="480" height="270">
+  <rect width="480" height="270" fill="#0b1f2e"/>
+  <rect x="150" y="60" width="120" height="120" fill="#f5bc57" fill-opacity=".35" stroke="#f5bc57" stroke-width="3"/>
+   <circle cx="290" cy="150" r="70" fill="#78adff" fill-opacity=".35" stroke="#78adff" stroke-width="3"/>
+   <path d="M150 60h120v120h-120z" fill="none" stroke="#63ead4" stroke-width="3" stroke-dasharray="10 8" transform="translate(40 20)"/>
+  <rect x="0" y="222" width="480" height="48" fill="#000" fill-opacity=".55"/>
+  <text x="20" y="254" fill="#63ead4" font-family="system-ui, sans-serif" font-size="24" font-weight="700">Escultor ∪</text>
+</svg>

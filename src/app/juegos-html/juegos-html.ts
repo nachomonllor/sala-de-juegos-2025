@@ -21,6 +21,7 @@ export const JUEGOS_HTML: JuegoHtml[] = [
   { id: 'cube-move',     codigo: 'cube_move',     nombre: 'Cube Move 3D',           archivo: 'cube-move.html' },
   { id: 'neon-slide',    codigo: 'neon_slide',    nombre: 'Neon Slide',             archivo: 'neon-slide.html' },
   { id: 'neon-shapes',   codigo: 'neon_shapes',   nombre: 'Neon Slide Shapes',      archivo: 'neon-shapes.html' },
+  { id: 'rayland',       codigo: 'rayland',       nombre: 'Rayland',                archivo: 'rayland.html' },
 ];
 
 

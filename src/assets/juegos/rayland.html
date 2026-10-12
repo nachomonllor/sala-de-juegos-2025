@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rayland</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #04060d;
+    --panel: rgba(14, 20, 38, 0.72);
+    --line: rgba(120, 140, 200, 0.16);
+    --text: #e8edf8;
+    --muted: #8a96b4;
+    --laser: #ff2a6d;
+    --cyan: #3be8ff;
+    --green: #3dffb0;
+    --violet: #b36bff;
+    --gold: #f5c35b;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--text);
+    background:
+        radial-gradient(ellipse 70% 50% at 50% -10%, rgba(255, 42, 109, 0.14), transparent 70%),
+        radial-gradient(ellipse 60% 50% at 100% 100%, rgba(59, 232, 255, 0.07), transparent 70%),
+        var(--bg);
+    display: flex; justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+}
+.app { width: 100%; max-width: 620px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.top {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 14px; border: 1px solid var(--line); border-radius: 18px;
+    background: var(--panel); backdrop-filter: blur(12px);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+    width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+    background: linear-gradient(135deg, #ff2a6d, #a5174a);
+    box-shadow: 0 0 22px rgba(255, 42, 109, 0.45);
+}
+h1 {
+    margin: 0; font-family: 'Rajdhani', sans-serif; font-size: 26px; letter-spacing: 4px; line-height: 1;
+    text-shadow: 0 0 12px rgba(255, 42, 109, 0.7);
+}
+.brand small { color: var(--muted); font-size: 11px; letter-spacing: 1px; }
+.actions { display: flex; gap: 8px; }
+.icon-btn {
+    width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line);
+    background: rgba(30, 40, 70, 0.55); color: var(--text); cursor: pointer;
+    display: grid; place-items: center; transition: background .15s, transform .1s, box-shadow .15s;
+}
+.icon-btn:hover { background: rgba(50, 64, 110, 0.7); box-shadow: 0 0 14px rgba(59, 232, 255, 0.18); }
+.icon-btn:active { transform: scale(0.94); }
+.icon-btn:disabled { opacity: .35; cursor: default; }
+.icon-btn svg { width: 19px; height: 19px; }
+
+.hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.stat {
+    padding: 8px 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel);
+    display: flex; flex-direction: column; gap: 2px; min-width: 0;
+}
+.stat .lbl { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.stat .val { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 20px; line-height: 1.1; }
+.stat .val.pink { color: #ff6b9a; }
+.stat .val.green { color: var(--green); }
+
+.title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 0 4px; }
+.level-name { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 1px; margin: 0; }
+.level-stars { color: var(--gold); letter-spacing: 2px; font-size: 14px; }
+
+.board-wrap {
+    position: relative; padding: 12px; border-radius: 24px; border: 1px solid rgba(255, 42, 109, 0.22);
+    background: linear-gradient(160deg, rgba(20, 26, 48, 0.9), rgba(8, 11, 22, 0.95));
+    box-shadow: 0 0 40px rgba(255, 42, 109, 0.12), inset 0 0 30px rgba(0, 0, 0, 0.6);
+    display: flex; justify-content: center;
+}
+canvas { display: block; border-radius: 14px; touch-action: manipulation; cursor: pointer; }
+
+.desc {
+    margin: 0; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--panel);
+    color: #b8c2dc; font-size: 14px; line-height: 1.45; text-align: center;
+}
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: center; font-size: 12px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+.overlay {
+    position: absolute; inset: 0; border-radius: 24px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px; padding: 20px; text-align: center;
+    background: rgba(4, 7, 15, 0.78); backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none; transition: opacity .35s;
+}
+.overlay.show { opacity: 1; pointer-events: auto; }
+.overlay h2 { margin: 0; font-family: 'Rajdhani', sans-serif; font-size: 34px; letter-spacing: 2px; text-shadow: 0 0 16px rgba(61, 255, 176, 0.6); }
+.overlay p { margin: 0; color: #b8c2dc; font-size: 14px; }
+.stars { display: flex; gap: 10px; }
+.stars svg { width: 46px; height: 46px; transform: scale(0); transition: transform .35s cubic-bezier(.3, 1.6, .5, 1); }
+.overlay.show .stars svg { transform: scale(1); }
+.overlay.show .stars svg:nth-child(2) { transition-delay: .12s; }
+.overlay.show .stars svg:nth-child(3) { transition-delay: .24s; }
+.btn-row { display: flex; gap: 10px; margin-top: 6px; }
+.btn {
+    border: 0; border-radius: 14px; padding: 12px 20px; cursor: pointer; font-family: 'Rajdhani', sans-serif;
+    font-size: 18px; font-weight: 700; letter-spacing: 1px; color: #fff;
+    background: linear-gradient(135deg, #ff2a6d, #c2185b); box-shadow: 0 0 22px rgba(255, 42, 109, 0.4);
+}
+.btn.ghost { background: rgba(40, 52, 90, 0.7); box-shadow: none; border: 1px solid var(--line); }
+.btn:active { transform: scale(0.97); }
+
+.modal {
+    position: fixed; inset: 0; background: rgba(2, 4, 10, 0.75); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+    opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 20;
+}
+.modal.show { opacity: 1; pointer-events: auto; }
+.panel {
+    width: 100%; max-width: 460px; border-radius: 22px; border: 1px solid var(--line);
+    background: linear-gradient(160deg, #111833, #080b18); padding: 20px;
+}
+.panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.panel h2 { margin: 0; font-family: 'Rajdhani', sans-serif; letter-spacing: 2px; }
+.level-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.lv {
+    aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--line); background: rgba(30, 40, 70, 0.55);
+    color: var(--text); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700;
+}
+.lv:hover { border-color: rgba(255, 42, 109, 0.6); }
+.lv.current { background: linear-gradient(135deg, #ff2a6d, #a5174a); border-color: transparent; }
+.lv small { font-size: 10px; color: var(--gold); letter-spacing: 1px; min-height: 12px; }
+footer { text-align: center; font-size: 11px; color: #5d6886; padding-bottom: 8px; }
+
+@media (max-width: 480px) {
+    .app { padding: 10px; gap: 10px; }
+    .top { padding: 10px; gap: 8px; }
+    .brand { gap: 8px; min-width: 0; }
+    .logo { width: 34px; height: 34px; border-radius: 10px; }
+    h1 { font-size: 19px; letter-spacing: 2px; }
+    .brand small { display: none; }
+    .actions { gap: 6px; flex-shrink: 0; }
+    .icon-btn { width: 34px; height: 34px; border-radius: 10px; }
+    .icon-btn svg { width: 17px; height: 17px; }
+    .hud { gap: 6px; }
+    .stat { padding: 7px 8px; }
+    .stat .lbl { font-size: 9px; letter-spacing: 0.5px; }
+    .stat .val { font-size: 17px; }
+    .board-wrap { padding: 8px; border-radius: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+    <header class="top">
+        <div class="brand">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 L12 11 L21 20"/><path d="M12 11 V3"/><circle cx="12" cy="11" r="1.6" fill="#fff"/></svg>
+            </div>
+            <div>
+                <h1>RAYLAND</h1>
+                <small>Puzzle de espejos y láser</small>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="icon-btn" id="btnLevels" title="Niveles">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+            </button>
+            <button class="icon-btn" id="btnUndo" title="Deshacer (Z)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+            </button>
+            <button class="icon-btn" id="btnReset" title="Reiniciar (R)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+            </button>
+            <button class="icon-btn" id="btnSound" title="Sonido">
+                <svg id="icoSound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <section class="hud">
+        <div class="stat"><span class="lbl">Nivel</span><span class="val pink" id="hudLevel">1 / 1</span></div>
+        <div class="stat"><span class="lbl">Giros</span><span class="val" id="hudMoves">0</span></div>
+        <div class="stat"><span class="lbl">Mínimo</span><span class="val" id="hudPar">0</span></div>
+        <div class="stat"><span class="lbl">Cristales</span><span class="val" id="hudTargets">0 / 0</span></div>
+    </section>
+
+    <div class="title-row">
+        <h2 class="level-name" id="levelName"></h2>
+        <span class="level-stars" id="levelStars"></span>
+    </div>
+
+    <div class="board-wrap" id="boardWrap">
+        <canvas id="game"></canvas>
+        <div class="overlay" id="win">
+            <div class="stars" id="winStars"></div>
+            <h2>¡Nivel completado!</h2>
+            <p id="winText"></p>
+            <div class="btn-row">
+                <button class="btn ghost" id="btnRetry">Repetir</button>
+                <button class="btn" id="btnNext">Siguiente →</button>
+            </div>
+        </div>
+    </div>
+
+    <p class="desc" id="desc"></p>
+
+    <div class="legend">
+        <span><i style="background:#3be8ff"></i>Espejo (se gira)</span>
+        <span><i style="background:#f5c35b"></i>Espejo fijo</span>
+        <span><i style="background:#b36bff"></i>Divisor</span>
+        <span><i style="background:#3dffb0"></i>Cristal</span>
+    </div>
+
+    <footer>Inspirado en el puzzle minimalista Rayland. HTML5 Canvas.</footer>
+</div>
+
+<div class="modal" id="levelsModal">
+    <div class="panel">
+        <div class="panel-head">
+            <h2>NIVELES</h2>
+            <button class="icon-btn" id="btnCloseLevels" title="Cerrar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
+        </div>
+        <div class="level-grid" id="levelGrid"></div>
+    </div>
+</div>
+
+<script>
+// ===== Lógica pura del láser (compartida entre el generador y el juego) =====
+// Direcciones: 0 = arriba, 1 = derecha, 2 = abajo, 3 = izquierda
+const DX = [0, 1, 0, -1];
+const DY = [-1, 0, 1, 0];
+
+// rot 0 = espejo '/', rot 1 = espejo '\'
+function reflect(d, rot) {
+    return rot === 0 ? (d ^ 1) : (3 - d);
+}
+
+function isRotatable(it) {
+    return (it.type === 'mirror' || it.type === 'splitter') && !it.fixed;
+}
+
+// Simula el haz completo (con ramificaciones por divisores y protección contra bucles).
+function simulate(level, rots) {
+    const N = level.size;
+    const grid = new Int16Array(N * N).fill(-1);
+    level.items.forEach((it, i) => { grid[it.y * N + it.x] = i; });
+    const E = level.emitter;
+    grid[E.y * N + E.x] = -2;
+
+    const segs = [];
+    const litDist = {};
+    const touched = new Set();
+    const visited = new Set();
+    const queue = [{ x: E.x, y: E.y, d: E.dir, dist: 0 }];
+    let guard = 0;
+
+    while (queue.length && guard++ < 400) {
+        const b = queue.shift();
+        let x = b.x, y = b.y;
+        const d = b.d;
+        let len = 0, end = null;
+        const next = [];
+
+        for (;;) {
+            const nx = x + DX[d], ny = y + DY[d];
+            if (nx < 0 || ny < 0 || nx >= N || ny >= N) {
+                end = { x: x + 0.5 + DX[d] * 0.5, y: y + 0.5 + DY[d] * 0.5, kind: 'edge' };
+                len += 0.5; break;
+            }
+            const g = grid[ny * N + nx];
+            if (g === -2 || (g >= 0 && level.items[g].type === 'block')) {
+                end = { x: x + 0.5 + DX[d] * 0.5, y: y + 0.5 + DY[d] * 0.5, kind: 'block' };
+                len += 0.5; break;
+            }
+            x = nx; y = ny; len += 1;
+            if (g >= 0) {
+                const it = level.items[g];
+                if (it.type === 'target') {
+                    const dd = b.dist + len;
+                    if (litDist[g] === undefined || dd < litDist[g]) litDist[g] = dd;
+                } else {
+                    touched.add(g);
+                    end = { x: x + 0.5, y: y + 0.5, kind: 'mirror' };
+                    const k = g * 4 + d;
+                    if (!visited.has(k)) {
+                        visited.add(k);
+                        next.push(reflect(d, rots[g]));
+                        if (it.type === 'splitter') next.push(d);
+                    }
+                    break;
+                }
+            }
+        }
+        segs.push({ x1: b.x + 0.5, y1: b.y + 0.5, x2: end.x, y2: end.y, d0: b.dist, d1: b.dist + len, kind: end.kind });
+        for (const nd of next) queue.push({ x, y, d: nd, dist: b.dist + len });
+    }
+
+    let total = 0, lit = 0;
+    level.items.forEach((it, i) => {
+        if (it.type === 'target') { total++; if (litDist[i] !== undefined) lit++; }
+    });
+    return { segs, litDist, touched, lit, total, solved: total > 0 && lit === total };
+}
+
+
+const LEVELS = [{"name":"Introducción","size":4,"desc":"Tocá el espejo para girarlo y llevá el láser hasta el cristal.","emitter":{"x":0,"y":1,"dir":1},"items":[{"type":"mirror","x":2,"y":1,"rot":0,"fixed":false},{"type":"target","x":2,"y":3}],"par":1},{"name":"Doble rebote","size":5,"desc":"Dos espejos, dos rebotes. Pensá el recorrido entero antes de tocar.","emitter":{"x":0,"y":0,"dir":1},"items":[{"type":"mirror","x":3,"y":0,"rot":0,"fixed":false},{"type":"mirror","x":3,"y":3,"rot":1,"fixed":false},{"type":"target","x":0,"y":3},{"type":"block","x":1,"y":1},{"type":"block","x":2,"y":1}],"par":2},{"name":"Desvío","size":5,"desc":"Los bloques frenan el haz. Rodealos.","emitter":{"x":4,"y":2,"dir":3},"items":[{"type":"mirror","x":1,"y":2,"rot":0,"fixed":false},{"type":"mirror","x":1,"y":0,"rot":1,"fixed":false},{"type":"target","x":4,"y":0},{"type":"block","x":2,"y":1},{"type":"block","x":2,"y":3},{"type":"block","x":3,"y":3}],"par":2},{"name":"Laberinto","size":6,"desc":"Tres espejos en cadena. Un solo giro mal puesto y el haz se pierde.","emitter":{"x":0,"y":5,"dir":0},"items":[{"type":"mirror","x":0,"y":1,"rot":1,"fixed":false},{"type":"mirror","x":4,"y":1,"rot":0,"fixed":false},{"type":"mirror","x":4,"y":4,"rot":1,"fixed":false},{"type":"target","x":1,"y":4},{"type":"block","x":2,"y":2},{"type":"block","x":3,"y":2},{"type":"block","x":2,"y":3}],"par":3},{"name":"La vuelta larga","size":6,"desc":"El camino corto está tapado. Dale la vuelta al tablero.","emitter":{"x":5,"y":5,"dir":0},"items":[{"type":"mirror","x":5,"y":1,"rot":0,"fixed":false},{"type":"mirror","x":1,"y":1,"rot":1,"fixed":false},{"type":"mirror","x":1,"y":4,"rot":0,"fixed":false},{"type":"target","x":3,"y":4},{"type":"block","x":3,"y":2},{"type":"block","x":2,"y":2},{"type":"block","x":4,"y":4},{"type":"block","x":3,"y":0}],"par":3},{"name":"Encrucijada","desc":"Ahora hay espejos que sobran. No todos están en el camino.","size":6,"emitter":{"x":4,"y":3,"dir":2},"items":[{"type":"mirror","x":4,"y":5,"rot":0,"fixed":false},{"type":"mirror","x":5,"y":5,"rot":1,"fixed":false},{"type":"mirror","x":5,"y":0,"rot":0,"fixed":false},{"type":"target","x":3,"y":0},{"type":"mirror","x":3,"y":5,"rot":1,"fixed":false},{"type":"mirror","x":3,"y":1,"rot":1,"fixed":false},{"type":"block","x":2,"y":5},{"type":"block","x":0,"y":5},{"type":"block","x":0,"y":2}],"par":3},{"name":"Doble cristal","desc":"Dos cristales: el haz los atraviesa, así que tienen que quedar en la misma línea de luz.","size":6,"emitter":{"x":5,"y":3,"dir":3},"items":[{"type":"mirror","x":3,"y":3,"rot":0,"fixed":false},{"type":"mirror","x":3,"y":1,"rot":0,"fixed":false},{"type":"mirror","x":0,"y":1,"rot":1,"fixed":false},{"type":"target","x":0,"y":4},{"type":"target","x":0,"y":3},{"type":"mirror","x":1,"y":4,"rot":1,"fixed":false},{"type":"mirror","x":3,"y":4,"rot":0,"fixed":false},{"type":"block","x":2,"y":0},{"type":"block","x":1,"y":2},{"type":"block","x":4,"y":0}],"par":3},{"name":"Remaches","desc":"Los espejos dorados con remaches están fijos: no se pueden girar.","size":6,"emitter":{"x":3,"y":2,"dir":3},"items":[{"type":"mirror","x":1,"y":2,"rot":1,"fixed":true},{"type":"mirror","x":1,"y":0,"rot":1,"fixed":false},{"type":"mirror","x":4,"y":0,"rot":0,"fixed":false},{"type":"mirror","x":4,"y":5,"rot":1,"fixed":false},{"type":"target","x":0,"y":5},{"type":"target","x":4,"y":1},{"type":"mirror","x":3,"y":1,"rot":0,"fixed":false},{"type":"mirror","x":0,"y":0,"rot":0,"fixed":false},{"type":"mirror","x":3,"y":4,"rot":0,"fixed":false},{"type":"block","x":2,"y":1},{"type":"block","x":2,"y":4},{"type":"block","x":1,"y":3},{"type":"block","x":0,"y":3}],"par":3},{"name":"Bifurcación","desc":"El divisor violeta deja pasar el haz y a la vez lo refleja: un rayo se vuelve dos.","size":7,"emitter":{"x":4,"y":6,"dir":0},"items":[{"type":"splitter","x":4,"y":2,"rot":1,"fixed":false},{"type":"mirror","x":6,"y":2,"rot":0,"fixed":false},{"type":"mirror","x":4,"y":1,"rot":1,"fixed":false},{"type":"target","x":6,"y":6},{"type":"mirror","x":5,"y":1,"rot":0,"fixed":false},{"type":"target","x":5,"y":6},{"type":"mirror","x":3,"y":2,"rot":0,"fixed":false},{"type":"mirror","x":5,"y":0,"rot":1,"fixed":false},{"type":"mirror","x":3,"y":5,"rot":0,"fixed":false},{"type":"block","x":1,"y":0},{"type":"block","x":0,"y":0},{"type":"block","x":0,"y":3},{"type":"block","x":3,"y":1}],"par":4},{"name":"Triple foco","desc":"Tres cristales que tienen que encenderse al mismo tiempo.","size":7,"emitter":{"x":6,"y":1,"dir":3},"items":[{"type":"mirror","x":2,"y":1,"rot":0,"fixed":true},{"type":"splitter","x":2,"y":3,"rot":1,"fixed":false},{"type":"mirror","x":0,"y":3,"rot":1,"fixed":false},{"type":"mirror","x":2,"y":5,"rot":0,"fixed":false},{"type":"mirror","x":0,"y":6,"rot":0,"fixed":false},{"type":"target","x":6,"y":5},{"type":"target","x":3,"y":6},{"type":"target","x":5,"y":6},{"type":"mirror","x":4,"y":2,"rot":1,"fixed":false},{"type":"mirror","x":5,"y":3,"rot":0,"fixed":false},{"type":"mirror","x":5,"y":0,"rot":1,"fixed":false},{"type":"block","x":2,"y":0},{"type":"block","x":3,"y":0},{"type":"block","x":6,"y":2},{"type":"block","x":6,"y":4},{"type":"block","x":3,"y":4}],"par":4},{"name":"Prisma","desc":"Usá los espejos fijos como guía: te dicen por dónde tiene que pasar el haz.","size":7,"emitter":{"x":1,"y":2,"dir":1},"items":[{"type":"splitter","x":5,"y":2,"rot":1,"fixed":false},{"type":"target","x":5,"y":0},{"type":"mirror","x":6,"y":2,"rot":0,"fixed":true},{"type":"mirror","x":6,"y":1,"rot":1,"fixed":true},{"type":"mirror","x":0,"y":1,"rot":1,"fixed":false},{"type":"mirror","x":0,"y":6,"rot":0,"fixed":false},{"type":"mirror","x":4,"y":6,"rot":1,"fixed":false},{"type":"target","x":4,"y":4},{"type":"target","x":0,"y":3},{"type":"mirror","x":3,"y":4,"rot":0,"fixed":false},{"type":"mirror","x":2,"y":0,"rot":0,"fixed":false},{"type":"mirror","x":5,"y":4,"rot":0,"fixed":false},{"type":"block","x":2,"y":3},{"type":"block","x":5,"y":5},{"type":"block","x":1,"y":0},{"type":"block","x":6,"y":3},{"type":"block","x":3,"y":0}],"par":4},{"name":"Red de luz","desc":"Dos divisores. Seguí cada rama por separado.","size":8,"emitter":{"x":6,"y":1,"dir":3},"items":[{"type":"splitter","x":4,"y":1,"rot":0,"fixed":false},{"type":"mirror","x":4,"y":0,"rot":1,"fixed":false},{"type":"splitter","x":2,"y":1,"rot":1,"fixed":false},{"type":"mirror","x":7,"y":0,"rot":1,"fixed":true},{"type":"mirror","x":2,"y":7,"rot":0,"fixed":true},{"type":"mirror","x":1,"y":1,"rot":1,"fixed":false},{"type":"mirror","x":7,"y":7,"rot":1,"fixed":false},{"type":"target","x":0,"y":7},{"type":"target","x":1,"y":6},{"type":"target","x":3,"y":7},{"type":"mirror","x":1,"y":0,"rot":0,"fixed":false},{"type":"mirror","x":3,"y":5,"rot":1,"fixed":false},{"type":"mirror","x":6,"y":4,"rot":0,"fixed":false},{"type":"block","x":0,"y":6},{"type":"block","x":3,"y":4},{"type":"block","x":3,"y":2},{"type":"block","x":6,"y":6},{"type":"block","x":4,"y":4},{"type":"block","x":4,"y":2}],"par":5},{"name":"Eclipse","desc":"Muchos espejos señuelo. Empezá desde el emisor y avanzá de a un rebote.","size":8,"emitter":{"x":1,"y":6,"dir":3},"items":[{"type":"mirror","x":0,"y":6,"rot":1,"fixed":true},{"type":"splitter","x":0,"y":4,"rot":1,"fixed":false},{"type":"mirror","x":5,"y":4,"rot":0,"fixed":false},{"type":"mirror","x":0,"y":1,"rot":0,"fixed":true},{"type":"mirror","x":5,"y":6,"rot":1,"fixed":false},{"type":"mirror","x":3,"y":1,"rot":0,"fixed":false},{"type":"target","x":3,"y":6},{"type":"mirror","x":3,"y":5,"rot":1,"fixed":false},{"type":"target","x":1,"y":5},{"type":"target","x":0,"y":2},{"type":"mirror","x":0,"y":0,"rot":0,"fixed":false},{"type":"mirror","x":1,"y":3,"rot":1,"fixed":false},{"type":"mirror","x":5,"y":7,"rot":1,"fixed":false},{"type":"mirror","x":3,"y":0,"rot":1,"fixed":false},{"type":"block","x":6,"y":2},{"type":"block","x":1,"y":7},{"type":"block","x":4,"y":1},{"type":"block","x":5,"y":0},{"type":"block","x":4,"y":7},{"type":"block","x":6,"y":3}],"par":5},{"name":"Constelación","desc":"Cuatro cristales repartidos por todo el tablero.","size":8,"emitter":{"x":7,"y":1,"dir":3},"items":[{"type":"splitter","x":5,"y":1,"rot":1,"fixed":false},{"type":"mirror","x":5,"y":6,"rot":1,"fixed":true},{"type":"splitter","x":3,"y":1,"rot":1,"fixed":false},{"type":"mirror","x":7,"y":6,"rot":1,"fixed":false},{"type":"target","x":3,"y":5},{"type":"mirror","x":1,"y":1,"rot":1,"fixed":false},{"type":"mirror","x":7,"y":2,"rot":1,"fixed":true},{"type":"mirror","x":1,"y":4,"rot":0,"fixed":false},{"type":"mirror","x":0,"y":2,"rot":0,"fixed":false},{"type":"target","x":6,"y":4},{"type":"target","x":0,"y":0},{"type":"target","x":5,"y":3},{"type":"mirror","x":4,"y":3,"rot":0,"fixed":false},{"type":"mirror","x":5,"y":0,"rot":1,"fixed":false},{"type":"mirror","x":0,"y":5,"rot":1,"fixed":false},{"type":"mirror","x":2,"y":6,"rot":1,"fixed":false},{"type":"block","x":7,"y":0},{"type":"block","x":0,"y":7},{"type":"block","x":4,"y":5},{"type":"block","x":0,"y":3},{"type":"block","x":1,"y":6},{"type":"block","x":2,"y":3},{"type":"block","x":6,"y":0}],"par":6},{"name":"Maestro Rayland","desc":"El desafío final. Todo lo aprendido, junto.","size":8,"emitter":{"x":1,"y":6,"dir":0},"items":[{"type":"splitter","x":1,"y":4,"rot":1,"fixed":false},{"type":"mirror","x":7,"y":4,"rot":1,"fixed":false},{"type":"splitter","x":1,"y":1,"rot":0,"fixed":false},{"type":"mirror","x":7,"y":3,"rot":0,"fixed":false},{"type":"mirror","x":0,"y":1,"rot":0,"fixed":false},{"type":"mirror","x":1,"y":0,"rot":0,"fixed":true},{"type":"mirror","x":4,"y":3,"rot":1,"fixed":false},{"type":"target","x":0,"y":0},{"type":"mirror","x":5,"y":0,"rot":1,"fixed":true},{"type":"target","x":4,"y":7},{"type":"mirror","x":5,"y":6,"rot":0,"fixed":false},{"type":"target","x":7,"y":6},{"type":"target","x":6,"y":6},{"type":"mirror","x":7,"y":2,"rot":1,"fixed":false},{"type":"mirror","x":0,"y":7,"rot":1,"fixed":false},{"type":"mirror","x":5,"y":7,"rot":0,"fixed":false},{"type":"mirror","x":2,"y":1,"rot":0,"fixed":false},{"type":"block","x":2,"y":5},{"type":"block","x":6,"y":2},{"type":"block","x":0,"y":3},{"type":"block","x":2,"y":2},{"type":"block","x":0,"y":4},{"type":"block","x":6,"y":0},{"type":"block","x":4,"y":2},{"type":"block","x":2,"y":7}],"par":7}];
+
+// ================= Estado =================
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const $ = id => document.getElementById(id);
+
+let lvlIndex = 0, level = null, items = [], moves = 0, history = [];
+let sim = null, won = false, winShown = false;
+let cssSize = 400, dpr = 1;
+let beamStart = 0, particles = [], hoverCell = null, shake = null;
+const BEAM_SPEED = 26; // celdas por segundo al "dibujarse" el haz
+
+// Sala de Juegos: si el juego corre dentro de la sala, avisa el puntaje.
+function salaReport(puntaje, detalle) {
+    try {
+        if (window.parent !== window) window.parent.postMessage(
+            { tipo: 'sala-juegos:resultado', juego: 'rayland', puntaje: Math.round(puntaje), detalle },
+            window.location.origin);
+    } catch (e) {}
+}
+
+const store = {
+    get(k, def) { try { const v = localStorage.getItem(k); return v === null ? def : JSON.parse(v); } catch (e) { return def; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const progress = store.get('rayland.progress', {});
+
+// ================= Sonido =================
+let audioCtx = null, soundOn = store.get('rayland.sound', true);
+function audio() {
+    if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+}
+function tone(freq, dur, type, vol, delay = 0, slideTo = null) {
+    const a = audio(); if (!a) return;
+    const t = a.currentTime + delay;
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(a.destination);
+    o.start(t); o.stop(t + dur + 0.02);
+}
+function sfx(kind) {
+    if (!soundOn) return;
+    if (kind === 'rotate') tone(520, 0.09, 'sine', 0.12, 0, 880);
+    else if (kind === 'deny') { tone(140, 0.12, 'square', 0.05); tone(110, 0.12, 'square', 0.05, 0.06); }
+    else if (kind === 'lit') tone(1320, 0.25, 'triangle', 0.08, 0, 1760);
+    else if (kind === 'win') [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, 0.35, 'triangle', 0.14, i * 0.1));
+    else if (kind === 'undo') tone(700, 0.08, 'sine', 0.08, 0, 420);
+}
+function updateSoundIcon() {
+    $('icoSound').innerHTML = soundOn
+        ? '<path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/>'
+        : '<path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m22 9-6 6M16 9l6 6"/>';
+}
+
+// ================= Niveles =================
+const rotAngle = r => (r === 0 ? -Math.PI / 4 : Math.PI / 4);
+
+function loadLevel(i) {
+    lvlIndex = (i + LEVELS.length) % LEVELS.length;
+    level = LEVELS[lvlIndex];
+    items = level.items.map(it => ({ ...it, ang: rotAngle(it.rot || 0), angT: rotAngle(it.rot || 0), shown: false, glow: 0, pop: 0 }));
+    moves = 0; history = []; won = false; winShown = false; particles = []; shake = null;
+    $('win').classList.remove('show');
+    store.set('rayland.last', lvlIndex);
+    recompute();
+    updateHud();
+    resize();
+}
+
+function recompute() {
+    sim = simulate({ size: level.size, emitter: level.emitter, items }, items.map(it => it.rot || 0));
+    beamStart = performance.now();
+}
+
+function starsFor(m, par) { return m <= par ? 3 : m <= par + 2 ? 2 : 1; }
+function starStr(n) { return n ? '★'.repeat(n) + '☆'.repeat(3 - n) : ''; }
+
+function updateHud() {
+    $('hudLevel').textContent = `${lvlIndex + 1} / ${LEVELS.length}`;
+    $('hudMoves').textContent = moves;
+    $('hudPar').textContent = level.par;
+    const litNow = items.filter(it => it.type === 'target' && it.shown).length;
+    const total = items.filter(it => it.type === 'target').length;
+    $('hudTargets').textContent = `${litNow} / ${total}`;
+    $('hudTargets').className = 'val' + (litNow === total ? ' green' : '');
+    $('levelName').textContent = level.name;
+    $('levelStars').textContent = starStr(progress[lvlIndex] || 0);
+    $('desc').textContent = level.desc;
+    $('btnUndo').disabled = history.length === 0 || won;
+}
+
+function rotateAt(idx, record = true) {
+    const it = items[idx];
+    it.rot ^= 1;
+    it.angT += record ? Math.PI / 2 : -Math.PI / 2;
+    it.pop = 1;
+    if (record) { history.push(idx); moves++; } else { moves = Math.max(0, moves - 1); }
+    recompute();
+    updateHud();
+}
+
+function undo() {
+    if (!history.length || won) return;
+    rotateAt(history.pop(), false);
+    sfx('undo');
+}
+
+function onWin() {
+    winShown = true;
+    const st = starsFor(moves, level.par);
+
+    salaReport(1000 * level.par / Math.max(moves, level.par),
+    { nivel: lvlIndex + 1, giros: moves, minimo: level.par, estrellas: st });
+
+    if ((progress[lvlIndex] || 0) < st) { progress[lvlIndex] = st; store.set('rayland.progress', progress); }
+    const starSvg = on => `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 17.2l-5.9 3.3 1.3-6.6-4.9-4.5 6.6-.8z" fill="${on ? '#f5c35b' : 'rgba(120,135,170,.25)'}" stroke="${on ? '#ffe3a0' : 'rgba(120,135,170,.4)'}" stroke-width="1" ${on ? 'style="filter:drop-shadow(0 0 8px rgba(245,195,91,.7))"' : ''}/></svg>`;
+    $('winStars').innerHTML = [1, 2, 3].map(n => starSvg(n <= st)).join('');
+    $('winText').textContent = moves <= level.par
+        ? `Perfecto: ${moves} ${moves === 1 ? 'giro' : 'giros'}, el mínimo posible.`
+        : `${moves} giros (el mínimo es ${level.par}).`;
+    $('btnNext').textContent = lvlIndex === LEVELS.length - 1 ? 'Volver al 1 →' : 'Siguiente →';
+    setTimeout(() => $('win').classList.add('show'), 650);
+    updateHud();
+}
+
+// ================= Tamaño =================
+function resize() {
+    const wrap = $('boardWrap');
+    const padding = window.innerWidth <= 480 ? 16 : 24;
+    const avail = Math.min(wrap.clientWidth - padding, 560, Math.max(260, window.innerHeight - 300));
+    cssSize = Math.max(240, Math.floor(avail));
+    dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    canvas.style.width = cssSize + 'px';
+    canvas.style.height = cssSize + 'px';
+    canvas.width = Math.round(cssSize * dpr);
+    canvas.height = Math.round(cssSize * dpr);
+}
+window.addEventListener('resize', resize);
+
+// ================= Dibujo: utilidades =================
+function rr(x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+}
+function poly(cx, cy, r, n, rot = 0) {
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+        const a = rot + i * Math.PI * 2 / n;
+        const px = cx + Math.cos(a) * r, py = cy + Math.sin(a) * r;
+        i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+    }
+    ctx.closePath();
+}
+function spawn(x, y, color, n, speed) {
+    for (let i = 0; i < n; i++) {
+        const a = Math.random() * Math.PI * 2, v = speed * (0.4 + Math.random() * 0.8);
+        particles.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1, decay: 0.9 + Math.random() * 1.2, size: 1 + Math.random() * 2.2, color });
+    }
+}
+
+// ================= Dibujo: tablero =================
+function drawBoard(C, N, t) {
+    const bg = ctx.createLinearGradient(0, 0, cssSize, cssSize);
+    bg.addColorStop(0, '#0b1124'); bg.addColorStop(1, '#060914');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, cssSize, cssSize);
+
+    const g = C * 0.05;
+    for (let x = 0; x < N; x++) for (let y = 0; y < N; y++) {
+        const px = x * C + g, py = y * C + g, s = C - g * 2;
+        const tile = ctx.createLinearGradient(px, py, px, py + s);
+        tile.addColorStop(0, (x + y) % 2 ? '#111a33' : '#0f172e');
+        tile.addColorStop(1, '#0a1020');
+        ctx.fillStyle = tile;
+        rr(px, py, s, s, C * 0.12); ctx.fill();
+        ctx.strokeStyle = 'rgba(110,135,210,0.10)'; ctx.lineWidth = 1; ctx.stroke();
+    }
+    // puntos en las esquinas
+    ctx.fillStyle = 'rgba(120,150,230,0.18)';
+    for (let x = 1; x < N; x++) for (let y = 1; y < N; y++) {
+        ctx.beginPath(); ctx.arc(x * C, y * C, Math.max(1, C * 0.018), 0, Math.PI * 2); ctx.fill();
+    }
+    // celda bajo el cursor
+    if (hoverCell && !won) {
+        const it = items.find(i => i.x === hoverCell.x && i.y === hoverCell.y);
+        if (it && isRotatable(it)) {
+            ctx.save();
+            ctx.strokeStyle = `rgba(59,232,255,${0.35 + 0.15 * Math.sin(t * 6)})`;
+            ctx.lineWidth = 2;
+            rr(hoverCell.x * C + g, hoverCell.y * C + g, C - g * 2, C - g * 2, C * 0.12); ctx.stroke();
+            ctx.restore();
+        }
+    }
+}
+
+function drawBlock(it, C) {
+    const p = C * 0.1, x = it.x * C + p, y = it.y * C + p, s = C - p * 2;
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = C * 0.12; ctx.shadowOffsetY = C * 0.04;
+    const g = ctx.createLinearGradient(x, y, x + s, y + s);
+    g.addColorStop(0, '#3a4560'); g.addColorStop(0.5, '#232b40'); g.addColorStop(1, '#151a28');
+    ctx.fillStyle = g; rr(x, y, s, s, C * 0.12); ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.strokeStyle = 'rgba(160,180,230,0.22)'; ctx.lineWidth = 1.2;
+    rr(x + 0.5, y + 0.5, s - 1, s - 1, C * 0.12); ctx.stroke();
+    // franjas de peligro
+    rr(x + s * 0.18, y + s * 0.18, s * 0.64, s * 0.64, C * 0.06); ctx.clip();
+    ctx.fillStyle = 'rgba(10,12,20,0.6)'; ctx.fillRect(x, y, s, s);
+    ctx.strokeStyle = 'rgba(255,90,90,0.28)'; ctx.lineWidth = s * 0.08;
+    for (let k = -2; k <= 4; k++) {
+        ctx.beginPath(); ctx.moveTo(x + k * s * 0.22, y + s); ctx.lineTo(x + k * s * 0.22 + s, y); ctx.stroke();
+    }
+    ctx.restore();
+}
+
+function drawEmitter(C, t) {
+    const E = level.emitter, cx = E.x * C + C / 2, cy = E.y * C + C / 2;
+    const ang = [-Math.PI / 2, 0, Math.PI / 2, Math.PI][E.dir];
+    ctx.save();
+    ctx.translate(cx, cy); ctx.rotate(ang);
+    // cañón
+    const ng = ctx.createLinearGradient(0, -C * 0.12, 0, C * 0.12);
+    ng.addColorStop(0, '#4b5677'); ng.addColorStop(1, '#1d2336');
+    ctx.fillStyle = ng; rr(C * 0.05, -C * 0.12, C * 0.4, C * 0.24, C * 0.05); ctx.fill();
+    ctx.fillStyle = '#ff2a6d'; ctx.fillRect(C * 0.4, -C * 0.08, C * 0.05, C * 0.16);
+    // cuerpo
+    ctx.shadowColor = 'rgba(255,42,109,0.6)'; ctx.shadowBlur = C * 0.25;
+    const bg = ctx.createRadialGradient(-C * 0.08, -C * 0.08, 0, 0, 0, C * 0.34);
+    bg.addColorStop(0, '#3a2440'); bg.addColorStop(1, '#140d1c');
+    ctx.fillStyle = bg; poly(0, 0, C * 0.32, 8, Math.PI / 8); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#ff2a6d'; ctx.lineWidth = 2; ctx.stroke();
+    // núcleo
+    const pulse = 0.85 + 0.15 * Math.sin(t * 5);
+    const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, C * 0.17 * pulse);
+    cg.addColorStop(0, '#ffffff'); cg.addColorStop(0.35, '#ff7aa3'); cg.addColorStop(1, 'rgba(255,42,109,0)');
+    ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(0, 0, C * 0.17 * pulse, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+}
+
+function drawMirror(it, idx, C, t) {
+    const cx = it.x * C + C / 2, cy = it.y * C + C / 2;
+    const hit = sim.touched.has(idx);
+    it.glow += ((hit ? 1 : 0) - it.glow) * 0.15;
+    it.pop *= 0.85;
+    let ox = 0;
+    if (shake && shake.idx === idx) {
+        const k = (performance.now() - shake.t) / 300;
+        if (k < 1) ox = Math.sin(k * 30) * C * 0.05 * (1 - k); else shake = null;
+    }
+    ctx.save();
+    ctx.translate(cx + ox, cy);
+
+    const fixed = it.fixed, split = it.type === 'splitter';
+    const accent = fixed ? '#f5c35b' : split ? '#b36bff' : '#3be8ff';
+
+    // base
+    ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = C * 0.1; ctx.shadowOffsetY = C * 0.03;
+    const bg = ctx.createRadialGradient(-C * 0.1, -C * 0.12, 0, 0, 0, C * 0.42);
+    bg.addColorStop(0, fixed ? '#3b3424' : '#25304d'); bg.addColorStop(1, fixed ? '#16130c' : '#0d1222');
+    ctx.fillStyle = bg;
+    if (fixed) poly(0, 0, C * 0.4, 6, Math.PI / 6); else { ctx.beginPath(); ctx.arc(0, 0, C * 0.39, 0, Math.PI * 2); }
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = fixed ? 'rgba(245,195,91,0.45)' : 'rgba(140,165,230,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    if (fixed) {
+        ctx.fillStyle = '#c9a14a';
+        for (let k = 0; k < 6; k++) {
+            const a = k * Math.PI / 3;
+            ctx.beginPath(); ctx.arc(Math.cos(a) * C * 0.31, Math.sin(a) * C * 0.31, C * 0.025, 0, Math.PI * 2); ctx.fill();
+        }
+    } else {
+        // anillo de giro
+        ctx.save();
+        ctx.rotate(t * 0.6);
+        ctx.strokeStyle = split ? 'rgba(179,107,255,0.45)' : 'rgba(59,232,255,0.4)';
+        ctx.lineWidth = 1.5; ctx.setLineDash([C * 0.06, C * 0.05]);
+        ctx.beginPath(); ctx.arc(0, 0, C * 0.33, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+    }
+
+    // barra del espejo
+    ctx.rotate(it.ang);
+    const L = C * (0.74 + it.pop * 0.08), T = C * 0.11;
+    ctx.shadowColor = accent; ctx.shadowBlur = C * (0.12 + it.glow * 0.3);
+    if (split) {
+        ctx.fillStyle = 'rgba(179,107,255,0.35)';
+        rr(-L / 2, -T / 2, L, T, T / 2); ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = '#d5b0ff'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = 'rgba(240,225,255,0.85)';
+        for (let k = -3; k <= 3; k++) { ctx.beginPath(); ctx.arc(k * L / 8, 0, T * 0.16, 0, Math.PI * 2); ctx.fill(); }
+    } else {
+        const mg = ctx.createLinearGradient(0, -T / 2, 0, T / 2);
+        if (fixed) { mg.addColorStop(0, '#fff3cf'); mg.addColorStop(0.5, '#f5c35b'); mg.addColorStop(1, '#8a6420'); }
+        else { mg.addColorStop(0, '#e9fdff'); mg.addColorStop(0.5, '#3be8ff'); mg.addColorStop(1, '#0d6f8a'); }
+        ctx.fillStyle = mg; rr(-L / 2, -T / 2, L, T, T / 2); ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = 'rgba(255,255,255,0.75)';
+        rr(-L / 2 + T * 0.6, -T / 2 + T * 0.15, L - T * 1.2, T * 0.22, T * 0.11); ctx.fill();
+    }
+    ctx.restore();
+}
+
+function drawTarget(it, C, t, reveal) {
+    const cx = it.x * C + C / 2, cy = it.y * C + C / 2;
+    const idx = items.indexOf(it);
+    const d = sim.litDist[idx];
+    const isLit = d !== undefined && reveal >= d;
+    if (isLit && !it.shown) { it.shown = true; spawn(cx, cy, '#3dffb0', 26, C * 2.6); if (!won) sfx('lit'); updateHud(); }
+    if (!isLit && it.shown) { it.shown = false; updateHud(); }
+    it.glow += ((isLit ? 1 : 0) - it.glow) * 0.12;
+    const gl = it.glow;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    // halo y rayos
+    if (gl > 0.02) {
+        const hg = ctx.createRadialGradient(0, 0, 0, 0, 0, C * 0.6);
+        hg.addColorStop(0, `rgba(61,255,176,${0.35 * gl})`); hg.addColorStop(1, 'rgba(61,255,176,0)');
+        ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(0, 0, C * 0.6, 0, Math.PI * 2); ctx.fill();
+        ctx.save(); ctx.rotate(t * 0.8);
+        ctx.strokeStyle = `rgba(160,255,215,${0.35 * gl})`; ctx.lineWidth = 1.5;
+        for (let k = 0; k < 8; k++) {
+            ctx.rotate(Math.PI / 4);
+            ctx.beginPath(); ctx.moveTo(C * 0.3, 0); ctx.lineTo(C * (0.38 + 0.04 * Math.sin(t * 4 + k)), 0); ctx.stroke();
+        }
+        ctx.restore();
+    }
+    // engaste
+    ctx.strokeStyle = gl > 0.5 ? 'rgba(61,255,176,0.7)' : 'rgba(120,140,190,0.35)';
+    ctx.lineWidth = 1.5;
+    poly(0, 0, C * 0.33, 6, 0); ctx.stroke();
+    // gema
+    const R = C * 0.24 * (1 + 0.04 * gl * Math.sin(t * 5));
+    ctx.shadowColor = '#3dffb0'; ctx.shadowBlur = C * 0.4 * gl;
+    const top = gl > 0.5 ? '#d8fff0' : '#5a6a8a', mid = gl > 0.5 ? '#3dffb0' : '#2b3550', low = gl > 0.5 ? '#0f8a5f' : '#151b2c';
+    const gg = ctx.createLinearGradient(0, -R, 0, R);
+    gg.addColorStop(0, top); gg.addColorStop(0.5, mid); gg.addColorStop(1, low);
+    ctx.fillStyle = gg;
+    ctx.beginPath(); ctx.moveTo(0, -R); ctx.lineTo(R * 0.8, -R * 0.25); ctx.lineTo(0, R); ctx.lineTo(-R * 0.8, -R * 0.25); ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = gl > 0.5 ? 'rgba(255,255,255,0.7)' : 'rgba(160,175,215,0.4)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(-R * 0.8, -R * 0.25); ctx.lineTo(R * 0.8, -R * 0.25);
+    ctx.moveTo(-R * 0.35, -R * 0.25); ctx.lineTo(0, R); ctx.lineTo(R * 0.35, -R * 0.25);
+    ctx.moveTo(-R * 0.35, -R * 0.25); ctx.lineTo(0, -R); ctx.lineTo(R * 0.35, -R * 0.25);
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawBeam(C, t, reveal) {
+    const pts = [];
+    for (const s of sim.segs) {
+        if (s.d0 >= reveal) continue;
+        const len = s.d1 - s.d0 || 1e-6;
+        const k = Math.min(1, (reveal - s.d0) / len);
+        pts.push({ x1: s.x1 * C, y1: s.y1 * C, x2: (s.x1 + (s.x2 - s.x1) * k) * C, y2: (s.y1 + (s.y2 - s.y1) * k) * C, s, done: k >= 1, len });
+    }
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
+    const flick = 0.92 + 0.08 * Math.sin(t * 40);
+    const layers = [
+        [C * 0.34, 'rgba(255,42,109,0.07)'],
+        [C * 0.18, 'rgba(255,42,109,0.18)'],
+        [C * 0.08, `rgba(255,70,130,${0.75 * flick})`],
+        [Math.max(1.5, C * 0.025), 'rgba(255,235,245,0.95)']
+    ];
+    for (const [w, col] of layers) {
+        ctx.strokeStyle = col; ctx.lineWidth = w;
+        ctx.beginPath();
+        for (const p of pts) { ctx.moveTo(p.x1, p.y1); ctx.lineTo(p.x2, p.y2); }
+        ctx.stroke();
+    }
+    // partículas que viajan por el haz
+    ctx.fillStyle = 'rgba(255,220,235,0.9)';
+    const spacing = 0.55, flow = (t * 3) % spacing;
+    for (const p of pts) {
+        const s = p.s;
+        let start = Math.ceil((s.d0 - flow) / spacing) * spacing + flow;
+        for (let d = start; d < Math.min(s.d1, reveal); d += spacing) {
+            const k = (d - s.d0) / p.len;
+            const x = (s.x1 + (s.x2 - s.x1) * k) * C, y = (s.y1 + (s.y2 - s.y1) * k) * C;
+            ctx.beginPath(); ctx.arc(x, y, C * 0.03, 0, Math.PI * 2); ctx.fill();
+        }
+        // chispa en el punto de impacto
+        if (p.done && (s.kind === 'block' || s.kind === 'edge')) {
+            const r = C * (0.08 + 0.04 * Math.random());
+            const sg = ctx.createRadialGradient(p.x2, p.y2, 0, p.x2, p.y2, r * 2.5);
+            sg.addColorStop(0, 'rgba(255,255,255,0.9)'); sg.addColorStop(0.3, 'rgba(255,60,120,0.6)'); sg.addColorStop(1, 'rgba(255,42,109,0)');
+            ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(p.x2, p.y2, r * 2.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(255,220,235,0.9)';
+            if (Math.random() < 0.25) spawn(p.x2, p.y2, '#ff5a8f', 1, C * 1.5);
+        }
+    }
+    ctx.restore();
+}
+
+function drawParticles(dt) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    particles = particles.filter(p => p.life > 0);
+    for (const p of particles) {
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        p.vx *= 0.94; p.vy *= 0.94;
+        p.life -= p.decay * dt;
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+}
+
+// ================= Bucle =================
+let lastT = performance.now();
+function frame(now) {
+    const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
+    const t = now / 1000;
+    if (level) {
+        const N = level.size, C = cssSize / N;
+        const reveal = (now - beamStart) / 1000 * BEAM_SPEED;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        items.forEach(it => { if (it.ang !== it.angT) { it.ang += (it.angT - it.ang) * Math.min(1, dt * 16); if (Math.abs(it.angT - it.ang) < 0.001) it.ang = it.angT; } });
+
+        drawBoard(C, N, t);
+        items.forEach(it => { if (it.type === 'block') drawBlock(it, C); });
+        drawBeam(C, t, reveal);
+        drawEmitter(C, t);
+        items.forEach((it, i) => { if (it.type === 'mirror' || it.type === 'splitter') drawMirror(it, i, C, t); });
+        items.forEach(it => { if (it.type === 'target') drawTarget(it, C, t, reveal); });
+        drawParticles(dt);
+
+        // viñeta
+        const vg = ctx.createRadialGradient(cssSize / 2, cssSize / 2, cssSize * 0.35, cssSize / 2, cssSize / 2, cssSize * 0.75);
+        vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.35)');
+        ctx.fillStyle = vg; ctx.fillRect(0, 0, cssSize, cssSize);
+
+        if (sim.solved && !won && items.every(it => it.type !== 'target' || it.shown)) {
+            won = true;
+            sfx('win');
+            items.forEach(it => { if (it.type === 'target') spawn(it.x * C + C / 2, it.y * C + C / 2, '#f5c35b', 30, C * 3.5); });
+            onWin();
+        }
+    }
+    requestAnimationFrame(frame);
+}
+
+// ================= Entrada =================
+function cellFromEvent(e) {
+    const r = canvas.getBoundingClientRect();
+    const N = level.size;
+    const x = Math.floor((e.clientX - r.left) / r.width * N);
+    const y = Math.floor((e.clientY - r.top) / r.height * N);
+    return x >= 0 && y >= 0 && x < N && y < N ? { x, y } : null;
+}
+canvas.addEventListener('pointerdown', e => {
+    audio();
+    if (won) return;
+    const c = cellFromEvent(e); if (!c) return;
+    const idx = items.findIndex(it => it.x === c.x && it.y === c.y);
+    if (idx < 0) return;
+    const it = items[idx];
+    if (isRotatable(it)) { rotateAt(idx); sfx('rotate'); }
+    else if (it.type === 'mirror' || it.type === 'splitter') { shake = { idx, t: performance.now() }; sfx('deny'); }
+});
+canvas.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') hoverCell = cellFromEvent(e); });
+canvas.addEventListener('pointerleave', () => { hoverCell = null; });
+
+$('btnReset').onclick = () => { loadLevel(lvlIndex); sfx('undo'); };
+$('btnUndo').onclick = undo;
+$('btnRetry').onclick = () => loadLevel(lvlIndex);
+$('btnNext').onclick = () => loadLevel(lvlIndex + 1);
+$('btnSound').onclick = () => { soundOn = !soundOn; store.set('rayland.sound', soundOn); updateSoundIcon(); sfx('rotate'); };
+
+function openLevels() {
+    const grid = $('levelGrid');
+    grid.innerHTML = '';
+    LEVELS.forEach((l, i) => {
+        const b = document.createElement('button');
+        b.className = 'lv' + (i === lvlIndex ? ' current' : '');
+        b.innerHTML = `${i + 1}<small>${starStr(progress[i] || 0)}</small>`;
+        b.title = l.name;
+        b.onclick = () => { closeLevels(); loadLevel(i); };
+        grid.appendChild(b);
+    });
+    $('levelsModal').classList.add('show');
+}
+function closeLevels() { $('levelsModal').classList.remove('show'); }
+$('btnLevels').onclick = openLevels;
+$('btnCloseLevels').onclick = closeLevels;
+$('levelsModal').addEventListener('click', e => { if (e.target.id === 'levelsModal') closeLevels(); });
+
+window.addEventListener('keydown', e => {
+    if (e.key === 'r' || e.key === 'R') loadLevel(lvlIndex);
+    else if ((e.key === 'z' || e.key === 'Z') && !e.repeat) undo();
+    else if ((e.key === 'Enter' || e.key === 'n' || e.key === 'N') && winShown) loadLevel(lvlIndex + 1);
+    else if (e.key === 'Escape') closeLevels();
+});
+
+// ================= Inicio =================
+updateSoundIcon();
+loadLevel(Math.min(store.get('rayland.last', 0) || 0, LEVELS.length - 1));
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

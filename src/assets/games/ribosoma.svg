@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 270" width="480" height="270">
+  <rect width="480" height="270" fill="#0a0f1d"/>
+  <path d="M110 120 a130 70 0 0 1 260 0 z" fill="#a855f7" fill-opacity=".45" stroke="#a855f7" stroke-width="3"/>
+   <rect x="60" y="125" width="360" height="30" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+   <text x="240" y="146" fill="#cbd5e1" font-family="monospace" font-size="18" text-anchor="middle" letter-spacing="3">AUG GCU UUU CAU</text>
+   <g fill="#10b981" stroke="#a7f3d0" stroke-width="2"><circle cx="190" cy="75" r="12"/><circle cx="222" cy="65" r="12"/><circle cx="254" cy="65" r="12"/><circle cx="286" cy="75" r="12"/></g>
+  <rect x="0" y="222" width="480" height="48" fill="#000" fill-opacity=".55"/>
+  <text x="20" y="254" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="24" font-weight="700">Ribosome Runner</text>
+</svg>

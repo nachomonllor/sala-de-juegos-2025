@@ -1,0 +1,2912 @@
+{
+  "format": "lightbot-program",
+  "schemaVersion": 1,
+  "exportedAt": "2026-10-12T00:03:21.706Z",
+  "level": {
+    "id": 10,
+    "title": "Nivel 10: Gradas de 47 luces",
+    "desc": "Recorre seis filas de luces alternando suelo y escalones. Aprovecha los bucles.",
+    "solidColumns": true,
+    "start": {
+      "x": 0,
+      "y": 7,
+      "dir": 0,
+      "z": 0
+    },
+    "tiles": [
+      {
+        "x": 0,
+        "y": 0,
+        "z": 3,
+        "isLight": false
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "z": 3,
+        "isLight": false
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "z": 3,
+        "isLight": false
+      },
+      {
+        "x": 3,
+        "y": 0,
+        "z": 3,
+        "isLight": false
+      },
+      {
+        "x": 4,
+        "y": 0,
+        "z": 3,
+        "isLight": false
+      },
+      {
+        "x": 5,
+        "y": 0,
+        "z": 3,
+        "isLight": false
+      },
+      {
+        "x": 6,
+        "y": 0,
+        "z": 3,
+        "isLight": false
+      },
+      {
+        "x": 7,
+        "y": 0,
+        "z": 3,
+        "isLight": false
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "z": 2,
+        "isLight": false
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "z": 2,
+        "isLight": false
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "z": 2,
+        "isLight": false
+      },
+      {
+        "x": 3,
+        "y": 1,
+        "z": 2,
+        "isLight": false
+      },
+      {
+        "x": 4,
+        "y": 1,
+        "z": 2,
+        "isLight": false
+      },
+      {
+        "x": 5,
+        "y": 1,
+        "z": 2,
+        "isLight": false
+      },
+      {
+        "x": 6,
+        "y": 1,
+        "z": 2,
+        "isLight": false
+      },
+      {
+        "x": 7,
+        "y": 1,
+        "z": 2,
+        "isLight": false
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 4,
+        "y": 2,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 5,
+        "y": 2,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 6,
+        "y": 2,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 7,
+        "y": 2,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 3,
+        "y": 3,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 4,
+        "y": 3,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 5,
+        "y": 3,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 6,
+        "y": 3,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 7,
+        "y": 3,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 1,
+        "y": 4,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 2,
+        "y": 4,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 3,
+        "y": 4,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 4,
+        "y": 4,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 5,
+        "y": 4,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 6,
+        "y": 4,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 7,
+        "y": 4,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 0,
+        "y": 5,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 1,
+        "y": 5,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 2,
+        "y": 5,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 3,
+        "y": 5,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 4,
+        "y": 5,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 5,
+        "y": 5,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 6,
+        "y": 5,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 7,
+        "y": 5,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 0,
+        "y": 6,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 1,
+        "y": 6,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 2,
+        "y": 6,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 3,
+        "y": 6,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 4,
+        "y": 6,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 5,
+        "y": 6,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 6,
+        "y": 6,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 7,
+        "y": 6,
+        "z": 1,
+        "isLight": true
+      },
+      {
+        "x": 0,
+        "y": 7,
+        "z": 0,
+        "isLight": false
+      },
+      {
+        "x": 1,
+        "y": 7,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 2,
+        "y": 7,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 3,
+        "y": 7,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 4,
+        "y": 7,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 5,
+        "y": 7,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 6,
+        "y": 7,
+        "z": 0,
+        "isLight": true
+      },
+      {
+        "x": 7,
+        "y": 7,
+        "z": 0,
+        "isLight": true
+      }
+    ],
+    "portals": [],
+    "rules": {
+      "maxJumpUp": 1,
+      "maxJumpDown": 1
+    }
+  },
+  "program": [
+    {
+      "id": "node_78",
+      "type": "repeat",
+      "count": 3,
+      "children": [
+        {
+          "id": "node_80",
+          "type": "callF",
+          "count": 2,
+          "children": [],
+          "functionId": "F4"
+        },
+        {
+          "id": "node_81",
+          "type": "callF",
+          "count": 2,
+          "children": [],
+          "functionId": "F5"
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "id": "F1",
+      "nodes": [
+        {
+          "id": "node_46",
+          "type": "repeat",
+          "count": 7,
+          "children": [
+            {
+              "id": "node_47",
+              "type": "walk",
+              "count": 2,
+              "children": []
+            },
+            {
+              "id": "node_48",
+              "type": "light",
+              "count": 2,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F2",
+      "nodes": [
+        {
+          "id": "node_53",
+          "type": "left",
+          "count": 2,
+          "children": []
+        },
+        {
+          "id": "node_54",
+          "type": "jump",
+          "count": 2,
+          "children": []
+        },
+        {
+          "id": "node_55",
+          "type": "left",
+          "count": 2,
+          "children": []
+        },
+        {
+          "id": "node_56",
+          "type": "light",
+          "count": 2,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "F3",
+      "nodes": [
+        {
+          "id": "node_62",
+          "type": "right",
+          "count": 2,
+          "children": []
+        },
+        {
+          "id": "node_63",
+          "type": "jump",
+          "count": 2,
+          "children": []
+        },
+        {
+          "id": "node_64",
+          "type": "right",
+          "count": 2,
+          "children": []
+        },
+        {
+          "id": "node_65",
+          "type": "light",
+          "count": 2,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "F4",
+      "nodes": [
+        {
+          "id": "node_71",
+          "type": "callF",
+          "count": 2,
+          "children": [],
+          "functionId": "F1"
+        },
+        {
+          "id": "node_72",
+          "type": "callF",
+          "count": 2,
+          "children": [],
+          "functionId": "F2"
+        }
+      ]
+    },
+    {
+      "id": "F5",
+      "nodes": [
+        {
+          "id": "node_74",
+          "type": "callF",
+          "count": 2,
+          "children": [],
+          "functionId": "F1"
+        },
+        {
+          "id": "node_75",
+          "type": "callF",
+          "count": 2,
+          "children": [],
+          "functionId": "F3"
+        }
+      ]
+    }
+  ],
+  "algorithmText": "PROGRAMA PRINCIPAL\n    Repetir 3 veces:\n        Llamar F4\n        Llamar F5\n    Fin repetir\nFIN PRINCIPAL\n\nFUNCIÓN F1\n    Repetir 7 veces:\n        Avanzar\n        Luz\n    Fin repetir\nFIN F1\n\nFUNCIÓN F2\n    Girar izquierda\n    Saltar\n    Girar izquierda\n    Luz\nFIN F2\n\nFUNCIÓN F3\n    Girar derecha\n    Saltar\n    Girar derecha\n    Luz\nFIN F3\n\nFUNCIÓN F4\n    Llamar F1\n    Llamar F2\nFIN F4\n\nFUNCIÓN F5\n    Llamar F1\n    Llamar F3\nFIN F5",
+  "conventions": {
+    "directions": {
+      "0": "+x",
+      "1": "+y",
+      "2": "-x",
+      "3": "-y"
+    },
+    "calls": "functionId identifies the function to call",
+    "movement": "walk falls to lower neighbors; missing tile is fatal",
+    "portals": "one transfer per arrival, keeping direction"
+  },
+  "execution": {
+    "status": "completed",
+    "actions": [
+      {
+        "step": 1,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 0,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 1,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 0
+      },
+      {
+        "step": 2,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 1,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 1,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 1
+      },
+      {
+        "step": 3,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 1,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 2,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 1
+      },
+      {
+        "step": 4,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 2,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 2,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 2
+      },
+      {
+        "step": 5,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 2,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 3,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 2
+      },
+      {
+        "step": 6,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 3,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 3,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 3
+      },
+      {
+        "step": 7,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 3,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 4,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 3
+      },
+      {
+        "step": 8,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 4,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 4,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 4
+      },
+      {
+        "step": 9,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 4,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 5,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 4
+      },
+      {
+        "step": 10,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 5,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 5,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 5
+      },
+      {
+        "step": 11,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 5,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 6,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 5
+      },
+      {
+        "step": 12,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 6,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 6,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 6
+      },
+      {
+        "step": 13,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 6,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 6
+      },
+      {
+        "step": 14,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 7,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 7
+      },
+      {
+        "step": 15,
+        "command": "left",
+        "nodeId": "node_53",
+        "from": {
+          "x": 7,
+          "y": 7,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 7,
+          "dir": 3,
+          "z": 0
+        },
+        "litCount": 7
+      },
+      {
+        "step": 16,
+        "command": "jump",
+        "nodeId": "node_54",
+        "from": {
+          "x": 7,
+          "y": 7,
+          "dir": 3,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 6,
+          "dir": 3,
+          "z": 1
+        },
+        "litCount": 7
+      },
+      {
+        "step": 17,
+        "command": "left",
+        "nodeId": "node_55",
+        "from": {
+          "x": 7,
+          "y": 6,
+          "dir": 3,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 7
+      },
+      {
+        "step": 18,
+        "command": "light",
+        "nodeId": "node_56",
+        "from": {
+          "x": 7,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 8
+      },
+      {
+        "step": 19,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 7,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 6,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 8
+      },
+      {
+        "step": 20,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 6,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 6,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 9
+      },
+      {
+        "step": 21,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 6,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 5,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 9
+      },
+      {
+        "step": 22,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 5,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 5,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 10
+      },
+      {
+        "step": 23,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 5,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 4,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 10
+      },
+      {
+        "step": 24,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 4,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 4,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 11
+      },
+      {
+        "step": 25,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 4,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 3,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 11
+      },
+      {
+        "step": 26,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 3,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 3,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 12
+      },
+      {
+        "step": 27,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 3,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 2,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 12
+      },
+      {
+        "step": 28,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 2,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 2,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 13
+      },
+      {
+        "step": 29,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 2,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 1,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 13
+      },
+      {
+        "step": 30,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 1,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 1,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 14
+      },
+      {
+        "step": 31,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 1,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 14
+      },
+      {
+        "step": 32,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 0,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 15
+      },
+      {
+        "step": 33,
+        "command": "right",
+        "nodeId": "node_62",
+        "from": {
+          "x": 0,
+          "y": 6,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 6,
+          "dir": 3,
+          "z": 1
+        },
+        "litCount": 15
+      },
+      {
+        "step": 34,
+        "command": "jump",
+        "nodeId": "node_63",
+        "from": {
+          "x": 0,
+          "y": 6,
+          "dir": 3,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 5,
+          "dir": 3,
+          "z": 0
+        },
+        "litCount": 15
+      },
+      {
+        "step": 35,
+        "command": "right",
+        "nodeId": "node_64",
+        "from": {
+          "x": 0,
+          "y": 5,
+          "dir": 3,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 15
+      },
+      {
+        "step": 36,
+        "command": "light",
+        "nodeId": "node_65",
+        "from": {
+          "x": 0,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 16
+      },
+      {
+        "step": 37,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 0,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 1,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 16
+      },
+      {
+        "step": 38,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 1,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 1,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 17
+      },
+      {
+        "step": 39,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 1,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 2,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 17
+      },
+      {
+        "step": 40,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 2,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 2,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 18
+      },
+      {
+        "step": 41,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 2,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 3,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 18
+      },
+      {
+        "step": 42,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 3,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 3,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 19
+      },
+      {
+        "step": 43,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 3,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 4,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 19
+      },
+      {
+        "step": 44,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 4,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 4,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 20
+      },
+      {
+        "step": 45,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 4,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 5,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 20
+      },
+      {
+        "step": 46,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 5,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 5,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 21
+      },
+      {
+        "step": 47,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 5,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 6,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 21
+      },
+      {
+        "step": 48,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 6,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 6,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 22
+      },
+      {
+        "step": 49,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 6,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 22
+      },
+      {
+        "step": 50,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 7,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 23
+      },
+      {
+        "step": 51,
+        "command": "left",
+        "nodeId": "node_53",
+        "from": {
+          "x": 7,
+          "y": 5,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 5,
+          "dir": 3,
+          "z": 0
+        },
+        "litCount": 23
+      },
+      {
+        "step": 52,
+        "command": "jump",
+        "nodeId": "node_54",
+        "from": {
+          "x": 7,
+          "y": 5,
+          "dir": 3,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 4,
+          "dir": 3,
+          "z": 1
+        },
+        "litCount": 23
+      },
+      {
+        "step": 53,
+        "command": "left",
+        "nodeId": "node_55",
+        "from": {
+          "x": 7,
+          "y": 4,
+          "dir": 3,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 23
+      },
+      {
+        "step": 54,
+        "command": "light",
+        "nodeId": "node_56",
+        "from": {
+          "x": 7,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 24
+      },
+      {
+        "step": 55,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 7,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 6,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 24
+      },
+      {
+        "step": 56,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 6,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 6,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 25
+      },
+      {
+        "step": 57,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 6,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 5,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 25
+      },
+      {
+        "step": 58,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 5,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 5,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 26
+      },
+      {
+        "step": 59,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 5,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 4,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 26
+      },
+      {
+        "step": 60,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 4,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 4,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 27
+      },
+      {
+        "step": 61,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 4,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 3,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 27
+      },
+      {
+        "step": 62,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 3,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 3,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 28
+      },
+      {
+        "step": 63,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 3,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 2,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 28
+      },
+      {
+        "step": 64,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 2,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 2,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 29
+      },
+      {
+        "step": 65,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 2,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 1,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 29
+      },
+      {
+        "step": 66,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 1,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 1,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 30
+      },
+      {
+        "step": 67,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 1,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 30
+      },
+      {
+        "step": 68,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 0,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 31
+      },
+      {
+        "step": 69,
+        "command": "right",
+        "nodeId": "node_62",
+        "from": {
+          "x": 0,
+          "y": 4,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 4,
+          "dir": 3,
+          "z": 1
+        },
+        "litCount": 31
+      },
+      {
+        "step": 70,
+        "command": "jump",
+        "nodeId": "node_63",
+        "from": {
+          "x": 0,
+          "y": 4,
+          "dir": 3,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 3,
+          "dir": 3,
+          "z": 0
+        },
+        "litCount": 31
+      },
+      {
+        "step": 71,
+        "command": "right",
+        "nodeId": "node_64",
+        "from": {
+          "x": 0,
+          "y": 3,
+          "dir": 3,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 31
+      },
+      {
+        "step": 72,
+        "command": "light",
+        "nodeId": "node_65",
+        "from": {
+          "x": 0,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 32
+      },
+      {
+        "step": 73,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 0,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 1,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 32
+      },
+      {
+        "step": 74,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 1,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 1,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 33
+      },
+      {
+        "step": 75,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 1,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 2,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 33
+      },
+      {
+        "step": 76,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 2,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 2,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 34
+      },
+      {
+        "step": 77,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 2,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 3,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 34
+      },
+      {
+        "step": 78,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 3,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 3,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 35
+      },
+      {
+        "step": 79,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 3,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 4,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 35
+      },
+      {
+        "step": 80,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 4,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 4,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 36
+      },
+      {
+        "step": 81,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 4,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 5,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 36
+      },
+      {
+        "step": 82,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 5,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 5,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 37
+      },
+      {
+        "step": 83,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 5,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 6,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 37
+      },
+      {
+        "step": 84,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 6,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 6,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 38
+      },
+      {
+        "step": 85,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 6,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 38
+      },
+      {
+        "step": 86,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 7,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "litCount": 39
+      },
+      {
+        "step": 87,
+        "command": "left",
+        "nodeId": "node_53",
+        "from": {
+          "x": 7,
+          "y": 3,
+          "dir": 0,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 3,
+          "dir": 3,
+          "z": 0
+        },
+        "litCount": 39
+      },
+      {
+        "step": 88,
+        "command": "jump",
+        "nodeId": "node_54",
+        "from": {
+          "x": 7,
+          "y": 3,
+          "dir": 3,
+          "z": 0
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 2,
+          "dir": 3,
+          "z": 1
+        },
+        "litCount": 39
+      },
+      {
+        "step": 89,
+        "command": "left",
+        "nodeId": "node_55",
+        "from": {
+          "x": 7,
+          "y": 2,
+          "dir": 3,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 39
+      },
+      {
+        "step": 90,
+        "command": "light",
+        "nodeId": "node_56",
+        "from": {
+          "x": 7,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 7,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 40
+      },
+      {
+        "step": 91,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 7,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 6,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 40
+      },
+      {
+        "step": 92,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 6,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 6,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 41
+      },
+      {
+        "step": 93,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 6,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 5,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 41
+      },
+      {
+        "step": 94,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 5,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 5,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 42
+      },
+      {
+        "step": 95,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 5,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 4,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 42
+      },
+      {
+        "step": 96,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 4,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 4,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 43
+      },
+      {
+        "step": 97,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 4,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 3,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 43
+      },
+      {
+        "step": 98,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 3,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 3,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 44
+      },
+      {
+        "step": 99,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 3,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 2,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 44
+      },
+      {
+        "step": 100,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 2,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 2,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 45
+      },
+      {
+        "step": 101,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 2,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 1,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 45
+      },
+      {
+        "step": 102,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 1,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 1,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 46
+      },
+      {
+        "step": 103,
+        "command": "walk",
+        "nodeId": "node_47",
+        "from": {
+          "x": 1,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 46
+      },
+      {
+        "step": 104,
+        "command": "light",
+        "nodeId": "node_48",
+        "from": {
+          "x": 0,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "litCount": 47
+      },
+      {
+        "step": 105,
+        "command": "right",
+        "nodeId": "node_62",
+        "from": {
+          "x": 0,
+          "y": 2,
+          "dir": 2,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 2,
+          "dir": 3,
+          "z": 1
+        },
+        "litCount": 47
+      },
+      {
+        "step": 106,
+        "command": "jump",
+        "nodeId": "node_63",
+        "from": {
+          "x": 0,
+          "y": 2,
+          "dir": 3,
+          "z": 1
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 1,
+          "dir": 3,
+          "z": 2
+        },
+        "litCount": 47
+      },
+      {
+        "step": 107,
+        "command": "right",
+        "nodeId": "node_64",
+        "from": {
+          "x": 0,
+          "y": 1,
+          "dir": 3,
+          "z": 2
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 1,
+          "dir": 0,
+          "z": 2
+        },
+        "litCount": 47
+      },
+      {
+        "step": 108,
+        "command": "light",
+        "nodeId": "node_65",
+        "from": {
+          "x": 0,
+          "y": 1,
+          "dir": 0,
+          "z": 2
+        },
+        "events": [],
+        "to": {
+          "x": 0,
+          "y": 1,
+          "dir": 0,
+          "z": 2
+        },
+        "litCount": 47
+      }
+    ],
+    "finalRobot": {
+      "x": 0,
+      "y": 1,
+      "dir": 0,
+      "z": 2
+    },
+    "lights": [
+      {
+        "x": 0,
+        "y": 2,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 4,
+        "y": 2,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 5,
+        "y": 2,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 6,
+        "y": 2,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 7,
+        "y": 2,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 3,
+        "y": 3,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 4,
+        "y": 3,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 5,
+        "y": 3,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 6,
+        "y": 3,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 7,
+        "y": 3,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 1,
+        "y": 4,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 2,
+        "y": 4,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 3,
+        "y": 4,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 4,
+        "y": 4,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 5,
+        "y": 4,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 6,
+        "y": 4,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 7,
+        "y": 4,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 0,
+        "y": 5,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 1,
+        "y": 5,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 2,
+        "y": 5,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 3,
+        "y": 5,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 4,
+        "y": 5,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 5,
+        "y": 5,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 6,
+        "y": 5,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 7,
+        "y": 5,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 0,
+        "y": 6,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 1,
+        "y": 6,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 2,
+        "y": 6,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 3,
+        "y": 6,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 4,
+        "y": 6,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 5,
+        "y": 6,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 6,
+        "y": 6,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 7,
+        "y": 6,
+        "z": 1,
+        "lit": true
+      },
+      {
+        "x": 1,
+        "y": 7,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 2,
+        "y": 7,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 3,
+        "y": 7,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 4,
+        "y": 7,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 5,
+        "y": 7,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 6,
+        "y": 7,
+        "z": 0,
+        "lit": true
+      },
+      {
+        "x": 7,
+        "y": 7,
+        "z": 0,
+        "lit": true
+      }
+    ]
+  }
+}

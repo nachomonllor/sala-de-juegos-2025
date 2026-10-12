@@ -284,7 +284,16 @@ export class HomeComponent implements OnInit {
       description: 'Armá proteínas eligiendo el ARNt que corresponde a cada codón.',
       tags: ['biología', 'ciencia', 'genética'],
       badge: 'Propio'
-    }
+    } ,  
+    {
+      title: 'Rayland',
+      route: '/jugar/rayland',
+      thumb: 'assets/games/rayland.svg',
+      category: 'Puzzles',
+      description: 'Girá los espejos para llevar el láser hasta todos los cristales.',
+      tags: ['puzzle', 'láser', 'espejos', 'lógica'],
+      badge: 'Nuevo'
+    },
 
   ];
 
