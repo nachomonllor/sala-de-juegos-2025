@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Anillos</title>
+<style>
+/* Estilos con anidamiento estilo SCSS (CSS nesting nativo, no requiere compilar) */
+:root{ --bg:#fbf3e6; --bg2:#f1e2c8; --ink:#6b4430; --ink2:#a07a5e; --panel:#fffaf1; --line:#e8d6b8; --accent:#8b3dff; --gold:#e8a917; }
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--ink);overflow:hidden;touch-action:none;
+  background:radial-gradient(ellipse at 50% 30%,#fffaf2,var(--bg) 45%,var(--bg2));display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px 4px;
+  .lvl{line-height:1.05; small{display:block;font-size:.8rem;font-weight:700;color:var(--ink2);letter-spacing:1px} b{font-size:1.7rem;font-weight:900}}
+  .name{flex:1;text-align:center;font-weight:800;font-size:1rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .moves{background:#f2e3cb;border-radius:999px;padding:6px 16px;font-weight:900;font-size:1.3rem;box-shadow:inset 0 2px 4px rgba(107,68,48,.18);text-align:center;
+    small{display:block;font-size:.62rem;letter-spacing:1px;color:var(--ink2);font-weight:700}}
+}
+#status{text-align:center;font-size:.85rem;color:var(--ink2);min-height:20px;padding:0 10px;font-weight:600;transition:color .3s;
+  &.bad{color:#c0392b} &.good{color:#2e9d57}}
+#wrap{flex:1;position:relative;min-height:0}
+canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:default}
+footer{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:8px 10px 14px}
+button{font-family:inherit;font-weight:800;font-size:.95rem;color:var(--ink);cursor:pointer;border:2px solid #f3d9a8;border-radius:14px;padding:10px 14px;
+  background:linear-gradient(145deg,#fff,#f4e9d8);box-shadow:3px 3px 8px #e2d3bd,-3px -3px 8px #fff;transition:transform .08s,filter .15s;
+  &:hover{filter:brightness(1.03)} &:active{transform:scale(.95)} &:disabled{opacity:.45;cursor:default}
+  &.primary{background:linear-gradient(145deg,#a35cff,#7b2fe6);color:#fff;border-color:#7b2fe6;box-shadow:0 4px 12px rgba(123,47,230,.35)}
+  &.icon{padding:8px 11px;font-size:1.15rem}
+}
+#flash{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:40;background:radial-gradient(circle,#fff,rgba(255,236,170,.7) 40%,transparent 75%);
+  &.go{animation:flash .8s ease-out}}
+@keyframes flash{0%{opacity:0}12%{opacity:.95}100%{opacity:0}}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:45}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(80,52,30,.35);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:16px;
+  &.show{display:flex;animation:fade .25s}
+  .box{background:var(--panel);border:2px solid var(--line);border-radius:22px;padding:22px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;text-align:center;
+    box-shadow:0 18px 40px rgba(107,68,48,.25)}
+  h2{font-weight:900;font-size:1.6rem;margin-bottom:8px}
+  p{color:var(--ink2);line-height:1.45;margin-bottom:14px;font-weight:600}
+  .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.stars{font-size:2.6rem;letter-spacing:6px;margin:4px 0 8px;
+  i{font-style:normal;color:#e6d6bd;display:inline-block}
+  i.on{color:var(--gold);text-shadow:0 2px 8px rgba(232,169,23,.6);animation:pop .45s backwards}
+  i:nth-child(2){animation-delay:.15s} i:nth-child(3){animation-delay:.3s}}
+@keyframes pop{0%{transform:scale(0) rotate(-120deg)}70%{transform:scale(1.35)}100%{transform:scale(1)}}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-bottom:14px;
+  button{padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:1.05rem;
+    small{font-size:.7rem;color:var(--gold);letter-spacing:1px;min-height:1em} &.cur{border-color:var(--accent)}}}
+.help{text-align:left;
+  .rule{display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line);font-size:.92rem;line-height:1.4;font-weight:600;
+    &:last-child{border-bottom:none} svg{flex:0 0 46px;height:46px} b{color:var(--accent)}}}
+</style>
+</head>
+<body>
+<header>
+  <div class="lvl"><small>NIVEL</small><b id="lvlNum">1</b></div>
+  <div class="name" id="lvlName"></div>
+  <div class="moves"><small>MOVIMIENTOS</small><span id="moves">0</span></div>
+  <button class="icon" id="mute" title="Sonido">🔊</button>
+</header>
+<div id="status">Girá los anillos para que se suelten</div>
+<div id="wrap"><canvas id="c"></canvas></div>
+<footer>
+  <button class="icon" id="undoB" title="Deshacer (Z)">↶ Deshacer</button>
+  <button id="resetB" title="Reiniciar (R)">Reiniciar</button>
+  <button id="levelsB">Niveles</button>
+  <button class="primary" id="helpB">¿Cómo jugar?</button>
+</footer>
+<div id="flash"></div>
+<canvas id="fx"></canvas>
+
+<div class="modal" id="winM"><div class="box">
+  <h2>¡Todos liberados!</h2>
+  <div class="stars" id="stars"></div>
+  <p id="winTxt"></p>
+  <div class="row"><button id="replayB">Repetir</button><button class="primary" id="nextB">Siguiente ▶</button></div>
+</div></div>
+<div class="modal" id="loseM"><div class="box">
+  <h2>¡Se cayó el dorado!</h2>
+  <p>Los anillos dorados tienen que quedar colgados hasta el final.</p>
+  <div class="row"><button class="primary" id="loseUndoB">↶ Deshacer</button><button id="loseResetB">Reiniciar</button></div>
+</div></div>
+<div class="modal" id="levelsM"><div class="box">
+  <h2>Niveles</h2>
+  <div class="lgrid" id="lgrid"></div>
+  <button id="closeLevelsB">Cerrar</button>
+</div></div>
+<div class="modal" id="helpM"><div class="box">
+  <h2>¿Cómo jugar?</h2>
+  <div class="help" id="helpList"></div>
+  <div class="row" style="margin-top:12px"><button class="primary" id="closeHelpB">¡Entendido!</button></div>
+</div></div>
+
+<script>
+// =====================================================================
+//  NIVELES — formato para diseñar los tuyos
+//  map: una fila por string, cada caracter es una casilla de la grilla:
+//    A = perno fijo (sostiene)            o = anillo con una abertura
+//    2 = anillo con dos aberturas         C = anillo cerrado (no se puede girar)
+//    G = anillo dorado (gira, pero NO puede caerse)      . = vacío
+//  Los anillos vecinos (arriba/abajo/izquierda/derecha) quedan enganchados entre sí.
+//  seed: número que decide hacia dónde miran las aberturas al empezar (probá varios).
+//  par (opcional): mínimo de movimientos. Si no está, el juego lo calcula solo y avisa
+//  en la consola (F12) si el nivel no tiene solución.
+// =====================================================================
+const LEVELS = [
+ { name: 'Primer giro', seed: 1, par: 1, map: ['A', 'o'] },
+ { name: 'Cadena', seed: 1, par: 1, map: ['A', 'o', 'o'] },
+ { name: 'Dos pernos', seed: 1, par: 2, map: ['A.A', 'ooo'] },
+ { name: 'Doble abertura', seed: 1, par: 2, map: ['A.A', 'o2o', '.o.'] },
+ { name: 'Anillo cerrado', seed: 1, par: 2, map: ['A.A', 'oCo'] },
+ { name: 'Oro', seed: 1, par: 1, map: ['AGo'] },
+ { name: 'Cuidado con el oro', seed: 1, par: 2, map: ['A.', 'Go', 'oo'] },
+ { name: 'Telaraña', seed: 300243, par: 2, map: ['A.o', 'GGC', 'o.C'] },
+ { name: 'Escalera dorada', seed: 3, par: 2, map: ['A.C', 'G.2', 'GCC', 'oC.'] },
+ { name: 'Péndulo', seed: 200341, par: 2, map: ['Ao.', 'G..', 'Goo'] },
+ { name: 'Candelabro', seed: 100047, par: 2, map: ['AGGo', 'o..o', 'o..o'] },
+ { name: 'Collar', seed: 440, par: 3, map: ['.AA', '.oG', 'C.G', 'ooo'] },
+ { name: 'Enredo', seed: 57, par: 3, map: ['AAoC', 'Go2C', 'G.2C'] },
+ { name: 'Balanza', seed: 304, par: 3, map: ['AAGA', 'o2.G', '...o'] },
+ { name: 'Racimo', seed: 200005, par: 3, map: ['oA.', '.Go', 'ooo'] },
+ { name: 'Llavero', seed: 14, par: 3, map: ['oGAA', 'ooo.', '.oCC'] },
+ { name: 'Nudo marinero', seed: 87, par: 3, map: ['AA2', 'o22', 'Co.'] },
+ { name: 'Campanario', seed: 127, par: 3, map: ['AAAo', 'oo.o', '.oC.'] },
+ { name: 'Laberinto de aros', seed: 144, par: 3, map: ['2AG', 'o2o', 'Co.'] },
+ { name: 'Trampa de oro', seed: 73, par: 4, map: ['AAo', '2GG', 'CCC'] },
+ { name: 'Corona', seed: 200051, par: 4, map: ['2AA', '.oG', '.oo'] },
+];
+
+
+// Sala de Juegos: si el juego corre dentro de la sala, avisa el puntaje.
+function salaReport(puntaje, detalle) {
+  try {
+    if (window.parent !== window) window.parent.postMessage(
+      { tipo: 'sala-juegos:resultado', juego: 'anillos', puntaje: Math.round(puntaje), detalle },
+      window.location.origin);
+  } catch (e) {}
+}
+
+// ---------- motor ----------
+const GAP = 80, OPEN = 26, D = 1.84, RAD = 1, THICK = .15;
+const ALPHA = Math.acos(D / 2 / RAD) * 180 / Math.PI; // ángulo de los cruces entre dos anillos
+const DIRS = [[0,1,0],[1,0,90],[0,-1,180],[-1,0,270]];
+function parse(map){
+  const rings = [];
+  map.forEach((row, r) => [...row].forEach((ch, c) => { if (ch !== '.' && ch !== ' ') rings.push({ r, c, type: ch }); }));
+  const at = new Map(rings.map((g, i) => [g.r + ',' + g.c, i])), links = [];
+  rings.forEach((g, i) => DIRS.forEach(([dr, dc, ang]) => { const j = at.get((g.r + dr) + ',' + (g.c + dc)); if (j > i) links.push({ a: i, b: j, angA: ang, angB: (ang + 180) % 360 }); }));
+  return { rings, links, R: map.length, C: Math.max(...map.map(r => r.length)) };
+}
+const gapsOf = (type, rot) => type === 'o' || type === 'G' ? [rot] : type === '2' ? [rot, rot + 180] : [];
+const angDist = (a, b) => Math.abs(((a - b) % 360 + 540) % 360 - 180);
+const covers = (type, rot, ang) => gapsOf(type, rot).some(g => angDist(g, ang) <= OPEN);
+const linkOpen = (lv, L, rots) => covers(lv.rings[L.a].type, rots[L.a], L.angA) || covers(lv.rings[L.b].type, rots[L.b], L.angB);
+function supported(lv, rots, fallen){
+  const adj = lv.rings.map(() => []);
+  for (const L of lv.links) { if (fallen[L.a] || fallen[L.b] || linkOpen(lv, L, rots)) continue; adj[L.a].push(L.b); adj[L.b].push(L.a); }
+  const ok = lv.rings.map(() => false), q = [];
+  lv.rings.forEach((g, i) => { if (g.type === 'A') { ok[i] = true; q.push(i); } });
+  while (q.length) { const i = q.pop(); for (const j of adj[i]) if (!ok[j] && !fallen[j]) { ok[j] = true; q.push(j); } }
+  return ok;
+}
+const rotatable = t => t === 'o' || t === '2' || t === 'G';
+const mustFall = t => t === 'o' || t === '2' || t === 'C';
+
+// ---------- solver (para niveles propios sin "par") ----------
+function rng(seed){ let s = seed >>> 0; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
+function initialRots(lv, seed){
+  const rand = rng(seed);
+  return lv.rings.map((g, i) => {
+    if (!gapsOf(g.type, 0).length) return 0;
+    const mine = lv.links.filter(L => L.a === i || L.b === i).map(L => L.a === i ? L.angA : L.angB);
+    const ok = []; for (let k = 0; k < 8; k++) if (!mine.some(a => covers(g.type, k * 45, a))) ok.push(k * 45);
+    return ok.length ? ok[rand() * ok.length | 0] : null;
+  });
+}
+function solvePar(lv, rots0, maxStates = 150000){
+  const fall = (rots, fallen) => { const sup = supported(lv, rots, fallen); let lost = false;
+    lv.rings.forEach((g, i) => { if (!fallen[i] && !sup[i]) { fallen[i] = true; if (g.type === 'G') lost = true; } }); return lost; };
+  const key = (r, f) => String.fromCharCode(...r.map((x, i) => f[i] ? 120 : 48 + x / 45));
+  const won = f => lv.rings.every((g, i) => !mustFall(g.type) || f[i]);
+  const f0 = lv.rings.map(() => false); fall(rots0, f0);
+  let frontier = [{ rots: rots0, fallen: f0 }]; const seen = new Set([key(rots0, f0)]); let depth = 0;
+  while (frontier.length) { const next = [];
+    for (const s of frontier) { if (seen.size > maxStates) return -2; if (won(s.fallen)) return depth;
+      lv.rings.forEach((g, i) => { if (!rotatable(g.type) || s.fallen[i]) return;
+        for (const dir of [1, -1]) { const rots = s.rots.slice(), fallen = s.fallen.slice();
+          for (let st = 1; st < 8; st++) { rots[i] = (rots[i] + dir * 45 + 360) % 360; if (fall(rots, fallen)) break;
+            const k = key(rots, fallen); if (!seen.has(k)) { seen.add(k); next.push({ rots: rots.slice(), fallen: fallen.slice() }); } if (fallen[i]) break; } } }); }
+    frontier = next; depth++; }
+  return -1;
+}
+
+// ---------- sonido ----------
+const Sfx = {
+  ctx: null, master: null, muted: false,
+  init(){ if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); this.master = this.ctx.createGain(); this.master.gain.value = .7; this.master.connect(this.ctx.destination); } catch (e) { return; } }
+    if (this.ctx.state === 'suspended') this.ctx.resume(); },
+  tone(freq, dur, type = 'sine', vol = .2, delay = 0, slideTo = null){ if (this.muted || !this.ctx) return;
+    const t = this.ctx.currentTime + delay, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t); if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .005); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(this.master); o.start(t); o.stop(t + dur + .05); },
+  noise(dur, vol = .2, freq = 2000, delay = 0, q = 1, type = 'bandpass'){ if (this.muted || !this.ctx) return;
+    const t = this.ctx.currentTime + delay, n = Math.floor(this.ctx.sampleRate * dur), buf = this.ctx.createBuffer(1, n, this.ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    const s = this.ctx.createBufferSource(), f = this.ctx.createBiquadFilter(), g = this.ctx.createGain();
+    s.buffer = buf; f.type = type; f.frequency.value = freq; f.Q.value = q; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(this.master); s.start(t); },
+  grab(){ this.tone(600, .06, 'sine', .08, 0, 760); },
+  tick(){ this.noise(.018, .12, 4200, 0, 4); },
+  open(){ this.tone(2350, .12, 'sine', .07); this.tone(3520, .09, 'sine', .04, .01); },
+  close(){ this.tone(1500, .07, 'triangle', .05); },
+  fall(i = 0){ const f = 820 + (i % 4) * 90; this.tone(f, .5, 'triangle', .1, 0, f / 3); this.noise(.3, .06, 1500, 0, .7);
+    this.tone(f * 1.9, .25, 'sine', .05, .02); this.tone(1200, .35, 'sine', .07, .45); this.tone(1800, .3, 'sine', .04, .46); },
+  lose(){ [440, 370, 311, 247].forEach((f, i) => this.tone(f, .35, 'triangle', .1, i * .14)); },
+  undo(){ this.noise(.15, .1, 1200, 0, 1.5); this.tone(500, .15, 'sine', .06, 0, 300); },
+  win(){ [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => { this.tone(f, .5, 'triangle', .15, i * .09); this.tone(f * 2, .3, 'sine', .035, i * .09); });
+    this.tone(1046.5, 1.4, 'sine', .1, .5); this.tone(1568, 1.4, 'sine', .07, .5);
+    for (let i = 0; i < 12; i++) this.tone(2400 + Math.random() * 2600, .1, 'sine', .03, .55 + i * .06); },
+};
+
+// ---------- estado ----------
+const $ = id => document.getElementById(id);
+const cv = $('c'), ctx = cv.getContext('2d');
+const PALETTE = ['#3db4ff','#ff953d','#ff3d6e','#5fd35a','#2f6bff','#ff5bd1','#16c2b0','#ff7a3d','#9d5bff','#e83b3b','#2bb3e8','#83c93a'];
+let idx = 0, lv, rots, fallen, falling, moves, par, history, won = false, lost = false, drag = null, view = { s: 40, ox: 0, oy: 0 };
+let openFx = [], progress = {};
+try { progress = JSON.parse(localStorage.getItem('rings_progress') || '{}'); Sfx.muted = localStorage.getItem('rings_mute') === '1'; } catch (e) {}
+const persist = () => { try { localStorage.setItem('rings_progress', JSON.stringify(progress)); localStorage.setItem('rings_mute', Sfx.muted ? '1' : '0'); } catch (e) {} };
+
+function loadLevel(i){
+  idx = i; const L = LEVELS[i]; lv = parse(L.map);
+  const r0 = initialRots(lv, L.seed || 1);
+  if (r0.some(x => x === null)) console.warn(`Nivel "${L.name}": hay un anillo que no puede empezar cerrado.`);
+  const jit = rng((L.seed || 1) * 31);
+  rots = r0.map((x, k) => x === null ? 0 : x + (gapsOf(lv.rings[k].type, 0).length ? (jit() - .5) * 20 : 0));
+  fallen = lv.rings.map(() => false); falling = []; moves = 0; history = []; won = false; lost = false; drag = null; openFx = [];
+  lv.rings.forEach((g, k) => { g.color = g.type === 'G' ? '#f2b705' : g.type === 'C' ? '#8a7a6b' : PALETTE[k % PALETTE.length]; g.wob = 0; });
+  par = L.par;
+  if (par === undefined) { par = solvePar(lv, r0.map(x => x ?? 0)); L.par = par;
+    if (par < 0) console.warn(`Nivel "${L.name}": ${par === -1 ? 'NO tiene solución' : 'es muy grande para verificarlo'} con seed ${L.seed}.`);
+    else console.log(`Nivel "${L.name}": se resuelve en ${par} movimientos.`); }
+  $('lvlNum').textContent = i + 1; $('lvlName').textContent = L.name; $('moves').textContent = 0;
+  setStatus(par > 0 ? `Mejor solución: ${par} movimiento${par === 1 ? '' : 's'}` : 'Girá los anillos para que se suelten');
+  resize();
+}
+function setStatus(t, cls = ''){ const s = $('status'); s.textContent = t; s.className = cls; }
+const pos = g => [g.c * D, g.r * D];
+
+function resize(){
+  const r = $('wrap').getBoundingClientRect(), dpr = devicePixelRatio || 1;
+  cv.width = r.width * dpr; cv.height = r.height * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const W = (lv.C - 1) * D + 2 * RAD + 1.2, H = (lv.R - 1) * D + 2 * RAD + 2.6;
+  view.s = Math.min(r.width / W, r.height / H, 75);
+  view.ox = r.width / 2 - ((lv.C - 1) * D / 2) * view.s;
+  view.oy = r.height / 2 - ((lv.R - 1) * D / 2 - .7) * view.s;
+  fx.width = innerWidth * dpr; fx.height = innerHeight * dpr; fxc.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+// ---------- dibujo ----------
+function shade(hex, k){ const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = n >> 8 & 255, b = n & 255;
+  const m = v => Math.max(0, Math.min(255, Math.round(k > 0 ? v + (255 - v) * k : v * (1 + k))));
+  return `rgb(${m(r)},${m(g)},${m(b)})`; }
+// tramos visibles del anillo (en grados), descontando las aberturas
+function spans(g, rot){
+  const gs = gapsOf(g.type, rot); if (!gs.length) return [[0, 360]];
+  const sorted = gs.map(x => ((x % 360) + 360) % 360).sort((a, b) => a - b), out = [];
+  for (let k = 0; k < sorted.length; k++) { const a = sorted[k] + GAP / 2, b = (k + 1 < sorted.length ? sorted[k + 1] : sorted[0] + 360) - GAP / 2; out.push([a, b]); }
+  return out;
+}
+function inBand(g, rot, ang){ return !gapsOf(g.type, rot).some(x => angDist(x, ang) < GAP / 2 + 3); }
+function strokeArc(x, y, a0, a1, color, w){ ctx.beginPath(); ctx.arc(x, y, RAD * view.s, a0 * Math.PI / 180, a1 * Math.PI / 180); ctx.strokeStyle = color; ctx.lineWidth = w; ctx.stroke(); }
+function drawRingArc(g, x, y, a0, a1, glow){
+  const s = view.s, w = THICK * s; ctx.lineCap = 'round';
+  if (glow) { ctx.save(); ctx.shadowColor = glow; ctx.shadowBlur = 14; strokeArc(x, y, a0, a1, glow, w * 1.2); ctx.restore(); }
+  strokeArc(x, y + w * .25, a0, a1, 'rgba(70,40,20,.22)', w * 1.05);
+  if (g.type === 'G') { const grd = ctx.createLinearGradient(x - s, y - s, x + s, y + s); grd.addColorStop(0, '#fff2a8'); grd.addColorStop(.45, '#f2b705'); grd.addColorStop(1, '#b97a00');
+    ctx.beginPath(); ctx.arc(x, y, RAD * s, a0 * Math.PI / 180, a1 * Math.PI / 180); ctx.strokeStyle = grd; ctx.lineWidth = w; ctx.stroke(); }
+  else strokeArc(x, y, a0, a1, g.color, w);
+  strokeArc(x, y + w * .12, a0, a1, shade(g.color, -.25), w * .35);
+  ctx.save(); ctx.globalAlpha = .55; ctx.beginPath(); ctx.arc(x, y - w * .12, RAD * s - w * .12, a0 * Math.PI / 180, a1 * Math.PI / 180);
+  ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = w * .22; ctx.stroke(); ctx.restore();
+}
+function drawAnchor(g, x, y){
+  const s = view.s;
+  // varilla al riel
+  ctx.fillStyle = '#7d6a5a'; ctx.fillRect(x - .07 * s, y - 1.75 * s, .14 * s, .8 * s);
+  // aro metálico
+  ctx.lineCap = 'round';
+  const grd = ctx.createLinearGradient(x - s, y - s, x + s, y + s); grd.addColorStop(0, '#f4f1ec'); grd.addColorStop(.5, '#9e968c'); grd.addColorStop(1, '#5d564f');
+  strokeArc(x, y + THICK * s * .3, 0, 360, 'rgba(70,40,20,.25)', THICK * s * 1.3);
+  ctx.beginPath(); ctx.arc(x, y, RAD * s, 0, Math.PI * 2); ctx.strokeStyle = grd; ctx.lineWidth = THICK * s * 1.25; ctx.stroke();
+  // bulón central
+  ctx.beginPath(); ctx.arc(x, y, .22 * s, 0, Math.PI * 2); const b = ctx.createRadialGradient(x - .06 * s, y - .06 * s, .02 * s, x, y, .22 * s);
+  b.addColorStop(0, '#fff'); b.addColorStop(1, '#7a7068'); ctx.fillStyle = b; ctx.fill();
+  ctx.strokeStyle = '#5d564f'; ctx.lineWidth = .04 * s; ctx.beginPath(); ctx.moveTo(x - .13 * s, y); ctx.lineTo(x + .13 * s, y); ctx.stroke();
+}
+function drawFull(g, i, x, y, rot, glow){
+  if (g.type === 'A') return drawAnchor(g, x, y);
+  for (const [a0, a1] of spans(g, rot)) drawRingArc(g, x, y, a0, a1, glow);
+  const s = view.s;
+  if (g.type === 'G') { ctx.save(); ctx.translate(x, y); ctx.fillStyle = 'rgba(242,183,5,.85)'; ctx.font = `${.55 * s}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('★', 0, .03 * s); ctx.restore(); }
+  if (g.type === 'C') { ctx.save(); ctx.translate(x, y); ctx.fillStyle = 'rgba(138,122,107,.75)';
+    ctx.fillRect(-.16 * s, -.02 * s, .32 * s, .26 * s); ctx.strokeStyle = 'rgba(138,122,107,.75)'; ctx.lineWidth = .06 * s;
+    ctx.beginPath(); ctx.arc(0, -.02 * s, .11 * s, Math.PI, 0); ctx.stroke(); ctx.restore(); }
+}
+function draw(){
+  const W = cv.clientWidth, H = cv.clientHeight, s = view.s;
+  ctx.clearRect(0, 0, W, H);
+  const P = g => { const [px, py] = pos(g); return [view.ox + px * s, view.oy + py * s]; };
+  // riel superior donde se atornillan los pernos
+  const anchors = lv.rings.filter(g => g.type === 'A');
+  if (anchors.length) { const xs = anchors.map(g => P(g)[0]), y = P(anchors[0])[1] - 1.75 * s;
+    const x0 = Math.min(...xs) - 1.2 * s, x1 = Math.max(...xs) + 1.2 * s;
+    const grd = ctx.createLinearGradient(0, y - .25 * s, 0, y + .25 * s); grd.addColorStop(0, '#c9a27e'); grd.addColorStop(1, '#8c5a3c');
+    ctx.fillStyle = 'rgba(70,40,20,.18)'; roundRect(x0, y - .2 * s + 4, x1 - x0, .42 * s, .2 * s); ctx.fill();
+    ctx.fillStyle = grd; roundRect(x0, y - .22 * s, x1 - x0, .42 * s, .2 * s); ctx.fill();
+    for (const x of xs) { ctx.beginPath(); ctx.arc(x, y, .09 * s, 0, Math.PI * 2); ctx.fillStyle = '#e7e2da'; ctx.fill(); } }
+  // anillos cayendo (detrás)
+  for (const f of falling) { ctx.save(); ctx.globalAlpha = Math.max(0, f.alpha); ctx.translate(f.x, f.y); ctx.rotate(f.spin); ctx.translate(-f.x, -f.y);
+    drawFull(lv.rings[f.i], f.i, f.x, f.y, rots[f.i], null); ctx.restore(); }
+  // anillos colgados
+  lv.rings.forEach((g, i) => { if (fallen[i]) return; let [x, y] = P(g); x += Math.sin(g.wob * 20) * g.wob * 6;
+    drawFull(g, i, x, y, rots[i], drag && drag.i === i ? 'rgba(139,61,255,.55)' : null); });
+  // entrelazado: en cada enganche cerrado, cada anillo pasa por encima del otro en uno de los cruces
+  for (const L of lv.links) { if (fallen[L.a] || fallen[L.b]) continue;
+    for (const [i, ang] of [[L.a, L.angA], [L.b, L.angB]]) { const g = lv.rings[i]; const a = ang + ALPHA;
+      if (g.type === 'A') { const [x, y] = P(g); ctx.save(); ctx.beginPath(); ctx.arc(x, y, RAD * s, (a - 10) * Math.PI / 180, (a + 10) * Math.PI / 180);
+        const grd = ctx.createLinearGradient(x - s, y - s, x + s, y + s); grd.addColorStop(0, '#f4f1ec'); grd.addColorStop(.5, '#9e968c'); grd.addColorStop(1, '#5d564f');
+        ctx.strokeStyle = grd; ctx.lineWidth = THICK * s * 1.25; ctx.lineCap = 'butt'; ctx.stroke(); ctx.restore(); continue; }
+      if (!inBand(g, rots[i], a - 10) || !inBand(g, rots[i], a + 10)) continue;
+      let [x, y] = P(g); x += Math.sin(g.wob * 20) * g.wob * 6;
+      drawRingArcButt(g, x, y, a - 11, a + 11, drag && drag.i === i);
+    } }
+  // destellos de enganches que se abren
+  for (const o of openFx) { ctx.save(); ctx.globalAlpha = o.life; ctx.beginPath(); ctx.arc(o.x, o.y, (1 - o.life) * .6 * s + .1 * s, 0, Math.PI * 2);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = .06 * s; ctx.stroke(); ctx.restore(); }
+}
+function drawRingArcButt(g, x, y, a0, a1, glowing){
+  const s = view.s, w = THICK * s; ctx.save(); ctx.lineCap = 'butt';
+  if (g.type === 'G') { const grd = ctx.createLinearGradient(x - s, y - s, x + s, y + s); grd.addColorStop(0, '#fff2a8'); grd.addColorStop(.45, '#f2b705'); grd.addColorStop(1, '#b97a00');
+    ctx.beginPath(); ctx.arc(x, y, RAD * s, a0 * Math.PI / 180, a1 * Math.PI / 180); ctx.strokeStyle = grd; ctx.lineWidth = w; ctx.stroke(); }
+  else strokeArc(x, y, a0, a1, g.color, w);
+  strokeArc(x, y + w * .12, a0, a1, shade(g.color, -.25), w * .35);
+  ctx.globalAlpha = .55; ctx.beginPath(); ctx.arc(x, y - w * .12, RAD * s - w * .12, a0 * Math.PI / 180, a1 * Math.PI / 180);
+  ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = w * .22; ctx.stroke(); ctx.restore();
+}
+function roundRect(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+// ---------- física ----------
+let lastOpen = new Set();
+function physics(){
+  const sup = supported(lv, rots, fallen); let goldLost = false, n = 0;
+  lv.rings.forEach((g, i) => { if (!fallen[i] && !sup[i]) {
+    fallen[i] = true; n++; const [px, py] = pos(g);
+    falling.push({ i, x: view.ox + px * view.s, y: view.oy + py * view.s, vx: (Math.random() - .5) * 2, vy: -1.5 - Math.random(), spin: 0, vs: (Math.random() - .5) * .08, alpha: 1 });
+    if (g.type === 'G') goldLost = true; if (drag && drag.i === i) drag = null; } });
+  if (n) { Sfx.fall(n); lv.rings.forEach((g, i) => { if (!fallen[i]) g.wob = .6; }); }
+  // sonido y destello al abrir/cerrar enganches
+  const nowOpen = new Set();
+  lv.links.forEach((L, k) => { if (!fallen[L.a] && !fallen[L.b] && linkOpen(lv, L, rots)) nowOpen.add(k); });
+  for (const k of nowOpen) if (!lastOpen.has(k)) { Sfx.open(); const L = lv.links[k], A = lv.rings[L.a], B = lv.rings[L.b];
+    const [ax, ay] = pos(A), [bx, by] = pos(B); openFx.push({ x: view.ox + (ax + bx) / 2 * view.s, y: view.oy + (ay + by) / 2 * view.s, life: 1 }); }
+  for (const k of lastOpen) if (!nowOpen.has(k) && !fallen[lv.links[k].a] && !fallen[lv.links[k].b]) Sfx.close();
+  lastOpen = nowOpen;
+  if (goldLost && !lost) { lost = true; drag = null; setStatus('¡Se cayó un anillo dorado!', 'bad'); Sfx.lose(); setTimeout(() => $('loseM').classList.add('show'), 700); }
+  else if (!won && !lost && lv.rings.every((g, i) => !mustFall(g.type) || fallen[i])) victory();
+}
+function loop(){
+  for (const f of falling) { f.vy += .45; f.x += f.vx; f.y += f.vy; f.spin += f.vs; if (f.y > cv.clientHeight + 100) f.alpha -= .05; }
+  falling = falling.filter(f => f.alpha > 0 && f.y < cv.clientHeight + 400);
+  lv.rings.forEach(g => g.wob = Math.max(0, g.wob - .02));
+  openFx.forEach(o => o.life -= .05); openFx = openFx.filter(o => o.life > 0);
+  draw(); requestAnimationFrame(loop);
+}
+
+// ---------- entrada ----------
+function local(e){ const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+cv.addEventListener('pointerdown', e => {
+  if (won || lost) return; Sfx.init();
+  const [mx, my] = local(e); let best = null;
+  lv.rings.forEach((g, i) => { if (fallen[i] || !rotatable(g.type)) return; const [px, py] = pos(g), x = view.ox + px * view.s, y = view.oy + py * view.s;
+    const d = Math.hypot(mx - x, my - y) / view.s; if (d > .45 && d < 1.45) { const sc = Math.abs(d - 1); if (!best || sc < best.sc) best = { i, sc, x, y }; } });
+  if (!best) { const tapped = lv.rings.findIndex((g, i) => { if (fallen[i]) return false; const [px, py] = pos(g); return Math.hypot(mx - (view.ox + px * view.s), my - (view.oy + py * view.s)) < view.s * 1.2; });
+    if (tapped >= 0) { const t = lv.rings[tapped].type; setStatus(t === 'A' ? 'Los pernos están fijos: sostienen todo' : t === 'C' ? 'Los anillos cerrados no giran: soltalos con sus vecinos' : ''); } return; }
+  history.push({ rots: rots.slice(), fallen: fallen.slice(), moves });
+  drag = { i: best.i, cx: best.x, cy: best.y, last: Math.atan2(my - best.y, mx - best.x), total: 0, tickAcc: 0, counted: false };
+  cv.setPointerCapture(e.pointerId); Sfx.grab();
+});
+cv.addEventListener('pointermove', e => {
+  const [mx, my] = local(e);
+  if (!drag) { let hov = false; if (!won && !lost) lv.rings.forEach((g, i) => { if (fallen[i] || !rotatable(g.type)) return; const [px, py] = pos(g);
+      const d = Math.hypot(mx - (view.ox + px * view.s), my - (view.oy + py * view.s)) / view.s; if (d > .45 && d < 1.45) hov = true; });
+    cv.style.cursor = hov ? 'grab' : 'default'; return; }
+  cv.style.cursor = 'grabbing';
+  const a = Math.atan2(my - drag.cy, mx - drag.cx); let d = a - drag.last; if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI;
+  drag.last = a; const deg = d * 180 / Math.PI;
+  // girar en pasos chicos para no saltar por encima de un enganche
+  const steps = Math.ceil(Math.abs(deg) / 6) || 1; const i = drag.i;
+  if (!drag.counted && drag.total + Math.abs(deg) >= 3) { drag.counted = true; moves++; $('moves').textContent = moves; }
+  for (let k = 0; k < steps && drag && drag.i === i; k++) { rots[i] += deg / steps; drag.total += Math.abs(deg / steps); drag.tickAcc += Math.abs(deg / steps); physics(); if (lost) break; }
+  if (drag && drag.tickAcc > 15) { drag.tickAcc = 0; Sfx.tick(); }
+});
+function endDrag(){
+  const d = drag; drag = null; cv.style.cursor = 'default';
+  if (d && !d.counted) history.pop();
+}
+cv.addEventListener('pointerup', endDrag); cv.addEventListener('pointercancel', endDrag);
+
+function undo(){
+  if (!history.length || won) return; const h = history.pop();
+  rots = h.rots; fallen = h.fallen; moves = h.moves; $('moves').textContent = moves; lost = false; drag = null;
+  falling = falling.filter(f => fallen[f.i]); lastOpen = new Set(); Sfx.undo(); setStatus('Movimiento deshecho');
+  $('loseM').classList.remove('show');
+}
+
+// ---------- victoria ----------
+function victory(){
+  won = true; drag = null;
+  const stars = par > 0 ? (moves <= par ? 3 : moves <= par + 2 ? 2 : 1) : 3;
+  const total = moves;
+  progress[idx] = Math.max(progress[idx] || 0, stars); persist();
+  salaReport(1000 * Math.max(par, 1) / Math.max(total, par, 1), { nivel: idx + 1, movimientos: total, minimo: par, estrellas: stars });
+  setStatus('¡Todos liberados!', 'good');
+  setTimeout(() => {
+    Sfx.win(); const fl = $('flash'); fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go');
+    const r = cv.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height * .4, 120);
+    lv.rings.forEach((g, i) => { if (g.type === 'G' || g.type === 'A') { const [px, py] = pos(g); burst(r.left + view.ox + px * view.s, r.top + view.oy + py * view.s, 25); } });
+  }, 500);
+  setTimeout(() => {
+    $('stars').innerHTML = [1, 2, 3].map(n => `<i class="${n <= stars ? 'on' : ''}">★</i>`).join('');
+    $('winTxt').textContent = `Lo hiciste en ${total} movimiento${total === 1 ? '' : 's'}` + (par > 0 ? ` (la mejor solución usa ${par}).` : '.');
+    $('nextB').textContent = idx < LEVELS.length - 1 ? 'Siguiente ▶' : 'Volver al 1';
+    $('winM').classList.add('show');
+  }, 1800);
+}
+const fx = $('fx'), fxc = fx.getContext('2d'); let parts = [], anim = null;
+function burst(x, y, n){
+  const cols = PALETTE.concat(['#f2b705', '#ffffff', '#8b3dff']);
+  for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 8;
+    parts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 3, life: 1, decay: .008 + Math.random() * .015, c: cols[Math.random() * cols.length | 0], r: 3 + Math.random() * 5, ring: Math.random() < .45 }); }
+  if (!anim) anim = requestAnimationFrame(tickFx);
+}
+function tickFx(){
+  fxc.clearRect(0, 0, innerWidth, innerHeight); parts = parts.filter(p => p.life > 0);
+  for (const p of parts) { p.vy += .15; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.life -= p.decay; fxc.globalAlpha = Math.max(0, p.life);
+    fxc.beginPath(); fxc.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    if (p.ring) { fxc.strokeStyle = p.c; fxc.lineWidth = 2; fxc.stroke(); } else { fxc.fillStyle = p.c; fxc.fill(); } }
+  fxc.globalAlpha = 1; anim = parts.length ? requestAnimationFrame(tickFx) : null;
+}
+
+// ---------- menús ----------
+function ringIcon(type, color, rot = 300){
+  const gap = type === 'C' ? [] : type === '2' ? [rot, rot + 180] : [rot];
+  const arc = (a0, a1) => { const r = 16, p = a => [23 + r * Math.cos(a * Math.PI / 180), 23 + r * Math.sin(a * Math.PI / 180)];
+    const [x0, y0] = p(a0), [x1, y1] = p(a1); return `<path d="M${x0} ${y0} A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1} ${y1}" stroke="${color}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`; };
+  let body = '';
+  if (type === 'A') body = `<circle cx="23" cy="23" r="16" stroke="#9e968c" stroke-width="5.5" fill="none"/><circle cx="23" cy="23" r="5" fill="#9e968c"/>`;
+  else if (!gap.length) body = `<circle cx="23" cy="23" r="16" stroke="${color}" stroke-width="4.5" fill="none"/><rect x="19" y="22" width="8" height="7" fill="${color}"/><path d="M20 22a3 3 0 0 1 6 0" stroke="${color}" stroke-width="1.6" fill="none"/>`;
+  else { const g = gap.sort((a, b) => a - b); for (let k = 0; k < g.length; k++) body += arc(g[k] + 40, (k + 1 < g.length ? g[k + 1] : g[0] + 360) - 40); }
+  if (type === 'G') body += `<text x="23" y="28" font-size="13" text-anchor="middle" fill="#f2b705">★</text>`;
+  return `<svg viewBox="0 0 46 46">${body}</svg>`;
+}
+$('helpList').innerHTML = [
+  [ringIcon('A'), '<b>Los pernos</b> están fijos y sostienen todo. Un anillo queda colgado mientras esté enganchado, directa o indirectamente, a un perno.'],
+  [ringIcon('o', '#3db4ff'), '<b>Arrastrá en círculo</b> sobre un anillo para girarlo. Cuando su <b>abertura</b> pasa por donde se engancha con un vecino, ese enganche se suelta.'],
+  [ringIcon('o', '#ff3d6e', 0), 'Si un anillo ya no tiene ningún camino de enganches hasta un perno, la <b>gravedad</b> lo hace caer, junto con todos los que colgaban de él.'],
+  [ringIcon('2', '#5fd35a', 270), 'Algunos anillos tienen <b>dos aberturas</b>: sueltan dos enganches opuestos a la vez.'],
+  [ringIcon('C', '#8a7a6b'), 'Los <b>anillos cerrados</b> no giran. Para soltarlos tenés que usar las aberturas de sus vecinos.'],
+  [ringIcon('G', '#f2b705'), 'Los <b>anillos dorados</b> giran, pero <b>no pueden caerse</b>. ¡Cuidado al pasar su abertura por el enganche que los sostiene!'],
+  ['<svg viewBox="0 0 46 46"><text x="23" y="32" font-size="26" text-anchor="middle" fill="#e8a917">★</text></svg>', 'Ganás cuando caen todos los anillos menos los dorados. Con menos movimientos, más estrellas.'],
+].map(([ic, t]) => `<div class="rule">${ic}<div>${t}</div></div>`).join('');
+function openLevels(){
+  $('lgrid').innerHTML = LEVELS.map((L, i) => `<button class="${i === idx ? 'cur' : ''}" data-i="${i}" title="${L.name}">${i + 1}<small>${'★'.repeat(progress[i] || 0)}</small></button>`).join('');
+  $('lgrid').querySelectorAll('button').forEach(b => b.onclick = () => { $('levelsM').classList.remove('show'); loadLevel(+b.dataset.i); });
+  $('levelsM').classList.add('show');
+}
+$('undoB').onclick = undo; $('resetB').onclick = () => { Sfx.init(); Sfx.undo(); loadLevel(idx); };
+$('levelsB').onclick = openLevels; $('closeLevelsB').onclick = () => $('levelsM').classList.remove('show');
+$('helpB').onclick = () => $('helpM').classList.add('show'); $('closeHelpB').onclick = () => $('helpM').classList.remove('show');
+$('replayB').onclick = () => { $('winM').classList.remove('show'); loadLevel(idx); };
+$('nextB').onclick = () => { $('winM').classList.remove('show'); loadLevel((idx + 1) % LEVELS.length); };
+$('loseUndoB').onclick = undo; $('loseResetB').onclick = () => { $('loseM').classList.remove('show'); loadLevel(idx); };
+$('mute').onclick = () => { Sfx.muted = !Sfx.muted; $('mute').textContent = Sfx.muted ? '🔇' : '🔊'; persist(); Sfx.init(); Sfx.grab(); };
+$('mute').textContent = Sfx.muted ? '🔇' : '🔊';
+document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m && m.id === 'helpM' || e.target === m && m.id === 'levelsM') m.classList.remove('show'); }));
+document.addEventListener('keydown', e => { const k = e.key.toLowerCase(); if (k === 'z') undo(); else if (k === 'r') loadLevel(idx); });
+window.addEventListener('resize', resize);
+
+let first = LEVELS.findIndex((_, i) => !progress[i]); if (first < 0) first = 0;
+loadLevel(first); requestAnimationFrame(loop);
+try { if (!localStorage.getItem('rings_help')) { $('helpM').classList.add('show'); localStorage.setItem('rings_help', '1'); } } catch (e) {}
+</script>
+</body>
+</html>

@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tangram</title>
+<style>
+/* Estilos con anidamiento estilo SCSS (CSS nesting nativo, no requiere compilar) */
+:root{ --bg1:#1d2b45; --bg2:#0e1626; --panel:#16223a; --line:#2c3f63; --text:#eef3ff; --muted:#93a4c6; --gold:#ffd166; --ok:#5ef08a; }
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--text);overflow:hidden;touch-action:none;
+  background:radial-gradient(ellipse at 50% 20%,var(--bg1),var(--bg2) 75%);display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;
+  background:rgba(8,14,26,.55);border-bottom:1px solid var(--line);
+  .title{display:flex;flex-direction:column;min-width:0;
+    h1{font-size:1.15rem;letter-spacing:3px;color:var(--gold);text-shadow:0 0 10px rgba(255,209,102,.4)}
+    .lvl{font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; b{color:var(--text)}}}
+  .stats{display:flex;gap:12px;font-size:.85rem;color:var(--muted);align-items:center; b{color:var(--text)}}
+}
+#wrap{position:relative;flex:1;min-height:0}
+svg#game{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sil{fill:#070c16;stroke:#070c16;stroke-width:.05;stroke-linejoin:round;transition:fill .6s,stroke .6s}
+.sil-glow{fill:none;stroke:#5f86c9;stroke-width:.14;opacity:.35;filter:blur(.08px)}
+.guide{fill:none;stroke:#2e4470;stroke-width:.04;stroke-dasharray:.15 .12}
+.won .sil{fill:#ffd166;stroke:#ffd166}
+.tray-bg{fill:rgba(255,255,255,.025);stroke:rgba(255,255,255,.07);stroke-width:.05;stroke-dasharray:.3 .2}
+.piece{cursor:grab;transition:transform .18s cubic-bezier(.3,1.4,.6,1),filter .2s;filter:drop-shadow(0 .08px .1px rgba(0,0,0,.5));
+  &.drag{transition:filter .2s;cursor:grabbing;filter:drop-shadow(0 .35px .3px rgba(0,0,0,.55))}
+  &.sel .edge{stroke:#fff;stroke-width:.09}
+  &.snap{animation:snapPop .35s ease-out}
+  .body{stroke-linejoin:round}
+  .edge{fill:none;stroke-linejoin:round;stroke-width:.05}
+  .shine{fill:none;stroke:rgba(255,255,255,.35);stroke-width:.04;stroke-linejoin:round}
+}
+.won .piece{animation:winGlow 1.2s ease-out}
+@keyframes snapPop{0%{filter:brightness(1.8) drop-shadow(0 0 .3px #fff)}100%{filter:drop-shadow(0 .08px .1px rgba(0,0,0,.5))}}
+@keyframes winGlow{0%{filter:brightness(1)}30%{filter:brightness(1.7) drop-shadow(0 0 .4px #fff)}100%{filter:brightness(1)}}
+footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:8px 10px 12px;background:rgba(8,14,26,.55);border-top:1px solid var(--line)}
+button{font-family:inherit;font-weight:700;font-size:.95rem;color:#fff;background:#2a3d63;border:none;border-radius:10px;padding:10px 14px;
+  cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.35);transition:transform .08s,filter .15s;
+  &:hover{filter:brightness(1.15)} &:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+  &:disabled{opacity:.4;cursor:default}
+  &.gold{background:#c98f12} &.green{background:#1e9e57} &.red{background:#b23a48} &.ghost{background:transparent;border:1px solid var(--line);box-shadow:none}
+  &.icon{min-width:48px;font-size:1.15rem}
+}
+#flash{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:40;background:radial-gradient(circle,#fff,rgba(255,220,140,.6) 40%,transparent 75%);
+  &.go{animation:flash .8s ease-out}}
+@keyframes flash{0%{opacity:0}12%{opacity:.9}100%{opacity:0}}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:45}
+#toast{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:rgba(8,14,26,.85);border:1px solid var(--line);
+  padding:6px 14px;border-radius:20px;font-size:.85rem;color:var(--muted);opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(4,8,16,.82);display:none;align-items:center;justify-content:center;padding:16px;
+  &.show{display:flex;animation:fade .25s}
+  .box{background:linear-gradient(#1b2a46,#111c30);border:2px solid var(--line);border-radius:16px;padding:22px;width:100%;max-width:420px;
+    max-height:90vh;overflow-y:auto;text-align:center;box-shadow:0 0 40px rgba(255,209,102,.12)}
+  h2{color:var(--gold);letter-spacing:2px;margin-bottom:12px}
+  h3{color:var(--muted);font-size:.85rem;letter-spacing:2px;margin:14px 0 8px;text-align:left}
+  p{color:var(--muted);line-height:1.45;margin-bottom:14px}
+  .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  textarea{width:100%;height:170px;background:#0a1220;color:#cfe0ff;border:1px solid var(--line);border-radius:8px;padding:8px;
+    font:12px ui-monospace,Consolas,monospace;margin-bottom:10px;user-select:text;resize:vertical}
+  input{width:100%;background:#0a1220;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:9px;font:inherit;margin-bottom:12px;user-select:text}
+}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.stars{font-size:2.6rem;letter-spacing:6px;margin-bottom:8px;
+  i{font-style:normal;color:#334563;display:inline-block}
+  i.on{color:var(--gold);text-shadow:0 0 12px rgba(255,209,102,.8);animation:pop .45s backwards}
+  i:nth-child(2){animation-delay:.15s} i:nth-child(3){animation-delay:.3s}}
+@keyframes pop{0%{transform:scale(0) rotate(-120deg)}70%{transform:scale(1.35)}100%{transform:scale(1)}}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px;
+  button{padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.75rem;background:#1f2f4f;position:relative;
+    svg{width:56px;height:56px} small{color:var(--gold);min-height:1em;letter-spacing:1px}
+    &.cur{outline:2px solid var(--gold)}
+    .del{position:absolute;top:2px;right:4px;color:#ff8a8a;font-size:.9rem}}}
+.help{text-align:left;
+  .rule{display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid #22334f;font-size:.9rem;line-height:1.4;color:var(--text);
+    &:last-child{border-bottom:none} .ic{flex:0 0 44px;text-align:center;font-size:1.5rem} b{color:var(--gold)}}}
+.design-only{display:none}
+body.design{ .design-only{display:inline-block} .play-only{display:none} }
+</style>
+</head>
+<body>
+<header>
+  <div class="title"><h1>TANGRAM</h1><div class="lvl" id="lvlName"></div></div>
+  <div class="stats play-only"><span>⏱ <b id="time">0:00</b></span><span>💡 <b id="hintsUsed">0</b></span></div>
+  <button class="ghost icon" id="mute" title="Sonido">🔊</button>
+</header>
+<div id="wrap">
+  <svg id="game" xmlns="http://www.w3.org/2000/svg">
+    <defs id="defs"></defs>
+    <g id="trayLayer"></g>
+    <g id="silLayer"></g>
+    <g id="pieceLayer"></g>
+  </svg>
+  <div id="toast"></div>
+</div>
+<footer>
+  <button class="icon" id="rotL" title="Girar −45° (Q)">↺</button>
+  <button class="icon" id="rotR" title="Girar +45° (E)">↻</button>
+  <button class="icon" id="flipB" title="Voltear (F)">⇋</button>
+  <button class="gold play-only" id="hintB" title="Pista (H)">💡 Pista</button>
+  <button class="play-only" id="resetB">Reiniciar</button>
+  <button class="play-only" id="levelsB">Niveles</button>
+  <button class="green play-only" id="helpB">¿Cómo jugar?</button>
+  <button class="play-only ghost" id="designB">✏️ Crear nivel</button>
+  <button class="green design-only" id="exportB">Exportar nivel</button>
+  <button class="design-only" id="clearB">Reordenar piezas</button>
+  <button class="red design-only" id="exitDesignB">Salir del editor</button>
+</footer>
+
+<div id="flash"></div>
+<canvas id="fx"></canvas>
+<canvas id="hidA" style="display:none"></canvas>
+<canvas id="hidB" style="display:none"></canvas>
+
+<div class="modal" id="winM"><div class="box">
+  <h2>¡FIGURA COMPLETA!</h2>
+  <div class="stars" id="stars"></div>
+  <p id="winTxt"></p>
+  <div class="row"><button class="ghost" id="replayB">Repetir</button><button class="green" id="nextB">Siguiente ▶</button></div>
+</div></div>
+
+<div class="modal" id="levelsM"><div class="box">
+  <h2>NIVELES</h2>
+  <div class="lgrid" id="lgrid"></div>
+  <h3 id="myTitle">MIS NIVELES</h3>
+  <div class="lgrid" id="mygrid"></div>
+  <div class="row" style="margin-top:14px"><button class="ghost" id="closeLevelsB">Cerrar</button></div>
+</div></div>
+
+<div class="modal" id="exportM"><div class="box">
+  <h2>EXPORTAR NIVEL</h2>
+  <input id="levelName" placeholder="Nombre del nivel" maxlength="30">
+  <p id="exportMsg" style="margin-bottom:8px"></p>
+  <textarea id="exportTxt" readonly></textarea>
+  <div class="row">
+    <button id="copyB">📋 Copiar código</button>
+    <button class="green" id="saveB">💾 Guardar en Mis niveles</button>
+    <button class="ghost" id="closeExportB">Cerrar</button>
+  </div>
+</div></div>
+
+<div class="modal" id="helpM"><div class="box">
+  <h2>¿CÓMO JUGAR?</h2>
+  <div class="help">
+    <div class="rule"><div class="ic">🧩</div><div>Usá las <b>7 piezas</b> para cubrir por completo la <b>silueta</b> oscura, sin dejar huecos ni salirte.</div></div>
+    <div class="rule"><div class="ic">✋</div><div><b>Arrastrá</b> una pieza para moverla. Cerca de su lugar se <b>imanta</b> sola.</div></div>
+    <div class="rule"><div class="ic">↻</div><div>Seleccioná una pieza y usá <b>↺ ↻</b> para girarla de a 45°. También podés tocarla dos veces o usar la rueda del mouse.</div></div>
+    <div class="rule"><div class="ic">⇋</div><div><b>Voltear</b> la da vuelta como un espejo. Al paralelogramo a veces le hace falta.</div></div>
+    <div class="rule"><div class="ic">💡</div><div>La <b>pista</b> coloca una pieza en su lugar. Sin pistas ganás 3 estrellas.</div></div>
+    <div class="rule"><div class="ic">✏️</div><div>En <b>Crear nivel</b> armás tu propia figura y la exportás o la guardás en Mis niveles.</div></div>
+    <div class="rule"><div class="ic">⌨️</div><div style="font-size:.8rem;color:var(--muted)">Teclado: Q / E girar · F voltear · H pista · R reiniciar</div></div>
+  </div>
+  <div class="row" style="margin-top:12px"><button class="green" id="closeHelpB">¡Entendido!</button></div>
+</div></div>
+
+<script>
+// =====================================================================
+//  NIVELES — formato para diseñar los tuyos
+//  La forma más fácil: usá el botón "✏️ Crear nivel", armá la figura y tocá "Exportar":
+//  te da el código listo para pegar acá abajo (o lo guarda en "Mis niveles").
+//
+//  Cada nivel es la figura YA RESUELTA, pieza por pieza:
+//    t = tipo: TG (triángulo grande, van 2), TM (triángulo mediano), TC (triángulo chico, van 2),
+//              CU (cuadrado), PA (paralelogramo)
+//    x, y = posición del centro de la pieza (unidad = 1/4 del lado del cuadrado clásico)
+//    a = ángulo en grados (múltiplos de 45)      f = 1 normal, -1 volteada
+//  Opcional: guias: true dibuja las líneas internas de la silueta (para niveles fáciles).
+// =====================================================================
+const LEVELS = [
+ { name: 'Cuadrado clásico', guias: true, piezas: [
+   { t:'TG', x:0, y:-1.3333, a:0, f:1 },
+   { t:'TG', x:-1.3333, y:0, a:270, f:1 },
+   { t:'TC', x:1.6667, y:-1, a:90, f:1 },
+   { t:'CU', x:1, y:0, a:0, f:1 },
+   { t:'TC', x:0, y:0.6667, a:180, f:1 },
+   { t:'TM', x:1.3333, y:1.3333, a:180, f:1 },
+   { t:'PA', x:-0.5, y:1.5, a:0, f:-1 } ] },
+ { name: 'Triángulo', guias: true, piezas: [
+   { t:'TG', x:-0.6667, y:0, a:90, f:1 },
+   { t:'TC', x:0.3333, y:-1, a:270, f:1 },
+   { t:'CU', x:1, y:0, a:0, f:1 },
+   { t:'TG', x:-2, y:1.3333, a:180, f:1 },
+   { t:'TM', x:0.6667, y:1.3333, a:270, f:1 },
+   { t:'TC', x:2, y:0.6667, a:180, f:1 },
+   { t:'PA', x:2.5, y:1.5, a:0, f:1 } ] },
+ { name: 'Casa', piezas: [
+   { t:'CU', x:1.5, y:0.5, a:0, f:1 },
+   { t:'TC', x:0.5, y:-0.1667, a:0, f:1 },
+   { t:'TC', x:2.1667, y:1.5, a:90, f:1 },
+   { t:'TG', x:0.5, y:1.8333, a:180, f:1 },
+   { t:'TM', x:-0.8333, y:1.1667, a:0, f:1 },
+   { t:'PA', x:-1, y:0, a:0, f:1 },
+   { t:'TG', x:-0.5, y:-1.1667, a:180, f:1 } ] },
+ { name: 'Pato', piezas: [
+   { t:'PA', x:0.5, y:-0.5, a:0, f:1 },
+   { t:'TC', x:1.6667, y:-1, a:90, f:1 },
+   { t:'TC', x:1, y:0.3333, a:0, f:1 },
+   { t:'TM', x:1.6667, y:-2.3333, a:0, f:1 },
+   { t:'TG', x:-1, y:0.3333, a:180, f:1 },
+   { t:'TG', x:-1, y:1.6667, a:0, f:1 },
+   { t:'CU', x:-2, y:-1, a:0, f:1 } ] },
+ { name: 'Barco', piezas: [
+   { t:'PA', x:2, y:-2, a:0, f:1 },
+   { t:'CU', x:0.5, y:-1.5, a:0, f:1 },
+   { t:'TC', x:-0.5, y:-2.1667, a:0, f:1 },
+   { t:'TC', x:1.1667, y:-0.5, a:90, f:1 },
+   { t:'TM', x:2.1667, y:-0.8333, a:0, f:1 },
+   { t:'TG', x:2.8333, y:0.5, a:90, f:1 },
+   { t:'TG', x:-1.5, y:-1.1667, a:180, f:1 } ] },
+ { name: 'Avión', piezas: [
+   { t:'TG', x:1.5, y:-0.8333, a:0, f:1 },
+   { t:'TG', x:-0.5, y:-0.1667, a:180, f:1 },
+   { t:'CU', x:-1.5, y:-1.5, a:0, f:1 },
+   { t:'PA', x:0, y:-2, a:0, f:1 },
+   { t:'TC', x:-2.5, y:-2.1667, a:0, f:1 },
+   { t:'TC', x:-2.5, y:-0.1667, a:0, f:1 },
+   { t:'TM', x:-1.8333, y:1.1667, a:0, f:1 } ] },
+ { name: 'Antifaz', piezas: [
+   { t:'CU', x:2, y:0.5, a:0, f:1 },
+   { t:'TG', x:1, y:-0.8333, a:0, f:1 },
+   { t:'TG', x:-1, y:-0.1667, a:180, f:1 },
+   { t:'TC', x:2.6667, y:-0.5, a:90, f:1 },
+   { t:'TM', x:-2.3333, y:-0.8333, a:0, f:1 },
+   { t:'TC', x:0, y:0.8333, a:0, f:1 },
+   { t:'PA', x:-1.5, y:1, a:0, f:1 } ] },
+ { name: 'Llave', piezas: [
+   { t:'TC', x:2, y:-0.1667, a:0, f:1 },
+   { t:'TG', x:1, y:0.8333, a:180, f:1 },
+   { t:'TG', x:-0.3333, y:-0.5, a:270, f:1 },
+   { t:'PA', x:-1.5, y:-1, a:90, f:1 },
+   { t:'TC', x:-1.3333, y:0.5, a:90, f:1 },
+   { t:'TM', x:0.3333, y:-1.8333, a:90, f:1 },
+   { t:'CU', x:-2, y:1.5, a:0, f:1 } ] },
+ { name: 'Corona', piezas: [
+   { t:'TG', x:0.5, y:1.1667, a:0, f:1 },
+   { t:'TG', x:0.5, y:-0.1667, a:180, f:1 },
+   { t:'TC', x:2.1667, y:-0.5, a:90, f:1 },
+   { t:'PA', x:3, y:-1, a:90, f:1 },
+   { t:'CU', x:-1.5, y:-0.5, a:0, f:1 },
+   { t:'TM', x:2.8333, y:0.8333, a:180, f:1 },
+   { t:'TC', x:-2.5, y:-1.1667, a:0, f:1 } ] },
+ { name: 'Bota', piezas: [
+   { t:'CU', x:2, y:-0.5, a:0, f:1 },
+   { t:'TG', x:0, y:-0.8333, a:0, f:1 },
+   { t:'TC', x:1, y:0.1667, a:180, f:1 },
+   { t:'TG', x:-1.3333, y:0.5, a:270, f:1 },
+   { t:'TC', x:-2.3333, y:-0.5, a:90, f:1 },
+   { t:'PA', x:0.5, y:1, a:0, f:-1 },
+   { t:'TM', x:-2.3333, y:-1.8333, a:0, f:1 } ] },
+ { name: 'Pájaro', piezas: [
+   { t:'PA', x:2, y:-1.5, a:0, f:1 },
+   { t:'TG', x:-0.5, y:-1.6667, a:180, f:1 },
+   { t:'TC', x:1.5, y:-0.6667, a:0, f:1 },
+   { t:'TM', x:-1.1667, y:-0.3333, a:90, f:1 },
+   { t:'TC', x:-2.5, y:-1.6667, a:0, f:1 },
+   { t:'TG', x:-1.8333, y:1, a:270, f:1 },
+   { t:'CU', x:2.5, y:0, a:0, f:1 } ] },
+ { name: 'Nave espacial', piezas: [
+   { t:'PA', x:2, y:1, a:0, f:1 },
+   { t:'TM', x:2.8333, y:0.1667, a:90, f:1 },
+   { t:'CU', x:0.5, y:1.5, a:0, f:1 },
+   { t:'TC', x:1.5, y:0.1667, a:180, f:1 },
+   { t:'TG', x:-0.5, y:0.1667, a:0, f:1 },
+   { t:'TC', x:-2.5, y:0.1667, a:180, f:1 },
+   { t:'TG', x:0.5, y:-1.1667, a:180, f:1 } ] },
+ { name: 'Zorro', piezas: [
+   { t:'TC', x:2, y:-1.1667, a:0, f:1 },
+   { t:'PA', x:0.5, y:-1, a:0, f:1 },
+   { t:'TM', x:0.6667, y:0.1667, a:0, f:1 },
+   { t:'CU', x:1, y:1.5, a:0, f:1 },
+   { t:'TC', x:-0.3333, y:0.5, a:90, f:1 },
+   { t:'TG', x:-1, y:1.8333, a:180, f:1 },
+   { t:'TG', x:-1.3333, y:-0.5, a:270, f:1 } ] },
+ { name: 'Reloj de arena', piezas: [
+   { t:'TC', x:0.5, y:-0.1667, a:0, f:1 },
+   { t:'TC', x:1.1667, y:0.5, a:90, f:1 },
+   { t:'TM', x:0.8333, y:-1.1667, a:180, f:1 },
+   { t:'TG', x:-0.5, y:0.8333, a:180, f:1 },
+   { t:'PA', x:1, y:2, a:0, f:1 },
+   { t:'TG', x:-0.5, y:-1.8333, a:0, f:1 },
+   { t:'CU', x:-1.5, y:-0.5, a:0, f:1 } ] },
+ { name: 'Paralelogramo', piezas: [
+   { t:'TG', x:-2, y:-1.3333, a:0, f:1 },
+   { t:'TG', x:-0.6667, y:0, a:90, f:1 },
+   { t:'TC', x:0.3333, y:-1, a:270, f:1 },
+   { t:'CU', x:1, y:0, a:0, f:1 },
+   { t:'TM', x:0.6667, y:1.3333, a:270, f:1 },
+   { t:'TC', x:2, y:0.6667, a:180, f:1 },
+   { t:'PA', x:2.5, y:1.5, a:0, f:1 } ] },
+ { name: 'Bandera', piezas: [
+   { t:'TC', x:0, y:0.8333, a:0, f:1 },
+   { t:'CU', x:1, y:1.5, a:0, f:1 },
+   { t:'PA', x:-0.5, y:0, a:0, f:1 },
+   { t:'TM', x:-1.3333, y:0.8333, a:270, f:1 },
+   { t:'TG', x:1.3333, y:-0.5, a:90, f:1 },
+   { t:'TG', x:0, y:-1.8333, a:0, f:1 },
+   { t:'TC', x:-1, y:-0.8333, a:180, f:1 } ] },
+ { name: 'Fortaleza', piezas: [
+   { t:'TC', x:1, y:-2.1667, a:0, f:1 },
+   { t:'TG', x:1.3333, y:-0.5, a:90, f:1 },
+   { t:'CU', x:0, y:-1.5, a:0, f:1 },
+   { t:'TG', x:-0.3333, y:0.5, a:270, f:1 },
+   { t:'TC', x:1, y:1.1667, a:180, f:1 },
+   { t:'PA', x:0.5, y:2, a:0, f:-1 },
+   { t:'TM', x:-1.3333, y:-1.8333, a:0, f:1 } ] },
+ { name: 'Monolito', piezas: [
+   { t:'TC', x:0.5, y:-0.6667, a:0, f:1 },
+   { t:'TG', x:1.8333, y:0, a:90, f:1 },
+   { t:'PA', x:1, y:-1.5, a:0, f:-1 },
+   { t:'TM', x:-0.8333, y:-1.3333, a:0, f:1 },
+   { t:'CU', x:-0.5, y:0, a:0, f:1 },
+   { t:'TC', x:-1.8333, y:-1, a:90, f:1 },
+   { t:'TG', x:0.5, y:1.3333, a:180, f:1 } ] },
+];
+
+
+// Sala de Juegos: si el juego corre dentro de la sala, avisa el puntaje.
+function salaReport(puntaje, detalle) {
+  try {
+    if (window.parent !== window) window.parent.postMessage(
+      { tipo: 'sala-juegos:resultado', juego: 'tangram', puntaje: Math.round(puntaje), detalle },
+      window.location.origin);
+  } catch (e) {}
+}
+
+// ---------- piezas (vértices enteros; el cuadrado clásico mide 4x4) ----------
+const SHAPES_RAW = { TG:[[0,0],[4,0],[2,2]], TM:[[0,0],[2,0],[0,2]], TC:[[0,0],[2,0],[1,1]], CU:[[1,0],[2,1],[1,2],[0,1]], PA:[[0,0],[2,0],[3,1],[1,1]] };
+const SHAPES = {};
+for (const t in SHAPES_RAW) { const v = SHAPES_RAW[t], cx = v.reduce((s,p)=>s+p[0],0)/v.length, cy = v.reduce((s,p)=>s+p[1],0)/v.length;
+  SHAPES[t] = v.map(([x,y]) => [x - cx, y - cy]); }
+const PIECE_DEFS = [
+  { id:'TG1', t:'TG', color:'#4c8dff' }, { id:'TG2', t:'TG', color:'#9b6bff' }, { id:'TM', t:'TM', color:'#ffc23d' },
+  { id:'TC1', t:'TC', color:'#3ddc84' }, { id:'TC2', t:'TC', color:'#ff7a45' }, { id:'CU', t:'CU', color:'#ff4d6d' }, { id:'PA', t:'PA', color:'#2ec5ce' },
+];
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+const svg = $('game');
+const D2R = Math.PI / 180;
+function verts(t, x, y, a, f){
+  const c = Math.cos(a * D2R), s = Math.sin(a * D2R);
+  return SHAPES[t].map(([px, py]) => { px *= f; return [x + px * c - py * s, y + px * s + py * c]; });
+}
+const r2 = v => Math.round(v * 100) / 100 + 0;
+const shapeKey = (t, a, f) => verts(t, 0, 0, a, f).map(([x, y]) => r2(x) + ',' + r2(y)).sort().join(' ');
+const ptsAttr = vs => vs.map(p => p.join(',')).join(' ');
+function shade(hex, k){ const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = n >> 8 & 255, b = n & 255;
+  const m = v => Math.max(0, Math.min(255, Math.round(k > 0 ? v + (255 - v) * k : v * (1 + k))));
+  return '#' + [m(r), m(g), m(b)].map(v => v.toString(16).padStart(2, '0')).join(''); }
+
+// ---------- sonido (Web Audio sintetizado) ----------
+const Sfx = {
+  ctx: null, master: null, muted: false,
+  init(){ if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); this.master = this.ctx.createGain();
+      this.master.gain.value = .7; this.master.connect(this.ctx.destination); } catch (e) { return; } }
+    if (this.ctx.state === 'suspended') this.ctx.resume(); },
+  tone(freq, dur, type = 'sine', vol = .2, delay = 0, slideTo = null){
+    if (this.muted || !this.ctx) return;
+    const t = this.ctx.currentTime + delay, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t); if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .006); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(this.master); o.start(t); o.stop(t + dur + .05); },
+  noise(dur, vol = .2, freq = 2000, delay = 0, q = 1, type = 'bandpass'){
+    if (this.muted || !this.ctx) return;
+    const t = this.ctx.currentTime + delay, n = Math.floor(this.ctx.sampleRate * dur), buf = this.ctx.createBuffer(1, n, this.ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    const src = this.ctx.createBufferSource(), f = this.ctx.createBiquadFilter(), g = this.ctx.createGain();
+    src.buffer = buf; f.type = type; f.frequency.value = freq; f.Q.value = q;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(this.master); src.start(t); },
+  pick(){ this.tone(420, .09, 'sine', .12, 0, 640); },
+  drop(){ this.tone(170, .1, 'sine', .22, 0, 90); this.noise(.05, .18, 700, 0, 1, 'lowpass'); },
+  rotate(){ this.noise(.09, .12, 2500, 0, 3); this.tone(660, .05, 'triangle', .04, 0, 880); },
+  flip(){ this.noise(.04, .2, 3000, 0, 2); this.noise(.04, .2, 2200, .07, 2); this.tone(500, .12, 'triangle', .05, 0, 300); },
+  snap(){ this.tone(150, .09, 'sine', .25, 0, 80); this.noise(.04, .2, 900, 0, 1, 'lowpass'); this.tone(1046.5, .35, 'sine', .1, .03); this.tone(1568, .3, 'sine', .06, .05); },
+  hint(){ [784, 988, 1175, 1568].forEach((f, i) => this.tone(f, .3, 'sine', .07, i * .06)); },
+  win(){ [523.25, 659.25, 783.99, 1046.5, 1318.5, 1568].forEach((f, i) => { this.tone(f, .5, 'triangle', .15, i * .08); this.tone(f * 2, .3, 'sine', .035, i * .08); });
+    this.tone(1046.5, 1.3, 'sine', .1, .5); this.tone(1318.5, 1.3, 'sine', .08, .5); this.tone(1568, 1.3, 'sine', .07, .5);
+    for (let i = 0; i < 10; i++) this.tone(2200 + Math.random() * 2600, .1, 'sine', .035, .55 + i * .06); },
+  nope(){ this.tone(200, .15, 'square', .04); },
+};
+
+// ---------- estado ----------
+let mode = 'play', cur = { list: 'base', idx: 0 }, level = null, slots = [], pieces = [], sel = null;
+let view = { W: 20, H: 30, cx: 10, cy: 8, tray: null }, hintsUsed = 0, won = false, t0 = null, timerId = null;
+let progress = {}, mine = [];
+try { progress = JSON.parse(localStorage.getItem('tangram_progress') || '{}'); mine = JSON.parse(localStorage.getItem('tangram_mine') || '[]');
+  Sfx.muted = localStorage.getItem('tangram_mute') === '1'; } catch (e) {}
+const persist = () => { try { localStorage.setItem('tangram_progress', JSON.stringify(progress)); localStorage.setItem('tangram_mine', JSON.stringify(mine));
+  localStorage.setItem('tangram_mute', Sfx.muted ? '1' : '0'); } catch (e) {} };
+
+// gradientes por pieza
+$('defs').innerHTML = PIECE_DEFS.map(p => `<linearGradient id="g-${p.id}" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="${shade(p.color, .35)}"/><stop offset=".55" stop-color="${p.color}"/><stop offset="1" stop-color="${shade(p.color, -.25)}"/></linearGradient>`).join('')
+  + `<radialGradient id="silGrad"><stop offset="0" stop-color="#0d1526"/><stop offset="1" stop-color="#05080f"/></radialGradient>`;
+
+function levelBBox(L){
+  if (!L || !L.piezas.length) return { x0:-4.5, y0:-4.5, x1:4.5, y1:4.5 };
+  const vs = L.piezas.flatMap(p => verts(p.t, p.x, p.y, p.a, p.f));
+  return { x0: Math.min(...vs.map(v => v[0])), y0: Math.min(...vs.map(v => v[1])), x1: Math.max(...vs.map(v => v[0])), y1: Math.max(...vs.map(v => v[1])) };
+}
+
+// distribuye silueta y bandeja según la forma de la pantalla
+function layout(){
+  const r = $('wrap').getBoundingClientRect(), w = Math.max(r.width, 1), h = Math.max(r.height, 1);
+  const bb = levelBBox(mode === 'design' ? null : level), sw = bb.x1 - bb.x0 + 2, sh = bb.y1 - bb.y0 + 2;
+  const opts = [];
+  { const CW = Math.max(sw, 12.4), CH = sh + 11.5; opts.push({ o: 'v', CW, CH }); }
+  { const CW = sw + 12.6, CH = Math.max(sh, 11.5); opts.push({ o: 'h', CW, CH }); }
+  let best = null;
+  for (const op of opts) { let W, H; if (op.CW / op.CH > w / h) { W = op.CW; H = op.CW * h / w; } else { H = op.CH; W = op.CH * w / h; }
+    const sc = w / W; if (!best || sc > best.sc) best = { ...op, W, H, sc }; }
+  const { W, H } = best; const old = { cx: view.cx, cy: view.cy };
+  let cx, cy, tray;
+  if (best.o === 'v') { const extra = (H - best.CH) / 2; cx = W / 2; cy = extra * .6 + sh / 2 - (bb.y0 + bb.y1) / 2; tray = { x: (W - 12) / 2, y: extra * .6 + sh, w: 12, h: H - (extra * .6 + sh) - .3 }; }
+  else { const extra = (W - best.CW) / 2; cx = extra * .6 + sw / 2 - (bb.x0 + bb.x1) / 2; cy = H / 2 - (bb.y0 + bb.y1) / 2; tray = { x: extra * .6 + sw, y: .3, w: W - (extra * .6 + sw) - .3, h: H - .6 }; }
+  view = { W, H, cx, cy, tray, o: best.o };
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  return { dx: cx - old.cx, dy: cy - old.cy };
+}
+
+function trayPositions(){
+  const T = view.tray, cols = T.w > T.h * 1.2 ? 4 : 3, rows = Math.ceil(7 / cols), cw = T.w / cols, ch = T.h / rows, out = [];
+  for (let i = 0; i < 7; i++) { const r = Math.floor(i / cols), c = i % cols, inRow = Math.min(cols, 7 - r * cols);
+    out.push([T.x + (c + .5 + (cols - inRow) / 2) * cw, T.y + (r + .5) * ch]); }
+  return out;
+}
+
+// ---------- cargar nivel ----------
+function startLevel(list, idx){
+  mode = 'play'; document.body.classList.remove('design');
+  cur = { list, idx }; level = (list === 'base' ? LEVELS : mine)[idx];
+  won = false; hintsUsed = 0; sel = null; t0 = null; clearInterval(timerId); $('time').textContent = '0:00'; $('hintsUsed').textContent = 0;
+  svg.classList.remove('won');
+  layout(); buildSlots(); drawSilhouette(); buildPieces(true);
+  const total = list === 'base' ? LEVELS.length : mine.length;
+  $('lvlName').innerHTML = `${list === 'base' ? 'Nivel' : 'Mi nivel'} <b>${idx + 1}</b>/${total} · <b>${level.name}</b>`;
+}
+function buildSlots(){
+  slots = level.piezas.map((p, i) => ({ i, t: p.t, x: view.cx + p.x, y: view.cy + p.y, a: p.a, f: p.f, key: shapeKey(p.t, p.a, p.f),
+    vs: verts(p.t, view.cx + p.x, view.cy + p.y, p.a, p.f) }));
+}
+function drawSilhouette(){
+  const L = $('silLayer'); L.innerHTML = '';
+  const T = view.tray; $('trayLayer').innerHTML = `<rect class="tray-bg" x="${T.x}" y="${T.y}" width="${T.w}" height="${T.h}" rx=".6"/>`;
+  if (mode === 'design') { L.innerHTML = `<rect x="${view.cx - 5}" y="${view.cy - 5}" width="10" height="10" rx=".4" fill="rgba(255,255,255,.02)" stroke="#3b5583" stroke-width=".05" stroke-dasharray=".3 .2"/>
+    <text x="${view.cx}" y="${view.cy - 5.4}" text-anchor="middle" font-size=".55" fill="#93a4c6">zona de diseño</text>`; return; }
+  const polys = slots.map(s => ptsAttr(s.vs));
+  L.innerHTML = polys.map(p => `<polygon class="sil-glow" points="${p}"/>`).join('')
+    + polys.map(p => `<polygon points="${p}" fill="#3b5583" stroke="#3b5583" stroke-width=".12" stroke-linejoin="round"/>`).join('')
+    + polys.map(p => `<polygon class="sil" points="${p}"/>`).join('')
+    + (level.guias ? polys.map(p => `<polygon class="guide" points="${p}"/>`).join('') : '');
+}
+function buildPieces(scatter){
+  const layer = $('pieceLayer'); layer.innerHTML = '';
+  const pos = trayPositions().sort(() => Math.random() - .5);
+  pieces = PIECE_DEFS.map((d, i) => {
+    const p = { ...d, x: pos[i][0], y: pos[i][1], a: 45 * Math.floor(Math.random() * 8), f: Math.random() < .5 ? 1 : -1, slot: null };
+    if (!scatter) { p.a = 0; p.f = 1; }
+    const g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'piece');
+    const base = SHAPES[d.t], inner = base.map(([x, y]) => [x * .8, y * .8]);
+    g.innerHTML = `<polygon class="body" points="${ptsAttr(base)}" fill="url(#g-${d.id})"/>
+      <polygon class="shine" points="${ptsAttr(inner)}"/>
+      <polygon class="edge" points="${ptsAttr(base)}" stroke="${shade(d.color, -.45)}"/>`;
+    p.el = g; layer.appendChild(g); attachInput(p); place(p, false);
+    return p;
+  });
+}
+function place(p, animate = true){
+  p.el.style.transition = animate ? '' : 'none';
+  p.el.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${p.a}deg) scale(${p.f}, 1)`;
+  if (!animate) { void p.el.getBoundingClientRect(); p.el.style.transition = ''; }
+}
+const pVerts = p => verts(p.t, p.x, p.y, p.a, p.f);
+
+// ---------- entrada ----------
+function toSvg(e){ const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+let drag = null, lastTap = { id: null, t: 0 };
+function attachInput(p){
+  p.el.addEventListener('pointerdown', e => {
+    if (won) return; e.preventDefault(); Sfx.init(); startTimer();
+    select(p); p.el.parentNode.appendChild(p.el);
+    const m = toSvg(e); drag = { p, ox: p.x - m.x, oy: p.y - m.y, sx: e.clientX, sy: e.clientY, moved: false };
+    p.el.classList.add('drag'); p.el.style.transition = 'none'; svg.setPointerCapture(e.pointerId); Sfx.pick();
+  });
+  p.el.addEventListener('wheel', e => { e.preventDefault(); select(p); rotateSel(e.deltaY > 0 ? 45 : -45); }, { passive: false });
+}
+svg.addEventListener('pointermove', e => {
+  if (!drag) return; const m = toSvg(e);
+  if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 4) drag.moved = true;
+  drag.p.x = Math.max(0, Math.min(view.W, m.x + drag.ox)); drag.p.y = Math.max(0, Math.min(view.H, m.y + drag.oy));
+  drag.p.el.style.transform = `translate(${drag.p.x}px, ${drag.p.y}px) rotate(${drag.p.a}deg) scale(${drag.p.f}, 1)`;
+});
+function endDrag(){
+  if (!drag) return; const { p, moved } = drag; drag = null; p.el.classList.remove('drag'); p.el.style.transition = '';
+  if (!moved) { const now = performance.now();
+    if (lastTap.id === p.id && now - lastTap.t < 320) { lastTap = { id: null, t: 0 }; rotateSel(45); return; }
+    lastTap = { id: p.id, t: now }; return; }
+  settle(p, true);
+}
+svg.addEventListener('pointerup', endDrag); svg.addEventListener('pointercancel', endDrag);
+svg.addEventListener('pointerdown', e => { if (e.target === svg || e.target.closest('#silLayer') || e.target.closest('#trayLayer')) select(null); });
+function select(p){ if (sel) sel.el.classList.remove('sel'); sel = p; if (p) p.el.classList.add('sel'); }
+
+function rotateSel(d){ if (!sel || won) { if (!sel) toast('Primero tocá una pieza'); return; } Sfx.init(); startTimer();
+  sel.a += d; place(sel); Sfx.rotate(); settle(sel, false); }
+function flipSel(){ if (!sel || won) { if (!sel) toast('Primero tocá una pieza'); return; } Sfx.init(); startTimer();
+  sel.f *= -1; sel.a = -sel.a; place(sel); Sfx.flip(); settle(sel, false); }
+
+// imán: primero al lugar exacto de la silueta, si no, vértice con vértice
+function settle(p, dropped){
+  p.slot = null;
+  const key = shapeKey(p.t, p.a, p.f);
+  if (mode === 'play') {
+    let best = null;
+    for (const s of slots) { if (s.t !== p.t || s.key !== key || pieces.some(o => o !== p && o.slot === s.i)) continue;
+      const d = Math.hypot(s.x - p.x, s.y - p.y); if (d < 1.1 && (!best || d < best.d)) best = { s, d }; }
+    if (best) { p.x = best.s.x; p.y = best.s.y; p.slot = best.s.i; place(p); snapFx(p); return check(); }
+  }
+  if (dropped) {
+    const own = pVerts(p), targets = slots.flatMap(s => s.vs).concat(pieces.filter(o => o !== p).flatMap(pVerts));
+    let best = null;
+    for (const v of own) for (const t of targets) { const d = Math.hypot(t[0] - v[0], t[1] - v[1]); if (d < .45 && (!best || d < best.d)) best = { d, dx: t[0] - v[0], dy: t[1] - v[1] }; }
+    if (best) { p.x += best.dx; p.y += best.dy; place(p); }
+    Sfx.drop();
+  }
+  check();
+}
+function snapFx(p){
+  Sfx.snap(); p.el.classList.remove('snap'); void p.el.getBoundingClientRect(); p.el.classList.add('snap');
+  const b = p.el.getBoundingClientRect(); burst(b.left + b.width / 2, b.top + b.height / 2, 14, [p.color, '#ffffff'], .6);
+}
+
+// ---------- victoria ----------
+const res = 16;
+function drawPoly(ctx, vs){ ctx.beginPath(); vs.forEach(([x, y], i) => i ? ctx.lineTo(x * res, y * res) : ctx.moveTo(x * res, y * res)); ctx.closePath(); ctx.fill(); }
+function coverage(){
+  const A = $('hidA'), B = $('hidB'); A.width = B.width = Math.ceil(view.W * res); A.height = B.height = Math.ceil(view.H * res);
+  const a = A.getContext('2d', { willReadFrequently: true }), b = B.getContext('2d', { willReadFrequently: true });
+  a.fillStyle = b.fillStyle = '#000'; slots.forEach(s => drawPoly(a, s.vs)); pieces.forEach(p => drawPoly(b, pVerts(p)));
+  const da = a.getImageData(0, 0, A.width, A.height).data, db = b.getImageData(0, 0, A.width, A.height).data;
+  let tgt = 0, hit = 0, out = 0;
+  for (let i = 3; i < da.length; i += 4) { const ta = da[i] > 128, tb = db[i] > 128; if (ta) { tgt++; if (tb) hit++; } else if (tb) out++; }
+  return { hit: hit / tgt, out: out / tgt };
+}
+function check(){
+  if (mode !== 'play' || won) return;
+  const allSlots = pieces.every(p => p.slot !== null);
+  let ok = allSlots;
+  if (!ok) { const c = coverage(); ok = c.hit > .985 && c.out < .015; }
+  if (ok) victory();
+}
+function victory(){
+  won = true; clearInterval(timerId); select(null);
+  const secs = t0 ? Math.round((Date.now() - t0) / 1000) : 0, stars = hintsUsed === 0 ? 3 : hintsUsed === 1 ? 2 : 1;
+  const k = cur.list + ':' + (cur.list === 'base' ? cur.idx : level.name);
+  progress[k] = Math.max(progress[k] || 0, stars); persist();
+  if (cur.list === 'base') salaReport(Math.max(100, 1000 - 300 * hintsUsed - Math.min(secs, 300)), { nivel: cur.idx + 1, segundos: secs, pistas: hintsUsed, estrellas: stars });
+  setTimeout(() => {
+    Sfx.win(); svg.classList.add('won');
+    const fl = $('flash'); fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go');
+    const rs = $('silLayer').getBoundingClientRect(), cx = rs.left + rs.width / 2, cy = rs.top + rs.height / 2;
+    burst(cx, cy, 110, PIECE_DEFS.map(p => p.color).concat(['#ffffff', '#ffd166']), 1.4);
+    pieces.forEach(p => { const b = p.el.getBoundingClientRect(); burst(b.left + b.width / 2, b.top + b.height / 2, 16, [p.color, '#fff'], .9); });
+  }, 250);
+  setTimeout(() => {
+    $('stars').innerHTML = [1, 2, 3].map(n => `<i class="${n <= stars ? 'on' : ''}">★</i>`).join('');
+    $('winTxt').textContent = `Tiempo: ${fmt(secs)} · Pistas usadas: ${hintsUsed}`;
+    const list = cur.list === 'base' ? LEVELS : mine;
+    $('nextB').textContent = cur.idx < list.length - 1 ? 'Siguiente ▶' : 'Volver al 1';
+    $('winM').classList.add('show');
+  }, 1700);
+}
+const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+function startTimer(){ if (t0 || mode !== 'play') return; t0 = Date.now(); timerId = setInterval(() => $('time').textContent = fmt(Math.round((Date.now() - t0) / 1000)), 1000); }
+
+function hint(){
+  if (mode !== 'play' || won) return; Sfx.init(); startTimer();
+  const free = pieces.filter(p => p.slot === null).sort(() => Math.random() - .5);
+  for (const p of free) {
+    const s = slots.find(s => s.t === p.t && !pieces.some(o => o.slot === s.i)); if (!s) continue;
+    let a = s.a; while (a - p.a > 180) a -= 360; while (p.a - a > 180) a += 360;
+    p.x = s.x; p.y = s.y; p.a = a; p.f = s.f; p.slot = s.i; p.el.parentNode.appendChild(p.el); place(p);
+    hintsUsed++; $('hintsUsed').textContent = hintsUsed; Sfx.hint();
+    setTimeout(() => { snapFx(p); check(); }, 200); return;
+  }
+}
+
+// ---------- partículas ----------
+const fx = $('fx'), g2 = fx.getContext('2d'); let parts = [], anim = null;
+function resizeFx(){ fx.width = innerWidth * devicePixelRatio; fx.height = innerHeight * devicePixelRatio; g2.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0); }
+function burst(x, y, n, cols, power = 1){
+  for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2, sp = (1.5 + Math.random() * 7) * power;
+    parts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2 * power, life: 1, decay: .01 + Math.random() * .02, c: cols[Math.random() * cols.length | 0],
+      s: 3 + Math.random() * 5, rot: Math.random() * 6, vr: (Math.random() - .5) * .4, kind: Math.random() < .5 ? 0 : 1 }); }
+  if (!anim) anim = requestAnimationFrame(tick);
+}
+function tick(){
+  g2.clearRect(0, 0, innerWidth, innerHeight);
+  parts = parts.filter(p => p.life > 0);
+  for (const p of parts) { p.vy += .16; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.decay;
+    g2.globalAlpha = Math.max(0, p.life); g2.fillStyle = p.c; g2.save(); g2.translate(p.x, p.y); g2.rotate(p.rot);
+    g2.beginPath(); if (p.kind) { g2.moveTo(0, -p.s); g2.lineTo(p.s, p.s); g2.lineTo(-p.s, p.s); } else g2.rect(-p.s / 2, -p.s / 2, p.s, p.s * .6);
+    g2.fill(); g2.restore(); }
+  g2.globalAlpha = 1; anim = parts.length ? requestAnimationFrame(tick) : null;
+}
+let toastT; function toast(t){ const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 1600); }
+
+// ---------- menú de niveles ----------
+function thumb(L){ const bb = levelBBox(L), w = bb.x1 - bb.x0, h = bb.y1 - bb.y0, s = Math.max(w, h) + 1;
+  return `<svg viewBox="${(bb.x0 + bb.x1) / 2 - s / 2} ${(bb.y0 + bb.y1) / 2 - s / 2} ${s} ${s}">${L.piezas.map(p =>
+    `<polygon points="${ptsAttr(verts(p.t, p.x, p.y, p.a, p.f))}" fill="#c9d6f2" stroke="#c9d6f2" stroke-width=".05"/>`).join('')}</svg>`; }
+function openLevels(){
+  const cell = (L, i, list) => { const k = list + ':' + (list === 'base' ? i : L.name), st = progress[k] || 0;
+    return `<button data-l="${list}" data-i="${i}" class="${cur.list === list && cur.idx === i && mode === 'play' ? 'cur' : ''}">
+      ${list === 'mine' ? `<span class="del" data-del="${i}" title="Borrar">✕</span>` : ''}${thumb(L)}<span>${i + 1}. ${L.name}</span><small>${'★'.repeat(st)}</small></button>`; };
+  $('lgrid').innerHTML = LEVELS.map((L, i) => cell(L, i, 'base')).join('');
+  $('mygrid').innerHTML = mine.length ? mine.map((L, i) => cell(L, i, 'mine')).join('') : '<p style="grid-column:1/-1;font-size:.85rem">Todavía no guardaste niveles. Usá ✏️ Crear nivel.</p>';
+  document.querySelectorAll('#levelsM .lgrid button').forEach(b => b.onclick = e => {
+    if (e.target.dataset.del !== undefined) { e.stopPropagation(); if (confirm('¿Borrar este nivel?')) { mine.splice(+e.target.dataset.del, 1); persist(); openLevels(); } return; }
+    $('levelsM').classList.remove('show'); startLevel(b.dataset.l, +b.dataset.i); });
+  $('levelsM').classList.add('show');
+}
+
+// ---------- editor de niveles ----------
+function enterDesign(){
+  mode = 'design'; document.body.classList.add('design'); won = false; clearInterval(timerId); svg.classList.remove('won');
+  level = { name: '', piezas: [] }; slots = [];
+  layout(); drawSilhouette(); buildPieces(false);
+  $('lvlName').innerHTML = '<b>Editor</b> · armá tu figura en la zona de diseño';
+  toast('Las piezas se imantan vértice con vértice');
+}
+function exportLevel(){
+  const vs = pieces.flatMap(pVerts), xs = vs.map(v => v[0]), ys = vs.map(v => v[1]);
+  const mx = (Math.min(...xs) + Math.max(...xs)) / 2, my = (Math.min(...ys) + Math.max(...ys)) / 2;
+  const rd = v => Math.round(v * 10000) / 10000 + 0;
+  const data = pieces.map(p => ({ t: p.t, x: rd(p.x - mx), y: rd(p.y - my), a: ((Math.round(p.a / 45) * 45) % 360 + 360) % 360, f: p.f }));
+  // controles: superposición y piezas sueltas
+  const A = $('hidA'); A.width = Math.ceil(view.W * res); A.height = Math.ceil(view.H * res);
+  const a = A.getContext('2d', { willReadFrequently: true }); a.fillStyle = '#000'; pieces.forEach(p => drawPoly(a, pVerts(p)));
+  const d = a.getImageData(0, 0, A.width, A.height).data; let px = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 128) px++;
+  const overlap = 1 - px / (16 * res * res);
+  const T = view.tray, inTray = pieces.filter(p => p.x > T.x && p.x < T.x + T.w && p.y > T.y && p.y < T.y + T.h).length;
+  const warn = [];
+  if (overlap > .02) warn.push('⚠ Hay piezas superpuestas.');
+  if (inTray) warn.push(`⚠ ${inTray} pieza(s) siguen en la bandeja.`);
+  $('exportMsg').textContent = warn.length ? warn.join(' ') : '✔ La figura se ve bien. Ponele nombre y guardala o copiá el código.';
+  $('exportMsg').style.color = warn.length ? '#ffb347' : '#5ef08a';
+  exportData = data; updateExportText(); $('exportM').classList.add('show');
+}
+let exportData = [];
+function updateExportText(){
+  const name = ($('levelName').value.trim() || 'Mi figura').replace(/'/g, '');
+  $('exportTxt').value = ` { name: '${name}', piezas: [\n` + exportData.map(p => `   { t:'${p.t}', x:${p.x}, y:${p.y}, a:${p.a}, f:${p.f} }`).join(',\n') + ' ] },';
+}
+$('levelName').addEventListener('input', updateExportText);
+$('copyB').onclick = async () => { const t = $('exportTxt'); try { await navigator.clipboard.writeText(t.value); toast('Código copiado'); }
+  catch (e) { t.select(); document.execCommand && document.execCommand('copy'); toast('Código seleccionado: copialo'); } };
+$('saveB').onclick = () => { const name = ($('levelName').value.trim() || 'Mi figura ' + (mine.length + 1));
+  mine.push({ name, piezas: exportData }); persist(); $('exportM').classList.remove('show'); toast('Guardado en Mis niveles'); startLevel('mine', mine.length - 1); };
+
+// ---------- botones y teclado ----------
+$('rotL').onclick = () => rotateSel(-45); $('rotR').onclick = () => rotateSel(45); $('flipB').onclick = flipSel;
+$('hintB').onclick = hint;
+$('resetB').onclick = () => { Sfx.init(); Sfx.flip(); startLevel(cur.list, cur.idx); };
+$('levelsB').onclick = openLevels; $('closeLevelsB').onclick = () => $('levelsM').classList.remove('show');
+$('helpB').onclick = () => $('helpM').classList.add('show'); $('closeHelpB').onclick = () => $('helpM').classList.remove('show');
+$('designB').onclick = enterDesign; $('exitDesignB').onclick = () => startLevel(cur.list, Math.min(cur.idx, (cur.list === 'base' ? LEVELS : mine).length - 1));
+$('exportB').onclick = exportLevel; $('closeExportB').onclick = () => $('exportM').classList.remove('show');
+$('clearB').onclick = () => { buildPieces(false); Sfx.flip(); };
+$('replayB').onclick = () => { $('winM').classList.remove('show'); startLevel(cur.list, cur.idx); };
+$('nextB').onclick = () => { $('winM').classList.remove('show'); const list = cur.list === 'base' ? LEVELS : mine; startLevel(cur.list, (cur.idx + 1) % list.length); };
+$('mute').onclick = () => { Sfx.muted = !Sfx.muted; $('mute').textContent = Sfx.muted ? '🔇' : '🔊'; persist(); Sfx.init(); Sfx.pick(); };
+$('mute').textContent = Sfx.muted ? '🔇' : '🔊';
+document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m && m.id !== 'winM') m.classList.remove('show'); }));
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  const k = e.key.toLowerCase();
+  if (k === 'q') rotateSel(-45); else if (k === 'e') rotateSel(45); else if (k === 'f') flipSel(); else if (k === 'h') hint();
+  else if (k === 'r' && mode === 'play') startLevel(cur.list, cur.idx);
+  else if (k === 'escape') document.querySelectorAll('.modal.show').forEach(m => m.id !== 'winM' && m.classList.remove('show'));
+});
+window.addEventListener('resize', () => {
+  resizeFx(); const d = layout(); if (mode === 'play') { buildSlots(); }
+  drawSilhouette();
+  pieces.forEach(p => { p.x += d.dx; p.y += d.dy; p.x = Math.max(.5, Math.min(view.W - .5, p.x)); p.y = Math.max(.5, Math.min(view.H - .5, p.y)); place(p, false); });
+});
+resizeFx();
+
+let first = LEVELS.findIndex((_, i) => !progress['base:' + i]); if (first < 0) first = 0;
+startLevel('base', first);
+try { if (!localStorage.getItem('tangram_help')) { $('helpM').classList.add('show'); localStorage.setItem('tangram_help', '1'); } } catch (e) {}
+</script>
+</body>
+</html>
