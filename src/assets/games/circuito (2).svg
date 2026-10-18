@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 270" width="480" height="270">
+  <!-- Fondo principal oscuro del juego -->
+  <rect width="480" height="270" fill="#0b0f19"/>
+  
+  <!-- Cuadrícula tenue de fondo (Simulando el tablero) -->
+  <path d="M 0,30 L 480,30 M 0,60 L 480,60 M 0,90 L 480,90 M 0,120 L 480,120 M 0,150 L 480,150 M 0,180 L 480,180 M 0,210 L 480,210" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+  <path d="M 30,0 L 30,270 M 60,0 L 60,270 M 90,0 L 90,270 M 120,0 L 120,270 M 150,0 L 150,270 M 180,0 L 180,270 M 210,0 L 210,270 M 240,0 L 240,270 M 270,0 L 270,270 M 30,0 L 30,270 M 330,0 L 330,270 M 360,0 L 360,270 M 390,0 L 390,270 M 420,0 L 420,270 M 450,0 L 450,270" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+
+  <!-- CONEXIONES VERDES (Líneas de circuito entre componentes) -->
+  <path d="M 240,65 L 240,115 M 190,115 L 240,115 M 240,115 L 240,165" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- COMPONENTE 1: Superior (Bloque Fijo con símbolo) -->
+  <g transform="translate(217, 35)">
+    <!-- Patas / Pines Ámbar -->
+    <rect x="-6" y="10" width="6" height="6" rx="1" fill="#f59e0b"/>
+    <rect x="-6" y="24" width="6" height="6" rx="1" fill="#f59e0b"/>
+    <rect x="46" y="10" width="6" height="6" rx="1" fill="#f59e0b"/>
+    <rect x="46" y="24" width="6" height="6" rx="1" fill="#f59e0b"/>
+    <!-- Cuerpo del chip -->
+    <rect width="46" height="42" rx="6" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+    <!-- Símbolo interno (Línea con flechas / indicador lógico) -->
+    <path d="M 23,12 L 23,30 M 19,16 L 23,12 L 27,16 M 19,26 L 23,30 L 27,26" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- COMPONENTE 2: Izquierda (Bloque conectado con círculo) -->
+  <g transform="translate(167, 95)">
+    <rect x="10" y="-6" width="6" height="6" rx="1" fill="#f59e0b"/>
+    <rect x="30" y="-6" width="6" height="6" rx="1" fill="#f59e0b"/>
+    <rect x="10" y="42" width="6" height="6" rx="1" fill="#f59e0b"/>
+    <rect x="30" y="42" width="6" height="6" rx="1" fill="#f59e0b"/>
+    <rect width="46" height="42" rx="6" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+    <circle cx="23" cy="21" r="8" fill="none" stroke="#06b6d4" stroke-width="2"/>
+  </g>
+
+  <!-- COMPONENTE 3: Centro (Bloque con círculo) -->
+  <g transform="translate(217, 95)">
+    <rect width="46" height="42" rx="6" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+    <circle cx="23" cy="21" r="8" fill="none" stroke="#06b6d4" stroke-width="2"/>
+  </g>
+
+  <!-- COMPONENTE 4: Inferior (Bloque con Cruz / Entrada) -->
+  <g transform="translate(217, 155)">
+    <rect x="-6" y="18" width="6" height="6" rx="1" fill="#f59e0b"/>
+    <rect x="46" y="18" width="6" height="6" rx="1" fill="#f59e0b"/>
+    <rect width="46" height="42" rx="6" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+    <path d="M 23,13 L 23,29 M 15,21 L 31,21" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Barra de título inferior -->
+  <rect x="0" y="222" width="480" height="48" fill="#000" fill-opacity="0.65"/>
+  <text x="20" y="254" fill="#06b6d4" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="700" letter-spacing="1">CIRCUITO ELECTRÓNICO</text>
+</svg>
